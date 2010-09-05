@@ -7,16 +7,28 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
+			import component.Sheet;
+			import component.event.DragEvent;
+			import component.event.SpatialEvent;
+			
+			import flash.utils.setTimeout;
+			
+			import mx.controls.Alert;
 			import mx.core.UIComponent;
+			
 			import spark.components.Application;
 			
 			
 		]]>
 	</fx:Script>
-	<s:initialize>
+	<s:creationComplete>
 		<![CDATA[
+			var sheet1:Sheet = new Sheet();
+			sheet1.addEventListener(SpatialEvent.MOVED, function():void { Alert.show("moved"); });
+			this.addElement( sheet1 );
 	
 		]]>
-	</s:initialize>
-	<component:Sheet width="200" height="200" backgroundColor="0" borderColor="0"/>
+	</s:creationComplete>
+	<!--<component:ExtendedSheet id="sheet1" width="200" height="200" backgroundColor="0" borderColor="0"/>-->
+	
 </s:WindowedApplication>

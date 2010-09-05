@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.core.mx_internal;
+			import mx.utils.ArrayUtil;
+			import mx.utils.ObjectUtil;
+			
+			import org.osmf.metadata.ObjectIdentifier;
+			
+			private function func3():void
+			{
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<s:initialize>
+		<![CDATA[
+		
+			var arr:ArrayCollection = new ArrayCollection([]);
+			var text:String = "type";
+			var integer:int = 5;
+			function func():void {"t"};
+			function func2(a:int):void {"a"};
+			var f:Function;
+			ObjectUtil.compare(func, func2);
+			var hash:String = text  = ":" + integer + ":" + func;
+			arr.addItem([text, func, integer]);
+			trace( ObjectUtil.compare([text, integer, integer], [text,func2,integer]));
+			trace(func3, func2);
+		
+		]]>
+	</s:initialize>
+</s:WindowedApplication>

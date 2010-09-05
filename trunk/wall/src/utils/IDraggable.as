@@ -5,6 +5,7 @@ package utils
 
 	public interface IDraggable
 	{
+		function dragInit():void;
 		function dragStart(e:MouseEvent):void;
 		function dragEnd(e:MouseEvent):void;
 		function drag(e:MouseEvent):void;
