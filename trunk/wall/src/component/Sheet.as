@@ -1,11 +1,8 @@
 package component
 {
-	import component.event.SpatialEvent;
-	
-	import flash.events.Event;
-	
-	import spark.components.BorderContainer;
-	
+	import component.event.SpatialEvent;	
+	import flash.events.Event;	
+	import spark.components.BorderContainer;	
 	import utils.IDisposable;
 	import utils.IDraggable;
 
@@ -20,14 +17,14 @@ package component
 			dragInit();
 			this.addEventListener(DragEvent.DRAG,
 				function(e:DragEvent):void { 
-					dispatchEvent(new SpatialEvent(SpatialEvent.MOVING,false,
-						false, e.x, e.y)); 
+					dispatchEvent(new SpatialEvent(SpatialEvent.MOVING,
+						false, false, e.x, e.y)); 
 				} 
 			);
 			this.addEventListener(DragEvent.DRAG_END,
 				function(e:DragEvent):void { 
-					dispatchEvent(new SpatialEvent(SpatialEvent.MOVED,false,
-					false, e.x, e.y)); 
+					dispatchEvent(new SpatialEvent(SpatialEvent.MOVED,
+						false,false, e.x, e.y)); 
 				} 
 			);
 			

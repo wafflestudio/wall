@@ -21,6 +21,7 @@
 			
 		]]>
 	</fx:Script>
+	
 	<s:creationComplete>
 		<![CDATA[
 			var sheet1:Sheet = new Sheet();

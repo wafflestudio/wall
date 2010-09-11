@@ -16,6 +16,12 @@
     <application path="wall.mxml">
       <airExcludes/>
     </application>
+    <application path="drag_playground.mxml">
+      <airExcludes/>
+    </application>
+    <application path="generalplayground.mxml">
+      <airExcludes/>
+    </application>
   </applications>
   <modules/>
   <buildCSSFiles/>

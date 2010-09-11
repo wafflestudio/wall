@@ -1,0 +1,24 @@
+문제: 시트를 드래그하거나 리사이즈를 할 때, 벽이 늘어나거나 줄어들어야 한다. 어떤 동작이 바람직할까?
+좀 더 사소한 문제: 터치와 마우스의 동작이 다를 수 있다. 늘이거나 움직일 때 마우스가 더 유리할 수 있다. 벽을 넘어서도 감지가 되니까.
+좀 더 사소한 문제: 그렇다면 터치의 경우 어떻게 동작해야 할까?
+그 해결 방안 중 하나: 터치의 경우 표준 동작을 응용한다. 사물을 드래그하면서 화면을 움직인다거나, 핀치를 통해 늘인다거나. 
+
+문제: 글을 쓰기 위해 시트를 만들게 된다. 하지만 두서 없이 보드에 마커를 사용하듯이 단어들을 공간에 나열하고 싶어질 경우 어떻게 할까?
+
+문제: controller의 역할과 그 granularity. wall controller는 wall의 생성, 변화를 감지하는가?
+	아니면, 전혀 다르게 추상화를 해야 하는가? component controller와 model controller?
+	creation controller? 
+그 해결 방안의 하나: task 기준으로 생각한다. 
+좀 더 사소한 문제: mastermind는 어떻게 움직이는가?
+
+
+Content Component
+Sheet Component: 
+Wall Component: Sheet Component의 크기, 위치 등에 따라 벽의 영역이 조절된다.
+
+Layers, Layers, Layers!
+
+
+
+Task: Recorded Actions (History-managed)
+Unrecorded Actions
