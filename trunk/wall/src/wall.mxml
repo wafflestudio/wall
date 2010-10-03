@@ -14,6 +14,7 @@
 	<s:initialize>
 		<![CDATA[
 		
+			// 어플리케이션 환경 초기화
 			this.maximize();
 		
 		]]>
@@ -21,6 +22,7 @@
 	<s:creationComplete>
 		<![CDATA[
 		
+			// 어플리케이션 컨트롤러에 의한 초기화
 			ApplicationController.init();	
 		
 		]]>

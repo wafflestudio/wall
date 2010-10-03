@@ -1,6 +1,5 @@
 // Drag Functionality
 import component.event.DragEvent;
-
 import flash.events.Event;
 import flash.events.MouseEvent;
 
