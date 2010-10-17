@@ -1,62 +1,79 @@
-package controller
-{
-	import component.Sheet;
-	import component.Wall;
-	import component.event.SpatialEvent;
+package controller  {
 	
-	import mx.core.FlexGlobals;
-	import mx.events.ResizeEvent;
-	
-	import spark.components.WindowedApplication;
-	
-	/** ApplicationController: 
-	 * 
-	 * 어플리케이션 초기화와 큰틀의 변경 사항을 책임진다 
-	 * 
-	 * 모든 초기화와 로드 작업을 진행
-	 * 싱글턴 클래스.
-	 * 
-	 * */
-	public class ApplicationController
-	{		
-		/** Wall을 담는 배열 **/
-		private var walls:Array = [];
-		
-		public function ApplicationController()  {	
-		
-		}
+import component.Sheet;
+import component.Wall;
+import component.event.SpatialEvent;
 
-		public static function get appWindow():WindowedApplication  {
-			return FlexGlobals.topLevelApplication as WindowedApplication;
-		}
-		
-		private static var instanceHolder:ApplicationController = null;
-		
-		private static function get instance():ApplicationController  {
-			if(instanceHolder == null)
-				instanceHolder = new ApplicationController();
-			return instanceHolder;
-		}
+import model.SheetData;
+import model.UserData;
+import model.WallData;
 
-		private static function updateWallDimension(e:ResizeEvent):void  {
-			var wall:Wall = instance.walls[0] as Wall;
-			wall.width = appWindow.width;
-			wall.height = appWindow.height;
-		}
-		
-		public static function init():void	{
-			/** 초기화:
-			 * 계정 로드
-			 * 벽 로드
-			 * 어플리케이션 이벤트에 동작하도록 초기화
-			 * */
-			var wall:Wall = new Wall();
-			appWindow.addElement( wall );
-			wall.width = appWindow.width;
-			wall.height = appWindow.height;
-			instance.walls.push(wall);	
-			
-			appWindow.addEventListener(ResizeEvent.RESIZE, updateWallDimension);
-		}
+import mx.core.Application;
+import mx.core.FlexGlobals;
+import mx.core.Window;
+import mx.events.ResizeEvent;
+
+import spark.components.WindowedApplication;
+
+
+
+/** ApplicationController: 
+ *
+ * 싱글턴 클래스.
+ * SHY!!
+ * 
+ * */
+public class ApplicationController
+{		
+	public static function get appWindow():WindowedApplication  {
+		return instance.appWindow;
 	}
+	
+	public static function init(app:WindowedApplication):void	{
+		instance.init(app);
+	}
+	
+	public static function start():void  {
+		instance.start();
+	}  
+	
+	
+	private static var instanceHolder:ApplicationController = null;
+	
+	private static function get instance():ApplicationController  {
+		if(instanceHolder == null)
+			instanceHolder = new ApplicationController();
+		return instanceHolder;
+	}
+	
+	
+	
+	/********* instance properties *********/
+	
+	/** Wall을 담는 배열 **/
+	private var walls:Array = [];
+	private var appWindow:WindowedApplication;
+	private var user:UserData;
+	
+	public function ApplicationController()  {	
+		if(instanceHolder)
+			throw new Error("Tried to create already initialized singleton class");
+	}
+	
+	private function init(app:WindowedApplication):void  {
+		this.appWindow = app;
+	}
+	
+	private function start():void  {
+		var wallXML:XML = 
+			<wall width='1000' height='1000'>
+				<sheet x='10' y='10' width='100' height='100'/>
+			</wall>
+		var wallData:WallData = new WallData(wallXML);
+		var wall:Wall = Wall.create(wallData);	
+		
+		appWindow.addElement(wall);
+	}
+	
+}
 }

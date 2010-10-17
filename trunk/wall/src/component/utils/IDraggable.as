@@ -1,4 +1,4 @@
-package utils
+package component.utils
 {
 	import flash.events.MouseEvent;
 	import flash.ui.Mouse;

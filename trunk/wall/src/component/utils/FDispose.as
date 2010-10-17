@@ -1,7 +1,6 @@
 import flash.events.Event;
 import mx.collections.ArrayCollection;
 
-
 private var event_handlers:Array = [];
 private var added_to_stage:Boolean = false;
 
