@@ -1,8 +1,9 @@
 package component  {
 
+import component.event.SpatialEvent;
 import component.utils.IScrollable;
 
-import model.SheetData;
+import flash.display.DisplayObject;
 
 import mx.events.ResizeEvent;
 
@@ -25,64 +26,85 @@ import spark.components.BorderContainer;
  * 생성되고 보여지고 파괴된다. create destroy  
  * 
  * */
+
 [Event(name="scrolling", type="flash.events.Event")]
 [Event(name="scrolled", type="flash.events.Event")]
 [Event(name="zooming", type="flash.events.Event")]
 [Event(name="zoomed", type="flash.events.Event")]
-public class Wall extends BorderContainer implements IScrollable/**, IZoomable **/
+public class Wall extends BorderContainer implements IScrollable /**, IZoomable **/
 {
 	
-	public static function create(wallData:model.WallData):Wall  {
+	public static function create(wallXML:XML):Wall  {
 		var new_wall:Wall = new Wall();
 		
-		for each(var sheetData:model.SheetData in wallData.sheets)  {
-			var sheet:Sheet = Sheet.create(sheetData);
+		for each(var sheetXML:XML in wallXML.children())  {			
+			var sheet:Sheet = Sheet.create(sheetXML);
 			new_wall.addElement(sheet);
 		}
 		
-		new_wall.width = wallData.width;
-		new_wall.height = wallData.height;
+		new_wall.width = wallXML.@width;
+		new_wall.height = wallXML.@height;
 
 		return new_wall;
 	}
-	
-	
 
+
+	include "utils/FPan.as"
+	
 	public function Wall()  {
+		
 		super();
+	}
+	
+	public function toXML():XML  {
+		var xml:XML = <wall/>;
+		for(var i:int  = 0; i < this.numElements; i++)  {
+			var element:Sheet = this.getElementAt(i) as Sheet;
+			if(element)
+				xml.appendChild(element.toXML());
+		}
+		
+		xml.@width = width;
+		xml.@height = height;
+		
+		return xml;
 	}
 	
 	public override function initialize():void  {
 		super.initialize();
+		initScrollEvent();
 		this.setStyle("borderColor", 0x0);
 		this.setStyle("backgroundColor", 0xF2F2F2);
+	
+	}
+	
+	private function initScrollEvent():void  {
+		/** 드래그 기능 초기화 **/
+		panInit();
 		
-		contentWidthHolder = width;
-		contentHeightHolder = height;
+		this.addEventListener(PanEvent.PAN,
+			function(e:PanEvent):void { 
+				dispatchEvent(new SpatialEvent(SpatialEvent.MOVING,
+					false, false, e.x, e.y)); 
+			} 
+		);
+		
+		this.addEventListener(PanEvent.PAN_END,
+			function(e:PanEvent):void { 
+				dispatchEvent(new SpatialEvent(SpatialEvent.MOVED,
+					false,false, e.x, e.y)); 
+			} 
+		);	
 	}
 	
-	public function set contentWidth(value:Number):void	 {
-		if(contentWidthHolder == value)
-			return;
-		contentWidthHolder = value;	
-	}
-	
-	public function set contentheight(value:Number):void  {
-		if(contentHeightHolder == value)
-			return ;
-		contentHeightHolder = value;
-		// display scrollbar
-		// reposiion scrollbar
-		// height(value);	
-	}
 	
 	protected override function createChildren():void  {
 		super.createChildren();
 		// add scrollbar
 	}
 	
-	private var contentWidthHolder : Number;
-	private var contentHeightHolder : Number;
-	
+	private function panBoundx(x:Number):Number { return x; }
+	private function panBoundy(y:Number):Number { return y; }
+
 }
 }

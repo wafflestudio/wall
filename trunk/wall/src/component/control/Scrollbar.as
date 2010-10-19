@@ -2,7 +2,6 @@ package component.control
 {
 	import mx.core.UIComponent;
 	import mx.events.EffectEvent;
-	
 	import spark.effects.Animate;
 	import spark.effects.animation.SimpleMotionPath;
 	
@@ -16,6 +15,10 @@ package component.control
 	 **/
 	public class Scrollbar extends UIComponent
 	{
+		
+		include "utils/FScroll.as"
+		
+		
 		public function Scrollbar()  {
 			super();
 		}

@@ -4,9 +4,7 @@
 	<fx:Script>
 		<![CDATA[
 			import component.Sheet;
-			
 			import controller.ApplicationController;
-			
 			import spark.components.BorderContainer;
 		]]>
 	</fx:Script>
@@ -22,7 +20,6 @@
 			// 어플리케이션 컨트롤러에 의한 초기화
 			ApplicationController.init(this as WindowedApplication);
 			ApplicationController.start();
-		
 		
 		]]>
 	</s:creationComplete>

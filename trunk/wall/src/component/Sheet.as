@@ -7,8 +7,6 @@ import component.utils.IDraggable;
 import flash.display.Graphics;
 import flash.events.Event;
 
-import model.SheetData;
-
 import spark.components.BorderContainer;
 
 /** Sheet: 시트 컴포넌트. 
@@ -35,12 +33,12 @@ import spark.components.BorderContainer;
 public class Sheet extends BorderContainer implements IDraggable/**, IResizable, IZoomable, IScrollable **/
 {
 	
-	public static function create(sheetdata:model.SheetData):Sheet  {
+	public static function create(sheetXML:XML):Sheet  {
 		var new_sheet:Sheet = new Sheet();
-		new_sheet.x = sheetdata.x;
-		new_sheet.y = sheetdata.y;
-		new_sheet.width = sheetdata.width;
-		new_sheet.height = sheetdata.height;
+		new_sheet.x = sheetXML.@x;
+		new_sheet.y = sheetXML.@y;
+		new_sheet.width = sheetXML.@width;
+		new_sheet.height = sheetXML.@height;
 		
 		return new_sheet;
 	}
@@ -51,6 +49,16 @@ public class Sheet extends BorderContainer implements IDraggable/**, IResizable,
 	
 	public function Sheet()  {
 		super();
+	}
+	
+	public function toXML():XML  {
+		var xml:XML = <sheet/>;
+		xml.@x = this.x;
+		xml.@y = this.y;
+		xml.@width = this.width;
+		xml.@height = this.height;
+
+		return xml;
 	}
 	
 	/** initialize()
@@ -76,7 +84,6 @@ public class Sheet extends BorderContainer implements IDraggable/**, IResizable,
 	protected override function createChildren():void  {
 		super.createChildren();	
 	}
-	
 
 	private function initMoveEvent():void  {
 		/** 드래그 기능 초기화 **/
@@ -104,6 +111,10 @@ public class Sheet extends BorderContainer implements IDraggable/**, IResizable,
 	private function initZoomEvent():void  {
 		
 	}
+	
+	private function dragBoundx(x:Number):Number { return x; }
+	private function dragBoundy(y:Number):Number { return y; }
+	
 	
 	
 }

@@ -3,11 +3,6 @@ package controller  {
 import component.Sheet;
 import component.Wall;
 import component.event.SpatialEvent;
-
-import model.SheetData;
-import model.UserData;
-import model.WallData;
-
 import mx.core.Application;
 import mx.core.FlexGlobals;
 import mx.core.Window;
@@ -53,7 +48,7 @@ public class ApplicationController
 	/** Wall을 담는 배열 **/
 	private var walls:Array = [];
 	private var appWindow:WindowedApplication;
-	private var user:UserData;
+
 	
 	public function ApplicationController()  {	
 		if(instanceHolder)
@@ -69,9 +64,7 @@ public class ApplicationController
 			<wall width='1000' height='1000'>
 				<sheet x='10' y='10' width='100' height='100'/>
 			</wall>
-		var wallData:WallData = new WallData(wallXML);
-		var wall:Wall = Wall.create(wallData);	
-		
+		var wall:Wall = Wall.create(wallXML);	
 		appWindow.addElement(wall);
 	}
 	

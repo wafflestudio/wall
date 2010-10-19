@@ -15,7 +15,8 @@ package component.event
 			this.height = h;
 			this.rotation = r;
 		}
-		
+		public static const SCROLLING:String = "scrolling";
+		public static const SCROLLED:String = "scrolled";
 		public static const MOVING:String = "moving";
 		public static const MOVED:String = "moved";
 		public static const RESIZING:String = "resizing";

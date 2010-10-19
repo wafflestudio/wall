@@ -3,8 +3,10 @@ import component.event.DragEvent;
 import flash.events.Event;
 import flash.events.MouseEvent;
 
+
 private var c_stageX:Number, c_stageY:Number;
 private var c_x:Number, c_y:Number;
+
 
 public function dragInit():void
 {
@@ -12,8 +14,10 @@ public function dragInit():void
 		this.addEventListener(MouseEvent.MOUSE_DOWN, dragStart);
 }
 
+
 public function dragStart(e:MouseEvent):void
 {
+	e.stopPropagation();
 	c_x = this.x;
 	c_y = this.y;
 	c_stageX = e.stageX;
@@ -24,10 +28,11 @@ public function dragStart(e:MouseEvent):void
 	this.dispatchEvent(new DragEvent(DragEvent.DRAG_START, false, false, this.x, this.y));
 }
 
+
 public function dragEnd(e:MouseEvent):void
 {
-	this.x = c_x + (e.stageX - c_stageX);
-	this.y = c_y + (e.stageY - c_stageY);
+	this.x = dragBoundx(c_x + (e.stageX - c_stageX));
+	this.y = dragBoundy(c_y + (e.stageY - c_stageY));
 	
 	stage.removeEventListener(MouseEvent.MOUSE_MOVE, drag);	
 	stage.removeEventListener(MouseEvent.MOUSE_UP, dragEnd);
@@ -35,10 +40,11 @@ public function dragEnd(e:MouseEvent):void
 	this.dispatchEvent(new DragEvent(DragEvent.DRAG_END, false, false, this.x, this.y));
 }
 
+
 public function drag(e:MouseEvent):void
 {
-	this.x = c_x + (e.stageX - c_stageX);
-	this.y = c_y + (e.stageY - c_stageY);
+	this.x = dragBoundx(c_x + (e.stageX - c_stageX));
+	this.y = dragBoundy(c_y + (e.stageY - c_stageY));
 	
 	this.dispatchEvent(new DragEvent(DragEvent.DRAG, false, false, this.x, this.y));
 }
