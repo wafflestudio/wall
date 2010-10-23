@@ -96,6 +96,8 @@ public class Sheet extends BorderContainer implements IDraggable/**, IResizable,
 			} 
 		);
 		
+		
+		
 		this.addEventListener(DragEvent.DRAG_END,
 			function(e:DragEvent):void { 
 				dispatchEvent(new SpatialEvent(SpatialEvent.MOVED,

@@ -63,6 +63,7 @@ public class ApplicationController
 		var wallXML:XML = 
 			<wall width='1000' height='1000'>
 				<sheet x='10' y='10' width='100' height='100'/>
+				<sheet x='100' y='15' width='100' height='100'/>
 			</wall>
 		var wall:Wall = Wall.create(wallXML);	
 		appWindow.addElement(wall);
