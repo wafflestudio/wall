@@ -1,11 +1,18 @@
 package component  {
 
+import component.control.Scrollbar;
 import component.event.SpatialEvent;
 import component.utils.IScrollable;
+
 import controller.ApplicationController;
+
 import flash.display.DisplayObject;
+
+import mx.binding.utils.BindingUtils;
+import mx.binding.utils.ChangeWatcher;
 import mx.core.UIComponent;
 import mx.events.ResizeEvent;
+
 import spark.components.BorderContainer;
 import spark.components.Group;
 import spark.events.ElementExistenceEvent;
@@ -32,15 +39,15 @@ import spark.events.ElementExistenceEvent;
 [Event(name="scrolled", type="flash.events.Event")]
 [Event(name="zooming", type="flash.events.Event")]
 [Event(name="zoomed", type="flash.events.Event")]
-public class Wall extends BorderContainer implements IScrollable /**, IZoomable **/
+public class Wall extends BorderContainer implements IScrollable 
 {
 	
 	public static function create(wallXML:XML):Wall  {
 		var new_wall:Wall = new Wall();
+
 		new_wall.addElement(new_wall.childrenHolder);
 		for each(var sheetXML:XML in wallXML.children())  {			
 			var sheet:Sheet = Sheet.create(sheetXML);
-			
 			new_wall.childrenHolder.addElement(sheet);
 		}
 		
@@ -54,6 +61,7 @@ public class Wall extends BorderContainer implements IScrollable /**, IZoomable 
 	include "utils/FPan.as"
 	
 	public function Wall()  {
+		
 		super();
 	}
 	
@@ -73,14 +81,21 @@ public class Wall extends BorderContainer implements IScrollable /**, IZoomable 
 	
 	public override function initialize():void  {
 		super.initialize();
-		initScrollEvent();
+		initPanEvent();
 		this.percentWidth = 100;
 		this.percentHeight = 100;
 		this.setStyle("borderAlpha", 0x0);
 		this.setStyle("backgroundColor", 0xF2F2F2);
 		
 		ApplicationController.appWindow.addEventListener(ResizeEvent.RESIZE, onContainerResize);
-			
+		var self:Wall = this;
+		self.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
+			var multiplier:Number = Math.pow(1.1, e.delta);
+			self.childrenHolder.scaleX *= multiplier;
+			self.childrenHolder.scaleY *= multiplier;
+			self.childrenHolder.x = (self.childrenHolder.x- containerWidth/2) * multiplier + containerWidth/2;
+			self.childrenHolder.y = (self.childrenHolder.y- containerHeight/2) * multiplier + containerHeight/2;;
+		});
 	}
 	
 	private var containerWidth:Number;
@@ -88,20 +103,20 @@ public class Wall extends BorderContainer implements IScrollable /**, IZoomable 
 	private var childrenHolder:Group = new Group();
 	
 	private function get horizontalOverflow():Boolean {
-		return (childrenMaxX - childrenMinX) > containerWidth;
+		return (childrenMaxX - childrenMinX)*childrenHolder.scaleX > containerWidth;
 	}
 	
 	private function get verticalOverflow():Boolean  {
-		return (childrenMaxY - childrenMinY) > containerHeight;
+		return (childrenMaxY - childrenMinY)*childrenHolder.scaleY > containerHeight;
 	}
 	
 	private function get contentWidth():Number {
-		var childrenRange:Number = childrenMaxX - childrenMinX;
+		var childrenRange:Number = (childrenMaxX - childrenMinX)*childrenHolder.scaleX;
 		return childrenRange > containerWidth ? childrenRange : containerWidth;
 	}
 	
 	private function get contentHeight():Number { 
-		var childrenRange:Number = childrenMaxY - childrenMinY;
+		var childrenRange:Number = (childrenMaxY - childrenMinY)*childrenHolder.scaleY;
 		return childrenRange > containerHeight ? childrenRange : containerHeight;  
 	}
 	
@@ -180,26 +195,16 @@ public class Wall extends BorderContainer implements IScrollable /**, IZoomable 
 	private function onContainerResize(e:ResizeEvent):void  {
 		containerWidth = e.target.width;
 		containerHeight = e.target.height;
+		
 	}
 	
 	
-	private function initScrollEvent():void  {
+	private function initPanEvent():void  {
 		/** 드래그 기능 초기화 **/
-		panInit();
-		
-//		this.addEventListener(PanEvent.PAN,
-//			function(e:PanEvent):void { 
-//				dispatchEvent(new SpatialEvent(SpatialEvent.MOVING,
-//					false, false, e.x, e.y)); 
-//			} 
-//		);
-//		
-//		this.addEventListener(PanEvent.PAN_END,
-//			function(e:PanEvent):void { 
-//				dispatchEvent(new SpatialEvent(SpatialEvent.MOVED,
-//					false,false, e.x, e.y)); 
-//			} 
-//		);		
+		panInit();	
+		//this.addEventListener(PanEvent.PAN, updateScrollbarsByPan);
+		//var watcherSetter:ChangeWatcher = BindingUtils.bindSetter(updateMyString, this, "");
+
 	}
 	
 	
@@ -208,8 +213,6 @@ public class Wall extends BorderContainer implements IScrollable /**, IZoomable 
 		// add scrollbar
 	}
 	
-	private function panBoundx(x:Number):Number { return x; }
-	private function panBoundy(y:Number):Number { return y; }
-
+	
 }
 }

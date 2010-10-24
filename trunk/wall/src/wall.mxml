@@ -10,6 +10,7 @@
 	</fx:Script>
 	<s:initialize>
 		<![CDATA[
+		
 			// 어플리케이션 환경 초기화
 			this.maximize();
 		]]>

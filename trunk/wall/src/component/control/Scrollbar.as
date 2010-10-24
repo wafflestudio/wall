@@ -1,9 +1,11 @@
 package component.control
 {
 	import mx.core.UIComponent;
-	import mx.events.EffectEvent;
+	
 	import spark.effects.Animate;
+	import spark.effects.Fade;
 	import spark.effects.animation.SimpleMotionPath;
+	import spark.effects.easing.Sine;
 	
 	/**  스크롤바.
 	 * 
@@ -15,24 +17,38 @@ package component.control
 	 **/
 	public class Scrollbar extends UIComponent
 	{
+		private static const anim_duration_ms:int = 200;
+		private static const max_opacity:Number = 0.8;
 		
-		include "utils/FScroll.as"
-		
+		public var fadeEffect:Fade;
 		
 		public function Scrollbar()  {
 			super();
-		}
-		
-		public override function set width(value:Number):void  {
-			var anim:Animate = new Animate(this);
-			var mpath:SimpleMotionPath = new SimpleMotionPath("super.width", null, value);
-			anim.motionPaths.push(mpath);
-			anim.duration = 1000;
-			anim.play();
+			fadeEffect = new Fade(this);
+			fadeEffect.duration = 1000;
+			fadeEffect.easer = new Sine();
 		}
 		
 		public override function initialize():void  {
 			super.initialize();	
+		}
+		
+		public function show():void  {
+			fadeEffect.stop();			
+			this.alpha = 1.0;
+		}
+		
+		public function hide():void  {
+			fadeEffect.alphaTo = 0.2;
+			fadeEffect.play();
+		}
+		
+		protected override function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void  {
+			super.updateDisplayList(unscaledWidth, unscaledHeight);
+			this.graphics.clear();
+			this.graphics.beginFill(0x0, max_opacity);
+			this.graphics.drawRoundRect(0,0, unscaledWidth, unscaledHeight,5,5);	
+			this.graphics.endFill();	
 		}
 	}
 }

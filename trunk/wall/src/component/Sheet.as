@@ -30,7 +30,7 @@ import spark.components.BorderContainer;
 [Event(name="resized", type="flash.events.Event")]
 [Event(name="zooming", type="flash.events.Event")]
 [Event(name="zoomed", type="flash.events.Event")]
-public class Sheet extends BorderContainer implements IDraggable/**, IResizable, IZoomable, IScrollable **/
+public class Sheet extends BorderContainer implements IDraggable
 {
 	
 	public static function create(sheetXML:XML):Sheet  {
@@ -57,7 +57,6 @@ public class Sheet extends BorderContainer implements IDraggable/**, IResizable,
 		xml.@y = this.y;
 		xml.@width = this.width;
 		xml.@height = this.height;
-
 		return xml;
 	}
 	

@@ -2,11 +2,13 @@
 import component.event.DragEvent;
 import flash.events.Event;
 import flash.events.MouseEvent;
+import flash.geom.Point;
+import flashx.textLayout.elements.GlobalSettings;
+import mx.core.UIComponent;
 
 
-private var c_stageX:Number, c_stageY:Number;
-private var c_x:Number, c_y:Number;
-
+private var dragStartPos:Point;
+private var dragGlobalLocalDiff:Point;
 
 public function dragInit():void
 {
@@ -18,21 +20,28 @@ public function dragInit():void
 public function dragStart(e:MouseEvent):void
 {
 	e.stopPropagation();
-	c_x = this.x;
-	c_y = this.y;
-	c_stageX = e.stageX;
-	c_stageY = e.stageY;
+	dragStartPos = this.parent.localToGlobal(new Point(this.x, this.y));
+	dragGlobalLocalDiff = dragStartPos.subtract(new Point(e.stageX, e.stageY));
 	stage.addEventListener(MouseEvent.MOUSE_MOVE, drag);
 	stage.addEventListener(MouseEvent.MOUSE_UP, dragEnd);
 	
 	this.dispatchEvent(new DragEvent(DragEvent.DRAG_START, false, false, this.x, this.y));
 }
 
+public function drag(e:MouseEvent):void
+{
+	var current:Point = this.parent.globalToLocal((new Point(e.stageX, e.stageY)).add(dragGlobalLocalDiff));
+	this.x = dragBoundx(current.x);
+	this.y = dragBoundy(current.y);
+	
+	this.dispatchEvent(new DragEvent(DragEvent.DRAG, false, false, this.x, this.y));
+}
 
 public function dragEnd(e:MouseEvent):void
 {
-	this.x = dragBoundx(c_x + (e.stageX - c_stageX));
-	this.y = dragBoundy(c_y + (e.stageY - c_stageY));
+	var current:Point = this.parent.globalToLocal((new Point(e.stageX, e.stageY)).add(dragGlobalLocalDiff));
+	this.x = dragBoundx(current.x);
+	this.y = dragBoundy(current.y);
 	
 	stage.removeEventListener(MouseEvent.MOUSE_MOVE, drag);	
 	stage.removeEventListener(MouseEvent.MOUSE_UP, dragEnd);
@@ -41,10 +50,3 @@ public function dragEnd(e:MouseEvent):void
 }
 
 
-public function drag(e:MouseEvent):void
-{
-	this.x = dragBoundx(c_x + (e.stageX - c_stageX));
-	this.y = dragBoundy(c_y + (e.stageY - c_stageY));
-	
-	this.dispatchEvent(new DragEvent(DragEvent.DRAG, false, false, this.x, this.y));
-}
