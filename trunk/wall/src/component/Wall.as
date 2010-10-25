@@ -7,11 +7,13 @@ import component.utils.IScrollable;
 import controller.ApplicationController;
 
 import flash.display.DisplayObject;
+import flash.geom.Matrix;
 
 import mx.binding.utils.BindingUtils;
 import mx.binding.utils.ChangeWatcher;
 import mx.core.UIComponent;
 import mx.events.ResizeEvent;
+import mx.utils.ObjectUtil;
 
 import spark.components.BorderContainer;
 import spark.components.Group;
@@ -91,10 +93,19 @@ public class Wall extends BorderContainer implements IScrollable
 		var self:Wall = this;
 		self.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
 			var multiplier:Number = Math.pow(1.1, e.delta);
-			self.childrenHolder.scaleX *= multiplier;
-			self.childrenHolder.scaleY *= multiplier;
-			self.childrenHolder.x = (self.childrenHolder.x- containerWidth/2) * multiplier + containerWidth/2;
-			self.childrenHolder.y = (self.childrenHolder.y- containerHeight/2) * multiplier + containerHeight/2;;
+//			self.childrenHolder.scaleX *= multiplier;
+//			self.childrenHolder.scaleY *= multiplier;
+//			self.childrenHolder.x = (self.childrenHolder.x- containerWidth/2) * multiplier + containerWidth/2;
+//			self.childrenHolder.y = (self.childrenHolder.y- containerHeight/2) * multiplier + containerHeight/2;;
+			var oldmatrix:Matrix = self.childrenHolder.transform.matrix;
+			var matrix:Matrix = new Matrix(oldmatrix.a, oldmatrix.b, oldmatrix.c, oldmatrix.d, oldmatrix.tx, oldmatrix.ty);
+			matrix.translate(-containerWidth/2, -containerHeight/2);
+			matrix.scale(multiplier, multiplier);
+			matrix.translate(containerWidth/2, containerHeight/2);
+			self.childrenHolder.transform.matrix = matrix;
+			
+			trace(self.childrenHolder.x);
+			
 		});
 	}
 	
@@ -195,7 +206,6 @@ public class Wall extends BorderContainer implements IScrollable
 	private function onContainerResize(e:ResizeEvent):void  {
 		containerWidth = e.target.width;
 		containerHeight = e.target.height;
-		
 	}
 	
 	

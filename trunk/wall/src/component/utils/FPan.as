@@ -82,20 +82,23 @@ public function pan(e:MouseEvent):void
 	childrenHolder.y = (c_y + (e.stageY - c_stageY)) + c_lshifty + c_ushifty;
 	
 	var width:Number = (childrenMaxX - childrenMinX)*childrenHolder.scaleX + 
-		(childrenHolder.x + childrenMinX*childrenHolder.scaleX > 0 ? childrenHolder.x + childrenMinX*childrenHolder.scaleX : 0);
+		(childrenHolder.x + childrenMinX*childrenHolder.scaleX > 0 ? childrenHolder.x + childrenMinX*childrenHolder.scaleX : 0) +
+		(childrenHolder.x + childrenMaxX*childrenHolder.scaleX < containerWidth ? containerWidth - (childrenHolder.x+childrenMaxX*childrenHolder.scaleX) : 0);
 	var posX:Number = (childrenHolder.x + childrenMinX*childrenHolder.scaleX) > 0 ? 0:
 		-(childrenHolder.x + childrenMinX*childrenHolder.scaleX);
 	
 	var height:Number = (childrenMaxY - childrenMinY)*childrenHolder.scaleY + 
-		(childrenHolder.x + childrenMinY*childrenHolder.scaleY > 0 ? childrenHolder.y + childrenMinY*childrenHolder.scaleY : 0);
+		(childrenHolder.y + childrenMinY*childrenHolder.scaleY > 0 ? childrenHolder.y + childrenMinY*childrenHolder.scaleY : 0) +
+		(childrenHolder.y + childrenMaxY*childrenHolder.scaleY < containerHeight ? containerHeight - (childrenHolder.y+childrenMaxY*childrenHolder.scaleY) : 0);
 	var posY:Number = (childrenHolder.y + childrenMinY*childrenHolder.scaleY) > 0 ? 0:
 		-(childrenHolder.y + childrenMinY*childrenHolder.scaleY);
 	
-	horizontalScrollbar.width = containerWidth*containerWidth/width;
-	horizontalScrollbar.x = posX / width * containerWidth;
 	
-	verticalScrollbar.height = containerHeight*containerHeight/height;
-	verticalScrollbar.y = posY / height * containerHeight;
+	horizontalScrollbar.width = (containerWidth-10)*containerWidth/width;
+	horizontalScrollbar.x = posX / width * (containerWidth-10)
+	
+	verticalScrollbar.height = (containerHeight-10)*containerHeight/height;
+	verticalScrollbar.y = posY / height * (containerHeight-10);
 	
 	this.dispatchEvent(new PanEvent(PanEvent.PAN, false, false, childrenHolder.x, childrenHolder.y));
 }
@@ -157,35 +160,37 @@ public function panEnd(e:MouseEvent):void
 		moveeffect.play();
 		
 		var width:Number = (childrenMaxX - childrenMinX)*childrenHolder.scaleX + 
-			(xTo + childrenMinX > 0 ? xTo + childrenMinX : 0);
-		var posX:Number = (xTo + childrenMinX) > 0 ? 0:
-			-(xTo + childrenMinX);
+			(xTo + childrenMinX*childrenHolder.scaleX > 0 ? xTo + childrenMinX*childrenHolder.scaleX : 0) +
+			(xTo + childrenMaxX*childrenHolder.scaleX < containerWidth ? containerWidth - (xTo+childrenMaxX*childrenHolder.scaleX) : 0);
+		var posX:Number = (xTo + childrenMinX*childrenHolder.scaleX) > 0 ? 0:
+			-(xTo + childrenMinX*childrenHolder.scaleX);
 		
-		var height:Number = (childrenMaxY - childrenMinY) + 
-			(yTo + childrenMinY > 0 ? yTo + childrenMinY : 0);
-		var posY:Number = (yTo + childrenMinY) > 0 ? 0:
-			-(yTo + childrenMinY);
+		var height:Number = (childrenMaxY - childrenMinY)*childrenHolder.scaleY + 
+			(yTo + childrenMinY*childrenHolder.scaleY > 0 ? yTo + childrenMinY*childrenHolder.scaleY : 0) +
+			(yTo + childrenMaxY*childrenHolder.scaleY < containerHeight ? containerHeight - (yTo+childrenMaxY*childrenHolder.scaleY) : 0);
+		var posY:Number = (yTo + childrenMinY*childrenHolder.scaleY) > 0 ? 0:
+			-(yTo + childrenMinY*childrenHolder.scaleY);
 		
 		var hmoveeffect:Move = new Move(horizontalScrollbar);
-		hmoveeffect.xTo = posX / width * containerWidth;
+		hmoveeffect.xTo = posX / width * (containerWidth-10);
 		hmoveeffect.duration = 200;
 		hmoveeffect.easer = new Sine();
 		hmoveeffect.play();
 		
 		var vmoveeffect:Move = new Move(verticalScrollbar);
-		vmoveeffect.yTo = posY / height * containerHeight;
+		vmoveeffect.yTo = posY / height * (containerHeight-10);
 		vmoveeffect.duration = 200;
 		vmoveeffect.easer = new Sine();
 		vmoveeffect.play();
 		
 		var swidtheffect:Resize = new Resize(horizontalScrollbar);
-		swidtheffect.widthTo = containerWidth*containerWidth/width;
+		swidtheffect.widthTo = (containerWidth-10)*containerWidth/width;
 		swidtheffect.duration = 200;
 		swidtheffect.easer = new Sine();
 		swidtheffect.play();
 		
 		var sheighteffect:Resize = new Resize(verticalScrollbar);
-		sheighteffect.heightTo = containerHeight*containerHeight/height;
+		sheighteffect.heightTo = (containerHeight-10)*containerHeight/height;
 		sheighteffect.duration = 200;
 		sheighteffect.easer = new Sine();
 		sheighteffect.play();

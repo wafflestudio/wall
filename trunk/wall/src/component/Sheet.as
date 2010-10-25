@@ -8,6 +8,7 @@ import flash.display.Graphics;
 import flash.events.Event;
 
 import spark.components.BorderContainer;
+import spark.components.TextArea;
 
 /** Sheet: 시트 컴포넌트. 
  * 
@@ -30,7 +31,7 @@ import spark.components.BorderContainer;
 [Event(name="resized", type="flash.events.Event")]
 [Event(name="zooming", type="flash.events.Event")]
 [Event(name="zoomed", type="flash.events.Event")]
-public class Sheet extends BorderContainer implements IDraggable
+public class Sheet extends TextArea implements IDraggable
 {
 	
 	public static function create(sheetXML:XML):Sheet  {
