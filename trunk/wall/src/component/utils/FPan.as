@@ -54,29 +54,29 @@ public function pan(e:MouseEvent):void
 	var x:Number = c_x + (e.stageX - c_stageX);
 	var y:Number = c_y + (e.stageY - c_stageY);
 	
-//	if(horizontalOverflow)  {
-//		if(x + childrenMinX + contentWidth < containerWidth)  {
-//			deltax = (containerWidth - (x + childrenMinX + contentWidth))/3*2;
-//			c_ushiftx =  c_ushiftx < deltax ? deltax : c_ushiftx;
-//		}   
-//		else if(x + childrenMinX > 0) {
-//			deltax = -(x + childrenMinX) / 3*2;
-//			c_lshiftx = deltax < c_lshiftx ? deltax: c_lshiftx;
-//		}
-//	}
-//	
-//	
-//	if(verticalOverflow)  {
-//		if(y + childrenMinY + contentHeight < containerHeight)  {
-//			deltay = (containerHeight - (y + childrenMinY + contentHeight))/3*2;
-//			c_ushifty =  c_ushifty < deltay ? deltay : c_ushifty;
-//			
-//		}
-//		else if(y + childrenMinY > 0){
-//			deltay = -(y+childrenMinY) / 3*2;
-//			c_lshifty = deltay < c_lshifty ? deltay: c_lshifty;
-//		}
-//	}
+	if(horizontalOverflow)  {
+		if(x + childrenMinX*childrenHolder.scaleX + contentWidth < containerWidth)  {
+			deltax = (containerWidth - (x + childrenMinX*childrenHolder.scaleX + contentWidth))/3*2;
+			c_ushiftx =  c_ushiftx < deltax ? deltax : c_ushiftx;
+		}   
+		else if(x + childrenMinX*childrenHolder.scaleX > 0) {
+			deltax = -(x + childrenMinX*childrenHolder.scaleX) / 3*2;
+			c_lshiftx = deltax < c_lshiftx ? deltax: c_lshiftx;
+		}
+	}
+	
+	
+	if(verticalOverflow)  {
+		if(y + childrenMinY*childrenHolder.scaleY + contentHeight < containerHeight)  {
+			deltay = (containerHeight - (y + childrenMinY*childrenHolder.scaleY + contentHeight))/3*2;
+			c_ushifty =  c_ushifty < deltay ? deltay : c_ushifty;
+			
+		}
+		else if(y + childrenMinY*childrenHolder.scaleY > 0){
+			deltay = -(y+childrenMinY*childrenHolder.scaleY) / 3*2;
+			c_lshifty = deltay < c_lshifty ? deltay: c_lshifty;
+		}
+	}
 	
 	childrenHolder.x = (c_x + (e.stageX - c_stageX)) + c_lshiftx + c_ushiftx;
 	childrenHolder.y = (c_y + (e.stageY - c_stageY)) + c_lshifty + c_ushifty;
