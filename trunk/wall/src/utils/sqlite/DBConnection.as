@@ -1,6 +1,6 @@
 package utils.sqlite  {
 import mx.rpc.events.FaultEvent;
-	
+
 public class DBConnection
 {
 	private var sqlConnection:SQLConnection;
