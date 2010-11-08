@@ -1,8 +1,8 @@
 package components  {
 	
+import components.capabilities.Movability;
 import components.events.SpatialEvent;
 import components.utils.IDisposable;
-import components.utils.IDraggable;
 
 import flash.display.Graphics;
 import flash.events.Event;
@@ -31,7 +31,7 @@ import spark.components.TextArea;
 [Event(name="resized", type="flash.events.Event")]
 [Event(name="zooming", type="flash.events.Event")]
 [Event(name="zoomed", type="flash.events.Event")]
-public class Sheet extends TextArea implements IDraggable
+public class Sheet extends SpatialObject
 {
 	
 	public static function create(sheetXML:XML):Sheet  {
@@ -43,13 +43,13 @@ public class Sheet extends TextArea implements IDraggable
 		
 		return new_sheet;
 	}
+
+	private var movability:Movability;
 	
-	
-	/** drag기능 인클루드 **/
-	include "utils/Drag.as"
 	
 	public function Sheet()  {
 		super();
+		movability = new Movability(this);
 	}
 	
 	public function toXML():XML  {
@@ -71,9 +71,6 @@ public class Sheet extends TextArea implements IDraggable
 	 **/
 	public override function initialize():void  {
 		super.initialize();
-		initMoveEvent();
-		initResizeEvent();
-		initZoomEvent();
 	}
 	
 	/** createChildren:
@@ -85,38 +82,6 @@ public class Sheet extends TextArea implements IDraggable
 		super.createChildren();	
 	}
 
-	private function initMoveEvent():void  {
-		/** 드래그 기능 초기화 **/
-		dragInit();
-		
-//		this.addEventListener(MoveEvent.MOVE,
-//			function(e:MoveEvent):void { 
-//				dispatchEvent(new SpatialEvent(SpatialEvent.MOVING,
-//					false, false, e.x, e.y)); 
-//			} 
-//		);
-		
-		
-		
-//		this.addEventListener(Spatial.MOVE_END,
-//			function(e:MoveEvent):void { 
-//				dispatchEvent(new SpatialEvent(SpatialEvent.MOVED,
-//					false,false, e.x, e.y)); 
-//			} 
-//		);	
-	}
-	
-	private function initResizeEvent():void  {
-		
-	}
-	
-	private function initZoomEvent():void  {
-		
-	}
-	
-	private function dragBoundx(x:Number):Number { return x; }
-	private function dragBoundy(y:Number):Number { return y; }
-	
 	
 	
 }

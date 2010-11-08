@@ -1,15 +1,18 @@
 package components  {
 
-import components.utils.IScrollable;
+import components.capabilities.Pannability;
+import components.capabilities.Scalability;
 
 import controllers.ApplicationController;
 
+import flash.events.MouseEvent;
 import flash.geom.Matrix;
 
 import mx.events.ResizeEvent;
 
 import spark.components.BorderContainer;
 import spark.components.Group;
+import spark.effects.Scale;
 	
 	
 /** Wall: 벽 컴포넌트
@@ -32,16 +35,16 @@ import spark.components.Group;
 [Event(name="scrolled", type="flash.events.Event")]
 [Event(name="zooming", type="flash.events.Event")]
 [Event(name="zoomed", type="flash.events.Event")]
-public class Wall extends BorderContainer implements IScrollable 
+public class Wall extends SpatialObject
 {
 	
 	public static function create(wallXML:XML):Wall  {
 		var new_wall:Wall = new Wall();
 
-		new_wall.addElement(new_wall.childrenHolder);
+		
 		for each(var sheetXML:XML in wallXML.children())  {			
 			var sheet:Sheet = Sheet.create(sheetXML);
-			new_wall.childrenHolder.addElement(sheet);
+			new_wall.childrenContainer.addElement(sheet);
 		}
 		
 		new_wall.width = wallXML.@width;
@@ -50,18 +53,23 @@ public class Wall extends BorderContainer implements IScrollable
 		return new_wall;
 	}
 
-
-	include "utils/Pan.as"
+	private var pannability:Pannability;
+	private var scalability:Scalability;
+	
 	
 	public function Wall()  {
-	
 		super();
+		this.addElement(childrenContainer);
+		
+		pannability = new Pannability(this, this.childrenContainer);
+		scalability = new Scalability(this, this.childrenContainer);
+		
 	}
 	
 	public function toXML():XML  {
 		var xml:XML = <wall/>;
 		for(var i:int  = 0; i < this.numElements; i++)  {
-			var element:Sheet = this.childrenHolder.getElementAt(i) as Sheet;
+			var element:Sheet = this.childrenContainer.getElementAt(i) as Sheet;
 			if(element)
 				xml.appendChild(element.toXML());
 		}
@@ -74,137 +82,18 @@ public class Wall extends BorderContainer implements IScrollable
 	
 	public override function initialize():void  {
 		super.initialize();
-		initPanEvent();
+		
+		setDefaultStyle();	
+	}
+	
+	private function setDefaultStyle():void  {
 		this.percentWidth = 100;
 		this.percentHeight = 100;
 		this.setStyle("borderAlpha", 0x0);
 		this.setStyle("backgroundColor", 0xF2F2F2);
-		
-		ApplicationController.appWindow.addEventListener(ResizeEvent.RESIZE, onContainerResize);
-		var self:Wall = this;	
-		self.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
-			var multiplier:Number = Math.pow(1.1, e.delta);
-			setContentScale(multiplier);
-			
-		});
 	}
 	
-	private function setContentScale(multiplier:Number):void  {
-		
-		this.childrenHolder.scaleX *= multiplier;
-		this.childrenHolder.scaleY *= multiplier;
-		this.childrenHolder.x = (this.childrenHolder.x- containerWidth/2) * multiplier + containerWidth/2;
-		this.childrenHolder.y = (this.childrenHolder.y- containerHeight/2) * multiplier + containerHeight/2;
-	}
-	
-	private var containerWidth:Number;
-	private var containerHeight:Number;
-	private var childrenHolder:Group = new Group();
-	
-	private function get horizontalOverflow():Boolean {
-		return (childrenMaxX - childrenMinX)*childrenHolder.scaleX > containerWidth;
-	}
-	
-	private function get verticalOverflow():Boolean  {
-		return (childrenMaxY - childrenMinY)*childrenHolder.scaleY > containerHeight;
-	}
-	
-	private function get contentWidth():Number {
-		var childrenRange:Number = (childrenMaxX - childrenMinX)*childrenHolder.scaleX;
-		return childrenRange > containerWidth ? childrenRange : containerWidth;
-	}
-	
-	private function get contentHeight():Number { 
-		var childrenRange:Number = (childrenMaxY - childrenMinY)*childrenHolder.scaleY;
-		return childrenRange > containerHeight ? childrenRange : containerHeight;  
-	}
-	
-	private function get childrenMaxX():Number {
-		var found:Boolean = false;
-		var maxx:Number = 0;
-		
-		for(var i:int  = 0; i < childrenHolder.numElements; i++)  {
-			var element:Sheet = childrenHolder.getElementAt(i) as Sheet;
-			if(element)  {
-				if(!found || maxx < (element.x + element.width))  {
-					maxx = (element.x + element.width);
-					found = true;
-				}
-			}
-		}
-		return maxx;
-	}
-	
-	private function get childrenMinX():Number {
-		var found:Boolean = false;
-		var minx:Number = 0;
-		
-		for(var i:int  = 0; i < childrenHolder.numElements; i++)  {
-			var element:Sheet = childrenHolder.getElementAt(i) as Sheet;
-			if(element)  {				
-				if(!found || element.x < minx)  {
-					minx = element.x;
-					found = true;
-				}
-			}
-			
-		}
-		
-		return minx;
-	}
-	
-	private function get childrenMaxY():Number {
-		var found:Boolean = false;
-		var maxy:Number = 0;
-		
-		for(var i:int  = 0; i < childrenHolder.numElements; i++)  {
-			var element:Sheet = childrenHolder.getElementAt(i) as Sheet;
-			if(element)  {
-				if(!found || maxy < (element.y + element.height))  {
-					maxy = (element.y + element.height);
-					found = true;
-				}
-			}
-			
-		}
-		
-		return maxy;
-	}
-	
-	
-	
-	private function get childrenMinY():Number {
-		var found:Boolean = false;
-		var miny:Number = 0;
-		
-		for(var i:int  = 0; i < childrenHolder.numElements; i++)  {
-			var element:Sheet = childrenHolder.getElementAt(i) as Sheet;
-			if(element)  {
-				if(!found || element.y < miny)  {
-					miny = element.y;
-					found = true;
-				}
-			}
-			
-		}
-		
-		return miny;
-	}
-	
-	private function onContainerResize(e:ResizeEvent):void  {
-		containerWidth = e.target.width;
-		containerHeight = e.target.height;
-	}
-	
-	
-	private function initPanEvent():void  {
-		/** 드래그 기능 초기화 **/
-		panInit();	
-		//this.addEventListener(PanEvent.PAN, updateScrollbarsByPan);
-		//var watcherSetter:ChangeWatcher = BindingUtils.bindSetter(updateMyString, this, "");
 
-	}
-	
 	
 	protected override function createChildren():void  {
 		super.createChildren();

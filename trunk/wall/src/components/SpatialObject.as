@@ -2,10 +2,13 @@ package components
 {
 import components.events.MoveEvent;
 import components.events.SpatialEvent;
+
 import flash.display.DisplayObject;
 import flash.events.Event;
 import flash.geom.Rectangle;
+
 import mx.core.IVisualElement;
+
 import spark.components.BorderContainer;
 import spark.components.Group;
 
@@ -19,7 +22,7 @@ public class SpatialObject extends BorderContainer
 		this.addEventListener("updated", onUpdate);
 	}
 	
-	protected var childrenHolder:Group = new Group();
+	protected var childrenContainer:Group = new Group();
 	
 	protected function get childrenExtent():Rectangle  {
 		var found:Boolean = false;
@@ -28,8 +31,8 @@ public class SpatialObject extends BorderContainer
 		var miny:Number = 0;
 		var maxy:Number = 0;
 		
-		for(var i:int  = 0; i < childrenHolder.numElements; i++)  {
-			var element:DisplayObject = childrenHolder.getElementAt(i) as DisplayObject;
+		for(var i:int  = 0; i < childrenContainer.numElements; i++)  {
+			var element:DisplayObject = childrenContainer.getElementAt(i) as DisplayObject;
 			if(element)  {
 				if(!found) {
 					found = true;
@@ -52,6 +55,15 @@ public class SpatialObject extends BorderContainer
 		}
 		       
 		return new Rectangle(minx, miny, maxx-minx, maxy-miny);
+	}
+	
+	protected function get scaledChildrenExtent():Rectangle  {
+		var rect:Rectangle = childrenExtent;
+		
+		return new Rectangle(rect.x * this.childrenContainer.scaleX, 
+			rect.y * this.childrenContainer.scaleY, 
+			rect.width * this.childrenContainer.scaleX, 
+			rect.height * this.childrenContainer.scaleY);
 	}
 	
 	protected function get extent():Rectangle  {		

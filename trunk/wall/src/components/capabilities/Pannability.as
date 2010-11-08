@@ -10,25 +10,31 @@ import spark.components.Group;
 
 public class Pannability
 {
-	private var obj:SpatialObject;
+	private var target:SpatialObject;
 	private var childrenHolder:Group
 	
-	public function Pannability(target:SpatialObject, childrenHolder:Group)
+	public function Pannability(target:SpatialObject, childrenContainer:Group)
 	{
-		obj = target;
+		this.target = target;
 		this.childrenHolder = childrenHolder;
 	}	
 	
-	private var horizontalScrollbar:ScrollbarBase = new ScrollbarBase();
-	private var verticalScrollbar:ScrollbarBase = new ScrollbarBase();
-	
-	public function panInit():void
+	private function panInit():void
 	{
-		//obj.addEventListener(MouseEvent.MOUSE_DOWN, panStart);
-		obj.addElement(horizontalScrollbar);
-		obj.addElement(verticalScrollbar);
-		horizontalScrollbar.height = 5;
-		verticalScrollbar.width = 5;
+		target.addEventListener(MouseEvent.MOUSE_DOWN, panStart);
+	}
+	
+	private function panStart(e:MouseEvent):void  {
+		target.stage.addEventListener(MouseEvent.MOUSE_MOVE, pan);
+		target.stage.addEventListener(MouseEvent.MOUSE_UP, panEnd);
+	}
+	
+	private function pan(e:MouseEvent):void  {
+		
+	}
+	
+	private function panEnd(e:MouseEvent):void  {
+		
 	}
 
 

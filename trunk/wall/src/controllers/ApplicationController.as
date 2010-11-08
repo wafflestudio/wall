@@ -1,6 +1,5 @@
 package controllers  {
-	
-import components.Plane;
+
 import components.Sheet;
 import components.Wall;
 import components.events.SpatialEvent;
@@ -70,7 +69,6 @@ public class ApplicationController
 		var wall:Wall = Wall.create(wallXML);	
 		appWindow.addElement(wall);
 		
-		var plane:Plane = new Plane();
 	}
 	
 }
