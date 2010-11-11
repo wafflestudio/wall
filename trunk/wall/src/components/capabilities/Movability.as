@@ -23,7 +23,6 @@ public class Movability
 		moveInit();
 	}
 	
-
 	private var moveStartPos:Point;
 	private var moveGlobalLocalDiff:Point;
 	
@@ -41,8 +40,6 @@ public class Movability
 		moveGlobalLocalDiff = moveStartPos.subtract(new Point(e.stageX, e.stageY));
 		obj.stage.addEventListener(MouseEvent.MOUSE_MOVE, move);
 		obj.stage.addEventListener(MouseEvent.MOUSE_UP, moveEnd);
-		
-		//obj.dispatchEvent(new SpatialEvent(SpatialEvent.MOVE_START, false, false, obj.x, obj.y));
 	}
 	
 	public function move(e:MouseEvent):void
@@ -57,8 +54,8 @@ public class Movability
 	public function moveEnd(e:MouseEvent):void
 	{
 		var current:Point = obj.parent.globalToLocal((new Point(e.stageX, e.stageY)).add(moveGlobalLocalDiff));
-		obj.x = (current.x);
-		obj.y = (current.y);
+		obj.x = current.x;
+		obj.y = current.y;
 		
 		obj.stage.removeEventListener(MouseEvent.MOUSE_MOVE, move);	
 		obj.stage.removeEventListener(MouseEvent.MOUSE_UP, moveEnd);

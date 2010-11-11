@@ -1,5 +1,6 @@
 package components
 {
+import components.controls.IScrollable;
 import components.events.MoveEvent;
 import components.events.SpatialEvent;
 
@@ -13,13 +14,61 @@ import spark.components.BorderContainer;
 import spark.components.Group;
 
 [Event(name="updated", type="flash.events.Event")]
-public class SpatialObject extends BorderContainer
+public class SpatialObject extends BorderContainer implements IScrollable
 {
 	public function SpatialObject()
 	{
 		super();
 		// TODO: revise
 		this.addEventListener("updated", onUpdate);
+	}
+	
+	public function get horizontalScrollRatioPos():Number
+	{
+		var crect:Rectangle = scaledChildrenExtent;
+		var rect:Rectangle = extent;
+		var min:Number = crect.x < rect.x ? crect.x : rect.x;
+		var max:Number = crect.x+crect.width < rect.x+rect.width ? 
+						  crect.x+crect.width : rect.x+rect.width;
+		var percentPos:Number = (rect.x-min)/(max-min);
+		
+		return percentPos;
+	}
+	
+	public function get horizontalScrollRatioLength():Number
+	{
+		var crect:Rectangle = scaledChildrenExtent;
+		var rect:Rectangle = extent;
+		var min:Number = crect.x < rect.x ? crect.x : rect.x;
+		var max:Number = crect.x+crect.width < rect.x+rect.width ? 
+						 crect.x+crect.width : rect.x+rect.width;
+		var percentLength:Number = rect.width/(max-min);
+		
+		return percentLength;
+	}
+	
+	public function get verticalScrollRatioPos():Number
+	{
+		var crect:Rectangle = scaledChildrenExtent;
+		var rect:Rectangle = extent;
+		var min:Number = crect.y < rect.y ? crect.y : rect.y;
+		var max:Number = crect.y+crect.height < rect.x+rect.height ? 
+						 crect.y+crect.height : rect.x+rect.height;
+		var percentPos:Number = (rect.x-min)/(max-min);
+		
+		return percentPos;
+	}
+	
+	public function get verticalScrollRatioLength():Number
+	{
+		var crect:Rectangle = scaledChildrenExtent;
+		var rect:Rectangle = extent;
+		var min:Number = crect.y < rect.x ? crect.y : rect.y;
+		var max:Number = crect.y+crect.width < rect.y+rect.width ? 
+			crect.x+crect.width : rect.y+rect.width;
+		var percentLength:Number = rect.width/(max-min);
+		
+		return percentLength;
 	}
 	
 	protected var childrenContainer:Group = new Group();
@@ -73,5 +122,7 @@ public class SpatialObject extends BorderContainer
 	private function onUpdate(e:Event):void  {
 			
 	}
+	
+	
 }
 }

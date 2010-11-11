@@ -1,6 +1,9 @@
 package components.controls
 {
+	import components.events.ChildrenEvent;
+	
 	import mx.core.UIComponent;
+	
 	import spark.effects.Animate;
 	import spark.effects.Fade;
 	import spark.effects.animation.SimpleMotionPath;
@@ -14,15 +17,17 @@ package components.controls
 	 **/
 	public class ScrollbarBase extends UIComponent
 	{
-		private static const anim_duration_ms:int = 200;
-		private static const max_opacity:Number = 0.8;
+		private static const defaultMaxOpacity:Number = 0.8;
+		private static const defaultFadeDurationMS:Number = 1000;
+		protected static const defaultThickness:Number = 5;
 		
 		public var fadeEffect:Fade;
 		
-		public function ScrollbarBase()  {
+		public function ScrollbarBase(target:IScrollable)  {
 			super();
-			
+			this.target = target;
 			initFadeEffect();
+				
 		}
 		
 		public function show():void  {
@@ -42,15 +47,17 @@ package components.controls
 		protected override function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void  {
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			this.graphics.clear();
-			this.graphics.beginFill(0x0, max_opacity);
-			this.graphics.drawRoundRect(0,0, unscaledWidth, unscaledHeight,5,5);	
+			this.graphics.beginFill(0x0, defaultMaxOpacity);
+			this.graphics.drawRoundRect(0,0, unscaledWidth, unscaledHeight, 5 , 5);	
 			this.graphics.endFill();	
 			trace("updateDisplayList");
 		}
 		
+		protected var target:IScrollable;
+		
 		private function initFadeEffect():void  {
 			fadeEffect = new Fade(this);
-			fadeEffect.duration = 1000;
+			fadeEffect.duration = defaultFadeDurationMS;
 			fadeEffect.easer = new Sine();		
 		}
 	}

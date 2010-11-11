@@ -2,6 +2,7 @@ package components  {
 
 import components.capabilities.Pannability;
 import components.capabilities.Scalability;
+import components.controls.IScrollable;
 
 import controllers.ApplicationController;
 
@@ -97,7 +98,7 @@ public class Wall extends SpatialObject
 	
 	protected override function createChildren():void  {
 		super.createChildren();
-		// add scrollbar
+		
 	}
 	
 	
