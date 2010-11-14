@@ -6,7 +6,6 @@ import components.controls.ScrollbarBase;
 import components.controls.VerticalScrollbar;
 import components.events.ChildrenEvent;
 import components.events.PanEvent;
-
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Point;
