@@ -3,13 +3,10 @@ package components
 import components.controls.IScrollable;
 import components.events.MoveEvent;
 import components.events.SpatialEvent;
-
 import flash.display.DisplayObject;
 import flash.events.Event;
 import flash.geom.Rectangle;
-
 import mx.core.IVisualElement;
-
 import spark.components.BorderContainer;
 import spark.components.Group;
 
@@ -19,29 +16,29 @@ public class SpatialObject extends BorderContainer implements IScrollable
 	public function SpatialObject()
 	{
 		super();
-		// TODO: revise
-		this.addEventListener("updated", onUpdate);
+		this.attachChildrenContainer();
+		
 	}
 	
 	public function get horizontalScrollRatioPos():Number
 	{
-		var crect:Rectangle = scaledChildrenExtent;
+		var crect:Rectangle = adjustedChildrenExtent;
 		var rect:Rectangle = extent;
-		var min:Number = crect.x < rect.x ? crect.x : rect.x;
-		var max:Number = crect.x+crect.width < rect.x+rect.width ? 
-						  crect.x+crect.width : rect.x+rect.width;
-		var percentPos:Number = (rect.x-min)/(max-min);
+		var min:Number = crect.x < 0 ? crect.x : 0;
+		var max:Number = crect.x+crect.width > 0+rect.width ? 
+						  crect.x+crect.width : 0+rect.width;
+		var ratioPos:Number = (rect.x-min)/(max-min);
 		
-		return percentPos;
+		return ratioPos;
 	}
 	
 	public function get horizontalScrollRatioLength():Number
 	{
-		var crect:Rectangle = scaledChildrenExtent;
+		var crect:Rectangle = adjustedChildrenExtent;
 		var rect:Rectangle = extent;
-		var min:Number = crect.x < rect.x ? crect.x : rect.x;
-		var max:Number = crect.x+crect.width < rect.x+rect.width ? 
-						 crect.x+crect.width : rect.x+rect.width;
+		var min:Number = crect.x < 0 ? crect.x : 0;
+		var max:Number = crect.x+crect.width > 0+rect.width ? 
+						 crect.x+crect.width : 0+rect.width;
 		var percentLength:Number = rect.width/(max-min);
 		
 		return percentLength;
@@ -49,24 +46,24 @@ public class SpatialObject extends BorderContainer implements IScrollable
 	
 	public function get verticalScrollRatioPos():Number
 	{
-		var crect:Rectangle = scaledChildrenExtent;
+		var crect:Rectangle = adjustedChildrenExtent;
 		var rect:Rectangle = extent;
-		var min:Number = crect.y < rect.y ? crect.y : rect.y;
-		var max:Number = crect.y+crect.height < rect.x+rect.height ? 
-						 crect.y+crect.height : rect.x+rect.height;
-		var percentPos:Number = (rect.x-min)/(max-min);
+		var min:Number = crect.y < 0 ? crect.y : 0;
+		var max:Number = crect.y+crect.height > 0+rect.height ? 
+						 crect.y+crect.height : 0+rect.height;
+		var percentPos:Number = (rect.y-min)/(max-min);
 		
 		return percentPos;
 	}
 	
 	public function get verticalScrollRatioLength():Number
 	{
-		var crect:Rectangle = scaledChildrenExtent;
+		var crect:Rectangle = adjustedChildrenExtent;
 		var rect:Rectangle = extent;
-		var min:Number = crect.y < rect.x ? crect.y : rect.y;
-		var max:Number = crect.y+crect.width < rect.y+rect.width ? 
-			crect.x+crect.width : rect.y+rect.width;
-		var percentLength:Number = rect.width/(max-min);
+		var min:Number = crect.y < 0 ? crect.y : 0;
+		var max:Number = crect.y+crect.height > 0+rect.height ? 
+			crect.y+crect.height : 0+rect.height;
+		var percentLength:Number = rect.height/(max-min);
 		
 		return percentLength;
 	}
@@ -106,11 +103,11 @@ public class SpatialObject extends BorderContainer implements IScrollable
 		return new Rectangle(minx, miny, maxx-minx, maxy-miny);
 	}
 	
-	protected function get scaledChildrenExtent():Rectangle  {
+	protected function get adjustedChildrenExtent():Rectangle  {
 		var rect:Rectangle = childrenExtent;
 		
-		return new Rectangle(rect.x * this.childrenContainer.scaleX, 
-			rect.y * this.childrenContainer.scaleY, 
+		return new Rectangle(childrenContainer.x + rect.x * this.childrenContainer.scaleX, 
+			childrenContainer.y + rect.y * this.childrenContainer.scaleY, 
 			rect.width * this.childrenContainer.scaleX, 
 			rect.height * this.childrenContainer.scaleY);
 	}
@@ -119,8 +116,8 @@ public class SpatialObject extends BorderContainer implements IScrollable
 		return new Rectangle(this.x, this.y, this.width, this.height);
 	}
 	
-	private function onUpdate(e:Event):void  {
-			
+	private function attachChildrenContainer():void  {
+		this.addElement(childrenContainer);
 	}
 	
 	

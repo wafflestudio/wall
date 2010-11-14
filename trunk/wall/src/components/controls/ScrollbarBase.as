@@ -1,9 +1,7 @@
 package components.controls
 {
 	import components.events.ChildrenEvent;
-	
 	import mx.core.UIComponent;
-	
 	import spark.effects.Animate;
 	import spark.effects.Fade;
 	import spark.effects.animation.SimpleMotionPath;
@@ -26,8 +24,8 @@ package components.controls
 		public function ScrollbarBase(target:IScrollable)  {
 			super();
 			this.target = target;
+			attachToTarget();
 			initFadeEffect();
-				
 		}
 		
 		public function show():void  {
@@ -36,7 +34,7 @@ package components.controls
 		}
 		
 		public function hide():void  {
-			fadeEffect.alphaTo = 0.2;
+			fadeEffect.alphaTo = 0.0;
 			fadeEffect.play();
 		}
 		
@@ -50,7 +48,6 @@ package components.controls
 			this.graphics.beginFill(0x0, defaultMaxOpacity);
 			this.graphics.drawRoundRect(0,0, unscaledWidth, unscaledHeight, 5 , 5);	
 			this.graphics.endFill();	
-			trace("updateDisplayList");
 		}
 		
 		protected var target:IScrollable;
@@ -59,6 +56,10 @@ package components.controls
 			fadeEffect = new Fade(this);
 			fadeEffect.duration = defaultFadeDurationMS;
 			fadeEffect.easer = new Sine();		
+		}
+		
+		private function attachToTarget():void  {
+			target.addElement(this);
 		}
 	}
 }

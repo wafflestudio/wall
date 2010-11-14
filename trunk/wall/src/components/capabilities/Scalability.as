@@ -3,6 +3,7 @@ package components.capabilities
 import components.SpatialObject;
 import flash.events.MouseEvent;
 import spark.components.Group;
+import components.events.ChildrenEvent;
 
 public class Scalability
 {
@@ -23,6 +24,7 @@ public class Scalability
 		target.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
 			var multiplier:Number = Math.pow(1.1, e.delta);
 			multiplyContentScale(multiplier);
+			target.dispatchEvent(new ChildrenEvent(ChildrenEvent.DIMENSION_CHANGE));
 		});
 	}
 	
