@@ -13,6 +13,7 @@ package components  {
 	import spark.components.BorderContainer;
 	import spark.components.Group;
 	import spark.effects.Scale;
+	import mx.core.IVisualElement;
 	
 	
 	/** Wall: 벽 컴포넌트
@@ -64,7 +65,7 @@ package components  {
 		
 		public function toXML():XML  {
 			var xml:XML = <wall/>;
-			for(var i:int  = 0; i < this.numElements; i++)  {
+			for(var i:int  = 0; i < this.childrenContainer.numElements; i++)  {
 				var element:Sheet = this.childrenContainer.getElementAt(i) as Sheet;
 				if(element)
 					xml.appendChild(element.toXML());
@@ -81,6 +82,7 @@ package components  {
 			setDefaultStyle();	
 		}
 		
+		
 		private function setDefaultStyle():void  {
 			this.percentWidth = 100;
 			this.percentHeight = 100;
@@ -89,7 +91,6 @@ package components  {
 		}
 		
 	
-		
 		protected override function createChildren():void  {
 			super.createChildren();
 			

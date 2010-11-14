@@ -3,14 +3,11 @@ package components.capabilities
 
 import components.SpatialObject;
 import components.events.SpatialEvent;
-
 import flash.display.Stage;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Point;
-
 import flashx.textLayout.elements.GlobalSettings;
-
 import mx.core.UIComponent;
 
 public class Movability

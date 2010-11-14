@@ -3,20 +3,19 @@ package controllers  {
 import components.Sheet;
 import components.Wall;
 import components.events.SpatialEvent;
-
 import mx.core.Application;
 import mx.core.FlexGlobals;
 import mx.core.Window;
 import mx.events.ResizeEvent;
-
 import spark.components.WindowedApplication;
+import flash.filesystem.FileMode;
+import flash.filesystem.File;
+import flash.filesystem.FileStream;
+import flash.utils.setTimeout;
 
 
 
 /** ApplicationController: 
- *
- * 싱글턴 클래스.
- * SHY!!
  * 
  * */
 public class ApplicationController
@@ -46,6 +45,30 @@ public class ApplicationController
 		var wall:Wall = Wall.create(wallXML);	
 		appWindow.addElement(wall);
 		
+		setTimeout(save, 2000);
+	}
+	
+	private function save():void  {
+		var file:File = 
+			File.applicationStorageDirectory.resolvePath( "wallrc" );
+		
+		var file_stream:FileStream = new FileStream();
+		
+		file_stream.open( file, FileMode.WRITE );
+		
+		//var file_str:String = file_stream.readMultiByte( file.size, File.systemCharset );
+		file_stream.writeUTFBytes(getWallXML());
+	}
+	
+	private function getWallXML():XML  {
+		var xml:XML = <infintewall/>;
+		for(var i:int  = 0; i < appWindow.numElements; i++)  {
+			var element:Wall = appWindow.getElementAt(i) as Wall;
+			if(element)
+				xml.appendChild(element.toXML());
+		}
+	
+		return xml;
 	}
 	
 }
