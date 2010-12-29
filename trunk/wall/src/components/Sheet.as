@@ -2,7 +2,6 @@ package components  {
 	
 import components.capabilities.Movability;
 import components.events.SpatialEvent;
-import components.utils.IDisposable;
 
 import flash.display.Graphics;
 import flash.events.Event;

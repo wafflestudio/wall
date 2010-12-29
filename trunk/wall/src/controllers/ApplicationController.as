@@ -16,22 +16,27 @@ import flash.utils.setTimeout;
 
 
 /** ApplicationController: 
- * 
+ *
  * */
 public class ApplicationController
 {		
 	
-	/********* instance properties *********/
-	
-	/** Wall을 담는 배열 **/
-	private var walls:Array = [];
-	private var appWindow:WindowedApplication;
-	
+	/** public methods **/
+	/********************************************************************/
 	public function ApplicationController(app:WindowedApplication)  {	
 		init(app);
 		start();
 	}
+	/********************************************************************/
+
 	
+	/********* instance properties *********/
+	/** Wall을 담는 배열 **/
+	private var walls:Array = [];
+	private var appWindow:WindowedApplication;
+	
+	
+	/** private methods **/
 	private function init(app:WindowedApplication):void  {
 		this.appWindow = app;
 	}

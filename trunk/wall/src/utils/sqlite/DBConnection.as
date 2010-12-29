@@ -1,5 +1,6 @@
 package utils.sqlite  {
 import mx.rpc.events.FaultEvent;
+import flash.data.SQLConnection;
 
 public class DBConnection
 {
