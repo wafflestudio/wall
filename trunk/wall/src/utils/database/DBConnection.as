@@ -1,4 +1,4 @@
-package utils.sqlite  {
+package utils.database  {
 import mx.rpc.events.FaultEvent;
 import flash.data.SQLConnection;
 import flash.events.SQLEvent;

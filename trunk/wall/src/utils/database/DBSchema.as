@@ -1,4 +1,4 @@
-package utils.sqlite
+package utils.database
 {
 public class DBSchema
 {
