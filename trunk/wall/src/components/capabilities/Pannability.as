@@ -39,7 +39,6 @@ public class Pannability
 		target.addEventListener(MouseEvent.MOUSE_DOWN, panStart);
 	}
 	
-	
 	private function panStart(e:MouseEvent):void  {
 		target.stage.addEventListener(MouseEvent.MOUSE_MOVE, pan);
 		target.stage.addEventListener(MouseEvent.MOUSE_UP, panEnd);

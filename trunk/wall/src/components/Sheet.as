@@ -1,10 +1,15 @@
 package components  {
 	
 import components.capabilities.Movability;
+import components.capabilities.Resizability;
+import components.controls.IResizable;
+import components.controls.ResizeControl;
 import components.events.SpatialEvent;
 
 import flash.display.Graphics;
 import flash.events.Event;
+
+import mx.effects.Resize;
 
 import spark.components.BorderContainer;
 import spark.components.TextArea;
@@ -30,7 +35,7 @@ import spark.components.TextArea;
 [Event(name="resized", type="flash.events.Event")]
 [Event(name="zooming", type="flash.events.Event")]
 [Event(name="zoomed", type="flash.events.Event")]
-public class Sheet extends SpatialObject
+public class Sheet extends SpatialObject implements IResizable
 {
 	
 	public static function create(sheetXML:XML):Sheet  {
@@ -44,11 +49,12 @@ public class Sheet extends SpatialObject
 	}
 
 	private var movability:Movability;
-	
+	private var resizability:Resizability;
 	
 	public function Sheet()  {
 		super();
-		movability = new Movability(this);
+		//movability = new Movability(this);
+		resizability = new Resizability(this);
 	}
 	
 	public function toXML():XML  {

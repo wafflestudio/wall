@@ -58,7 +58,7 @@ package components  {
 		public function Wall()  {
 			super();
 			
-			pannability = new Pannability(this, this.childrenContainer);
+			//pannability = new Pannability(this, this.childrenContainer);
 			scalability = new Scalability(this, this.childrenContainer);
 			
 		}

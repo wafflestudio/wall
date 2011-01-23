@@ -12,9 +12,9 @@ import mx.core.UIComponent;
 
 public class Movability
 {
-	private var obj:SpatialObject;
+	private var obj:UIComponent;
 	
-	public function Movability(target:SpatialObject)
+	public function Movability(target:UIComponent)
 	{
 		this.obj = target;
 		moveInit();
@@ -50,7 +50,8 @@ public class Movability
 	
 	public function moveEnd(e:MouseEvent):void
 	{
-		var current:Point = obj.parent.globalToLocal((new Point(e.stageX, e.stageY)).add(moveGlobalLocalDiff));
+		var current:Point = 
+			obj.parent.globalToLocal((new Point(e.stageX, e.stageY)).add(moveGlobalLocalDiff));
 		obj.x = current.x;
 		obj.y = current.y;
 		
