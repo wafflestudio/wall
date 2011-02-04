@@ -17,16 +17,22 @@ import mx.managers.PopUpManager;
 import spark.components.TitleWindow;
 import spark.components.WindowedApplication;
 import mx.events.CloseEvent;
+import flash.events.Event;
+import mx.events.FlexEvent;
+import behaviors.events.FormEvent;
 
 public class ApplicationController
 {
 	private var appWindow:WindowedApplication;
 	private var theWall:Wall;
+	// configurations
 	private var wallPath:File;
 	
 	public function ApplicationController(app:WindowedApplication)  {	
 		this.appWindow = app;
-		load();
+		loadConfig();
+		loadWall(wallPath);
+		
 	}
 	
 	public function newSheet():void
@@ -34,9 +40,8 @@ public class ApplicationController
 		theWall.addBlankSheet();
 	}
 	
-	private function loadconf():void  {
+	private function loadConfig():void  {
 		var file:File = File.applicationStorageDirectory.resolvePath( "wallconf.xml" );
-		
 		var fileStream:FileStream = new FileStream();
 		var confXML:XML;
 		
@@ -53,36 +58,65 @@ public class ApplicationController
 			trace('bad reading of stream');
 		}
 		
+		// form default config
 		if(confXML == null)
-			confXML = loadDefaultConfXML();
+			confXML = defaultConfig;
 		
-		load();
+		wallPath = File.userDirectory.resolvePath(confXML.wallPath[0].@value);
+	}
+	
+	public function saveConfig():void  {
+		var file:File = File.applicationStorageDirectory.resolvePath( "wallconf.xml" );
+		var file_stream:FileStream = new FileStream();
+		
+		file_stream.open( file, FileMode.WRITE );
+		file_stream.writeUTFBytes( currentConfig );
+		trace('saved at ' + file.nativePath);
 	}
 	
 	
-	public function changeWall():void  {
+	private function get defaultConfig():XML  {
+		var f:File = File.userDirectory.resolvePath( "index.wall" );
+		
+		var wallXML:XML = 	
+			<infiniteWall>
+				<wallPath value={f.nativePath}/>
+			</infiniteWall>
+		return wallXML;
+	}
+	
+	private function get currentConfig():XML  {
+		var wallXML:XML = 	
+			<infiniteWall>
+				<wallPath value={wallPath.nativePath}/>
+			</infiniteWall>
+		return wallXML;
+	}
+	
+	
+	public function changeCurrentWall():void  {
 		var win:SelectWallDialog = new SelectWallDialog();
 		
 		win.addEventListener(CloseEvent.CLOSE, function(e:CloseEvent):void  {
 			PopUpManager.removePopUp(win);
+			saveConfig();
 		});
-		
-		
-		
+		win.addEventListener(FormEvent.CHANGE, function(e:FormEvent):void  {
+			wallPath = File.userDirectory.resolvePath(String(e.xml.selectedPath[0].@value) + "/index.wall");
+		});		
 		PopUpManager.addPopUp(win as IFlexDisplayObject, appWindow);
 		PopUpManager.centerPopUp(win);
 	}
 
-	public function load():void  {
-		var file:File = 
-			File.applicationStorageDirectory.resolvePath( "index.xml" );
+	public function loadWall(wall:File):void  {
+		var file:File = wall;
 		
-		var file_stream:FileStream = new FileStream();
+		var fileStream:FileStream = new FileStream();
 		var wallXML:XML;
 		
 		try {
-			file_stream.open( file, FileMode.READ );
-			var file_content:String = file_stream.readUTFBytes(file_stream.bytesAvailable)
+			fileStream.open( file, FileMode.READ );
+			var file_content:String = fileStream.readUTFBytes(fileStream.bytesAvailable)
 			if(file_content)
 				wallXML = new XML(file_content);
 		}
@@ -94,58 +128,24 @@ public class ApplicationController
 		}
 		
 		if(wallXML == null)
-			wallXML = loadDefaultXML();
+			wallXML = Wall.defaultValue;
 		
-		theWall = Wall.create(wallXML.wall[0]);	
+		theWall = Wall.create(wallXML);	
 		appWindow.addElement(theWall);
 	}
 	
-
-	public function save():void  {
-		var file:File = 
-			File.applicationStorageDirectory.resolvePath( "wallrc" );
+	public function saveWall():void  {
+		var file:File = wallPath;
+		var fileStream:FileStream = new FileStream();
 		
-		var file_stream:FileStream = new FileStream();
-		
-		file_stream.open( file, FileMode.WRITE );
-		file_stream.writeUTFBytes(this.toXML());
-		trace('saved');
+		fileStream.open( file, FileMode.WRITE );
+		fileStream.writeUTFBytes( currentWall );
+		trace('saved at ' + file.nativePath);
 	}
 	
-	private function loadDefaultXML():XML  {
-		var wallXML:XML = 
-			<infinitewall>
-			<wall width='200' height='200'>
-				<sheet x='10' y='10' width='300' height='400' type='text'/>
-				<sheet x='100' y='15' width='400' height='600' type='text'/>
-			</wall>
-			</infinitewall>
-		return wallXML;
+	private function get currentWall():XML  {
+		return theWall.toXML();
 	}
-	
-	private function loadDefaultConfXML():XML  {
-		var wallXML:XML = 
-			<infinitewall>
-			<wall width='200' height='200'>
-				<sheet x='10' y='10' width='300' height='400' type='text'/>
-				<sheet x='100' y='15' width='400' height='600' type='text'/>
-			</wall>
-			</infinitewall>
-		return wallXML;
-	}
-	
-	private function toXML():XML  {
-		var xml:XML = <infintewall/>;
-		
-		for(var i:int  = 0; i < appWindow.numElements; i++)  {
-			var element:Wall = appWindow.getElementAt(i) as Wall;
-			if(element)
-				xml.appendChild(element.toXML());
-		}
-		
-		return xml;
-	}
-	
 
 }
 }

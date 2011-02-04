@@ -15,7 +15,9 @@ package components.dialogs
 	import spark.components.VGroup;
 	import flash.events.MouseEvent;
 	import mx.events.CloseEvent;
+	import behaviors.events.FormEvent;
 
+	[Event(name="xmlChange", type="behaviors.events.FormEvent")]
 	public class SelectWallDialog extends TitleWindow
 	{
 		public function SelectWallDialog()
@@ -45,7 +47,7 @@ package components.dialogs
 			var btnApply:Button = new Button();
 			btnApply.label = "Apply";
 			btnApply.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { 
-				
+				dispatchEvent(new FormEvent(FormEvent.CHANGE, false, false, <root><selectedPath value={text.text}/></root>));
 				dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
 			});
 			var btnCancel:Button = new Button();

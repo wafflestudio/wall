@@ -31,8 +31,8 @@
 	</s:creationComplete>
 	<s:BorderContainer width="{48+16}" height="100%" backgroundAlpha="0.7" backgroundColor="0xbcbcbc" depth="1" borderAlpha="0">
 		<mx:Image x="5" y="25" source="@Embed(source='../res/plus.png')" click="appController.newSheet()"/>
-		<mx:Image x="5" y="{25+64}" source="@Embed(source='../res/save.png')" click="appController.save()"/>
-		<mx:Image x="5" y="{25+64+64}" source="@Embed(source='../res/settings.png')" click="appController.changeWall()"/>	
+		<mx:Image x="5" y="{25+64}" source="@Embed(source='../res/save.png')" click="appController.saveWall()"/>
+		<mx:Image x="5" y="{25+64+64}" source="@Embed(source='../res/settings.png')" click="appController.changeCurrentWall()"/>	
 	</s:BorderContainer>
 	
 </s:WindowedApplication>

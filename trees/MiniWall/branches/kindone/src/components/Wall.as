@@ -129,6 +129,15 @@ package components  {
 			return xml;
 		}
 		
+		public static function get defaultValue():XML  {
+			var wallXML:XML = 
+				<wall width='200' height='200'>
+					<sheet x='10' y='10' width='300' height='400' type='text'/>
+					<sheet x='100' y='15' width='400' height='600' type='text'/>
+				</wall>
+			return wallXML;
+		}
+		
 		public override function initialize():void  {
 			super.initialize();
 			setDefaultStyle();
@@ -149,8 +158,8 @@ package components  {
 		
 		private function onPaste(e:Event):void  {
 			if(e.target == e.currentTarget)
-//				Alert.show( e.target.toString());
-				;
+				Alert.show( e.target.toString());
+				
 		}
 		
 	}
