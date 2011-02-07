@@ -25,8 +25,15 @@ package components.dialogs
 			this.title = "Select Wall Directory";
 		}
 		
+		private var text:Text;
+		
+		public function set wallPath(value:String):void  {
+			text.text = value;
+		}
+		
 		override public function initialize():void
 		{
+			super.initialize();
 			var vg:VGroup = new VGroup();
 			
 			var fst:FileSystemTree = new FileSystemTree();
@@ -36,7 +43,7 @@ package components.dialogs
 			};
 			fst.percentWidth = 100;
 			
-			var text:Text = new Text();
+			text = new Text();
 			text.text = File.userDirectory.nativePath;
 			
 			fst.addEventListener(ListEvent.CHANGE, function(e:ListEvent):void  {

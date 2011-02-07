@@ -106,6 +106,7 @@ public class ApplicationController
 		});		
 		PopUpManager.addPopUp(win as IFlexDisplayObject, appWindow);
 		PopUpManager.centerPopUp(win);
+		win.wallPath = wallPath.nativePath;
 	}
 
 	public function loadWall(wall:File):void  {
