@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<actionScriptProperties mainApplicationPath="MiniWall.mxml" projectUUID="b0b623ec-172b-44df-97e3-713d4497ed8e" version="6">
+<actionScriptProperties mainApplicationPath="InfiniteWall.mxml" projectUUID="b0b623ec-172b-44df-97e3-713d4497ed8e" version="6">
   <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="true" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
     <compilerSourcePath/>
     <libraryPath defaultLinkType="0">
@@ -13,7 +13,7 @@
     <sourceAttachmentPath/>
   </compiler>
   <applications>
-    <application path="MiniWall.mxml">
+    <application path="InfiniteWall.mxml">
       <airExcludes/>
     </application>
   </applications>
