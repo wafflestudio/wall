@@ -36,7 +36,7 @@ import mx.events.ResizeEvent;
 [Event(name="resized", type="flash.events.Event")]
 [Event(name="zooming", type="flash.events.Event")]
 [Event(name="zoomed", type="flash.events.Event")]
-public class Sheet extends SpatialObject
+public class Sheet extends Component
 {
 	public static const TEXT_CONTENT:String = "text";
 	public static const IMAGE_CONTENT:String = "image";
@@ -44,31 +44,31 @@ public class Sheet extends SpatialObject
 	private var type:String;
 	
 	public static function create(sheetXML:XML):Sheet  {
-		var new_sheet:Sheet = new Sheet();
+		var newSheet:Sheet = new Sheet();
 		
-		new_sheet.x = sheetXML.@x;
-		new_sheet.y = sheetXML.@y;
-		new_sheet.width = sheetXML.@width;
-		new_sheet.height = sheetXML.@height;
-		new_sheet.type = sheetXML.@type;
+		newSheet.x = sheetXML.@x;
+		newSheet.y = sheetXML.@y;
+		newSheet.width = sheetXML.@width;
+		newSheet.height = sheetXML.@height;
+		newSheet.type = sheetXML.@type;
 		
-		switch(new_sheet.type)  {
+		switch(newSheet.type)  {
 			case TEXT_CONTENT:
 				var tc:TextContent = new TextContent(sheetXML.text); 
-				new_sheet.addElement(tc);
+				newSheet.addElement(tc);
 				// prevent events
 				tc.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void { e.stopPropagation(); });
 				
 				break;
 			case IMAGE_CONTENT:
-				new_sheet.addElement(new ImageContent(String(sheetXML.@url)));
+				newSheet.addElement(new ImageContent(String(sheetXML.@url)));
 				break;
 			default:
 				trace('unknown type attribute found:' + String(sheetXML.@type));
 		}
 		
 		
-		return new_sheet;
+		return newSheet;
 	}
 
 	private var movability:Movability;

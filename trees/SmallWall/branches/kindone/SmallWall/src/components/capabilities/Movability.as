@@ -1,7 +1,7 @@
 package components.capabilities
 {
 
-import components.SpatialObject;
+import components.Component;
 import flash.display.Stage;
 import flash.events.Event;
 import flash.events.MouseEvent;
@@ -12,9 +12,9 @@ import components.events.SpatialEvent;
 
 public class Movability
 {
-	private var obj:SpatialObject;
+	private var obj:Component;
 	
-	public function Movability(target:SpatialObject)
+	public function Movability(target:Component)
 	{
 		this.obj = target;
 		moveInit();

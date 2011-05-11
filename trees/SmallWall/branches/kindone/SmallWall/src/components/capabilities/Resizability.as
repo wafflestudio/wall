@@ -1,7 +1,7 @@
 package components.capabilities
 {
 import components.events.SpatialEvent;
-import components.SpatialObject;
+import components.Component;
 import flash.events.MouseEvent;
 import flash.geom.Point;
 import components.controls.ResizeControl;
@@ -10,13 +10,13 @@ import mx.events.ResizeEvent;
 public class Resizability
 {
 	
-	private var obj:SpatialObject;
+	private var obj:Component;
 	private var resizeControl:ResizeControl;
 	
 	private var resizeStartPos:Point;
 	private var resizeGlobalLocalDiff:Point;
 	
-	public function Resizability(target:SpatialObject) 
+	public function Resizability(target:Component) 
 	{
 		this.obj = target;			
 		attachToTarget();

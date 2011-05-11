@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
-					   xmlns:s="library://ns.adobe.com/flex/spark" 
-					   xmlns:mx="library://ns.adobe.com/flex/mx">
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx">
 	<fx:Script>
 		<![CDATA[
+			import mx.events.AIREvent;
 			import controllers.WallApplication;
 			import history.History;
 		]]>
@@ -14,13 +13,16 @@
 	<s:initialize>
 		<![CDATA[
 			this.maximize();
+			
+			
 		]]>
 	</s:initialize>
 	<s:creationComplete>
 		<![CDATA[
 			var wallCore:WallApplication = new WallApplication(this as WindowedApplication);
-		
+			
 		
 		]]>
 	</s:creationComplete>
+	
 </s:WindowedApplication>

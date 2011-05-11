@@ -28,7 +28,7 @@ public class WallApplication
 	
 	public function newSheet():void
 	{
-		theWall.addBlankSheet();
+		theWall.addNewBlankSheet();
 	}
 	
 	private function init(win:WindowedApplication):void  {

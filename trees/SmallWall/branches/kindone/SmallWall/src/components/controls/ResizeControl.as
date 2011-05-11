@@ -1,11 +1,11 @@
 package components.controls
 {
 import mx.core.UIComponent;
-import components.SpatialObject;
+import components.Component;
 
 public class ResizeControl extends UIComponent
 {
-	public function ResizeControl(target:SpatialObject)
+	public function ResizeControl(target:Component)
 	{
 		this.includeInLayout = false;	
 	}

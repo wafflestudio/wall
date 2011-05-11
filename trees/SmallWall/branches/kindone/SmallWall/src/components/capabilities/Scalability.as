@@ -1,6 +1,6 @@
 package components.capabilities
 {
-import components.SpatialObject;
+import components.Component;
 import flash.events.MouseEvent;
 import spark.components.Group;
 import components.events.ChildrenEvent;
@@ -8,13 +8,13 @@ import mx.core.UIComponent;
 
 public class Scalability
 {
-	private var target:SpatialObject;
-	private var childrenContainer:UIComponent;
+	private var target:Component;
 	
-	public function Scalability(target:SpatialObject, childrenContainer:UIComponent)
+	
+	public function Scalability(target:Component)
 	{
 		this.target = target;
-		this.childrenContainer = childrenContainer;
+
 		
 		activate();
 	}
@@ -33,20 +33,20 @@ public class Scalability
 	private function multiplyContentScale(multiplier:Number):void  {
 		// keep minimum scale to 0.1
 		const MIN_SCALE:Number = 0.1;
-		if(multiplier < 1.0 && (childrenContainer.scaleX <= MIN_SCALE || childrenContainer.scaleY <= MIN_SCALE))
+		if(multiplier < 1.0 && (target.zoomX <= MIN_SCALE || target.zoomY <= MIN_SCALE))
 		{
-			multiplier = MIN_SCALE / (childrenContainer.scaleX < childrenContainer.scaleY ? 
-				childrenContainer.scaleY : childrenContainer.scaleX);
+			multiplier = MIN_SCALE / (target.zoomX < target.zoomY ? 
+				target.zoomY : target.zoomX);
 			
-			childrenContainer.scaleX = MIN_SCALE;
-			childrenContainer.scaleY = MIN_SCALE;
+			target.zoomX = MIN_SCALE;
+			target.zoomY = MIN_SCALE;
 		}
 		else  {
-			childrenContainer.scaleX *= multiplier;
-			childrenContainer.scaleY *= multiplier;
+			target.zoomX *= multiplier;
+			target.zoomY *= multiplier;
 		}
-		childrenContainer.x = (childrenContainer.x - target.width/2) * multiplier + target.width/2;
-		childrenContainer.y = (childrenContainer.y - target.height/2) * multiplier + target.height/2;
+		target.panX = (target.panX - target.width/2) * multiplier + target.width/2;
+		target.panY = (target.panY - target.height/2) * multiplier + target.height/2;
 	}
 }
 }

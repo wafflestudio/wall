@@ -50,7 +50,7 @@ public class History
 		// (c=0)
 		// [H](c=1)
 		var entry:Action = action;
-		log[cursor] = entry;
+		log.addItemAt(entry, cursor);
 		cursor ++;
 		 
 		while(cursor < log.length)  

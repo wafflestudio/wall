@@ -4,20 +4,16 @@ package components  {
 	import components.capabilities.Scalability;
 	import components.events.ChildrenEvent;
 	import components.events.SpatialEvent;
-	
 	import controllers.WallApplication;
-	
 	import flash.events.Event;
 	import flash.events.FocusEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
-	
 	import mx.controls.Alert;
 	import mx.core.IVisualElement;
 	import mx.events.CloseEvent;
 	import mx.events.ResizeEvent;
-	
 	import spark.components.BorderContainer;
 	import spark.components.Group;
 	import spark.effects.Scale;
@@ -33,52 +29,55 @@ package components  {
 	[Event(name="scrolled", type="flash.events.Event")]
 	[Event(name="zooming", type="flash.events.Event")]
 	[Event(name="zoomed", type="flash.events.Event")]
-	public class Wall extends SpatialObject
+	public class Wall extends Component
 	{
-		
 		public static function create(wallXML:XML):Wall  {
-			var new_wall:Wall = new Wall();
+			var newWall:Wall = new Wall();
 	
 			for each(var sheetXML:XML in wallXML.children())  {			
-				new_wall.addSheet(sheetXML);
+				newWall.addSheet(sheetXML);
 			}
 			
-			new_wall.width = wallXML.@width;
-			new_wall.height = wallXML.@height;
-			new_wall.childrenContainer.x = wallXML.@panX;
-			new_wall.childrenContainer.y = wallXML.@panY;
-			new_wall.childrenContainer.scaleX = new_wall.childrenContainer.scaleY = 
+			newWall.width = wallXML.@width;
+			newWall.height = wallXML.@height;
+			newWall.panX = wallXML.@panX;
+			newWall.panY = wallXML.@panY;
+			newWall.zoomX = 
+			newWall.zoomY = 
 				String(wallXML.@scale).length ? wallXML.@scale : 1.0;
 			
-			return new_wall;
+			return newWall;
 		}
 		
-		public function addBlankSheet():void  {
-			var stage_center:Point = new Point(this.stage.stageWidth/2, this.stage.stageHeight/2);
-			trace(stage_center);
-			var center:Point = this.childrenContainer.globalToLocal(this.stage.localToGlobal(stage_center));
+		
+		public function addNewBlankSheet():void  {
+			var stageCenter:Point = new Point(this.stage.stageWidth/2, this.stage.stageHeight/2);
+			trace(stageCenter);
+			var center:Point = this.globalToComponentAxis(this.stage.localToGlobal(stageCenter));
 		
 			var sheetXML:XML = <sheet x={center.x-150} y={center.y-200} width='300' height='400' type='text'/>;
 			this.addSheet(sheetXML);	
 		}
+		
 	
 		private var pannability:Pannability;
 		private var scalability:Scalability;
 		private var history:History;
+	
 		
 		public function Wall()  {
 			super();
 			
-			pannability = new Pannability(this, this.childrenContainer);
-			scalability = new Scalability(this, this.childrenContainer);
+			pannability = new Pannability(this);
+			scalability = new Scalability(this);
 			history = new History();	
-//			var root:NativeMenu = new NativeMenu();
-//			var copyMenuItem:NativeMenuItem = root.addItem(new NativeMenuItem("copy"));
-//			copyMenuItem.addEventListener(Event.SELECT, function(e:Event):void { Alert.show('');});
-//			var pasteMenuItem:NativeMenuItem = root.addItem(new NativeMenuItem("paste"));
-//			pasteMenuItem.addEventListener(Event.SELECT, function(e:Event):void { Alert.show('');});
-//			
-//			this.contextMenu = root;
+			//			var root:NativeMenu = new NativeMenu();
+			//			var copyMenuItem:NativeMenuItem = root.addItem(new NativeMenuItem("copy"));
+			//			copyMenuItem.addEventListener(Event.SELECT, function(e:Event):void { Alert.show('');});
+			//			var pasteMenuItem:NativeMenuItem = root.addItem(new NativeMenuItem("paste"));
+			//			pasteMenuItem.addEventListener(Event.SELECT, function(e:Event):void { Alert.show('');});
+			//			
+			//			this.contextMenu = root;
 			this.addEventListener(Event.PASTE, onPaste);
 			this.addEventListener(ChildrenEvent.DIMENSION_CHANGE, function(e:ChildrenEvent):void
 				{
@@ -86,10 +85,12 @@ package components  {
 				});
 		}
 		
+		
 		public function addSheet(sheetXML:XML):void
 		{
 			var sheet:Sheet = Sheet.create(sheetXML);
-			childrenContainer.addElement(sheet);
+			addComponent(sheet);
+			
 			sheet.addEventListener(SpatialEvent.MOVING, 
 				function(e:Event):void { 
 					dispatchEvent(new ChildrenEvent(ChildrenEvent.DIMENSION_CHANGE)); 
@@ -98,10 +99,11 @@ package components  {
 						
 			var self:Wall = this;
 			
+			// Move action
 			sheet.addEventListener(SpatialEvent.MOVED, 
 				function(e:SpatialEvent):void { 
 					dispatchEvent(new ChildrenEvent(ChildrenEvent.DIMENSION_CHANGE)); 
-					self.history.writeForward(new Action("move", [sheet]));
+					self.history.writeForward(new Action("move", [sheet, e.x, e.y]));
 				}
 			);
 			
@@ -111,7 +113,7 @@ package components  {
 					Alert.show("Are you sure you want to remove this sheet?", "Remove sheet", Alert.OK | Alert.CANCEL, null,
 						function closeHandler(ce:CloseEvent):void  {
 							if(ce.detail == Alert.OK)  {
-								childrenContainer.removeElement(sheet);
+								this.removeComponent(sheet);
 								dispatchEvent(new ChildrenEvent(ChildrenEvent.DIMENSION_CHANGE));
 							}
 						}
@@ -122,24 +124,27 @@ package components  {
 			dispatchEvent(new ChildrenEvent(ChildrenEvent.DIMENSION_CHANGE));
 		}
 		
+		
 		public function toXML():XML  {
 			var xml:XML = <wall/>;
-			for(var i:int  = 0; i < this.childrenContainer.numElements; i++)  {
-				var element:Sheet = this.childrenContainer.getElementAt(i) as Sheet;
+			for(var i:int  = 0; i < this.numComponents; i++)  {
+				var element:Sheet = this.getComponentAt(i) as Sheet;
 				if(element)
 					xml.appendChild(element.toXML());
 			}
 			
 			xml.@width = width;
 			xml.@height = height;
-			xml.@panX = childrenContainer.x;
-			xml.@panY = childrenContainer.y;
-			xml.@scale = childrenContainer.scaleX;
+			xml.@panX = panX;
+			xml.@panY = panY;
+			xml.@scale = zoomX;
 			
 			return xml;
 		}
 		
+		
 		public static function get defaultValue():XML  {
+			// TODO: implement
 			var wallXML:XML = 
 				<wall width='200' height='200'>
 					<sheet x='10' y='10' width='300' height='400' type='text'/>
@@ -148,9 +153,15 @@ package components  {
 			return wallXML;
 		}
 		
+		
 		public override function initialize():void  {
 			super.initialize();
 			setDefaultStyle();
+		}
+		
+		
+		protected override function createChildren():void  {
+			super.createChildren();
 		}
 		
 		
@@ -162,11 +173,8 @@ package components  {
 		}
 		
 	
-		protected override function createChildren():void  {
-			super.createChildren();
-		}
-		
 		private function onPaste(e:Event):void  {
+			// TODO: implement
 			if(e.target == e.currentTarget)
 				Alert.show( e.target.toString());
 				
