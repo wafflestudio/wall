@@ -4,7 +4,7 @@ import history.History;
 import spark.components.WindowedApplication;
 import flash.filesystem.File;
 import mx.events.CloseEvent;
-import components.events.FormEvent;
+import components.elements.events.FormEvent;
 import mx.managers.PopUpManager;
 import components.dialogs.SelectWallDialog;
 import mx.core.IFlexDisplayObject;
@@ -12,57 +12,57 @@ import flash.filesystem.FileStream;
 import flash.filesystem.FileMode;
 import flash.errors.IOError;
 import flash.errors.EOFError;
-import components.Wall;
+import components.elements.Wall;
+import components.views.MainView;
 
-public class WallApplication
+public class WallController
 {
-	private var appWindow:WindowedApplication;
-	private var theWall:Wall;
+	public var view:MainView;
+	public var theWall:Wall;
 	// configurations
 	private var wallPath:File;
 	
-	public function WallApplication(win:WindowedApplication)  {	
+	public function WallController()  {	
 		loadConfig();
-		init(win);
+		init();
 	}
 	
-	public function newSheet():void
-	{
-		theWall.addNewBlankSheet();
-	}
-	
-	private function init(win:WindowedApplication):void  {
-		this.appWindow = win;
+	private function init():void  {
 		loadWall(wallPath);
 	}
 	
-	private function loadConfig():void  {
-		var file:File = File.applicationStorageDirectory.resolvePath( "wallconf.xml" );
-		var fileStream:FileStream = new FileStream();
-		var confXML:XML;
+	private function loadConfig(configFileName:String = "wallconf.xml"):void  {
+	
 		
 		try {
+			var file:File = File.applicationStorageDirectory.resolvePath( configFileName );
+			var fileStream:FileStream = new FileStream();
+			var configXML:XML;
+			
+			
 			fileStream.open( file, FileMode.READ );
 			var fileContent:String = fileStream.readUTFBytes(fileStream.bytesAvailable)
 			if(fileContent)
-				confXML = new XML(fileContent);
+				configXML = new XML(fileContent);
+			
 		}
 		catch(e:IOError)  {
-			trace('unable to find file');
+			trace('IOError:' + e.name + ":" + e.message);
 		}
 		catch(e:EOFError)  {
-			trace('bad reading of stream');
+			trace('EOFError' + e.name + ":" + e.message);
 		}
 		
 		// form default config
-		if(confXML == null)
-			confXML = defaultConfig;
+		if(configXML == null)
+			configXML = defaultConfig;
 		
-		wallPath = File.userDirectory.resolvePath(confXML.wallPath[0].@value);
+		wallPath = File.userDirectory.resolvePath(configXML.wallPath[0].@value);
+		
 	}
 	
-	public function saveConfig():void  {
-		var file:File = File.applicationStorageDirectory.resolvePath( "wallconf.xml" );
+	public function saveConfig(configFileName:String = "wallconf.xml"):void  {
+		var file:File = File.applicationStorageDirectory.resolvePath( configFileName );
 		var file_stream:FileStream = new FileStream();
 		
 		file_stream.open( file, FileMode.WRITE );
@@ -89,8 +89,8 @@ public class WallApplication
 		return wallXML;
 	}
 	
-	public function loadWall(wall:File):void  {
-		var file:File = wall;
+	public function loadWall(wallFile:File):void  {
+		var file:File = wallFile;
 		
 		var fileStream:FileStream = new FileStream();
 		var wallXML:XML;
@@ -111,21 +111,29 @@ public class WallApplication
 		if(wallXML == null)
 			wallXML = Wall.defaultValue;
 		
-		theWall = Wall.create(wallXML);	
-		appWindow.addElement(theWall);
+		view = new MainView();
+		
+		theWall = Wall.create(wallXML);
+		view.addElement( theWall );
+			
 	}
 	
-	public function saveWall():void  {
+	public function saveCurrentWall():void  {
 		var file:File = wallPath;
 		var fileStream:FileStream = new FileStream();
 		
 		fileStream.open( file, FileMode.WRITE );
-		fileStream.writeUTFBytes( currentWall );
+		fileStream.writeUTFBytes( currentWallXML );
 		trace('saved at ' + file.nativePath);
 	}
 	
-	private function get currentWall():XML  {
+	private function get currentWallXML():XML  {
 		return theWall.toXML();
+	}
+	
+	public function addNewBlankSheet():void
+	{
+		theWall.addNewBlankSheet();
 	}
 }
 }
