@@ -15,9 +15,9 @@ package components.dialogs
 	import spark.components.VGroup;
 	import flash.events.MouseEvent;
 	import mx.events.CloseEvent;
-	import components.events.FormEvent;
+	import components.elements.events.FormEvent;
 
-	[Event(name="xmlChange", type="components.events.FormEvent")]
+	[Event(name="xmlChange", type="components.elements.events.FormEvent")]
 	public class SelectWallDialog extends TitleWindow
 	{
 		public function SelectWallDialog()
