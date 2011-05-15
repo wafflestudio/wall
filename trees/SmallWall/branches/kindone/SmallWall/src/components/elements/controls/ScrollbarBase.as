@@ -17,7 +17,7 @@ package components.elements.controls
 	{
 		private static const defaultMaxOpacity:Number = 0.8;
 		private static const defaultFadeDurationMS:Number = 1000;
-		protected static const defaultThickness:Number = 5;
+		protected static const defaultThickness:Number = 8;
 		
 		public var fadeEffect:Fade;
 		

@@ -10,20 +10,35 @@ public class CommandToolBar extends HGroup
 	{
 		this.height = 48 + 16;
 		this.percentWidth = 100;
-		this.alpha = 0.8;
+//		this.alpha = 0.8;
 		
 	}
 	
 	override protected function createChildren():void
 	{
 		super.createChildren();
-		var addbtn:Image = new Image();		
+		
+		var bg:BorderContainer = new BorderContainer();
+		bg.percentHeight = 100;
+		bg.percentWidth = 100;
+		bg.setStyle("backgroundColor", 0xffffff);
+		bg.setStyle("borderAlpha",0);
+		this.addElement(bg);
+		
+		var hgroup:HGroup = new HGroup();
+		hgroup.percentHeight = hgroup.percentWidth = 100;
+		bg.addElement(hgroup);
+		
+		var openbtn:Image = new Image();
+		var addbtn:Image = new Image();
 		var savebtn:Image = new Image(); 
 		
+		
 		addbtn.load("plus.png");
-		this.addElement(addbtn);
+		hgroup.addElement(addbtn);
 		savebtn.load("save.png");
-		this.addElement(savebtn);
+		hgroup.addElement(savebtn);
+		
 		
 		
 

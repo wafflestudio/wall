@@ -4,7 +4,7 @@ import components.elements.capabilities.Pannability;
 import components.elements.capabilities.Scalability;
 import components.elements.events.ChildrenEvent;
 import components.elements.events.SpatialEvent;
-import controllers.WallController;
+import controllers.MainController;
 import flash.events.Event;
 import flash.events.FocusEvent;
 import flash.events.MouseEvent;
@@ -33,33 +33,22 @@ public class Wall extends WallComponent
 {
 	public static function create(wallXML:XML):Wall  {
 		var newWall:Wall = new Wall();
-
-		for each(var sheetXML:XML in wallXML.children())  {			
-			newWall.addSheet(sheetXML);
-		}
-		
-		newWall.width = wallXML.@width;
-		newWall.height = wallXML.@height;
-		newWall.panX = wallXML.@panX;
-		newWall.panY = wallXML.@panY;
-		newWall.zoomX = 
-		newWall.zoomY = 
-			String(wallXML.@scale).length ? wallXML.@scale : 1.0;
-		
+		newWall.init(wallXML);
 		return newWall;
 	}
 	
-	
-	public function addNewBlankSheet():void  {
-		var stageCenter:Point = new Point(this.stage.stageWidth/2, this.stage.stageHeight/2);
-		trace(stageCenter);
-		var center:Point = this.globalToComponentAxis(this.stage.localToGlobal(stageCenter));
-	
-		var sheetXML:XML = <sheet x={center.x-150} y={center.y-200} width='300' height='400' type='text'/>;
-		this.addSheet(sheetXML);	
+	protected function init(wallXML:XML):void  {
+		
+		for each(var sheetXML:XML in wallXML.children())  {			
+			addSheet(sheetXML);
+		}
+		
+		panX = wallXML.@panX;
+		panY = wallXML.@panY;
+		zoomX = zoomY = 
+		String(wallXML.@scale).length ? wallXML.@scale : 1.0;
 	}
 	
-
 	private var pannability:Pannability;
 	private var scalability:Scalability;
 	private var history:History;
@@ -83,6 +72,16 @@ public class Wall extends WallComponent
 			{
 				
 			});
+	}
+	
+	
+	public function addNewBlankSheet():void  {
+		var stageCenter:Point = new Point(this.stage.stageWidth/2, this.stage.stageHeight/2);
+		trace(stageCenter);
+		var center:Point = this.globalToComponentAxis(this.stage.localToGlobal(stageCenter));
+		
+		var sheetXML:XML = <sheet x={center.x-150} y={center.y-200} width='300' height='400' type='text'/>;
+		this.addSheet(sheetXML);	
 	}
 	
 	
@@ -132,9 +131,7 @@ public class Wall extends WallComponent
 			if(element)
 				xml.appendChild(element.toXML());
 		}
-		
-		xml.@width = width;
-		xml.@height = height;
+	
 		xml.@panX = panX;
 		xml.@panY = panY;
 		xml.@scale = zoomX;
@@ -146,7 +143,7 @@ public class Wall extends WallComponent
 	public static function get defaultValue():XML  {
 		// TODO: implement
 		var wallXML:XML = 
-			<wall width='200' height='200'>
+			<wall>
 				<sheet x='10' y='10' width='300' height='400' type='text'/>
 				<sheet x='100' y='15' width='400' height='600' type='text'/>
 			</wall>
@@ -168,6 +165,7 @@ public class Wall extends WallComponent
 	private function setDefaultStyle():void  {
 		this.percentWidth = 100;
 		this.percentHeight = 100;
+		
 		this.setStyle("borderAlpha", 0x0);
 		this.setStyle("backgroundColor", 0xF2F2F2);
 	}

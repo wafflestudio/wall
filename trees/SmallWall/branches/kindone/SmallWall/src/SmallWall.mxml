@@ -3,7 +3,7 @@
 	<fx:Script>
 		<![CDATA[
 			import mx.events.AIREvent;
-			import controllers.WallController;
+			import controllers.MainController;
 			import history.History;
 		]]>
 	</fx:Script>
@@ -20,14 +20,12 @@
 	<s:creationComplete>
 		<![CDATA[
 		
-			var wallController:WallController = new WallController();
+			var wallController:MainController = new MainController();
 			
 			this.addElement(wallController.view);
 			
 		]]>
 	</s:creationComplete>
-	
-	
 	
 	
 </s:WindowedApplication>
