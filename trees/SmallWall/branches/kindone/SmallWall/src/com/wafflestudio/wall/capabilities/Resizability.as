@@ -1,10 +1,10 @@
-package com.wafflestudio.wall.components.elements.capabilities
+package com.wafflestudio.wall.capabilities
 {
-import com.wafflestudio.wall.components.elements.events.SpatialEvent;
+import com.wafflestudio.wall.events.SpatialEvent;
 import com.wafflestudio.wall.components.elements.WallComponent;
 import flash.events.MouseEvent;
 import flash.geom.Point;
-import com.wafflestudio.wall.components.elements.controls.ResizeControl;
+import com.wafflestudio.wall.components.controls.ResizeControl;
 import mx.events.ResizeEvent;
 
 public class Resizability

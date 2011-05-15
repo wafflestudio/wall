@@ -1,4 +1,4 @@
-package com.wafflestudio.wall.components.elements.interfaces
+package com.wafflestudio.wall.interfaces
 {
 public interface IContent
 {

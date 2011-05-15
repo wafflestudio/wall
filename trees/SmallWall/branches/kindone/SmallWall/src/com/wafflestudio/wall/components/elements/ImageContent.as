@@ -1,6 +1,6 @@
 package com.wafflestudio.wall.components.elements
 {
-import com.wafflestudio.wall.components.elements.interfaces.IContent;
+import com.wafflestudio.wall.interfaces.IContent;
 import mx.controls.Image;
 
 public class ImageContent extends Image implements IContent

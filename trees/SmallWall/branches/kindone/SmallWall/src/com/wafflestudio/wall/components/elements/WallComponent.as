@@ -6,7 +6,7 @@ import flash.geom.Rectangle;
 import mx.core.IVisualElement;
 import spark.components.BorderContainer;
 import spark.components.Group;
-import com.wafflestudio.wall.components.elements.interfaces.IScrollable;
+import com.wafflestudio.wall.interfaces.IScrollable;
 import flash.events.MouseEvent;
 import mx.core.UIComponent;
 import mx.core.IVisualElementContainer;

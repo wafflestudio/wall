@@ -1,4 +1,4 @@
-package com.wafflestudio.wall.components.elements.events  {
+package com.wafflestudio.wall.events  {
 
 import flash.events.Event;
 	

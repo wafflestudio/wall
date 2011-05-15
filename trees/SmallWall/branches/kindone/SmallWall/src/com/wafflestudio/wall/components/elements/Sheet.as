@@ -5,14 +5,14 @@ import flash.events.Event;
 
 import spark.components.BorderContainer;
 import spark.components.TextArea;
-import com.wafflestudio.wall.components.elements.capabilities.Movability;
+import com.wafflestudio.wall.capabilities.Movability;
 import flash.events.MouseEvent;
-import com.wafflestudio.wall.components.elements.interfaces.IContent;
+import com.wafflestudio.wall.interfaces.IContent;
 import flash.events.FocusEvent;
 import spark.layouts.VerticalLayout;
-import com.wafflestudio.wall.components.elements.controls.CloseButton;
-import com.wafflestudio.wall.components.elements.events.ChildrenEvent;
-import com.wafflestudio.wall.components.elements.capabilities.Resizability;
+import com.wafflestudio.wall.components.controls.CloseButton;
+import com.wafflestudio.wall.events.ChildrenEvent;
+import com.wafflestudio.wall.capabilities.Resizability;
 import mx.events.ResizeEvent;
 
 /** Sheet: 시트 컴포넌트. 

@@ -1,15 +1,15 @@
-package com.wafflestudio.wall.components.elements.capabilities
+package com.wafflestudio.wall.capabilities
 {
 import com.wafflestudio.wall.components.elements.WallComponent;
-import com.wafflestudio.wall.components.elements.controls.HorizontalScrollbar;
-import com.wafflestudio.wall.components.elements.controls.ScrollbarBase;
-import com.wafflestudio.wall.components.elements.controls.VerticalScrollbar;
+import com.wafflestudio.wall.components.controls.HorizontalScrollbar;
+import com.wafflestudio.wall.components.controls.ScrollbarBase;
+import com.wafflestudio.wall.components.controls.VerticalScrollbar;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Point;
 
 import spark.components.Group;
-import com.wafflestudio.wall.components.elements.events.ChildrenEvent;
+import com.wafflestudio.wall.events.ChildrenEvent;
 
 public class Pannability
 {

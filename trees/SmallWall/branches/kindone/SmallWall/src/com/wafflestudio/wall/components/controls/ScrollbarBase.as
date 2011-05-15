@@ -1,11 +1,11 @@
-package com.wafflestudio.wall.components.elements.controls
+package com.wafflestudio.wall.components.controls
 {
 	import mx.core.UIComponent;
 	import spark.effects.Animate;
 	import spark.effects.Fade;
 	import spark.effects.animation.SimpleMotionPath;
 	import spark.effects.easing.Sine;
-	import com.wafflestudio.wall.components.elements.interfaces.IScrollable;
+	import com.wafflestudio.wall.interfaces.IScrollable;
 	
 	/**  스크롤바.
 	 * 

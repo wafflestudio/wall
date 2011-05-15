@@ -15,9 +15,9 @@ package com.wafflestudio.wall.components.dialogs
 	import spark.components.VGroup;
 	import flash.events.MouseEvent;
 	import mx.events.CloseEvent;
-	import com.wafflestudio.wall.components.elements.events.FormEvent;
+	import com.wafflestudio.wall.events.FormEvent;
 
-	[Event(name="xmlChange", type="com.wafflestudio.wall.components.elements.events.FormEvent")]
+	[Event(name="xmlChange", type="com.wafflestudio.wall.events.FormEvent")]
 	public class SelectWallDialog extends TitleWindow
 	{
 		public function SelectWallDialog()

@@ -1,4 +1,4 @@
-package com.wafflestudio.wall.components.elements.interfaces
+package com.wafflestudio.wall.interfaces
 {
 import flash.events.IEventDispatcher;
 import mx.core.IVisualElement;

@@ -1,9 +1,9 @@
 package com.wafflestudio.wall.components.elements  {
 
-import com.wafflestudio.wall.components.elements.capabilities.Pannability;
-import com.wafflestudio.wall.components.elements.capabilities.Scalability;
-import com.wafflestudio.wall.components.elements.events.ChildrenEvent;
-import com.wafflestudio.wall.components.elements.events.SpatialEvent;
+import com.wafflestudio.wall.capabilities.Pannability;
+import com.wafflestudio.wall.capabilities.Scalability;
+import com.wafflestudio.wall.events.ChildrenEvent;
+import com.wafflestudio.wall.events.SpatialEvent;
 import com.wafflestudio.wall.controllers.MainController;
 import flash.events.Event;
 import flash.events.FocusEvent;

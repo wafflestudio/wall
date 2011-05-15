@@ -1,9 +1,9 @@
-package com.wafflestudio.wall.components.elements.capabilities
+package com.wafflestudio.wall.capabilities
 {
 import com.wafflestudio.wall.components.elements.WallComponent;
 import flash.events.MouseEvent;
 import spark.components.Group;
-import com.wafflestudio.wall.components.elements.events.ChildrenEvent;
+import com.wafflestudio.wall.events.ChildrenEvent;
 import mx.core.UIComponent;
 
 public class Scalability

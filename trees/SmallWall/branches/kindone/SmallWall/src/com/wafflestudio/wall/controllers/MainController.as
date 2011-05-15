@@ -4,7 +4,7 @@ import com.wafflestudio.wall.utils.history.History;
 import spark.components.WindowedApplication;
 import flash.filesystem.File;
 import mx.events.CloseEvent;
-import com.wafflestudio.wall.components.elements.events.FormEvent;
+import com.wafflestudio.wall.events.FormEvent;
 import mx.managers.PopUpManager;
 import com.wafflestudio.wall.components.dialogs.SelectWallDialog;
 import mx.core.IFlexDisplayObject;

@@ -1,8 +1,8 @@
-package com.wafflestudio.wall.components.elements.controls
+package com.wafflestudio.wall.components.controls
 {
 
-import com.wafflestudio.wall.components.elements.interfaces.IScrollable;
-import com.wafflestudio.wall.components.elements.events.ChildrenEvent;
+import com.wafflestudio.wall.interfaces.IScrollable;
+import com.wafflestudio.wall.events.ChildrenEvent;
 
 public class VerticalScrollbar extends ScrollbarBase
 {

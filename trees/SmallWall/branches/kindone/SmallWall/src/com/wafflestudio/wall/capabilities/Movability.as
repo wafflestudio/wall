@@ -1,4 +1,4 @@
-package com.wafflestudio.wall.components.elements.capabilities
+package com.wafflestudio.wall.capabilities
 {
 
 import com.wafflestudio.wall.components.elements.WallComponent;
@@ -8,7 +8,7 @@ import flash.events.MouseEvent;
 import flash.geom.Point;
 import flashx.textLayout.elements.GlobalSettings;
 import mx.core.UIComponent;
-import com.wafflestudio.wall.components.elements.events.SpatialEvent;
+import com.wafflestudio.wall.events.SpatialEvent;
 
 public class Movability
 {

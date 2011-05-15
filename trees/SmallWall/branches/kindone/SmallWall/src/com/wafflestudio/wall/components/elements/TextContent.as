@@ -1,7 +1,7 @@
 package com.wafflestudio.wall.components.elements
 {
 import spark.components.TextArea;
-import com.wafflestudio.wall.components.elements.interfaces.IContent;
+import com.wafflestudio.wall.interfaces.IContent;
 import flash.events.FocusEvent;
 
 public class TextContent extends TextArea implements IContent

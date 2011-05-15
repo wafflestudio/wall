@@ -1,4 +1,4 @@
-package com.wafflestudio.wall.components.elements.controls
+package com.wafflestudio.wall.components.controls
 {
 import mx.core.UIComponent;
 import com.wafflestudio.wall.components.elements.WallComponent;
