@@ -15,6 +15,9 @@ import flash.filesystem.FileMode;
 import flash.errors.IOError;
 import flash.errors.EOFError;
 
+
+// MainView
+//	
 public class MainView extends Group
 {
 
