@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			     xmlns:s="library://ns.adobe.com/flex/spark" 
+			     xmlns:mx="library://ns.adobe.com/flex/mx"
+			    	>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import utils.XMLFileStream;
+			import utils.TemporaryFileStorage;
+			import controllers.Controller;
+			import controllers.IController;
+			import storages.configs.IFileStoredConfig;
+			import storages.configs.FileStoredConfig;
+			import storages.configs.IConfig;
+			import storages.sessions.Session;
+			import storages.sessions.ISession;
+			import components.perspectives.TabbedPerspective;
+			import components.perspectives.IPerspective;
+			
+		]]>
+	</fx:Script>
+	<s:initialize>
+		<![CDATA[
+			this.maximize();
+		]]>
+	</s:initialize>
+	<s:creationComplete>
+		<![CDATA[
+		
+		try {
+			private var controller:IController = new Controller();
+			
+			controller.load();
+			controller.setup(this);
+	
+		}
+		catch(e:Error)
+		{ 
+			Alert.show(e.name + " : " + e.message, "Uncaught Error");
+			trace(e.name, e.message, e.getStackTrace());
+		}
+		
+			
+		]]>
+	</s:creationComplete>
+	
+</s:WindowedApplication>
