@@ -25,17 +25,7 @@ public class ResizeControlUIComponent extends UIComponent
 
 		graphics.drawRoundRect(0,0, unscaledWidth, unscaledHeight, 5 , 5);	
 		
-		graphics.beginFill(0);
-		graphics.drawCircle(unscaledWidth/2, 0, 5);
-		graphics.drawCircle(unscaledWidth/2, unscaledHeight, 5);
-		graphics.drawCircle(0, unscaledHeight/2, 5);
-		graphics.drawCircle(unscaledWidth, unscaledHeight/2, 5);
 		
-		graphics.drawCircle(0, 0, 5);
-		graphics.drawCircle(unscaledWidth, 0, 5);
-		graphics.drawCircle(0, unscaledHeight, 5);
-		graphics.drawCircle(unscaledWidth, unscaledHeight, 5);
-		graphics.endFill();
 	}
 
 //	{

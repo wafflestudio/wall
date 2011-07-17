@@ -2,7 +2,7 @@ package storages.actions
 {
 import storages.actions.IAction;
 
-public class Action implements IAction
+public class Action
 {
 	public var type:String;
 	public var args:Array;

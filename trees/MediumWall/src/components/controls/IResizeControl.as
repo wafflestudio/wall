@@ -1,6 +1,8 @@
 package components.controls
 {
-public interface IResizeControl extends IControl
+import eventing.eventdispatchers.IResizeEventDispatcher;
+
+public interface IResizeControl extends IControl, IResizeEventDispatcher
 {
 	
 }

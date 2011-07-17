@@ -260,7 +260,10 @@ public class Component extends Composite implements IComponent
 	
 	public function localToGlobal(point:Point):Point
 	{	
-		return (visualElementContainer as DisplayObject).localToGlobal(point);
+		if(visualElementContainer)
+			return (visualElementContainer as DisplayObject).localToGlobal(point);
+		else
+			return (visualElement as DisplayObject).localToGlobal(point);
 	}
 }
 }
