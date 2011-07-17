@@ -67,6 +67,19 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 			resizeControl.y = (parent as Component).localToGlobal(xy).y;
 			
 		});
+		
+		addExternalDimensionChangeEventListener(function():void
+		{
+			if(resizeControl.isActive)
+			{
+				var wh:Point = new Point(width,height);
+				var xy:Point = new Point(x,y);
+				resizeControl.width = (parent as Component).localToGlobal(new Point(x+width,0)).x - (parent as Component).localToGlobal(xy).x;
+				resizeControl.height = (parent as Component).localToGlobal(new Point(0,y+height)).y - (parent as Component).localToGlobal(xy).y;
+				resizeControl.x = (parent as Component).localToGlobal(xy).x;
+				resizeControl.y = (parent as Component).localToGlobal(xy).y;
+			}
+		});
 	}
 	
 	public function addResizingEventListener(listener:Function):void

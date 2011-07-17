@@ -61,51 +61,28 @@ public class Container extends Component implements IContainer
 		return new Rectangle(visualElement.x, visualElement.y, visualElement.width, visualElement.height);
 	}
 	
-	public function get panX():Number
-	{
-		return (visualElementContainer as IVisualElement).x;
-	}
 	
-	public function get panY():Number
-	{
-		return (visualElementContainer as IVisualElement).y;
-	}
+	public function get panX():Number { return _panX; }
+	public function get panY():Number { return _panY; }
+	public function get zoomX():Number { return _zoomX; }
+	public function get zoomY():Number { return _zoomY; }
 	
-	public function get zoomX():Number
-	{
-		return (visualElementContainer as DisplayObject).scaleX;
-	}
+	protected function get _panX():Number { return (visualElementContainer as IVisualElement).x; }
+	protected function get _panY():Number { return (visualElementContainer as IVisualElement).y; }
+	protected function get _zoomX():Number { return (visualElementContainer as DisplayObject).scaleX; }
+	protected function get _zoomY():Number { return (visualElementContainer as DisplayObject).scaleY; }
 	
-	public function get zoomY():Number
-	{
-		return (visualElementContainer as DisplayObject).scaleY;
-	}
-	
-	
-	public function set _panX(x:Number):void
-	{
-		(visualElementContainer as IVisualElement).x = x;
-	}
-	
-	public function set _panY(y:Number):void
-	{
-		(visualElementContainer as IVisualElement).y = y;
-	}
-	
-	public function set _zoomX(x:Number):void
-	{
-		(visualElementContainer as DisplayObject).scaleX = x;
-	}
-	
-	public function set _zoomY(y:Number):void
-	{
-		(visualElementContainer as DisplayObject).scaleY = y;
-	}
+	protected function set _panX(x:Number):void { (visualElementContainer as IVisualElement).x = x; }
+	protected function set _panY(y:Number):void { (visualElementContainer as IVisualElement).y = y; }
+	protected function set _zoomX(x:Number):void { (visualElementContainer as DisplayObject).scaleX = x; }
+	protected function set _zoomY(y:Number):void { (visualElementContainer as DisplayObject).scaleY = y; }
 	
 	protected function bringToFront(component:Component):void
 	{
 		setChildIndex(component, numChildren-1); 	
 	}
+	
+	
 	
 	override protected function reset():void
 	{

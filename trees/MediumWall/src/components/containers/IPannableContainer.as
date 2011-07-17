@@ -1,6 +1,8 @@
 package components.containers
 {
-public interface IPannableContainer extends IScrollableContainer
+import eventing.eventdispatchers.IPanEventDispatcher;
+
+public interface IPannableContainer extends IScrollableContainer, IPanEventDispatcher
 {
 	
 }

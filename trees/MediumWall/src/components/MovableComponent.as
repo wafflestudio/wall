@@ -4,21 +4,22 @@ import flash.geom.Point;
 import flash.events.MouseEvent;
 import flash.geom.Rectangle;
 import eventing.events.MoveEvent;
+import eventing.events.IMoveEvent;
 
 public class MovableComponent extends Component implements IMovableComponent
 {
 	public function MovableComponent()
 	{
-		var old:Point;
+		var initialPos:Point;
 		var moveGlobalLocalDiff:Point;
 		
 		function moveStart(e:MouseEvent):void
 		{
-			old = new Point(x,y);
+			initialPos = new Point(x,y);
 			var moveStartPos:Point;
 			
 			e.stopPropagation();
-			moveStartPos = (parent as IComponent).localToGlobal(old);
+			moveStartPos = (parent as IComponent).localToGlobal(initialPos);
 			moveGlobalLocalDiff = moveStartPos.subtract(new Point(e.stageX, e.stageY));
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, move);
 			stage.addEventListener(MouseEvent.MOUSE_UP, moveEnd);
@@ -27,30 +28,40 @@ public class MovableComponent extends Component implements IMovableComponent
 		function move(e:MouseEvent):void
 		{
 			var current:Point = (parent as IComponent).globalToLocal((new Point(e.stageX, e.stageY)).add(moveGlobalLocalDiff));
-			dispatchDimensionChangeEvent(new Rectangle(x, y, width, height), new Rectangle(current.x, current.y, width, height));
+			var oldX:Number = x;
+			var oldY:Number = y;
 			
 			x = current.x;
 			y = current.y;
 			
-			dispatchMovingEvent(old.x, old.y, x, y);
+			dispatchMovingEvent(oldX, oldY, x, y);
 		}
 		
 		function moveEnd(e:MouseEvent):void
 		{
 			var current:Point = (parent as IComponent).globalToLocal((new Point(e.stageX, e.stageY)).add(moveGlobalLocalDiff));
-			
-			dispatchDimensionChangeEvent(new Rectangle(x, y, width, height), new Rectangle(current.x, current.y, width, height));
-			
+			var oldX:Number = x;
+			var oldY:Number = y;
 			x = current.x;
 			y = current.y;
 			
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, move);	
 			stage.removeEventListener(MouseEvent.MOUSE_UP, moveEnd);
-			dispatchMovedEvent(old.x, old.y, x, y);
+			dispatchMovedEvent(initialPos.x, initialPos.y, x, y);
 					
 		}
 		
 		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, moveStart);
+		
+		addMovingEventListener( function(e:IMoveEvent):void
+		{
+			dispatchDimensionChangeEvent(new Rectangle(e.oldX, e.oldY, width, height), new Rectangle(e.newX, e.newY, width, height));
+		});
+		
+		addMovedEventListener( function(e:IMoveEvent):void
+		{
+			dispatchDimensionChangeEvent(new Rectangle(e.oldX, e.oldY, width, height), new Rectangle(e.newX, e.newY, width, height));
+		});
 	}
 	
 	

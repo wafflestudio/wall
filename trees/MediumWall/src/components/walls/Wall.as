@@ -44,7 +44,7 @@ public class Wall extends PannableContainer implements IWall
 			var multiplier:Number = Math.pow(1.03, e.delta);
 			
 			zoom = multiplier;
-			
+			dispatchDimensionChangeEvent(extent, extent);
 			dispatchChildrenDimensionChangeEvent();
 			dispatchCommitEvent();
 		});
@@ -64,9 +64,6 @@ public class Wall extends PannableContainer implements IWall
 		});
 		
 		
-		
-		
-	
 	}
 	
 	

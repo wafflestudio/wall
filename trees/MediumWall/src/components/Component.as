@@ -38,7 +38,6 @@ public class Component extends Composite implements IComponent
 	{
 		super();
 		addDimensionChangeEventListener( function(e:IEvent):void {
-			
 			for each(var child:IComposite in children)
 			{
 				(child as Component).dispatchExternalDimensionChangeEvent();

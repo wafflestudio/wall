@@ -34,17 +34,13 @@ public class Sheet extends FlexibleComponent implements ISheet
 		
 		visualElement = bc;
 		visualElementContainer = bc;
-		
-		addMovedEventListener(function():void
+	
+		addDimensionChangeEventListener(function():void
 		{
 			dispatchCommitEvent();
 		});
 		
-		addResizedEventListener(function():void
-		{
-			dispatchCommitEvent();
-		});
-			
+		
 	}
 	
 	
