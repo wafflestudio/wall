@@ -81,22 +81,23 @@ public class Container extends Component implements IContainer
 		return (visualElementContainer as DisplayObject).scaleY;
 	}
 	
-	public function set panX(x:Number):void
+	
+	public function set _panX(x:Number):void
 	{
 		(visualElementContainer as IVisualElement).x = x;
 	}
 	
-	public function set panY(y:Number):void
+	public function set _panY(y:Number):void
 	{
 		(visualElementContainer as IVisualElement).y = y;
 	}
 	
-	public function set zoomX(x:Number):void
+	public function set _zoomX(x:Number):void
 	{
 		(visualElementContainer as DisplayObject).scaleX = x;
 	}
 	
-	public function set zoomY(y:Number):void
+	public function set _zoomY(y:Number):void
 	{
 		(visualElementContainer as DisplayObject).scaleY = y;
 	}
@@ -109,10 +110,10 @@ public class Container extends Component implements IContainer
 	override protected function reset():void
 	{
 		super.reset();
-		panX = 0;
-		panY = 0;
-		zoomX = 0;
-		zoomY = 0;
+		_panX = 0;
+		_panY = 0;
+		_zoomX = 0;
+		_zoomY = 0;
 	}
 	
 }

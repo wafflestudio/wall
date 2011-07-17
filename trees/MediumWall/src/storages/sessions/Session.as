@@ -6,7 +6,6 @@ import components.perspectives.Perspective;
 import components.perspectives.MultipleWallPerspective;
 import components.perspectives.TabbedPerspective;
 import eventing.eventdispatchers.EventDispatcher;
-import eventing.events.ChangeEvent;
 import eventing.events.CommitEvent;
 
 public class Session extends EventDispatcher implements ISession

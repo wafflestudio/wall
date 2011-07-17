@@ -15,17 +15,18 @@ import flash.errors.IllegalOperationError;
 import flash.sampler.StackFrame;
 import eventing.events.DimensionChangeEvent;
 import flash.geom.Rectangle;
-import eventing.events.ChangeEvent;
 import eventing.events.IEvent;
 import eventing.events.FocusEvent;
 import eventing.events.IFocusEvent;
 import flash.display.DisplayObjectContainer;
 import spark.components.Application;
+import eventing.events.ExternalDimensionChangeEvent;
 
 public class Component extends Composite implements IComponent
 {
 	private var _visualElement:IVisualElement;
 	private var _visualElementContainer:IVisualElementContainer;
+	private var _hasFocus:Boolean = false;
 	
 	protected function get visualElement():IVisualElement {  return _visualElement;  }
 	protected function set visualElement(val:IVisualElement):void {  _visualElement = val;  }
@@ -37,13 +38,25 @@ public class Component extends Composite implements IComponent
 	{
 		super();
 		addDimensionChangeEventListener( function(e:IEvent):void {
-			dispatchChangeEvent();
+			
+			for each(var child:IComposite in children)
+			{
+				(child as Component).dispatchExternalDimensionChangeEvent();
+			}
 		});
 		
 		addFocusInEventListener( function(e:IFocusEvent):void {
 			if(parent)
 				(parent as Component).dispatchFocusInEvent();
 		});
+		
+		addFocusOutEventListener( function(e:IFocusEvent):void {
+			for each(var child:IComposite in children)
+			{
+				(child as Component).dispatchFocusOutEvent();
+			}
+		});
+	
 	}
 	
 	
@@ -135,6 +148,8 @@ public class Component extends Composite implements IComponent
 		removeEventListener(FocusEvent.FOCUS_OUT, listener);	
 	}
 	
+	
+	
 	public function addDimensionChangeEventListener(listener:Function):void
 	{
 		addEventListener(DimensionChangeEvent.DIMENSION_CHANGE, listener);
@@ -145,36 +160,43 @@ public class Component extends Composite implements IComponent
 		removeEventListener(DimensionChangeEvent.DIMENSION_CHANGE, listener);
 	}
 	
-	public function addChangeEventListener(listener:Function):void
+
+	
+	
+	public function addExternalDimensionChangeEventListener(listener:Function):void
 	{
-		addEventListener(ChangeEvent.CHANGE, listener);
+		addEventListener(ExternalDimensionChangeEvent.EXTERNAL_DIMENSION_CHANGE, listener);
 	}
 	
-	public function removeChangeEventListener(listener:Function):void
+	public function removeExternalDimensionChangeEventListener(listener:Function):void
 	{
-		removeEventListener(ChangeEvent.CHANGE, listener);	
+		removeEventListener(ExternalDimensionChangeEvent.EXTERNAL_DIMENSION_CHANGE, listener);
 	}
 	
+
 	protected function dispatchFocusInEvent():void
 	{
+		_hasFocus = true;
 		dispatchEvent(new FocusEvent(this, FocusEvent.FOCUS_IN));
 	}
 	
 	protected function dispatchFocusOutEvent():void
 	{
+		_hasFocus = false;
 		dispatchEvent(new FocusEvent(this, FocusEvent.FOCUS_OUT));
 	}
 		
-	
-	protected function dispatchChangeEvent():void
-	{
-		dispatchEvent(new ChangeEvent(this));
-	}
 	
 	protected function dispatchDimensionChangeEvent(oldRect:Rectangle, newRect:Rectangle):void
 	{
 		dispatchEvent(new DimensionChangeEvent(this, oldRect, newRect));
 	}
+	
+	protected function dispatchExternalDimensionChangeEvent():void
+	{
+		dispatchEvent(new ExternalDimensionChangeEvent(this));
+	}
+	
 	
 	
 	// helper function to keep visualElementContainer unexposed
@@ -216,6 +238,20 @@ public class Component extends Composite implements IComponent
 		return root;
 	}
 	
+	protected function dispatchComponentFocusInEvent(component:Component):void
+	{
+		component.dispatchFocusInEvent();
+	}
+	
+	protected function dispatchComponentFocusOutEvent(component:Component):void
+	{
+		component.dispatchFocusOutEvent();
+	}
+
+	public function get hasFocus():Boolean
+	{
+		return _hasFocus;
+	}
 	
 	
 	public function globalToLocal(point:Point):Point

@@ -43,21 +43,7 @@ public class Wall extends PannableContainer implements IWall
 		visualElement.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
 			var multiplier:Number = Math.pow(1.03, e.delta);
 			
-			const MIN_SCALE:Number = 0.1;
-			if(multiplier < 1.0 && (zoomX <= MIN_SCALE || zoomY <= MIN_SCALE))
-			{
-				multiplier = MIN_SCALE / (zoomX < zoomY ? 
-					zoomY : zoomX);
-				
-				zoomX = MIN_SCALE;
-				zoomY = MIN_SCALE;
-			}
-			else  {
-				zoomX *= multiplier;
-				zoomY *= multiplier;
-			}
-			panX = (panX - width/2) * multiplier + width/2;
-			panY = (panY - height/2) * multiplier + height/2;
+			zoom = multiplier;
 			
 			dispatchChildrenDimensionChangeEvent();
 			dispatchCommitEvent();
@@ -179,13 +165,13 @@ public class Wall extends PannableContainer implements IWall
 		if(xml.@name)
 			name = xml.@name;
 		if(xml.@panX)
-			panX = xml.@panX;
+			_panX = xml.@panX;
 		if(xml.@panY)
-			panY = xml.@panY;
+			_panY = xml.@panY;
 		if(xml.@zoomX)
-			zoomX = xml.@zoomX;
+			_zoomX = xml.@zoomX;
 		if(xml.@zoomY)
-			zoomY = xml.@zoomY;
+			_zoomY = xml.@zoomY;
 		
 		for each(var sheetXML:XML in xml.sheets[0].sheet)
 		{

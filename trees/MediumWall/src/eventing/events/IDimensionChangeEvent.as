@@ -2,7 +2,7 @@ package eventing.events
 {
 import flash.geom.Rectangle;
 
-public interface IDimensionChangeEvent extends IChangeEvent
+public interface IDimensionChangeEvent extends IEvent
 {
 	function get dimension():Rectangle;
 	function get oldDimension():Rectangle;

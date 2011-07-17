@@ -57,7 +57,6 @@ public class ScrollableContainer extends Container implements IScrollableContain
 			if(_scroller)
 				_scroller.update(extent, childrenExtent);
 			
-			dispatchChangeEvent();
 		});
 		
 		

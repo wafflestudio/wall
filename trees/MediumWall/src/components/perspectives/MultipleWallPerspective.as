@@ -10,11 +10,6 @@ public class MultipleWallPerspective extends Perspective implements IMultipleWal
 	public function MultipleWallPerspective()
 	{
 		super();
-		
-		addSelectionChangeEventListener(function():void
-		{ 
-			dispatchChangeEvent();
-		});
 	}
 	
 	public function get currentWall():IWall
@@ -24,7 +19,7 @@ public class MultipleWallPerspective extends Perspective implements IMultipleWal
 	
 	public function addWall(wall:IWall):void
 	{
-		dispatchChangeEvent();
+		
 	}
 	
 	public function addSheet():void

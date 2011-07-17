@@ -24,16 +24,16 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 		
 		function pan(e:MouseEvent):void  {	
 			var current:Point = (visualElement as DisplayObject).globalToLocal((new Point(e.stageX, e.stageY)).add(panGlobalLocalDiff));
-			panX = current.x;
-			panY = current.y;
+			_panX = current.x;
+			_panY = current.y;
 			
 			dispatchChildrenDimensionChangeEvent();
 		}
 		
 		function panEnd(e:MouseEvent):void  {	
 			var current:Point = (visualElement as DisplayObject).globalToLocal((new Point(e.stageX, e.stageY)).add(panGlobalLocalDiff));
-			panX = current.x;
-			panY = current.y;
+			_panX = current.x;
+			_panY = current.y;
 			
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, pan);
 			stage.removeEventListener(MouseEvent.MOUSE_UP, panEnd);
@@ -44,7 +44,26 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 	}
 	
 	
+	protected function set zoom(multiplier:Number):void
+	{
+		const MIN_SCALE:Number = 0.1;
+		if(multiplier < 1.0 && (zoomX <= MIN_SCALE || zoomY <= MIN_SCALE))
+		{
+			multiplier = MIN_SCALE / (zoomX < zoomY ? 
+				zoomY : zoomX);
+			
+			_zoomX = MIN_SCALE;
+			_zoomY = MIN_SCALE;
+		}
+		else  {
+			_zoomX = zoomX * multiplier;
+			_zoomY = zoomY * multiplier;
+		}
+		_panX = (panX - width/2) * multiplier + width/2;
+		_panY = (panY - height/2) * multiplier + height/2;
+		
 	
+	}
 	
 	
 	

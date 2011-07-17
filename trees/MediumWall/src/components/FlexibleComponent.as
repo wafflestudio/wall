@@ -7,44 +7,65 @@ import spark.components.WindowedApplication;
 import mx.core.WindowedApplication;
 import mx.core.UIComponent;
 import mx.core.FlexGlobals;
+import flash.geom.Point;
+import spark.components.Application;
+import components.controls.ResizeControl;
+
 
 
 // Movability + Resizability
 public class FlexibleComponent extends MovableComponent implements IFlexibleComponent
 {
-	private var resizeControl:ResizeControlUIComponent;
+	private var resizeControl:ResizeControl;
 	
 	public function FlexibleComponent()
 	{
-		resizeControl = new ResizeControlUIComponent();	
+		resizeControl = new ResizeControl();	
 		// add resize control (event)
 		
 		// show resize control on focus
 		addFocusInEventListener(function(e:IEvent):void
 		{
-			try {
-				FlexGlobals.topLevelApplication.addElement(resizeControl);
-				
-				resizeControl.width = 200;
-				resizeControl.height = 200;
-				resizeControl.x = 200;
-				resizeControl.y = 200;
-			}
-			catch(e:Error)
-			{
-				
-			}
+			if(resizeControl.isActive)
+				return;
+			
+			resizeControl.addToApplication(FlexGlobals.topLevelApplication as Application);
+			var wh:Point = new Point(width,height);
+			var xy:Point = new Point(x,y);
+			resizeControl.width = (parent as Component).localToGlobal(new Point(x+width,0)).x - (parent as Component).localToGlobal(xy).x;
+			resizeControl.height = (parent as Component).localToGlobal(new Point(0,y+height)).y - (parent as Component).localToGlobal(xy).y;
+			resizeControl.x = (parent as Component).localToGlobal(xy).x;
+			resizeControl.y = (parent as Component).localToGlobal(xy).y;
+			
 		});
 		
 		addFocusOutEventListener(function(e:IEvent):void
 		{
-			try {
-				FlexGlobals.topLevelApplication.removeElement(resizeControl);
-			}
-			catch(e:Error)
-			{
-				
-			}
+			if(resizeControl.isActive)
+				resizeControl.removeFromApplication(FlexGlobals.topLevelApplication as Application);
+			
+		});
+		
+		addMovingEventListener(function(e:IEvent):void
+		{
+			if(resizeControl.isActive)
+				resizeControl.removeFromApplication(FlexGlobals.topLevelApplication as Application);
+			
+		});
+		
+		addMovedEventListener(function(e:IEvent):void
+		{
+			if(resizeControl.isActive)  
+				return;
+			
+			resizeControl.addToApplication(FlexGlobals.topLevelApplication as Application);
+			var wh:Point = new Point(width,height);
+			var xy:Point = new Point(x,y);
+			resizeControl.width = (parent as Component).localToGlobal(new Point(x+width,0)).x - (parent as Component).localToGlobal(xy).x;
+			resizeControl.height = (parent as Component).localToGlobal(new Point(0,y+height)).y - (parent as Component).localToGlobal(xy).y;
+			resizeControl.x = (parent as Component).localToGlobal(xy).x;
+			resizeControl.y = (parent as Component).localToGlobal(xy).y;
+			
 		});
 	}
 	

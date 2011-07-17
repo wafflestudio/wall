@@ -34,6 +34,15 @@ public class TabView extends Component implements ITabView
 			function(e:IndexChangedEvent):void
 			{
 				dispatchSelectionChangeEvent(new SelectionChangeEvent(self, selectedIndex, selectedComponent));
+				for each(var child:IComponent in children)
+				{
+					if(child === selectedComponent)  {
+						if(!(child as Component).hasFocus)
+							dispatchComponentFocusInEvent(child as Component);
+					}
+					else
+						dispatchComponentFocusOutEvent(child as Component);
+				}
 			}
 		);
 		

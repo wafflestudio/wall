@@ -1,7 +1,12 @@
 package components.controls
 {
-public interface IControl
+
+import components.IComponent;
+import components.IPositionedComponent;
+import components.IToplevelComponent;
+
+public interface IControl extends IPositionedComponent,IToplevelComponent
 {
-	
+	function get isActive():Boolean;	
 }
 }

@@ -17,5 +17,13 @@ public class ToplevelComponent extends Component implements IToplevelComponent
 		application = app;
 		app.addElement(this.visualElement);
 	}
+	
+	public function removeFromApplication(app:Application = null):void
+	{
+		if(app)
+			app.removeElement(this.visualElement);
+		else
+			(this.visualElement.parent as Application).removeElement(this.visualElement);
+	}
 }
 }
