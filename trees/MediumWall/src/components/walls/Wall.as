@@ -13,14 +13,11 @@ import mx.core.IVisualElement;
 import spark.components.BorderContainer;
 import spark.components.Scroller;
 import flash.events.MouseEvent;
-import eventing.events.IFocusEvent;
-import eventing.events.IDimensionChangeEvent;
 import mx.core.IVisualElementContainer;
 import eventing.events.NameChangeEvent;
-import eventing.events.INameChangeEvent;
-import eventing.events.IEvent;
 import eventing.events.CommitEvent;
-import eventing.events.ICommitEvent;
+import eventing.events.Event;
+import eventing.events.FocusEvent;
 
 public class Wall extends PannableContainer implements IWall
 {
@@ -49,7 +46,7 @@ public class Wall extends PannableContainer implements IWall
 			dispatchCommitEvent();
 		});
 		
-		addNameChangeEventListener( function(e:IEvent):void  {
+		addNameChangeEventListener( function():void  {
 			dispatchCommitEvent();
 		});
 		
@@ -84,12 +81,12 @@ public class Wall extends PannableContainer implements IWall
 		addSheet(sheet);
 	}
 	
-	private function onSheetCommitEvent(e:IEvent):void
+	private function onSheetCommitEvent(e:Event):void
 	{
 		dispatchCommitEvent();
 	}
 	
-	private function onSheetFocusEvent(e:IFocusEvent):void 
+	private function onSheetFocusEvent(e:FocusEvent):void 
 	{
 		bringToFront(e.target as Sheet);
 	}
@@ -127,7 +124,7 @@ public class Wall extends PannableContainer implements IWall
 		removeEventListener(NameChangeEvent.NAME_CHANGE, listener);	
 	}
 	
-	protected function dispatchNameChangeEvent(e:INameChangeEvent):void
+	protected function dispatchNameChangeEvent(e:NameChangeEvent):void
 	{
 		dispatchEvent(e);	
 	}

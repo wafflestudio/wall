@@ -1,6 +1,5 @@
 package eventing.eventdispatchers
 {
-import eventing.events.IEvent;
 
 public interface IEventDispatcher
 {

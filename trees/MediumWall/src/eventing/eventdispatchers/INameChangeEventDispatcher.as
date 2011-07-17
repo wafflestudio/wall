@@ -1,6 +1,5 @@
 package eventing.eventdispatchers
 {
-import eventing.events.INameChangeEvent;
 
 public interface INameChangeEventDispatcher
 {

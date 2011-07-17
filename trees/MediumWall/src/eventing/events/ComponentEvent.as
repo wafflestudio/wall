@@ -3,7 +3,7 @@ package eventing.events
 import components.IComponent;
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class ComponentEvent extends Event implements IComponentEvent
+public class ComponentEvent extends Event
 {
 	
 	public function get target():IComponent

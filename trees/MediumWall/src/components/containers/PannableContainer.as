@@ -5,7 +5,6 @@ import flash.geom.Point;
 import flash.display.Stage;
 import flash.display.DisplayObject;
 import eventing.events.PanEvent;
-import eventing.events.IPanEvent;
 import flash.geom.Rectangle;
 
 public class PannableContainer extends ScrollableContainer implements IPannableContainer
@@ -47,13 +46,13 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 		
 		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, panStart);
 		
-		addPanningEventListener(function(e:IPanEvent):void
+		addPanningEventListener(function(e:PanEvent):void
 		{
 			dispatchChildrenDimensionChangeEvent();
 			dispatchDimensionChangeEvent(extent, extent);
 		});
 		
-		addPannedEventListener(function(e:IPanEvent):void
+		addPannedEventListener(function(e:PanEvent):void
 		{
 			dispatchChildrenDimensionChangeEvent();
 			dispatchDimensionChangeEvent(extent, extent);

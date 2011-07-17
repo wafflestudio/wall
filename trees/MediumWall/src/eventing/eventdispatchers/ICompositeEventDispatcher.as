@@ -1,7 +1,5 @@
 package eventing.eventdispatchers
 {
-import eventing.events.IEvent;
-import eventing.events.ICompositeEvent;
 
 public interface ICompositeEventDispatcher extends IEventDispatcher
 {

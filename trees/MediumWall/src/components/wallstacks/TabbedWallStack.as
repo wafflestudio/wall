@@ -8,7 +8,6 @@ import spark.components.NavigatorContent;
 import components.IComponent;
 import components.Component;
 import components.INameableComponent;
-import eventing.events.INameChangeEvent;
 import eventing.events.NameChangeEvent;
 import flash.events.Event;
 import eventing.events.SelectionChangeEvent;
@@ -21,8 +20,6 @@ import components.tabviews.TabView;
 import storages.IXMLizable;
 import components.walls.FileStoredWall;
 import flash.filesystem.File;
-import eventing.events.IEvent;
-import eventing.events.ISelectionChangeEvent;
 import components.containers.Container;
 
 public class TabbedWallStack extends TabView implements ITabbedWallStack
@@ -33,7 +30,7 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 	{
 		super();
 		
-		addSelectionChangeEventListener(function(e:ISelectionChangeEvent):void
+		addSelectionChangeEventListener(function(e:SelectionChangeEvent):void
 		{
 			dispatchCommitEvent();
 		});
@@ -62,7 +59,7 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 		
 		if(nameablecomp)  {
 			nc.label = nameablecomp.name;	
-			nameablecomp.addNameChangeEventListener( function(e:INameChangeEvent):void
+			nameablecomp.addNameChangeEventListener( function(e:NameChangeEvent):void
 				{
 					nc.label = e.name;		
 				}

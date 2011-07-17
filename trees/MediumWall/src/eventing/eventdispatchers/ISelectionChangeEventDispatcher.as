@@ -1,6 +1,5 @@
 package eventing.eventdispatchers
 {
-import eventing.events.ISelectionChangeEvent;
 
 public interface ISelectionChangeEventDispatcher extends IEventDispatcher
 {

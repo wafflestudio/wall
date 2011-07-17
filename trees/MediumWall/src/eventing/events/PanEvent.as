@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class PanEvent extends Event implements IPanEvent
+public class PanEvent extends Event
 {
 	public static const PANNING:String = "panning";
 	public static const PANNED:String = "panned";

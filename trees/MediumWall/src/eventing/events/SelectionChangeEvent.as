@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class SelectionChangeEvent extends Event implements ISelectionChangeEvent
+public class SelectionChangeEvent extends Event
 {
 	public static const SELECTION_CHANGE:String = "selectionChange";
 

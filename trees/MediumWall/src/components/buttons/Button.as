@@ -2,7 +2,6 @@ package components.buttons
 {
 import components.Component;
 import spark.components.Button;
-import eventing.events.IClickEvent;
 import components.ClickableComponent;
 import flash.events.MouseEvent;
 import eventing.events.ClickEvent;

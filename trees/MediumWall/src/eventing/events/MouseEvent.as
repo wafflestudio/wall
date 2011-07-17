@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class MouseEvent extends ComponentEvent implements IEvent
+public class MouseEvent extends ComponentEvent
 {
 
 	public function MouseEvent(dispatcher:IEventDispatcher, type:String, localX:Number, localY:Number, stageX:Number, stageY:Number)

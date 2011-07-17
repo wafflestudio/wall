@@ -1,6 +1,6 @@
 package eventing.events
 {
-public class SheetEvent extends ComponentEvent implements IComponentEvent
+public class SheetEvent extends ComponentEvent
 {
 	public function SheetEvent()
 	{

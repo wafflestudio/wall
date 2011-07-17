@@ -5,10 +5,8 @@ import mx.containers.TabNavigator;
 import components.Component;
 import mx.collections.ArrayCollection;
 import mx.core.IVisualElementContainer;
-import eventing.events.INameChangeEvent;
 import mx.events.IndexChangedEvent;
 import eventing.events.SelectionChangeEvent;
-import eventing.events.ISelectionChangeEvent;
 import eventing.events.NameChangeEvent;
 import spark.components.NavigatorContent;
 import components.INameableComponent;
@@ -88,7 +86,7 @@ public class TabView extends Component implements ITabView
 		
 		if(nameablecomp)  {
 			nc.label = nameablecomp.name;	
-			nameablecomp.addNameChangeEventListener( function(e:INameChangeEvent):void
+			nameablecomp.addNameChangeEventListener( function(e:NameChangeEvent):void
 				{
 					nc.label = e.name;		
 				}
@@ -120,7 +118,7 @@ public class TabView extends Component implements ITabView
 		removeEventListener(SelectionChangeEvent.SELECTION_CHANGE, listener);
 	}
 	
-	protected function dispatchSelectionChangeEvent(e:ISelectionChangeEvent = null):void
+	protected function dispatchSelectionChangeEvent(e:SelectionChangeEvent = null):void
 	{
 		if(e == null)
 			e = new SelectionChangeEvent(this, selectedIndex, selectedComponent);

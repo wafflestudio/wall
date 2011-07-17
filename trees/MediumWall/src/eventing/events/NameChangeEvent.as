@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class NameChangeEvent extends Event implements INameChangeEvent
+public class NameChangeEvent extends Event
 {
 	public static const NAME_CHANGE:String = "nameChange";
 	private var _name:String;

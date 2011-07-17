@@ -1,9 +1,8 @@
 package eventing.eventdispatchers
 {
 import mx.collections.ArrayCollection;
-import eventing.events.IEvent;
 import eventing.EventListenerEntry;
-import flash.events.Event;
+import eventing.events.Event;
 
 public class EventDispatcher implements IEventDispatcher
 {
@@ -13,7 +12,7 @@ public class EventDispatcher implements IEventDispatcher
 			
 	}
 	
-	protected function dispatchEvent(e:IEvent):void
+	protected function dispatchEvent(e:Event):void
 	{
 		for each(var entry:EventListenerEntry in entries)
 		{

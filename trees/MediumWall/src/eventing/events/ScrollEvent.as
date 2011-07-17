@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class ScrollEvent extends ComponentEvent implements IScrollEvent
+public class ScrollEvent extends ComponentEvent
 {
 	public static const SCROLL:String = "scroll";
 	

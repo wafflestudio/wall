@@ -11,7 +11,6 @@ import storages.sessions.Session;
 import flash.errors.IOError;
 import storages.configs.Config;
 import components.perspectives.IMultipleWallPerspective;
-import eventing.events.IEvent;
 import mx.controls.Alert;
 import components.walls.Wall;
 

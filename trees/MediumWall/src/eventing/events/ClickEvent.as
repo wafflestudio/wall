@@ -3,7 +3,7 @@ package eventing.events
 import eventing.eventdispatchers.IEventDispatcher;
 
 
-public class ClickEvent extends MouseEvent implements IClickEvent
+public class ClickEvent extends MouseEvent
 {	
 	public static const CLICK:String = "click";
 	

@@ -3,9 +3,9 @@ package components.walls
 import flash.filesystem.File;
 import utils.XMLFileStream;
 import utils.TemporaryFileStorage;
-import eventing.events.IEvent;
 import storages.IXMLizable;
 import components.sheets.ISheet;
+import eventing.events.Event;
 
 public class FileStoredWall extends Wall implements IFileStoredWall
 {
@@ -22,7 +22,7 @@ public class FileStoredWall extends Wall implements IFileStoredWall
 			save();
 		}
 		
-		addCommitEventListener( function(e:IEvent):void  {
+		addCommitEventListener( function(e:Event):void  {
 			save();
 		});
 	}

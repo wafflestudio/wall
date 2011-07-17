@@ -15,12 +15,12 @@ import flash.errors.IllegalOperationError;
 import flash.sampler.StackFrame;
 import eventing.events.DimensionChangeEvent;
 import flash.geom.Rectangle;
-import eventing.events.IEvent;
+import eventing.events.Event;
 import eventing.events.FocusEvent;
-import eventing.events.IFocusEvent;
 import flash.display.DisplayObjectContainer;
 import spark.components.Application;
 import eventing.events.ExternalDimensionChangeEvent;
+import eventing.events.Event;
 
 public class Component extends Composite implements IComponent
 {
@@ -37,19 +37,19 @@ public class Component extends Composite implements IComponent
 	public function Component()
 	{
 		super();
-		addDimensionChangeEventListener( function(e:IEvent):void {
+		addDimensionChangeEventListener( function(e:Event):void {
 			for each(var child:IComposite in children)
 			{
 				(child as Component).dispatchExternalDimensionChangeEvent();
 			}
 		});
 		
-		addFocusInEventListener( function(e:IFocusEvent):void {
+		addFocusInEventListener( function(e:FocusEvent):void {
 			if(parent)
 				(parent as Component).dispatchFocusInEvent();
 		});
 		
-		addFocusOutEventListener( function(e:IFocusEvent):void {
+		addFocusOutEventListener( function(e:FocusEvent):void {
 			for each(var child:IComposite in children)
 			{
 				(child as Component).dispatchFocusOutEvent();
@@ -76,7 +76,7 @@ public class Component extends Composite implements IComponent
 	}
 	
 	// focus-out all siblings
-	private function onChildFocusIn(e:IFocusEvent):void
+	private function onChildFocusIn(e:FocusEvent):void
 	{
 		for each(var child:Component in children)
 		{

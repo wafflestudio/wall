@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class CompositeEvent extends Event implements ICompositeEvent
+public class CompositeEvent extends Event
 {
 	public static const CHILD_ADDED:String = "childAdded";
 	public static const CHILD_REMOVED:String = "childRemoved";

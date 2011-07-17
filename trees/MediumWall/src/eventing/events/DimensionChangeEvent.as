@@ -3,7 +3,7 @@ package eventing.events
 import flash.geom.Rectangle;
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class DimensionChangeEvent extends ComponentEvent implements IDimensionChangeEvent
+public class DimensionChangeEvent extends ComponentEvent
 {
 	public static const DIMENSION_CHANGE:String = "dimensionChange";
 	

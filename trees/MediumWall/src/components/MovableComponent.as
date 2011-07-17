@@ -4,7 +4,6 @@ import flash.geom.Point;
 import flash.events.MouseEvent;
 import flash.geom.Rectangle;
 import eventing.events.MoveEvent;
-import eventing.events.IMoveEvent;
 
 public class MovableComponent extends Component implements IMovableComponent
 {
@@ -53,12 +52,12 @@ public class MovableComponent extends Component implements IMovableComponent
 		
 		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, moveStart);
 		
-		addMovingEventListener( function(e:IMoveEvent):void
+		addMovingEventListener( function(e:MoveEvent):void
 		{
 			dispatchDimensionChangeEvent(new Rectangle(e.oldX, e.oldY, width, height), new Rectangle(e.newX, e.newY, width, height));
 		});
 		
-		addMovedEventListener( function(e:IMoveEvent):void
+		addMovedEventListener( function(e:MoveEvent):void
 		{
 			dispatchDimensionChangeEvent(new Rectangle(e.oldX, e.oldY, width, height), new Rectangle(e.newX, e.newY, width, height));
 		});

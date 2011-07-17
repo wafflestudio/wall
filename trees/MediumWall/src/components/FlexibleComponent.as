@@ -1,7 +1,6 @@
 package components
 {
 import eventing.events.ResizeEvent;
-import eventing.events.IEvent;
 import components.controls.ResizeControlUIComponent;
 import spark.components.WindowedApplication;
 import mx.core.WindowedApplication;
@@ -10,6 +9,8 @@ import mx.core.FlexGlobals;
 import flash.geom.Point;
 import spark.components.Application;
 import components.controls.ResizeControl;
+import eventing.events.FocusEvent;
+import eventing.events.MoveEvent;
 
 
 
@@ -24,7 +25,7 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 		// add resize control (event)
 		
 		// show resize control on focus
-		addFocusInEventListener(function(e:IEvent):void
+		addFocusInEventListener(function(e:FocusEvent):void
 		{
 			if(resizeControl.isActive)
 				return;
@@ -39,21 +40,21 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 			
 		});
 		
-		addFocusOutEventListener(function(e:IEvent):void
+		addFocusOutEventListener(function(e:FocusEvent):void
 		{
 			if(resizeControl.isActive)
 				resizeControl.removeFromApplication(FlexGlobals.topLevelApplication as Application);
 			
 		});
 		
-		addMovingEventListener(function(e:IEvent):void
+		addMovingEventListener(function(e:MoveEvent):void
 		{
 			if(resizeControl.isActive)
 				resizeControl.removeFromApplication(FlexGlobals.topLevelApplication as Application);
 			
 		});
 		
-		addMovedEventListener(function(e:IEvent):void
+		addMovedEventListener(function(e:MoveEvent):void
 		{
 			if(resizeControl.isActive)  
 				return;

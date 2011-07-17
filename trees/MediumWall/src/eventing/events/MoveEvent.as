@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class MoveEvent extends ComponentEvent implements IMoveEvent
+public class MoveEvent extends ComponentEvent
 {
 	public static const MOVING:String = "moving";
 	public static const MOVED:String = "moved";

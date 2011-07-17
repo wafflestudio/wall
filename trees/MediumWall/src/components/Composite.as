@@ -2,7 +2,6 @@ package components
 {
 import mx.collections.ArrayCollection;
 import eventing.eventdispatchers.EventDispatcher;
-import eventing.events.ICompositeEvent;
 import eventing.events.CompositeEvent;
 
 public class Composite extends EventDispatcher implements IComposite
@@ -58,7 +57,7 @@ public class Composite extends EventDispatcher implements IComposite
 		removeEventListener(CompositeEvent.CHILD_ADDED, listener);
 	}
 	
-	protected function dispatchChildAddedEvent(e:ICompositeEvent = null):void
+	protected function dispatchChildAddedEvent(e:CompositeEvent = null):void
 	{
 		if(e == null)
 			e = new CompositeEvent(this, CompositeEvent.CHILD_ADDED);
@@ -75,7 +74,7 @@ public class Composite extends EventDispatcher implements IComposite
 		removeEventListener(CompositeEvent.CHILD_REMOVED, listener);
 	}
 	
-	protected function dispatchChildRemovedEvent(e:ICompositeEvent = null):void
+	protected function dispatchChildRemovedEvent(e:CompositeEvent = null):void
 	{
 		if(e == null)
 			e = new CompositeEvent(this, CompositeEvent.CHILD_REMOVED);
@@ -92,7 +91,7 @@ public class Composite extends EventDispatcher implements IComposite
 		removeEventListener(CompositeEvent.ADDED, listener);
 	}
 	
-	protected function dispatchAddedEvent(e:ICompositeEvent = null):void
+	protected function dispatchAddedEvent(e:CompositeEvent = null):void
 	{
 		if(e == null)
 			e = new CompositeEvent(this, CompositeEvent.ADDED);
@@ -109,7 +108,7 @@ public class Composite extends EventDispatcher implements IComposite
 		removeEventListener(CompositeEvent.REMOVED, listener);
 	}
 	
-	protected function dispatchRemovedEvent(e:ICompositeEvent = null):void
+	protected function dispatchRemovedEvent(e:CompositeEvent = null):void
 	{
 		if(e == null)
 			e = new CompositeEvent(this, CompositeEvent.REMOVED);

@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class ResizeEvent extends ComponentEvent implements IResizeEvent
+public class ResizeEvent extends ComponentEvent
 {
 	public static const RESIZING:String = "resizing";
 	public static const RESIZED:String = "resized";

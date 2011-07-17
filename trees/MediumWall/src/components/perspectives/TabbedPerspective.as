@@ -14,8 +14,6 @@ import components.wallstacks.ITabbedWallStack;
 import components.wallstacks.TabbedWallStack;
 import components.toolbars.ICommandToolbar;
 import eventing.eventdispatchers.IClickEventDispatcher;
-import eventing.events.IClickEvent;
-import eventing.events.IEvent;
 import eventing.events.Event;
 import components.walls.Wall;
 import mx.managers.PopUpManager;
@@ -24,8 +22,9 @@ import components.dialogs.IDialog;
 import components.sheets.Sheet;
 import flash.geom.Point;
 import flash.display.DisplayObject;
-import eventing.events.ISelectionChangeEvent;
 import components.walls.FileStoredWall;
+import eventing.events.SelectionChangeEvent;
+import eventing.events.ClickEvent;
 
 
 
@@ -51,33 +50,33 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		
 		tabStack = new TabbedWallStack();
 		
-		tabStack.addSelectionChangeEventListener( function(e:ISelectionChangeEvent):void {
+		tabStack.addSelectionChangeEventListener( function(e:SelectionChangeEvent):void {
 			currentIndex = e.selectedIndex;
 		});
 		
 		addChildTo(vgroup, tabStack);
 		
 		toolbar.newWallButton.addClickEventListener(
-			function(e:IClickEvent):void {
+			function(e:ClickEvent):void {
 				addWall(new FileStoredWall());
 			}
 		);
 		
 		toolbar.openWallButton.addClickEventListener(
-			function(e:IClickEvent):void {
+			function(e:ClickEvent):void {
 				var dialog:IDialog = new OpenWallDialog();
 				dialog.show();
 			}
 		);
 		
 		toolbar.newSheetButton.addClickEventListener(
-			function(e:IClickEvent):void {
+			function(e:ClickEvent):void {
 				addSheet();
 			}
 		);
 		
 		(toolbar as CommandToolbar).testButton.addClickEventListener(
-			function(e:IClickEvent):void {
+			function(e:ClickEvent):void {
 				trace(toXML());		
 			}
 		);

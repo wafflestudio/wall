@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class Event implements IEvent
+public class Event
 {
 	public static const DEFAULT:String = "default";
 	protected var _type:String;

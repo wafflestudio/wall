@@ -1,6 +1,5 @@
 package eventing.eventdispatchers
 {
-import eventing.events.IFileChooseEvent;
 
 public interface IFileChooseEventDispatcher extends IEventDispatcher
 {

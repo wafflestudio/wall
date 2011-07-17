@@ -3,7 +3,7 @@ package eventing.events
 import flash.filesystem.File;
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class FileChooseEvent extends Event implements IFileChooseEvent
+public class FileChooseEvent extends Event
 {
 	public static const FILE_CHOSE:String = "fileChose";
 	private var _file:File;

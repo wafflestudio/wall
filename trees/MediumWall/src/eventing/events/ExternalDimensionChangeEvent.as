@@ -2,7 +2,7 @@ package eventing.events
 {
 import eventing.eventdispatchers.IEventDispatcher;
 
-public class ExternalDimensionChangeEvent extends Event implements IExternalDimensionChangeEvent
+public class ExternalDimensionChangeEvent extends Event
 {
 	public static const EXTERNAL_DIMENSION_CHANGE:String = "externalDimensionChange";
 	
