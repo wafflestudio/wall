@@ -1,30 +1,45 @@
 package components.sheets  {
-import components.Component;
-import spark.components.BorderContainer;
-import storages.IXMLizable;
-import components.MovableComponent;
-import mx.core.IVisualElement;
-import flash.events.MouseEvent;
-import mx.core.IVisualElementContainer;
-import eventing.events.FocusEvent;
-import eventing.events.DimensionChangeEvent;
-import flash.geom.Rectangle;
-import eventing.events.CommitEvent;
-import eventing.events.ResizeEvent;
-import components.FlexibleComponent;
+	import components.Component;
+	import components.FlexibleComponent;
+	import components.MovableComponent;
+	import components.contents.ImageContent;
+	import components.contents.TextContent;
+	
+	import eventing.eventdispatchers.IClickEventDispatcher;
+	import eventing.events.CommitEvent;
+	import eventing.events.DimensionChangeEvent;
+	import eventing.events.FocusEvent;
+	import eventing.events.ResizeEvent;
+	
+	import flash.events.MouseEvent;
+	import flash.geom.Rectangle;
+	
+	import mx.controls.Image;
+	import mx.core.IVisualElement;
+	import mx.core.IVisualElementContainer;
+	
+	import spark.components.BorderContainer;
+	
+	import storages.IXMLizable;
 
 
 public class Sheet extends FlexibleComponent implements ISheet
 {
 
 	private var bc:BorderContainer = new BorderContainer();
-	
 	override protected function get visualElement():IVisualElement { return bc; }
-	
+	private var tc:TextContent;
+	private var ic:ImageContent;
+
 	public function Sheet()
 	{
 		super();
+		tc = new TextContent();
+		ic = new ImageContent();
 		
+		addChildTo(bc, tc);
+		addChildTo(bc, ic);
+
 		bc.setStyle("borderWidth", 1);
 		
 		// bring to front if clicked
@@ -39,11 +54,9 @@ public class Sheet extends FlexibleComponent implements ISheet
 		{
 			dispatchCommitEvent();
 		});
-		
-		
+
 	}
-	
-	
+
 	
 	
 	
@@ -80,6 +93,9 @@ public class Sheet extends FlexibleComponent implements ISheet
 	
 	/**
 	 * 	<sheet x="" y="" width="" height="">
+	 * 		<content>
+	 * 			...
+	 * 		</content>
 	 * 	</sheet>
 	 */ 
 	public function fromXML(xml:XML):IXMLizable
@@ -89,6 +105,11 @@ public class Sheet extends FlexibleComponent implements ISheet
 		height = xml.@height;
 		x = xml.@x;
 		y = xml.@y;
+		
+		
+		var contentXML:XML = xml.content[0];
+		if(contentXML)
+			tc.fromXML(contentXML);
 		
 		return this;
 	}
@@ -100,6 +121,8 @@ public class Sheet extends FlexibleComponent implements ISheet
 		xml.@height = height;
 		xml.@x = x;
 		xml.@y = y;
+		
+		xml.appendChild(tc.toXML());	
 		
 		return xml;
 	}
