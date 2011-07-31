@@ -19,22 +19,22 @@ public class FileStoredWall extends Wall implements IFileStoredWall
 			load(file);
 		else  {
 			_file = TemporaryFileStorage.resolve();
-			save();
+			saveAs();
 		}
 		
 		addCommitEventListener( function(e:Event):void  {
-			save();
+			saveAs();
 		});
 	}
 	
 	public function get file():File
 	{
-		return new File();
+		return _file;
 	}
 	
 	public function moveFile():void
 	{
-		
+//		file.moveToAsync(
 	}
 	
 	public function load(file:File = null):void
@@ -50,10 +50,10 @@ public class FileStoredWall extends Wall implements IFileStoredWall
 		super.fromXML(fs.getXML());
 	}
 	
-	public function save(file:File = null):void
+	public function saveAs(file:File = null):void
 	{
 		if(file == null)
-			save(_file);
+			saveAs(_file);
 		
 		var xml:XML = super.toXML(); // any errors according to serialization must happen beforehand to opening the file
 		

@@ -14,7 +14,6 @@ package components.contents
 	import flash.net.FileReference;
 	
 	import mx.core.IVisualElement;
-	import mx.core.IVisualElementContainer;
 	
 	import spark.components.BorderContainer;
 
@@ -29,21 +28,17 @@ package components.contents
 		//private static const THUMB_HEIGHT:uint = 300;
 		
 		override protected function get visualElement():IVisualElement { return imageContainer; }
-		override protected function get visualElementContainer():IVisualElementContainer { return imageContainer; }
 		
 		public function ImageContent()
 		{
 			super();
 			
-			imageContainer.percentWidth = 100;
-			imageContainer.percentHeight = 100;
+			//imageContainer.percentWidth = 100;
+			//imageContainer.percentHeight = 30;
 			imageContainer.y = 200;
 			imageContainer.setStyle("borderAlpha", 0);
-//			imageContainer.setStyle("backgroundColor", 0);
 			canvas = new BorderContainer();
-			canvas.percentHeight = canvas.percentWidth = 100;
 			canvas.setStyle("borderAlpha", 0);
-			canvas.setStyle("backgroundColor", 0);
 			loadBtn = new Button();
 			loadBtn.label = "Load Image";
 			imageContainer.addElement(canvas);
@@ -79,7 +74,6 @@ package components.contents
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onDataLoadComplete);
 			loader.loadBytes(fileRef.data);
 			fileRef = null;
-			
 		}
 		
 		private function onDataLoadComplete(e:Event):void

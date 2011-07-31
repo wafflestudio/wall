@@ -2,8 +2,6 @@ package components
 {
 import eventing.events.ResizeEvent;
 import components.controls.ResizeControlUIComponent;
-import spark.components.WindowedApplication;
-import mx.core.WindowedApplication;
 import mx.core.UIComponent;
 import mx.core.FlexGlobals;
 import flash.geom.Point;

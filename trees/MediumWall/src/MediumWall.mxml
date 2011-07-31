@@ -8,18 +8,22 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
-			import utils.XMLFileStream;
-			import utils.TemporaryFileStorage;
-			import controllers.Controller;
+			import components.perspectives.IPerspective;
+			import components.perspectives.TabbedPerspective;
+			
+			import controllers.DesktopController;
 			import controllers.IController;
-			import storages.configs.IFileStoredConfig;
+			
+			import mx.controls.Alert;
+			
 			import storages.configs.FileStoredConfig;
 			import storages.configs.IConfig;
-			import storages.sessions.Session;
+			import storages.configs.IFileStoredConfig;
 			import storages.sessions.ISession;
-			import components.perspectives.TabbedPerspective;
-			import components.perspectives.IPerspective;
+			import storages.sessions.Session;
+			
+			import utils.TemporaryFileStorage;
+			import utils.XMLFileStream;
 			
 		]]>
 	</fx:Script>
@@ -32,7 +36,7 @@
 		<![CDATA[
 		
 		try {
-			private var controller:IController = new Controller();
+			private var controller:IController = new DesktopController();
 			
 			controller.load();
 			controller.setup(this);

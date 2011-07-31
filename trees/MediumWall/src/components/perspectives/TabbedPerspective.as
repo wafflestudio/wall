@@ -62,12 +62,12 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 			}
 		);
 		
-		toolbar.openWallButton.addClickEventListener(
-			function(e:ClickEvent):void {
-				var dialog:IDialog = new OpenWallDialog();
-				dialog.show();
-			}
-		);
+//		toolbar.openWallButton.addClickEventListener(
+//			function(e:ClickEvent):void {
+//				var dialog:IDialog = new OpenWallDialog();
+//				dialog.show();
+//			}
+//		);
 		
 		toolbar.newSheetButton.addClickEventListener(
 			function(e:ClickEvent):void {

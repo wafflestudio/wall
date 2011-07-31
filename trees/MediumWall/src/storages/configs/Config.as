@@ -6,7 +6,7 @@ import storages.sessions.Session;
 
 public class Config implements IConfig
 {
-	private var _session:ISession = new Session();;
+	protected var _session:ISession;
 	
 	public function get session():ISession
 	{

@@ -14,7 +14,6 @@ package components.sheets  {
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
 	
-	import mx.controls.Image;
 	import mx.core.IVisualElement;
 	import mx.core.IVisualElementContainer;
 	

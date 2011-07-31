@@ -2,7 +2,6 @@ package components.toolbars
 {
 import spark.components.BorderContainer;
 import spark.components.HGroup;
-import mx.controls.Image;
 import components.IComposite;
 import components.Component;
 import mx.core.IVisualElement;

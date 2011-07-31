@@ -2,6 +2,9 @@ package components.controls
 {
 import components.Component;
 import components.ToplevelComponent;
+
+import mx.core.IVisualElementContainer;
+
 import spark.components.Application;
 
 public class Control extends ToplevelComponent implements IControl
@@ -28,13 +31,13 @@ public class Control extends ToplevelComponent implements IControl
 		return active;
 	}
 	
-	override public function addToApplication(app:Application):void
+	override public function addToApplication(app:IVisualElementContainer):void
 	{
 		super.addToApplication(app);
 		active = true;
 	}
 	
-	override public function removeFromApplication(app:Application = null):void
+	override public function removeFromApplication(app:IVisualElementContainer = null):void
 	{
 		super.removeFromApplication(app);
 		active = false;

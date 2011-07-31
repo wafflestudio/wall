@@ -1,11 +1,11 @@
 package components
 {
-import spark.components.Application;
-import spark.components.WindowedApplication;
+	import mx.core.IVisualElementContainer;
+
 
 public interface IToplevelComponent
 {
-	function addToApplication(app:Application):void;
-	function removeFromApplication(app:Application = null):void;
+	function addToApplication(app:IVisualElementContainer):void;
+	function removeFromApplication(app:IVisualElementContainer = null):void;
 }
 }

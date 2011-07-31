@@ -1,23 +1,28 @@
 package components.walls
 {
-import storages.IXMLizable;
-import components.sheets.ISheet;
-import spark.components.NavigatorContent;
-import spark.components.Group;
-import components.containers.ScrollableContainer;
-import components.sheets.Sheet;
-import flash.geom.Point;
-import flash.display.DisplayObject;
 import components.containers.PannableContainer;
-import mx.core.IVisualElement;
-import spark.components.BorderContainer;
-import spark.components.Scroller;
-import flash.events.MouseEvent;
-import mx.core.IVisualElementContainer;
-import eventing.events.NameChangeEvent;
+import components.containers.ScrollableContainer;
+import components.sheets.ISheet;
+import components.sheets.Sheet;
+
 import eventing.events.CommitEvent;
 import eventing.events.Event;
 import eventing.events.FocusEvent;
+import eventing.events.NameChangeEvent;
+
+import flash.display.DisplayObject;
+import flash.events.MouseEvent;
+import flash.geom.Point;
+
+import mx.core.IVisualElement;
+import mx.core.IVisualElementContainer;
+
+import spark.components.BorderContainer;
+import spark.components.Group;
+import spark.components.NavigatorContent;
+import spark.components.Scroller;
+
+import storages.IXMLizable;
 
 public class Wall extends PannableContainer implements IWall
 {
@@ -143,6 +148,20 @@ public class Wall extends PannableContainer implements IWall
 	protected function dispatchCommitEvent():void
 	{
 		dispatchEvent(new CommitEvent(this));	
+	}
+	
+	
+	public function addToApplication(app:IVisualElementContainer):void
+	{
+		app.addElement(visualElement);
+	}
+	
+	public function removeFromApplication(app:IVisualElementContainer = null):void
+	{
+		if(app)
+			app.removeElement(visualElement);
+		else
+			(visualElement.parent as IVisualElementContainer).removeElement(visualElement);
 	}
 	
 	/**

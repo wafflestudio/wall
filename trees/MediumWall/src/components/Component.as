@@ -4,8 +4,6 @@ import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
 import spark.components.Button;
 import spark.components.Group;
-import mx.containers.VBox;
-import mx.core.Container;
 import flash.geom.Point;
 import flash.display.Stage;
 import mx.core.UIComponent;

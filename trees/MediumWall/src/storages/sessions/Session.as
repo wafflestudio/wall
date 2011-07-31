@@ -1,24 +1,22 @@
 package storages.sessions
 {
 import components.perspectives.IPerspective;
-import storages.IXMLizable;
-import components.perspectives.Perspective;
+import components.perspectives.MobilePerspective;
 import components.perspectives.MultipleWallPerspective;
+import components.perspectives.Perspective;
 import components.perspectives.TabbedPerspective;
+
 import eventing.eventdispatchers.EventDispatcher;
 import eventing.events.CommitEvent;
 
+import storages.IXMLizable;
+
 public class Session extends EventDispatcher implements ISession
 {
-	private var _perspective:IPerspective;
+	protected var _perspective:IPerspective;
 	
 	public function Session()
-	{
-		_perspective = new TabbedPerspective();
-		_perspective.addCommitEventListener(function():void
-		{
-			dispatchCommitEvent();
-		});
+	{	
 	}
 	
 	public function get perspective():IPerspective

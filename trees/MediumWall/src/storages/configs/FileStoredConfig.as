@@ -17,10 +17,7 @@ public class FileStoredConfig extends Config implements IFileStoredConfig
 	public function FileStoredConfig()
 	{
 		super();
-		session.addCommitEventListener( function():void
-		{
-			save();
-		});
+		
 	}
 	
 	public function load(file:File = null):void
@@ -35,11 +32,11 @@ public class FileStoredConfig extends Config implements IFileStoredConfig
 		{
 			trace("unable to load file " + file.nativePath + ", using default");
 			fromXML(defaultXML);
-			save();
+			saveAs();
 		}
 	}
 	
-	public function save(file:File = null):void
+	public function saveAs(file:File = null):void
 	{
 		if(file == null)
 			file = defaultFile;
