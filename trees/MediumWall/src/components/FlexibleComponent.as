@@ -92,7 +92,6 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 			var diff:Point = lowerRight.subtract(upperLeft);
 			width = diff.x;
 			height = diff.y;
-			trace(x, y, width, height);
 		});
 		
 		resizeControl.addResizedEventListener(function(e:ResizeEvent):void 

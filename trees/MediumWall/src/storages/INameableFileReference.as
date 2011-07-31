@@ -2,7 +2,7 @@ package storages
 {
 import misc.INameable;
 
-public interface INameableFileReference extends IFileRefence, INameable
+public interface INameableFileReference extends IFileReference, INameable
 {
 	
 }
