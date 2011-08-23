@@ -11,6 +11,6 @@ import eventing.eventdispatchers.ICommitEventDispatcher;
 
 public interface IPerspective extends IComponent, IToplevelComponent, IXMLizable, ICommitEventDispatcher
 {
-	
+	function get defaultXML():XML;
 }
 }

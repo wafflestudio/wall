@@ -1,14 +1,16 @@
 package controllers
 {
+import flash.filesystem.File;
+
 import mx.core.IVisualElementContainer;
 
 import spark.components.Application;
 
+import storages.IXMLizable;
 
-public interface IController
+
+public interface IController extends IXMLizable
 {
-	function load():void;
-	function save():void;
 	function setup(app:IVisualElementContainer):void;
 }
 }

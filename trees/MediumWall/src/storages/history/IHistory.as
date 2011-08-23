@@ -1,11 +1,11 @@
 package storages.history
 {
-import storages.actions.IAction;
+import storages.actions.Action;
 
 public interface IHistory
 {
-	public function rollback():IAction;
-	public function playForward():IAction;
-	public function writeForward(action:IAction):void;
+	function rollback():Action;
+	function playForward():Action;
+	function writeForward(action:Action):void;
 }
 }

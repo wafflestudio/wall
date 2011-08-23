@@ -1,6 +1,8 @@
 package controllers
 {
 	import components.perspectives.IMultipleWallPerspective;
+	import components.perspectives.IPerspective;
+	import components.perspectives.TabbedPerspective;
 	
 	import flash.errors.IOError;
 	import flash.filesystem.File;
@@ -9,45 +11,70 @@ package controllers
 	
 	import spark.components.Application;
 	
-	import storages.configs.Config;
-	import storages.configs.DesktopConfig;
-	import storages.configs.FileStoredConfig;
-	import storages.configs.IFileStoredConfig;
+	import storages.IXMLizable;
+	import storages.history.IHistory;
 
-	public class DesktopController implements IDesktopController
+	public class DesktopController extends FileStoredController implements IDesktopController
 	{
-	
-		private static var configFile:File = File.applicationStorageDirectory.resolvePath( "wallconf.xml" );
-		private var config:IFileStoredConfig;
+		protected var history:IHistory;
+		protected var perspective:IMultipleWallPerspective;
 		
-		public function DesktopController()
+		public function DesktopController(configFile:File = null)
 		{
+			load(configFile);
 		}
 		
-		public function load():void
+		override public function setup(app:IVisualElementContainer):void
 		{
-			config = new DesktopConfig();
-			
-			try  {
-				config.load();
-			}
-			catch(e:IOError)  {
-				var defaultConf:XML = Config.defaultXML;
-				trace("failed to load config file, loading default: " + defaultConf);
-				config.fromXML(defaultConf);
-			}
-		}
-		
-		public function save():void
-		{
-			config.saveAs();
-		}
-		
-		public function setup(app:IVisualElementContainer):void
-		{
-			var perspective:IMultipleWallPerspective = config.session.perspective as IMultipleWallPerspective;
 			perspective.addToApplication(app);
+		}
+		
+		
+		/**
+		 * <DesktopConfig>
+		 * 	<perspective>
+		 * 		<walls>
+		 * 			<wall file=""/>
+		 * 		</walls>
+		 * 	</perspective>
+		 * </DesktopConfig>
+		 */
+		override public function fromXML(configXML:XML):IXMLizable
+		{
+			trace(configXML);
 			
+			perspective = new TabbedPerspective();
+			
+			perspective.addCommitEventListener(function():void
+			{
+				saveAs();
+			});
+			
+			perspective.fromXML(configXML.perspective[0]);
+			
+			return this;	
+		}
+		
+		override public function toXML():XML
+		{
+			var xml:XML = <DesktopConfig/>;
+			
+			// TODO: other configuration values;
+			
+			xml.appendChild(perspective.toXML());
+			
+			return xml;
+		}
+		
+		override public function get defaultXML():XML
+		{
+			var xml:XML = 
+				<DesktopConfig/>;
+					
+			xml.appendChild(perspective.defaultXML);
+			// TODO: other configuration values;
+			
+			return xml;
 		}
 	}
 }

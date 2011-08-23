@@ -1,30 +1,34 @@
 package components.perspectives
 {
-import spark.components.Group;
-import mx.containers.ViewStack;
-import storages.IXMLizable;
+import components.dialogs.IDialog;
+import components.dialogs.OpenWallDialog;
 import components.sheets.ISheet;
-import storages.sessions.ISession;
-import components.walls.IWall;
+import components.sheets.Sheet;
+import components.toolbars.CommandToolbar;
+import components.toolbars.ICommandToolbar;
 import components.toolbars.IToolbar;
 import components.toolbars.Toolbar;
-import spark.components.VGroup;
-import components.toolbars.CommandToolbar;
+import components.walls.FileStoredWall;
+import components.walls.IWall;
+import components.walls.Wall;
 import components.wallstacks.ITabbedWallStack;
 import components.wallstacks.TabbedWallStack;
-import components.toolbars.ICommandToolbar;
+
 import eventing.eventdispatchers.IClickEventDispatcher;
-import eventing.events.Event;
-import components.walls.Wall;
-import mx.managers.PopUpManager;
-import components.dialogs.OpenWallDialog;
-import components.dialogs.IDialog;
-import components.sheets.Sheet;
-import flash.geom.Point;
-import flash.display.DisplayObject;
-import components.walls.FileStoredWall;
-import eventing.events.SelectionChangeEvent;
 import eventing.events.ClickEvent;
+import eventing.events.Event;
+import eventing.events.SelectionChangeEvent;
+
+import flash.display.DisplayObject;
+import flash.geom.Point;
+
+import mx.containers.ViewStack;
+import mx.managers.PopUpManager;
+
+import spark.components.Group;
+import spark.components.VGroup;
+
+import storages.IXMLizable;
 
 
 
@@ -33,7 +37,7 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 	private var tabStack:ITabbedWallStack;
 	private var vgroup:VGroup = new VGroup();
 	
-	public function TabbedPerspective()
+	public function TabbedPerspective(paths:Array = null)
 	{	
 		super();
 		
@@ -77,7 +81,7 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		
 		(toolbar as CommandToolbar).testButton.addClickEventListener(
 			function(e:ClickEvent):void {
-				trace(toXML());		
+				
 			}
 		);
 		

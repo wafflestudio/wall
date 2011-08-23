@@ -45,29 +45,17 @@ public class Perspective extends ToplevelComponent implements IPerspective
 
 	public function fromXML(xml:XML):IXMLizable
 	{
-		return this;
+		return null;
 	}
 	
 	public function toXML():XML
 	{
-		var xml:XML = <perspective/>;
-		
-		var walls:XML = <walls/>;
-		
-		xml.appendChild(walls);
-		
-		return xml;
+		return null;
 	}
 	
-	public static function get defaultXML():XML
+	public function get defaultXML():XML
 	{
-		var xml:XML = <perspective/>;
-		
-		var walls:XML = <walls/>;
-		
-		xml.appendChild(walls);
-		
-		return xml;
+		return null;
 	}
 	
 }
