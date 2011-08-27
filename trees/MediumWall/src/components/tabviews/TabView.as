@@ -10,7 +10,6 @@ import eventing.events.SelectionChangeEvent;
 
 import mx.collections.ArrayCollection;
 import mx.containers.TabNavigator;
-import mx.containers.ViewStack;
 import mx.core.IVisualElementContainer;
 import mx.events.ChildExistenceChangedEvent;
 import mx.events.IndexChangedEvent;
@@ -20,21 +19,15 @@ import spark.components.NavigatorContent;
 public class TabView extends Component implements ITabView
 {
 	private var tn:TabNavigator = new TabNavigator();
-	private var viewStack:ViewStack = new ViewStack();
-	
 	
 	public function TabView()
 	{
 		super();
-	
 		tn.percentWidth = 100;
 		tn.percentHeight = 100;
 		
-		viewStack.percentWidth = 100;
-		viewStack.percentHeight = 100;
-		
-		visualElement = viewStack;
-		visualElementContainer = viewStack;
+		visualElement = tn;
+		visualElementContainer = tn;
 		
 		var self:TabView = this;
 		
