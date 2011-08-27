@@ -1,19 +1,23 @@
 package components.perspectives
 {
 
-import spark.components.Application;
-import mx.core.IVisualElement;
 import components.Component;
 import components.ToplevelComponent;
 import components.sheets.ISheet;
+import components.toolbars.ICommandToolbar;
 import components.walls.IWall;
 import components.walls.Wall;
-import storages.IXMLizable;
-import mx.core.IVisualElementContainer;
-import components.toolbars.ICommandToolbar;
+
 import eventing.eventdispatchers.IClickEventDispatcher;
-import eventing.events.Event;
 import eventing.events.CommitEvent;
+import eventing.events.Event;
+
+import mx.core.IVisualElement;
+import mx.core.IVisualElementContainer;
+
+import spark.components.Application;
+
+import storages.IXMLizable;
 
 public class Perspective extends ToplevelComponent implements IPerspective
 {	
@@ -37,9 +41,9 @@ public class Perspective extends ToplevelComponent implements IPerspective
 		removeEventListener(CommitEvent.COMMIT, listener);	
 	}
 	
-	protected function dispatchCommitEvent():void
+	protected function dispatchCommitEvent(actionName:String, args:Array):void
 	{
-		dispatchEvent(new CommitEvent(this));
+		dispatchEvent(new CommitEvent(this, actionName, args));
 	}
 
 

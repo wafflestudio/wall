@@ -1,37 +1,48 @@
 package components.tabviews
 {
-import components.IComponent;
-import mx.containers.TabNavigator;
 import components.Component;
-import mx.collections.ArrayCollection;
-import mx.core.IVisualElementContainer;
-import mx.events.IndexChangedEvent;
-import eventing.events.SelectionChangeEvent;
-import eventing.events.NameChangeEvent;
-import spark.components.NavigatorContent;
-import components.INameableComponent;
-import mx.events.ChildExistenceChangedEvent;
+import components.IComponent;
 import components.IComposite;
+import components.INameableComponent;
+
+import eventing.events.NameChangeEvent;
+import eventing.events.SelectionChangeEvent;
+
+import mx.collections.ArrayCollection;
+import mx.containers.TabNavigator;
+import mx.containers.ViewStack;
+import mx.core.IVisualElementContainer;
+import mx.events.ChildExistenceChangedEvent;
+import mx.events.IndexChangedEvent;
+
+import spark.components.NavigatorContent;
 
 public class TabView extends Component implements ITabView
 {
 	private var tn:TabNavigator = new TabNavigator();
+	private var viewStack:ViewStack = new ViewStack();
+	
 	
 	public function TabView()
 	{
 		super();
+	
 		tn.percentWidth = 100;
 		tn.percentHeight = 100;
 		
-		visualElement = tn;
-		visualElementContainer = tn;
+		viewStack.percentWidth = 100;
+		viewStack.percentHeight = 100;
+		
+		visualElement = viewStack;
+		visualElementContainer = viewStack;
 		
 		var self:TabView = this;
 		
 		tn.addEventListener(IndexChangedEvent.CHANGE,
 			function(e:IndexChangedEvent):void
 			{
-				dispatchSelectionChangeEvent(new SelectionChangeEvent(self, selectedIndex, selectedComponent));
+				trace('index changed');
+				dispatchSelectionChangeEvent(e.oldIndex, e.newIndex);
 				for each(var child:IComponent in children)
 				{
 					if(child === selectedComponent)  {
@@ -44,11 +55,15 @@ public class TabView extends Component implements ITabView
 			}
 		);
 		
+		
+		
+		
+		
 		addChildAddedEventListener(
 			function():void
 			{
 				trace('child added');
-				dispatchSelectionChangeEvent();
+//				dispatchSelectionChangeEvent();
 			}
 		);
 		
@@ -56,7 +71,7 @@ public class TabView extends Component implements ITabView
 			function():void
 			{
 				trace('child removed');
-				dispatchSelectionChangeEvent();
+//				dispatchSelectionChangeEvent();
 			}
 		);
 		
@@ -118,11 +133,9 @@ public class TabView extends Component implements ITabView
 		removeEventListener(SelectionChangeEvent.SELECTION_CHANGE, listener);
 	}
 	
-	protected function dispatchSelectionChangeEvent(e:SelectionChangeEvent = null):void
+	protected function dispatchSelectionChangeEvent(oldSelectedIndex:int, selectedIndex:int):void
 	{
-		if(e == null)
-			e = new SelectionChangeEvent(this, selectedIndex, selectedComponent);
-		dispatchEvent(e);
+		dispatchEvent(new SelectionChangeEvent(this, oldSelectedIndex, selectedIndex));
 	}
 	
 	public function get selectedIndex():int

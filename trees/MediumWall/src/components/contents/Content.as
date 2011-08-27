@@ -2,6 +2,7 @@ package components.contents
 {
 	import components.Component;
 	
+	import eventing.eventdispatchers.IEventDispatcher;
 	import eventing.events.CommitEvent;
 	
 	import storages.IXMLizable;
@@ -42,9 +43,9 @@ package components.contents
 			removeEventListener(CommitEvent.COMMIT, listener);	
 		}
 		
-		protected function dispatchCommitEvent():void
+		protected function dispatchCommitEvent(dispatcher:IEventDispatcher, actionName:String, args:Array):void
 		{
-			dispatchEvent(new CommitEvent(this));	
+			dispatchEvent(new CommitEvent(dispatcher, actionName, args));	
 		}
 	}
 }

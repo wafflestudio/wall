@@ -4,6 +4,8 @@ package controllers
 	import components.perspectives.IPerspective;
 	import components.perspectives.TabbedPerspective;
 	
+	import eventing.events.CommitEvent;
+	
 	import flash.errors.IOError;
 	import flash.filesystem.File;
 	
@@ -41,16 +43,17 @@ package controllers
 		 */
 		override public function fromXML(configXML:XML):IXMLizable
 		{
-			trace(configXML);
+//			trace(configXML);
 			
 			perspective = new TabbedPerspective();
 			
-			perspective.addCommitEventListener(function():void
+			perspective.fromXML(configXML.perspective[0]);
+			
+			perspective.addCommitEventListener(function(e:CommitEvent):void
 			{
+				trace("commited:" + e.actionName);
 				saveAs();
 			});
-			
-			perspective.fromXML(configXML.perspective[0]);
 			
 			return this;	
 		}

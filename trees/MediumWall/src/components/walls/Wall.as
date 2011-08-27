@@ -5,7 +5,9 @@ import components.containers.ScrollableContainer;
 import components.sheets.ISheet;
 import components.sheets.Sheet;
 
+import eventing.eventdispatchers.IEventDispatcher;
 import eventing.events.CommitEvent;
+import eventing.events.CompositeEvent;
 import eventing.events.Event;
 import eventing.events.FocusEvent;
 import eventing.events.NameChangeEvent;
@@ -48,21 +50,21 @@ public class Wall extends PannableContainer implements IWall
 			zoom = multiplier;
 			dispatchDimensionChangeEvent(extent, extent);
 			dispatchChildrenDimensionChangeEvent();
-			dispatchCommitEvent();
+			dispatchCommitEvent(self, "ZOOM_CHANGE", [multiplier]);
 		});
 		
 		addNameChangeEventListener( function():void  {
-			dispatchCommitEvent();
+			dispatchCommitEvent(self, "NAME_CHANGE", [name]);
 		});
 		
-		addChildAddedEventListener(function():void  {
+		addChildAddedEventListener(function(e:CompositeEvent):void  {
 			dispatchChildrenDimensionChangeEvent();
-			dispatchCommitEvent();
+			dispatchCommitEvent(self, "CHILD_ADDED", [e.child]);
 		});
 		
-		addChildRemovedEventListener(function():void  {
+		addChildRemovedEventListener(function(e:CompositeEvent):void  {
 			dispatchChildrenDimensionChangeEvent();
-			dispatchCommitEvent();
+			dispatchCommitEvent(self, "CHILD_REMOVED", [e.child]);
 		});
 		
 		
@@ -86,9 +88,9 @@ public class Wall extends PannableContainer implements IWall
 		addSheet(sheet);
 	}
 	
-	private function onSheetCommitEvent(e:Event):void
+	private function onSheetCommitEvent(e:CommitEvent):void
 	{
-		dispatchCommitEvent();
+		dispatchCommitEvent(e.dispatcher, e.actionName, e.args);
 	}
 	
 	private function onSheetFocusEvent(e:FocusEvent):void 
@@ -110,8 +112,6 @@ public class Wall extends PannableContainer implements IWall
 		sheet.removeFocusInEventListener(onSheetFocusEvent);
 	}
 		
-	
-	
 	
 	
 	private var _name:String = "noname";
@@ -145,9 +145,9 @@ public class Wall extends PannableContainer implements IWall
 		removeEventListener(CommitEvent.COMMIT, listener);	
 	}
 	
-	protected function dispatchCommitEvent():void
+	protected function dispatchCommitEvent(dispatcher:IEventDispatcher, actionName:String, args:Array):void
 	{
-		dispatchEvent(new CommitEvent(this));	
+		dispatchEvent(new CommitEvent(dispatcher, actionName, args));	
 	}
 	
 	
@@ -200,7 +200,6 @@ public class Wall extends PannableContainer implements IWall
 	public function toXML():XML
 	{
 		var xml:XML = <wall/>;
-		trace(xml.@zoomX);
 		xml.@name = name;
 		xml.@panX = panX;
 		xml.@panY = panY;

@@ -16,6 +16,7 @@ import components.wallstacks.TabbedWallStack;
 
 import eventing.eventdispatchers.IClickEventDispatcher;
 import eventing.events.ClickEvent;
+import eventing.events.CommitEvent;
 import eventing.events.Event;
 import eventing.events.SelectionChangeEvent;
 
@@ -85,9 +86,9 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 			}
 		);
 		
-		tabStack.addCommitEventListener( function():void
+		tabStack.addCommitEventListener( function(e:CommitEvent):void
 		{
-			dispatchCommitEvent();
+			dispatchCommitEvent(e.actionName, e.args);
 		});
 	}
 	

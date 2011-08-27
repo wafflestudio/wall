@@ -19,9 +19,9 @@ package components.contents
 
 			textarea.percentWidth = 100;
 			textarea.percentHeight = 70;
-			textarea.addEventListener(TextOperationEvent.CHANGE, function():void
+			textarea.addEventListener(TextOperationEvent.CHANGE, function(e:TextOperationEvent):void
 			{
-				dispatchCommitEvent();
+				dispatchCommitEvent(self, "TEXT_CHANGE", [textarea.text]);
 			});
 		}
 		

@@ -23,7 +23,7 @@ public class XMLFileStream
 		try {
 			fileStream.open( file, FileMode.WRITE );
 			fileStream.writeUTFBytes( xml );
-			trace('saved at ' + file.nativePath + xml);
+			trace('saved at ' + file.nativePath);
 		}
 		catch(e:IOError)  {
 			trace('IOError:' + e.name + ":" + e.message);

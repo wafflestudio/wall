@@ -1,26 +1,32 @@
 package components.wallstacks
 {
-import components.IComposite;
-import mx.containers.TabNavigator;
-import spark.components.BorderContainer;
-import mx.core.IVisualElementContainer;
-import spark.components.NavigatorContent;
-import components.IComponent;
 import components.Component;
+import components.IComponent;
+import components.IComposite;
 import components.INameableComponent;
-import eventing.events.NameChangeEvent;
-import flash.events.Event;
-import eventing.events.SelectionChangeEvent;
-import eventing.events.CommitEvent;
-import mx.events.IndexChangedEvent;
-import components.walls.Wall;
-import components.walls.IWall;
-import mx.events.ChildExistenceChangedEvent;
-import components.tabviews.TabView;
-import storages.IXMLizable;
-import components.walls.FileStoredWall;
-import flash.filesystem.File;
 import components.containers.Container;
+import components.tabviews.TabView;
+import components.walls.FileStoredWall;
+import components.walls.IWall;
+import components.walls.Wall;
+
+import eventing.eventdispatchers.IEventDispatcher;
+import eventing.events.CommitEvent;
+import eventing.events.NameChangeEvent;
+import eventing.events.SelectionChangeEvent;
+
+import flash.events.Event;
+import flash.filesystem.File;
+
+import mx.containers.TabNavigator;
+import mx.core.IVisualElementContainer;
+import mx.events.ChildExistenceChangedEvent;
+import mx.events.IndexChangedEvent;
+
+import spark.components.BorderContainer;
+import spark.components.NavigatorContent;
+
+import storages.IXMLizable;
 
 public class TabbedWallStack extends TabView implements ITabbedWallStack
 {	
@@ -32,20 +38,20 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 		
 		addSelectionChangeEventListener(function(e:SelectionChangeEvent):void
 		{
-			dispatchCommitEvent();
+			dispatchCommitEvent(self, "SELECTION_CHANGE", [e.selectedIndex]);
 		});
 	}
 	
 	public function addWall(wall:IWall):void
 	{
 		addChild(wall);
-		dispatchCommitEvent();
+		dispatchCommitEvent(self, "ADDED_WALL", [wall]);
 	}
 	
 	public function removeWall(wall:IWall):void
 	{
 		removeChild(wall);	
-		dispatchCommitEvent();
+		dispatchCommitEvent(self, "REMOVED_WALL", [wall]);
 	}
 	
 	
@@ -95,9 +101,9 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 		removeEventListener(CommitEvent.COMMIT, listener);	
 	}
 	
-	protected function dispatchCommitEvent():void
+	protected function dispatchCommitEvent(dispatcher:IEventDispatcher, actionName:String, args:Array):void
 	{
-		dispatchEvent(new CommitEvent(this));
+		dispatchEvent(new CommitEvent(dispatcher, actionName, args));
 	}
 	
 	
@@ -122,7 +128,6 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 				wall = new Wall();
 				wall.fromXML(wallXML);
 			}
-			
 			
 			addWall(wall);
 			var c:Container;

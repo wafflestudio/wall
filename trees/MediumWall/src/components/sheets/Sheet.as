@@ -6,6 +6,7 @@ package components.sheets  {
 	import components.contents.TextContent;
 	
 	import eventing.eventdispatchers.IClickEventDispatcher;
+	import eventing.eventdispatchers.IEventDispatcher;
 	import eventing.events.CommitEvent;
 	import eventing.events.DimensionChangeEvent;
 	import eventing.events.FocusEvent;
@@ -49,9 +50,9 @@ public class Sheet extends FlexibleComponent implements ISheet
 		visualElement = bc;
 		visualElementContainer = bc;
 	
-		addDimensionChangeEventListener(function():void
+		addDimensionChangeEventListener(function(e:DimensionChangeEvent):void
 		{
-			dispatchCommitEvent();
+			dispatchCommitEvent(self, DimensionChangeEvent.DIMENSION_CHANGE, [e.oldDimension, e.dimension]);
 		});
 
 	}
@@ -84,9 +85,9 @@ public class Sheet extends FlexibleComponent implements ISheet
 		removeEventListener(CommitEvent.COMMIT, listener);	
 	}
 	
-	protected function dispatchCommitEvent():void
+	protected function dispatchCommitEvent(dispatcher:IEventDispatcher, actionName:String, args:Array):void
 	{
-		dispatchEvent(new CommitEvent(this));	
+		dispatchEvent(new CommitEvent(dispatcher, actionName, args));	
 	}
 	
 	

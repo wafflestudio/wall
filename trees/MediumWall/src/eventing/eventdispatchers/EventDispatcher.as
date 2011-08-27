@@ -1,15 +1,17 @@
 package eventing.eventdispatchers
 {
-import mx.collections.ArrayCollection;
 import eventing.EventListenerEntry;
 import eventing.events.Event;
 
+import mx.collections.ArrayCollection;
+
 public class EventDispatcher implements IEventDispatcher
 {
+	protected var self:EventDispatcher;
 	
 	public function EventDispatcher()
 	{
-			
+		self = this;	
 	}
 	
 	protected function dispatchEvent(e:Event):void

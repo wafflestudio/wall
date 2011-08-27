@@ -3,7 +3,14 @@ package storages.history
 import mx.collections.ArrayCollection;
 import storages.actions.Action;
 
-
+/**
+ * Usage:
+ * 	var history = new History();
+ *  history.writeForward(action);
+ *  var action = history.rollback();
+ *  action.type
+ * 
+ */
 public class History implements IHistory
 {
 	private var log:ArrayCollection;
