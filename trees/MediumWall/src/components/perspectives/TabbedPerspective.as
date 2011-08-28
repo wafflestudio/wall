@@ -109,7 +109,7 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 	override public function addWall(wall:IWall):void
 	{
 		super.addWall(wall);
-		tabStack.addChild(wall);
+		tabStack.addWall(wall);
 	}
 	
 	/**

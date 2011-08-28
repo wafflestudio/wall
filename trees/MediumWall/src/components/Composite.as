@@ -16,7 +16,7 @@ public class Composite extends EventDispatcher implements IComposite
 		children = new ArrayCollection([]);
 	}
 	
-	public function addChild(child:IComposite):IComposite
+	protected function addChild(child:IComposite):IComposite
 	{
 		(child as Composite).parent = this;
 		children.addItem(child);
@@ -25,7 +25,7 @@ public class Composite extends EventDispatcher implements IComposite
 		return child;	
 	}
 	
-	public function removeChild(child:IComposite):IComposite
+	protected function removeChild(child:IComposite):IComposite
 	{
 		var index:int = children.getItemIndex(child);
 		if(index >=0 )  {

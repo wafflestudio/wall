@@ -83,7 +83,7 @@ public class Component extends Composite implements IComponent
 		}
 	}
 	
-	override public function addChild(child:IComposite):IComposite
+	override protected function addChild(child:IComposite):IComposite
 	{
 		var vchild:Component = child as Component;
 		if(vchild == null)  {
@@ -99,7 +99,7 @@ public class Component extends Composite implements IComponent
 		return child;
 	}
 	
-	override public function removeChild(child:IComposite):IComposite
+	override protected function removeChild(child:IComposite):IComposite
 	{
 		var vchild:Component = child as Component;
 		if(vchild == null)  {

@@ -8,5 +8,6 @@ public interface ITabbedWallStack extends IWallStack
 	function get selectedWall():IWall;
 	function get selectedIndex():int;
 	function set selectedIndex(val:int):void;
+
 }
 }

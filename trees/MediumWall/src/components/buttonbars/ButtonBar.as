@@ -7,36 +7,30 @@ package components.buttonbars
 	
 	import spark.components.Button;
 	import spark.components.Group;
+	import spark.components.HGroup;
 
 	public class ButtonBar extends Component
 	{
-		protected var group:Group = new Group();
+		protected var hgroup:HGroup = new HGroup();
 		
 		override protected function get visualElement():IVisualElement
 		{
-			return group;
+			return hgroup;
 		}
 		
 		public function ButtonBar()
 		{
 			super();
 			
-			visualElement = group;
+			visualElement = hgroup;
+			visualElementContainer = hgroup;
 			
 //			group.addElement(button);
+		}
+		
+		public function addButton():void
+		{
 			
 		}
 		
-		public function set label(text:String):void
-		{
-			var button:spark.components.Button = visualElement as spark.components.Button;
-			button.label = text;	
-		}
-		
-		public function set enabled(value:Boolean):void
-		{
-			var button:spark.components.Button = visualElement as spark.components.Button;
-			button.enabled = value;
-		}
-	}
 }

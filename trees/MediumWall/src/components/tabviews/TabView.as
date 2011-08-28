@@ -71,12 +71,12 @@ public class TabView extends Component implements ITabView
 
 	}
 	
-	override public function addChild(child:IComposite):IComposite
+	override protected function addChild(child:IComposite):IComposite
 	{
 		return super.addChild(child);
 	}
 	
-	override public function removeChild(child:IComposite):IComposite
+	override protected function removeChild(child:IComposite):IComposite
 	{
 		return super.removeChild(child);
 		
