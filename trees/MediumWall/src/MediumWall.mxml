@@ -23,10 +23,10 @@
 	<s:creationComplete>
 		<![CDATA[
 		
-		try {
+		
 			private var controller:IController = new DesktopController();
 			controller.setup(this);
-	
+		try {
 		}
 		catch(e:Error)
 		{ 

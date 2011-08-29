@@ -1,17 +1,21 @@
 package components.toolbars
 {
-import spark.components.BorderContainer;
-import spark.components.HGroup;
-import components.IComposite;
 import components.Component;
-import mx.core.IVisualElement;
+import components.IClickableComponent;
+import components.IComposite;
 import components.buttons.Button;
 import components.buttons.IButton;
-import spark.components.Group;
-import eventing.eventdispatchers.IMouseEventDispatcher;
-import flash.events.Event;
-import components.IClickableComponent;
+
 import eventing.eventdispatchers.IClickEventDispatcher;
+import eventing.eventdispatchers.IMouseEventDispatcher;
+
+import flash.events.Event;
+
+import mx.core.IVisualElement;
+
+import spark.components.BorderContainer;
+import spark.components.Group;
+import spark.components.HGroup;
 
 public class CommandToolbar extends Toolbar implements ICommandToolbar
 {
@@ -20,6 +24,7 @@ public class CommandToolbar extends Toolbar implements ICommandToolbar
 	private var newWallBtn:IButton;
 	private var newSheetBtn:IButton;
 	private var testBtn:IButton;
+	private var newImageBtn:IButton;
 	
 	// parent - (group - bg - hgroup) - children
 	public function CommandToolbar()
@@ -53,10 +58,14 @@ public class CommandToolbar extends Toolbar implements ICommandToolbar
 		testBtn = new Button();
 		testBtn.label = "test";
 		
+		newImageBtn = new Button();
+		newImageBtn.label = "new image sheet";
+		
 		addChild(openWallBtn);
 		addChild(newWallBtn);
 		addChild(newSheetBtn);
 		addChild(testBtn);
+		addChild(newImageBtn);
 		
 		
 	}
@@ -80,6 +89,9 @@ public class CommandToolbar extends Toolbar implements ICommandToolbar
 	{
 		return testBtn;
 	}
-	
+	public function get newImageButton():IClickEventDispatcher
+	{
+		return newImageBtn;
+	}
 }
 }

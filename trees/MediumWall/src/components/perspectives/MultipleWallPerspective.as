@@ -1,9 +1,11 @@
 package components.perspectives
 {
-import mx.collections.ArrayCollection;
-import components.walls.IWall;
 import components.sheets.ISheet;
+import components.walls.IWall;
+
 import eventing.events.SelectionChangeEvent;
+
+import mx.collections.ArrayCollection;
 
 public class MultipleWallPerspective extends Perspective implements IMultipleWallPerspective
 {	
@@ -22,11 +24,15 @@ public class MultipleWallPerspective extends Perspective implements IMultipleWal
 		
 	}
 	
-	public function addSheet():void
+	public function addSheet(option:String):void
 	{
 		var wall:IWall = currentWall;
-				
-		wall.addBlankSheet();
+		if(option == "text")
+			wall.addBlankSheet();
+		else if(option == "image")
+			wall.addBlankSheet(option);
+		else
+			wall.addBlankSheet();
 	}
 	
 	protected function get currentIndex():int

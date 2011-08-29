@@ -72,9 +72,9 @@ public class Wall extends PannableContainer implements IWall
 	
 	
 	
-	public function addBlankSheet():void
+	public function addBlankSheet(option:String=null):void
 	{
-		var sheet:ISheet = new Sheet();
+		var sheet:ISheet = new Sheet(option);
 		
 		var compCenter:Point = new Point(width/2, height/2);
 		

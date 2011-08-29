@@ -21,10 +21,9 @@ package components.contents
 	{
 		private var fileRef:FileReference;
 		private var imageContainer:BorderContainer = new BorderContainer();
-		private var canvas:BorderContainer;
 		private var loadBtn:IButton;
 		
-		//private static const THUMB_WIDTH:uint = 300; 크기 조절시 필요
+		//private static const THUMB_WIDTH:uint = 300; // 크기 조절시 필요
 		//private static const THUMB_HEIGHT:uint = 300;
 		
 		override protected function get visualElement():IVisualElement { return imageContainer; }
@@ -35,14 +34,12 @@ package components.contents
 			
 			//imageContainer.percentWidth = 100;
 			//imageContainer.percentHeight = 30;
-			imageContainer.y = 200;
 			imageContainer.setStyle("borderAlpha", 0);
-			canvas = new BorderContainer();
-			canvas.setStyle("borderAlpha", 0);
 			loadBtn = new Button();
 			loadBtn.label = "Load Image";
-			imageContainer.addElement(canvas);
 			addChildTo(imageContainer, loadBtn);
+			imageContainer.width = 0;
+			imageContainer.height = 0;
 			
 			loadBtn.addClickEventListener(
 				function(e:ClickEvent):void {
@@ -80,12 +77,13 @@ package components.contents
 		{
 			var bitmapData:BitmapData = Bitmap(e.target.content).bitmapData;
 			//var matrix:Matrix = new Matrix();
-			//matrix.scale(THUMB_WIDTH/bitmapData.width, THUMB_HEIGHT/bitmapData.height); 크기 조절할 때 필요
+			//matrix.scale(THUMB_WIDTH/bitmapData.width, THUMB_HEIGHT/bitmapData.height); // 크기 조절할 때 필요
 			
-			canvas.graphics.clear();
-			canvas.graphics.beginBitmapFill(bitmapData, null, false);	//크기조절시 null->matrix
-			canvas.graphics.drawRect(0, 0, bitmapData.width, bitmapData.height);
-			canvas.graphics.endFill();
+			imageContainer.graphics.clear();
+			imageContainer.graphics.beginBitmapFill(bitmapData, null, false);	//크기조절시 null->matrix
+			imageContainer.graphics.drawRect(0, 0, bitmapData.width, bitmapData.height);
+			imageContainer.graphics.endFill();
+			removeChildFrom(imageContainer, loadBtn);
 		}
 		
 	}

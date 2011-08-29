@@ -31,14 +31,18 @@ public class Sheet extends FlexibleComponent implements ISheet
 	private var tc:TextContent;
 	private var ic:ImageContent;
 
-	public function Sheet()
+	public function Sheet(option:String=null)
 	{
 		super();
 		tc = new TextContent();
-		ic = new ImageContent();
-		
-		addChildTo(bc, tc);
-		addChildTo(bc, ic);
+		if(option=="image")
+		{
+			ic = new ImageContent();
+			addChildTo(bc, ic);
+		} else if(option == null)
+		{
+			addChildTo(bc, tc);
+		}
 
 		bc.setStyle("borderWidth", 1);
 		

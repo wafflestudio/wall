@@ -13,7 +13,7 @@ import storages.IXMLizable;
 
 public interface IWall extends IPannableContainer, IXMLizable, INameableComponent, ICommitableComponent, IToplevelComponent
 {
-	function addBlankSheet():void;
+	function addBlankSheet(option:String=null):void;
 	function addSheet(sheet:ISheet):void;
 }
 }

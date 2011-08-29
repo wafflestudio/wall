@@ -119,6 +119,7 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 	public function fromXML(xml:XML):IXMLizable
 	{
 		reset();
+		if(xml.wall)
 		for each(var wallXML:XML in xml.wall)
 		{
 			var wall:IWall;

@@ -37,7 +37,7 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 {
 	private var tabStack:ITabbedWallStack;
 	private var vgroup:VGroup = new VGroup();
-	
+	private var option:String;
 	public function TabbedPerspective(paths:Array = null)
 	{	
 		super();
@@ -73,10 +73,19 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 //				dialog.show();
 //			}
 //		);
+
+
+		toolbar.newImageButton.addClickEventListener(
+			function(e:ClickEvent):void {
+				option = "image";
+				addSheet(option);
+			}
+		);
 		
 		toolbar.newSheetButton.addClickEventListener(
 			function(e:ClickEvent):void {
-				addSheet();
+				option = "text";
+				addSheet(option);
 			}
 		);
 		
@@ -122,7 +131,8 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 	override public function fromXML(xml:XML):IXMLizable
 	{
 		reset();
-		tabStack.fromXML(xml.walls[0]);
+		if(xml.walls && xml.walls[0])
+			tabStack.fromXML(xml.walls[0]);
 		
 		return this;
 	}

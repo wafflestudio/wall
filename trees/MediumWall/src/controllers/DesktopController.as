@@ -72,9 +72,11 @@ package controllers
 		override public function get defaultXML():XML
 		{
 			var xml:XML = 
-				<DesktopConfig/>;
+				<DesktopConfig>
+					<perspective/>
+				</DesktopConfig>
 					
-			xml.appendChild(perspective.defaultXML);
+//			xml.appendChild(perspective.defaultXML);
 			// TODO: other configuration values;
 			
 			return xml;
