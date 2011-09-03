@@ -2,7 +2,7 @@ package components.dialogs
 {
 
 
-public class OpenWallDialog extends FileChooseDialog implements IOpenWallDialog
+public class OpenWallDialog extends FileChooseDialog
 {
 	function OpenWallDialog()
 	{

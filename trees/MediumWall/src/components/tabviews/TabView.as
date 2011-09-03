@@ -5,6 +5,7 @@ import components.Composite;
 import components.IComponent;
 import components.INameableComponent;
 
+import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
 import eventing.events.NameChangeEvent;
 import eventing.events.SelectionChangeEvent;
 
@@ -16,7 +17,7 @@ import mx.events.IndexChangedEvent;
 
 import spark.components.NavigatorContent;
 
-public class TabView extends Component implements ITabView
+public class TabView extends Component implements ISelectionChangeEventDispatcher
 {
 	private var tn:TabNavigator = new TabNavigator();
 	

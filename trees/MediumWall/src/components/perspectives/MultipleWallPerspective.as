@@ -2,11 +2,12 @@ package components.perspectives
 {
 import components.walls.Wall;
 
+import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
 import eventing.events.SelectionChangeEvent;
 
 import mx.collections.ArrayCollection;
 
-public class MultipleWallPerspective extends Perspective implements IMultipleWallPerspective
+public class MultipleWallPerspective extends Perspective implements ISelectionChangeEventDispatcher
 {	
 	public function MultipleWallPerspective()
 	{

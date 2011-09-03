@@ -5,7 +5,7 @@ import spark.components.TitleWindow;
 import components.popups.Popup;
 import mx.events.CloseEvent;
 
-public class Dialog extends Popup implements IDialog
+public class Dialog extends Popup
 {
 	protected var tw:TitleWindow;
 	

@@ -26,7 +26,7 @@ import spark.components.NavigatorContent;
 
 import storages.IXMLizable;
 
-public class TabbedWallStack extends TabView implements IWallStack
+public class TabbedWallStack extends TabView i mplements IWallStack
 {	
 	
 	

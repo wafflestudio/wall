@@ -1,11 +1,8 @@
 package components.perspectives
 {
-import components.dialogs.IDialog;
 import components.dialogs.OpenWallDialog;
 import components.sheets.Sheet;
 import components.toolbars.CommandToolbar;
-import components.toolbars.ICommandToolbar;
-import components.toolbars.IToolbar;
 import components.toolbars.Toolbar;
 import components.walls.FileStoredWall;
 import components.walls.Wall;

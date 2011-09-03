@@ -7,6 +7,7 @@ import components.toolbars.CommandToolbar;
 import components.walls.Wall;
 
 import eventing.eventdispatchers.IClickEventDispatcher;
+import eventing.eventdispatchers.ICommitEventDispatcher;
 import eventing.events.CommitEvent;
 import eventing.events.Event;
 
@@ -17,7 +18,7 @@ import spark.components.Application;
 
 import storages.IXMLizable;
 
-public class Perspective extends ToplevelComponent implements IPerspective
+public class Perspective extends ToplevelComponent implements  IXMLizable, ICommitEventDispatcher
 {	
 	protected var toolbar:CommandToolbar;
 	

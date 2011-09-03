@@ -15,7 +15,7 @@ import spark.components.BorderContainer;
 import spark.components.Group;
 import spark.components.HGroup;
 
-public class CommandToolbar extends Toolbar implements ICommandToolbar
+public class CommandToolbar extends Toolbar
 {
 	private var hgroup:HGroup;
 	private var openWallBtn:Button;
