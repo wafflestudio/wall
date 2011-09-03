@@ -1,7 +1,5 @@
 package controllers
 {
-	import components.perspectives.IMultipleWallPerspective;
-	import components.perspectives.IPerspective;
 	import components.perspectives.TabbedPerspective;
 	
 	import eventing.events.CommitEvent;
@@ -14,12 +12,12 @@ package controllers
 	import spark.components.Application;
 	
 	import storages.IXMLizable;
-	import storages.history.IHistory;
+	import storages.history.History;
 
-	public class DesktopController extends FileStoredController implements IDesktopController
+	public class DesktopController extends FileStoredController 
 	{
-		protected var history:IHistory;
-		protected var perspective:IMultipleWallPerspective;
+		protected var history:History;
+		protected var perspective:TabbedPerspective;
 		
 		public function DesktopController(configFile:File = null)
 		{

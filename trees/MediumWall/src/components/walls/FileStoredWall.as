@@ -1,13 +1,17 @@
 package components.walls
 {
-import flash.filesystem.File;
-import utils.XMLFileStream;
-import utils.TemporaryFileStorage;
-import storages.IXMLizable;
-import components.sheets.ISheet;
 import eventing.events.Event;
 
-public class FileStoredWall extends Wall implements IFileStoredWall
+import flash.filesystem.File;
+
+import storages.IFileStorable;
+import storages.INameableFileReference;
+import storages.IXMLizable;
+
+import utils.TemporaryFileStorage;
+import utils.XMLFileStream;
+
+public class FileStoredWall extends Wall implements IFileStorable, INameableFileReference
 {
 	private var _file:File;
 	

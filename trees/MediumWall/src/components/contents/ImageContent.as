@@ -1,7 +1,6 @@
 package components.contents
 {
 	import components.buttons.Button;
-	import components.buttons.IButton;
 	
 	import eventing.eventdispatchers.IClickEventDispatcher;
 	import eventing.events.ClickEvent;
@@ -21,7 +20,7 @@ package components.contents
 	{
 		private var fileRef:FileReference;
 		private var imageContainer:BorderContainer = new BorderContainer();
-		private var loadBtn:IButton;
+		private var loadBtn:Button;
 		
 		//private static const THUMB_WIDTH:uint = 300; // 크기 조절시 필요
 		//private static const THUMB_HEIGHT:uint = 300;

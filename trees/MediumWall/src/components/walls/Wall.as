@@ -1,8 +1,11 @@
 package components.walls
 {
+import components.ICommitableComponent;
+import components.INameableComponent;
+import components.IToplevelComponent;
+import components.containers.IPannableContainer;
 import components.containers.PannableContainer;
 import components.containers.ScrollableContainer;
-import components.sheets.ISheet;
 import components.sheets.Sheet;
 
 import eventing.eventdispatchers.IEventDispatcher;
@@ -26,7 +29,7 @@ import spark.components.Scroller;
 
 import storages.IXMLizable;
 
-public class Wall extends PannableContainer implements IWall
+public class Wall extends PannableContainer implements IPannableContainer, IXMLizable, INameableComponent, ICommitableComponent, IToplevelComponent
 {
 	private var bc:BorderContainer = new BorderContainer();
 	private var group:Group = new Group();
@@ -74,7 +77,8 @@ public class Wall extends PannableContainer implements IWall
 	
 	public function addBlankSheet(option:String=null):void
 	{
-		var sheet:ISheet = new Sheet(option);
+		var sheet:Sheet = new Sheet(option);
+
 		
 		var compCenter:Point = new Point(width/2, height/2);
 		
@@ -98,14 +102,14 @@ public class Wall extends PannableContainer implements IWall
 		bringToFront(e.target as Sheet);
 	}
 	
-	public function addSheet(sheet:ISheet):void
+	public function addSheet(sheet:Sheet):void
 	{
 		sheet.addFocusInEventListener(onSheetFocusEvent); 
 		sheet.addCommitEventListener(onSheetCommitEvent);
 		addChild(sheet);
 	}
 	
-	public function removeSheet(sheet:ISheet):void
+	public function removeSheet(sheet:Sheet):void
 	{
 		removeChild(sheet);
 		sheet.removeCommitEventListener(onSheetCommitEvent);
@@ -188,7 +192,7 @@ public class Wall extends PannableContainer implements IWall
 		
 		for each(var sheetXML:XML in xml.sheets[0].sheet)
 		{
-			var sheet:ISheet = new Sheet();
+			var sheet:Sheet = new Sheet();
 			sheet.fromXML(sheetXML);
 			addSheet(sheet);
 		}
@@ -209,7 +213,7 @@ public class Wall extends PannableContainer implements IWall
 		var sheetsXML:XML = <sheets/>
 		for(var i:int = 0; i < numChildren; i++)
 		{
-			var sheet:ISheet = children[i] as ISheet;
+			var sheet:Sheet = children[i] as Sheet;
 			sheetsXML.appendChild(sheet.toXML());
 		}
 		xml.appendChild(sheetsXML);

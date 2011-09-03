@@ -1,8 +1,8 @@
 package components.tabviews
 {
 import components.Component;
+import components.Composite;
 import components.IComponent;
-import components.IComposite;
 import components.INameableComponent;
 
 import eventing.events.NameChangeEvent;
@@ -71,12 +71,12 @@ public class TabView extends Component implements ITabView
 
 	}
 	
-	override protected function addChild(child:IComposite):IComposite
+	override protected function addChild(child:Composite):Composite
 	{
 		return super.addChild(child);
 	}
 	
-	override protected function removeChild(child:IComposite):IComposite
+	override protected function removeChild(child:Composite):Composite
 	{
 		return super.removeChild(child);
 		

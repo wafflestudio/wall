@@ -36,7 +36,7 @@ public class Component extends Composite implements IComponent
 	{
 		super();
 		addDimensionChangeEventListener( function(e:Event):void {
-			for each(var child:IComposite in children)
+			for each(var child:Composite in children)
 			{
 				(child as Component).dispatchExternalDimensionChangeEvent();
 			}
@@ -48,7 +48,7 @@ public class Component extends Composite implements IComponent
 		});
 		
 		addFocusOutEventListener( function(e:FocusEvent):void {
-			for each(var child:IComposite in children)
+			for each(var child:Composite in children)
 			{
 				(child as Component).dispatchFocusOutEvent();
 			}
@@ -83,7 +83,7 @@ public class Component extends Composite implements IComponent
 		}
 	}
 	
-	override protected function addChild(child:IComposite):IComposite
+	override protected function addChild(child:Composite):Composite
 	{
 		var vchild:Component = child as Component;
 		if(vchild == null)  {
@@ -99,7 +99,7 @@ public class Component extends Composite implements IComponent
 		return child;
 	}
 	
-	override protected function removeChild(child:IComposite):IComposite
+	override protected function removeChild(child:Composite):Composite
 	{
 		var vchild:Component = child as Component;
 		if(vchild == null)  {

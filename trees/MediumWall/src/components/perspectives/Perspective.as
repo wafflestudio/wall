@@ -3,9 +3,7 @@ package components.perspectives
 
 import components.Component;
 import components.ToplevelComponent;
-import components.sheets.ISheet;
-import components.toolbars.ICommandToolbar;
-import components.walls.IWall;
+import components.toolbars.CommandToolbar;
 import components.walls.Wall;
 
 import eventing.eventdispatchers.IClickEventDispatcher;
@@ -21,7 +19,7 @@ import storages.IXMLizable;
 
 public class Perspective extends ToplevelComponent implements IPerspective
 {	
-	protected var toolbar:ICommandToolbar;
+	protected var toolbar:CommandToolbar;
 	
 	public function Perspective()
 	{

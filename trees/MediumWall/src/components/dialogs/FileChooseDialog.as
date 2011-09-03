@@ -1,17 +1,21 @@
 package components.dialogs
 {
-import flash.filesystem.File;
-import mx.controls.FileSystemDataGrid;
-import spark.components.VGroup;
-import spark.components.HGroup;
-import spark.components.Button;
-import mx.controls.FileSystemComboBox;
-import mx.events.FileEvent;
-import mx.binding.utils.BindingUtils;
+import eventing.eventdispatchers.IFileChooseEventDispatcher;
 import eventing.events.FileChooseEvent;
-import flash.events.MouseEvent;
 
-public class FileChooseDialog extends Dialog implements IFileChooseDialog
+import flash.events.MouseEvent;
+import flash.filesystem.File;
+
+import mx.binding.utils.BindingUtils;
+import mx.controls.FileSystemComboBox;
+import mx.controls.FileSystemDataGrid;
+import mx.events.FileEvent;
+
+import spark.components.Button;
+import spark.components.HGroup;
+import spark.components.VGroup;
+
+public class FileChooseDialog extends Dialog implements IFileChooseEventDispatcher
 {
 	public function FileChooseDialog()
 	{

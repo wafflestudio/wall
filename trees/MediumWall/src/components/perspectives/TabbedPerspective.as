@@ -2,16 +2,13 @@ package components.perspectives
 {
 import components.dialogs.IDialog;
 import components.dialogs.OpenWallDialog;
-import components.sheets.ISheet;
 import components.sheets.Sheet;
 import components.toolbars.CommandToolbar;
 import components.toolbars.ICommandToolbar;
 import components.toolbars.IToolbar;
 import components.toolbars.Toolbar;
 import components.walls.FileStoredWall;
-import components.walls.IWall;
 import components.walls.Wall;
-import components.wallstacks.ITabbedWallStack;
 import components.wallstacks.TabbedWallStack;
 
 import eventing.eventdispatchers.IClickEventDispatcher;
@@ -35,7 +32,7 @@ import storages.IXMLizable;
 
 public class TabbedPerspective extends MultipleWallPerspective implements IXMLizable
 {
-	private var tabStack:ITabbedWallStack;
+	private var tabStack:TabbedWallStack;
 	private var vgroup:VGroup = new VGroup();
 	private var option:String;
 	public function TabbedPerspective(paths:Array = null)
@@ -101,7 +98,7 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		});
 	}
 	
-	private function setTabStack(tabStack:ITabbedWallStack):void
+	private function setTabStack(tabStack:TabbedWallStack):void
 	{
 		if(this.tabStack)
 			removeChildFrom(vgroup, tabStack);
@@ -110,12 +107,12 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		addChildTo(vgroup, tabStack);
 	}
 
-	override public function get currentWall():IWall
+	override public function get currentWall():Wall
 	{
 		return tabStack.selectedWall;	
 	}
 	
-	override public function addWall(wall:IWall):void
+	override public function addWall(wall:Wall):void
 	{
 		super.addWall(wall);
 		tabStack.addWall(wall);

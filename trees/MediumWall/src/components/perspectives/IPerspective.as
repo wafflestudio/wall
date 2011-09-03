@@ -2,8 +2,7 @@ package components.perspectives
 {
 import components.IComponent;
 import components.IToplevelComponent;
-import components.sheets.ISheet;
-import components.walls.IWall;
+import components.walls.Wall;
 import storages.IXMLizable;
 import eventing.eventdispatchers.IClickEventDispatcher;
 import eventing.eventdispatchers.IChangeEventDispatcher;

@@ -1,13 +1,14 @@
 package components
 {
 import eventing.eventdispatchers.EventDispatcher;
+import eventing.eventdispatchers.ICompositeEventDispatcher;
 import eventing.events.CompositeEvent;
 
 import mx.collections.ArrayCollection;
 
-public class Composite extends EventDispatcher implements IComposite
+public class Composite extends EventDispatcher implements ICompositeEventDispatcher
 {
-	protected var parent:IComposite;
+	protected var parent:Composite;
 	protected var children:ArrayCollection; 
 	
 	public function Composite()
@@ -16,7 +17,7 @@ public class Composite extends EventDispatcher implements IComposite
 		children = new ArrayCollection([]);
 	}
 	
-	protected function addChild(child:IComposite):IComposite
+	protected function addChild(child:Composite):Composite
 	{
 		(child as Composite).parent = this;
 		children.addItem(child);
@@ -25,7 +26,7 @@ public class Composite extends EventDispatcher implements IComposite
 		return child;	
 	}
 	
-	protected function removeChild(child:IComposite):IComposite
+	protected function removeChild(child:Composite):Composite
 	{
 		var index:int = children.getItemIndex(child);
 		if(index >=0 )  {
@@ -58,7 +59,7 @@ public class Composite extends EventDispatcher implements IComposite
 		removeEventListener(CompositeEvent.CHILD_ADDED, listener);
 	}
 	
-	protected function dispatchChildAddedEvent(child:IComposite):void
+	protected function dispatchChildAddedEvent(child:Composite):void
 	{
 		dispatchEvent(new CompositeEvent(this, CompositeEvent.CHILD_ADDED, child));
 	}
@@ -73,7 +74,7 @@ public class Composite extends EventDispatcher implements IComposite
 		removeEventListener(CompositeEvent.CHILD_REMOVED, listener);
 	}
 	
-	protected function dispatchChildRemovedEvent(child:IComposite):void
+	protected function dispatchChildRemovedEvent(child:Composite):void
 	{
 		dispatchEvent(new CompositeEvent(this, CompositeEvent.CHILD_REMOVED, child));
 	}

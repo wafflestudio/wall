@@ -1,6 +1,6 @@
 package eventing.events
 {
-import components.IComposite;
+import components.Composite;
 
 import eventing.eventdispatchers.IEventDispatcher;
 
@@ -11,11 +11,11 @@ public class CompositeEvent extends Event
 	public static const ADDED:String = "added";
 	public static const REMOVED:String = "removed";
 	
-	private var _child:IComposite;
+	private var _child:Composite;
 	
-	public function get child():IComposite { return _child; }
+	public function get child():Composite { return _child; }
 	
-	public function CompositeEvent(dispatcher:IEventDispatcher, type:String, child:IComposite = null)
+	public function CompositeEvent(dispatcher:IEventDispatcher, type:String, child:Composite = null)
 	{
 		super(dispatcher, type);
 		_child = child;

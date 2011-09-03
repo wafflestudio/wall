@@ -13,7 +13,7 @@ package controllers
 	import utils.XMLFileStream;
 	
 	
-	public class FileStoredController implements IFileStoredController
+	public class FileStoredController implements IXMLizable
 	{
 		protected var defaultFile:File = File.applicationStorageDirectory.resolvePath(".config");
 		

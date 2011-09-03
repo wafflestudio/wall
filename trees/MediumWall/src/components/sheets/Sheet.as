@@ -1,12 +1,14 @@
 package components.sheets  {
 	import components.Component;
 	import components.FlexibleComponent;
+	import components.ICommitableComponent;
 	import components.MovableComponent;
 	import components.contents.ImageContent;
 	import components.contents.TextContent;
 	
 	import eventing.eventdispatchers.IClickEventDispatcher;
 	import eventing.eventdispatchers.IEventDispatcher;
+	import eventing.eventdispatchers.ISheetEventDispatcher;
 	import eventing.events.CommitEvent;
 	import eventing.events.DimensionChangeEvent;
 	import eventing.events.FocusEvent;
@@ -23,7 +25,7 @@ package components.sheets  {
 	import storages.IXMLizable;
 
 
-public class Sheet extends FlexibleComponent implements ISheet
+public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDispatcher,ICommitableComponent
 {
 
 	private var bc:BorderContainer = new BorderContainer();

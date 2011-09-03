@@ -7,7 +7,7 @@ import flash.events.MouseEvent;
 import eventing.events.ClickEvent;
 import mx.core.IVisualElement;
 
-public class Button extends ClickableComponent implements IButton
+public class Button extends ClickableComponent
 {
 	private var button:spark.components.Button = new spark.components.Button();
 	

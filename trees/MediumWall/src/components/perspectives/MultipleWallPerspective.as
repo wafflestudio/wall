@@ -1,7 +1,6 @@
 package components.perspectives
 {
-import components.sheets.ISheet;
-import components.walls.IWall;
+import components.walls.Wall;
 
 import eventing.events.SelectionChangeEvent;
 
@@ -14,19 +13,19 @@ public class MultipleWallPerspective extends Perspective implements IMultipleWal
 		super();
 	}
 	
-	public function get currentWall():IWall
+	public function get currentWall():Wall
 	{
 		return null;	
 	}
 	
-	public function addWall(wall:IWall):void
+	public function addWall(wall:Wall):void
 	{
 		
 	}
 	
 	public function addSheet(option:String):void
 	{
-		var wall:IWall = currentWall;
+		var wall:Wall = currentWall;
 		if(option == "text")
 			wall.addBlankSheet();
 		else if(option == "image")

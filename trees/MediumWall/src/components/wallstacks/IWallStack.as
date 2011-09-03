@@ -1,14 +1,16 @@
 package components.wallstacks
 {
 import components.IComponent;
-import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
-import storages.IXMLizable;
-import components.walls.IWall;
+import components.walls.Wall;
+
 import eventing.eventdispatchers.ICommitEventDispatcher;
+import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
+
+import storages.IXMLizable;
 
 public interface IWallStack extends IComponent, ISelectionChangeEventDispatcher, ICommitEventDispatcher, IXMLizable
 {
-	function addWall(view:IWall):void;
-	function removeWall(view:IWall):void;
+	function addWall(view:Wall):void;
+	function removeWall(view:Wall):void;
 }
 }

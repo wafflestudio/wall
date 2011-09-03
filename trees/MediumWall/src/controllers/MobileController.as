@@ -10,14 +10,10 @@ package controllers
 	import spark.components.Application;
 	import spark.components.ViewNavigatorApplication;
 	
-	import storages.configs.Config;
-	import storages.configs.FileStoredConfig;
-	import storages.configs.IFileStoredConfig;
-	import storages.configs.MobileConfig;
 	
 	import views.WallView;
 
-	public class MobileController implements IMobileController
+	public class MobileController
 	{
 		private static var configFile:File = File.applicationStorageDirectory.resolvePath( "wallconf.xml" );
 		private var config:IFileStoredConfig;

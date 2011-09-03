@@ -2,9 +2,7 @@ package components.toolbars
 {
 import components.Component;
 import components.IClickableComponent;
-import components.IComposite;
 import components.buttons.Button;
-import components.buttons.IButton;
 
 import eventing.eventdispatchers.IClickEventDispatcher;
 import eventing.eventdispatchers.IMouseEventDispatcher;
@@ -20,11 +18,11 @@ import spark.components.HGroup;
 public class CommandToolbar extends Toolbar implements ICommandToolbar
 {
 	private var hgroup:HGroup;
-	private var openWallBtn:IButton;
-	private var newWallBtn:IButton;
-	private var newSheetBtn:IButton;
-	private var testBtn:IButton;
-	private var newImageBtn:IButton;
+	private var openWallBtn:Button;
+	private var newWallBtn:Button;
+	private var newSheetBtn:Button;
+	private var testBtn:Button;
+	private var newImageBtn:Button;
 	
 	// parent - (group - bg - hgroup) - children
 	public function CommandToolbar()

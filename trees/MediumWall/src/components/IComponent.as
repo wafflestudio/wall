@@ -1,11 +1,13 @@
 package components
 {
-import flash.geom.Point;
+import eventing.eventdispatchers.ICompositeEventDispatcher;
 import eventing.eventdispatchers.IDimensionChangeEventDispatcher;
-import eventing.eventdispatchers.IFocusEventDispatcher;
 import eventing.eventdispatchers.IExternalDimensionChangeEventDispatcher;
+import eventing.eventdispatchers.IFocusEventDispatcher;
 
-public interface IComponent extends IComposite, IDimensionChangeEventDispatcher, IFocusEventDispatcher, IExternalDimensionChangeEventDispatcher
+import flash.geom.Point;
+
+public interface IComponent extends ICompositeEventDispatcher, IDimensionChangeEventDispatcher, IFocusEventDispatcher, IExternalDimensionChangeEventDispatcher
 {
 	function get width():Number;
 	function set width(val:Number):void;

@@ -6,7 +6,7 @@ import mx.core.FlexGlobals;
 import flash.display.DisplayObject;
 import mx.core.IFlexDisplayObject;
 
-public class Popup extends Component implements IPopup
+public class Popup extends Component
 {
 	public function Popup()
 	{

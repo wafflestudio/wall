@@ -2,12 +2,10 @@ package components.wallstacks
 {
 import components.Component;
 import components.IComponent;
-import components.IComposite;
 import components.INameableComponent;
 import components.containers.Container;
 import components.tabviews.TabView;
 import components.walls.FileStoredWall;
-import components.walls.IWall;
 import components.walls.Wall;
 
 import eventing.eventdispatchers.IEventDispatcher;
@@ -28,7 +26,7 @@ import spark.components.NavigatorContent;
 
 import storages.IXMLizable;
 
-public class TabbedWallStack extends TabView implements ITabbedWallStack
+public class TabbedWallStack extends TabView implements IWallStack
 {	
 	
 	
@@ -42,13 +40,13 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 		});
 	}
 	
-	public function addWall(wall:IWall):void
+	public function addWall(wall:Wall):void
 	{
 		addChild(wall);
 		dispatchCommitEvent(self, "ADDED_WALL", [wall]);
 	}
 	
-	public function removeWall(wall:IWall):void
+	public function removeWall(wall:Wall):void
 	{
 		removeChild(wall);	
 		dispatchCommitEvent(self, "REMOVED_WALL", [wall]);
@@ -86,9 +84,9 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 	}
 
 	
-	public function get selectedWall():IWall
+	public function get selectedWall():Wall
 	{
-		return selectedComponent as IWall;
+		return selectedComponent as Wall;
 	}
 	
 	public function addCommitEventListener(listener:Function):void
@@ -122,7 +120,7 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 		if(xml.wall)
 		for each(var wallXML:XML in xml.wall)
 		{
-			var wall:IWall;
+			var wall:Wall;
 			if(wallXML.@file)
 				wall = new FileStoredWall(new File(wallXML.@file.toString()));
 			else  {
@@ -147,7 +145,7 @@ public class TabbedWallStack extends TabView implements ITabbedWallStack
 		xml.@selectedIndex = selectedIndex;
 		for(var i:int = 0; i < numChildren; i++)
 		{
-			var wall:IWall = children[i] as IWall;
+			var wall:Wall = children[i] as Wall;
 			xml.appendChild(wall.toXML());
 		}
 		

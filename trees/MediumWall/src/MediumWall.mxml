@@ -9,7 +9,6 @@
 	<fx:Script>
 		<![CDATA[
 			import controllers.DesktopController;
-			import controllers.IController;
 			import mx.controls.Alert;
 			
 			
@@ -24,7 +23,7 @@
 		<![CDATA[
 		
 		
-			private var controller:IController = new DesktopController();
+			private var controller:DesktopController = new DesktopController();
 			controller.setup(this);
 		try {
 		}
