@@ -33,9 +33,11 @@ package components.contents
 		
 		override public function toXML():XML {
 			var xml:XML = super.toXML();
-			var textXML:XML = <text/>;
-			textXML.@text = textarea.text;
-			xml.appendChild(textXML);
+			if(textarea.text != "") {
+				var textXML:XML = <text/>;
+				textXML.@text = textarea.text;
+				xml.appendChild(textXML);
+			}
 			return xml;
 		}
 		
@@ -44,6 +46,9 @@ package components.contents
 			var textxml:XML = xml.text[0];
 			textarea.text = textxml.@text;
 			return this;
+		}
+		public function getTextData():String {
+			return textarea.text;
 		}
 	}
 }

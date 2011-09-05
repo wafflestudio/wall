@@ -10,17 +10,25 @@ package components.contents
 	import flash.display.Loader;
 	import flash.events.Event;
 	import flash.geom.Matrix;
+	import flash.geom.Rectangle;
 	import flash.net.FileReference;
+	import flash.utils.ByteArray;
 	
 	import mx.core.IVisualElement;
+	import mx.utils.Base64Decoder;
+	import mx.utils.Base64Encoder;
 	
 	import spark.components.BorderContainer;
+	
+	import storages.IXMLizable;
 
 	public class ImageContent extends Content implements IImageContent
 	{
 		private var fileRef:FileReference;
 		private var imageContainer:BorderContainer = new BorderContainer();
 		private var loadBtn:Button;
+		private var bitmapData:BitmapData;
+		
 		
 		//private static const THUMB_WIDTH:uint = 300; // 크기 조절시 필요
 		//private static const THUMB_HEIGHT:uint = 300;
@@ -74,7 +82,7 @@ package components.contents
 		
 		private function onDataLoadComplete(e:Event):void
 		{
-			var bitmapData:BitmapData = Bitmap(e.target.content).bitmapData;
+			bitmapData = Bitmap(e.target.content).bitmapData;
 			//var matrix:Matrix = new Matrix();
 			//matrix.scale(THUMB_WIDTH/bitmapData.width, THUMB_HEIGHT/bitmapData.height); // 크기 조절할 때 필요
 			
@@ -85,5 +93,68 @@ package components.contents
 			removeChildFrom(imageContainer, loadBtn);
 		}
 		
+		/**
+		 * 	<content>
+		 * 		<image image="...">
+		 * 	</content>
+		 */ 
+		
+		override public function toXML():XML {
+			var xml:XML = super.toXML();
+			if(bitmapData != null) {
+				var imageXML:XML = <image/>;
+				imageXML.@image = convertBitmaptoString(bitmapData);
+				xml.appendChild(imageXML);
+			}
+			return xml;
+		}
+		
+		private static function convertBitmaptoString( bitmapData:BitmapData):String {
+			if(!bitmapData)
+				return null;
+			
+			var bitmapBA : ByteArray = new ByteArray;
+			bitmapBA.clear();
+			bitmapBA = encodeBitmapData(bitmapData);
+			bitmapBA.compress();
+			var encoder : Base64Encoder = new Base64Encoder;
+			encoder.encodeBytes(bitmapBA , 0 ,bitmapBA.length);
+			return encoder.toString();
+		}
+		private static function encodeBitmapData(bmp:BitmapData):ByteArray {
+			return bmp.getPixels(bmp.rect);
+		}
+		private static function convertStringtoBitmap( string:String ):BitmapData {
+			if(!string)
+				return null;
+
+			var decoder : Base64Decoder = new Base64Decoder;
+			decoder.decode(string);
+			var bitmapBA : ByteArray = decoder.toByteArray();
+			bitmapBA.uncompress();
+			return decodeBitmapData(bitmapBA);
+		}
+		private static function decodeBitmapData( data:ByteArray ):BitmapData
+		{
+			var IMG_WIDTH:Number = 100;
+			var IMG_HEIGHT:Number = 100;
+			var bmpData:BitmapData = new BitmapData(IMG_WIDTH,IMG_HEIGHT, true);
+			bmpData.setPixels(new Rectangle(0,0,IMG_WIDTH,IMG_HEIGHT), data);
+			return bmpData;
+		}
+
+		override public function fromXML(xml:XML):IXMLizable {
+			var imagexml:XML = xml.image[0];
+			var savedBitmapData:BitmapData = convertStringtoBitmap(imagexml.@image);
+			imageContainer.graphics.clear();
+			imageContainer.graphics.beginBitmapFill(savedBitmapData, null, false);
+			imageContainer.graphics.drawRect(0, 0, savedBitmapData.width, savedBitmapData.height);
+			imageContainer.graphics.endFill();
+			removeChildFrom(imageContainer, loadBtn);
+			return this;
+		}
+		public function getBitmapData():BitmapData {
+			return bitmapData;
+		}
 	}
 }
