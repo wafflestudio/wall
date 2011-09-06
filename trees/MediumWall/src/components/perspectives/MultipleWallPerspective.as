@@ -27,9 +27,7 @@ public class MultipleWallPerspective extends Perspective implements ISelectionCh
 	public function addSheet(option:String):void
 	{
 		var wall:Wall = currentWall;
-		if(option == "text")
-			wall.addBlankSheet();
-		else if(option == "image")
+		if(option)
 			wall.addBlankSheet(option);
 		else
 			wall.addBlankSheet();

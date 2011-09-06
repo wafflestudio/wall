@@ -112,17 +112,18 @@ package components.contents
 		private static function convertBitmaptoString( bitmapData:BitmapData):String {
 			if(!bitmapData)
 				return null;
-			
-			var bitmapBA : ByteArray = new ByteArray;
-			bitmapBA.clear();
-			bitmapBA = encodeBitmapData(bitmapData);
-			bitmapBA.compress();
+
 			var encoder : Base64Encoder = new Base64Encoder;
-			encoder.encodeBytes(bitmapBA , 0 ,bitmapBA.length);
+			encoder.encodeBytes(encodeBitmapData(bitmapData) , 0 ,encodeBitmapData(bitmapData).length);
 			return encoder.toString();
 		}
 		private static function encodeBitmapData(bmp:BitmapData):ByteArray {
-			return bmp.getPixels(bmp.rect);
+			var bytes:ByteArray = bmp.getPixels(bmp.rect);
+			bytes.writeShort(bmp.width);   
+			bytes.writeShort(bmp.height);   
+			bytes.writeBoolean(bmp.transparent);   
+			bytes.compress();   
+			return bytes;   
 		}
 		private static function convertStringtoBitmap( string:String ):BitmapData {
 			if(!string)
@@ -136,11 +137,18 @@ package components.contents
 		}
 		private static function decodeBitmapData( data:ByteArray ):BitmapData
 		{
-			var IMG_WIDTH:Number = 100;
-			var IMG_HEIGHT:Number = 100;
-			var bmpData:BitmapData = new BitmapData(IMG_WIDTH,IMG_HEIGHT, true);
-			bmpData.setPixels(new Rectangle(0,0,IMG_WIDTH,IMG_HEIGHT), data);
-			return bmpData;
+			data.position = data.length - 1;   
+			var transparent:Boolean = data.readBoolean();   
+			data.position = data.length - 3;   
+			var height:int = data.readShort();   
+			data.position = data.length - 5;   
+			var width:int = data.readShort();   
+			data.position = 0;   
+			var datas:ByteArray = new ByteArray();             
+			data.readBytes(datas,0,data.length - 5);   
+			var bmp:BitmapData = new BitmapData(width,height,transparent,0);   
+			bmp.setPixels(new Rectangle(0,0,width,height),datas);   
+			return bmp;   
 		}
 
 		override public function fromXML(xml:XML):IXMLizable {
