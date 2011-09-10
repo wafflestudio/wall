@@ -1,13 +1,15 @@
 package components.controls
 {
 import components.Component;
+import components.IPositionedComponent;
+import components.IToplevelComponent;
 import components.ToplevelComponent;
 
 import mx.core.IVisualElementContainer;
 
 import spark.components.Application;
 
-public class Control extends ToplevelComponent implements IControl
+public class Control extends ToplevelComponent implements IPositionedComponent
 {
 	private var active:Boolean = false;
 	
@@ -31,7 +33,7 @@ public class Control extends ToplevelComponent implements IControl
 		return active;
 	}
 	
-	override public function addToApplication(app:IVisualElementContainer):void
+	override public function addToApplication(app:IVisualElementContainer = null):void
 	{
 		super.addToApplication(app);
 		active = true;

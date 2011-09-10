@@ -27,6 +27,7 @@ public class ScrollableContainer extends Container implements IScrollableContain
 		if(_scroller)
 			removeChildFrom(viewport, s);
 		
+		
 		addChildTo(viewport, s);
 		
 		
@@ -75,7 +76,7 @@ public class ScrollableContainer extends Container implements IScrollableContain
 		dispatchChildrenDimensionChangeEvent();
 	}
 	
-	override protected function removeChildFrom(visualElementContainer:IVisualElementContainer, component:IComponent):void
+	override protected function removeChildFrom(visualElementContainer:IVisualElementContainer, component:Component):void
 	{
 		component.removeDimensionChangeEventListener( onChildDimensionChange );
 		super.removeChildFrom(visualElementContainer, component);

@@ -1,27 +1,31 @@
 package components
 {
+import eventing.events.DimensionChangeEvent;
+import eventing.events.Event;
+import eventing.events.ExternalDimensionChangeEvent;
+import eventing.events.FocusEvent;
+
+import flash.display.DisplayObject;
+import flash.display.DisplayObjectContainer;
+import flash.display.Stage;
+import flash.errors.IllegalOperationError;
+import flash.geom.Point;
+import flash.geom.Rectangle;
+import flash.sampler.StackFrame;
+
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
+import mx.core.UIComponent;
+
+import spark.components.Application;
 import spark.components.Button;
 import spark.components.Group;
-import flash.geom.Point;
-import flash.display.Stage;
-import mx.core.UIComponent;
-import flash.display.DisplayObject;
 import spark.core.IGraphicElement;
-import flash.errors.IllegalOperationError;
-import flash.sampler.StackFrame;
-import eventing.events.DimensionChangeEvent;
-import flash.geom.Rectangle;
-import eventing.events.Event;
-import eventing.events.FocusEvent;
-import flash.display.DisplayObjectContainer;
-import spark.components.Application;
-import eventing.events.ExternalDimensionChangeEvent;
-import eventing.events.Event;
 
 public class Component extends Composite implements IComponent
 {
+	protected namespace _ = "http://cream.wafflestudio.com";	
+	
 	private var _visualElement:IVisualElement;
 	private var _visualElementContainer:IVisualElementContainer;
 	private var _hasFocus:Boolean = false;
@@ -65,6 +69,11 @@ public class Component extends Composite implements IComponent
 	public function get height():Number { return visualElement.height; }
 	public function set width(val:Number):void { visualElement.width = val; }
 	public function set height(val:Number):void { visualElement.height = val; }
+	
+	public function get percentWidth():Number { return visualElement.percentWidth; }
+	public function get percentHeight():Number { return visualElement.percentWidth; }
+	public function set percentWidth(val:Number):void { visualElement.percentWidth = val; }
+	public function set percentHeight(val:Number):void { visualElement.percentWidth = val; }
 	
 	public function resize(w:Number, h:Number):void
 	{
@@ -202,18 +211,13 @@ public class Component extends Composite implements IComponent
 		visualElementContainer.addElement((component as Component).visualElement);	
 	}
 	
-	protected function removeChildFrom(visualElementContainer:IVisualElementContainer, component:IComponent):void
+	protected function removeChildFrom(visualElementContainer:IVisualElementContainer, component:Component):void
 	{
 		visualElementContainer.removeElement((component as Component).visualElement);
 	}
 	
-	protected function removeFromParent(component:Component = null):DisplayObject
-	{
-		var parent:DisplayObject = component.visualElement.parent;
-		removeChildFrom(component.visualElement.parent as IVisualElementContainer, component == null ? this : component);
-		
-		return parent;
-	}
+	_ function get visualElement():IVisualElement  { return visualElement; }
+	_ function get visualElementContainer():IVisualElementContainer  { return visualElementContainer; }
 	
 	protected function setChildIndex(component:Component, index:int):void
 	{

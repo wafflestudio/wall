@@ -1,5 +1,6 @@
 package components.perspectives
 {
+import components.dialogs.Dialog;
 import components.dialogs.OpenWallDialog;
 import components.sheets.Sheet;
 import components.toolbars.CommandToolbar;
@@ -61,12 +62,12 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 			}
 		);
 		
-//		toolbar.openWallButton.addClickEventListener(
-//			function(e:ClickEvent):void {
-//				var dialog:IDialog = new OpenWallDialog();
-//				dialog.show();
-//			}
-//		);
+		toolbar.openWallButton.addClickEventListener(
+			function(e:ClickEvent):void {
+				var dialog:Dialog = new OpenWallDialog();
+				dialog.show();
+			}
+		);
 
 
 		toolbar.newImageButton.addClickEventListener(

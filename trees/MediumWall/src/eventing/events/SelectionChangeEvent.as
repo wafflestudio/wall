@@ -13,8 +13,8 @@ public class SelectionChangeEvent extends Event
 	
 	public function get selectedIndex():int {  return _selectedIndex; }
 	public function get selectedItem():Object { return _selectedItem; }
-	public function get oldSelectedIndex():int {  return _selectedIndex; }
-	public function get oldSelectedItem():Object { return _selectedItem; }
+	public function get oldSelectedIndex():int {  return _oldSelectedIndex; }
+	public function get oldSelectedItem():Object { return _oldSelectedItem; }
 	
 	public function SelectionChangeEvent(dispatcher:IEventDispatcher, oldSelectedIndex:int, selectedIndex:int, 
 										 oldSelectedItem:Object = null, selectedItem:Object = null)

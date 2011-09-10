@@ -65,6 +65,7 @@ public class FileChooseDialog extends Dialog implements IFileChooseEventDispatch
 		hg.addElement(cancel);
 		
 		cancel.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { 
+			dispatchCancelEvent();
 			close();
 		});
 		

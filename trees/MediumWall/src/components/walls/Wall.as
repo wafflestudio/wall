@@ -155,7 +155,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	}
 	
 	
-	public function addToApplication(app:IVisualElementContainer):void
+	public function addToApplication(app:IVisualElementContainer = null):void
 	{
 		app.addElement(visualElement);
 	}

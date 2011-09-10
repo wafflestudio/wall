@@ -49,7 +49,7 @@ package controllers
 			
 			perspective.addCommitEventListener(function(e:CommitEvent):void
 			{
-				trace("commited:" + e.actionName);
+				trace("commited:" + e.actionName, e.args);
 				saveAs();
 			});
 			

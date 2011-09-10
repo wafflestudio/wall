@@ -1,14 +1,18 @@
 package components.controls
 {
+import eventing.eventdispatchers.IResizeEventDispatcher;
+import eventing.events.ResizeEvent;
+
+import flash.events.MouseEvent;
+import flash.geom.Point;
+
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
 import mx.core.UIComponent;
-import flash.events.MouseEvent;
-import flash.geom.Point;
-import spark.components.Application;
-import eventing.events.ResizeEvent;
 
-public class ResizeControl extends Control implements IResizeControl
+import spark.components.Application;
+
+public class ResizeControl extends Control implements IResizeEventDispatcher
 {
 	private var resizeUIComponent:ResizeControlUIComponent;
 	private var upperLeft:UIComponent = new UIComponent();

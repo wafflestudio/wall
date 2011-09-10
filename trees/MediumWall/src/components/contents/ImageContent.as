@@ -44,7 +44,8 @@ package components.contents
 			imageContainer.setStyle("borderAlpha", 0);
 			loadBtn = new Button();
 			loadBtn.label = "Load Image";
-			addChildTo(imageContainer, loadBtn);
+			imageContainer.addElement(loadBtn._::visualElement);
+//			addChildTo(imageContainer, loadBtn);
 			imageContainer.width = 0;
 			imageContainer.height = 0;
 			

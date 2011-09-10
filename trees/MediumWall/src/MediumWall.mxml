@@ -8,7 +8,10 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
+			import components.Component;
+			
 			import controllers.DesktopController;
+			
 			import mx.controls.Alert;
 			
 			
@@ -25,6 +28,8 @@
 		
 			private var controller:DesktopController = new DesktopController();
 			controller.setup(this);
+			var comp:Component;
+			
 		try {
 		}
 		catch(e:Error)

@@ -36,7 +36,7 @@ public class TabbedWallStack extends TabView implements IWallStack
 		
 		addSelectionChangeEventListener(function(e:SelectionChangeEvent):void
 		{
-			dispatchCommitEvent(self, "SELECTION_CHANGE", [e.selectedIndex]);
+			dispatchCommitEvent(self, "SELECTION_CHANGE", [e.oldSelectedIndex, e.selectedIndex]);
 		});
 	}
 	
@@ -51,39 +51,7 @@ public class TabbedWallStack extends TabView implements IWallStack
 		removeChild(wall);	
 		dispatchCommitEvent(self, "REMOVED_WALL", [wall]);
 	}
-	
-	
-	override protected function addChildTo(visualElementContainer:IVisualElementContainer, component:IComponent):void
-	{
-		var nameablecomp:INameableComponent = component as INameableComponent;
-			
-		var nc:NavigatorContent = new NavigatorContent();
-		visualElementContainer.addElement(nc);
-		super.addChildTo(nc, component);
-		
-		if(nameablecomp)  {
-			nc.label = nameablecomp.name;	
-			nameablecomp.addNameChangeEventListener( function(e:NameChangeEvent):void
-				{
-					nc.label = e.name;		
-				}
-			);
-		}
-	}
-	
-	override protected function removeChildFrom(visualElementContainer:IVisualElementContainer, component:IComponent):void
-	{
-		var nameablecomp:INameableComponent = component as INameableComponent;
-			
-		var nc:NavigatorContent = removeFromParent(component as Component) as NavigatorContent;
-		visualElementContainer.removeElement(nc);	
-		
-		if(nameablecomp)
-			removeAllEventListeners(NameChangeEvent.NAME_CHANGE);
-		
-	}
 
-	
 	public function get selectedWall():Wall
 	{
 		return selectedComponent as Wall;

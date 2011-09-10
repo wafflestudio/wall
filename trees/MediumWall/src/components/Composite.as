@@ -19,9 +19,9 @@ public class Composite extends EventDispatcher implements ICompositeEventDispatc
 	
 	protected function addChild(child:Composite):Composite
 	{
-		(child as Composite).parent = this;
+		child.parent = this;
 		children.addItem(child);
-		(child as Composite).dispatchAddedEvent();
+		child.dispatchAddedEvent();
 		dispatchChildAddedEvent(child);
 		return child;	
 	}
@@ -33,7 +33,7 @@ public class Composite extends EventDispatcher implements ICompositeEventDispatc
 			children.removeItemAt(index);
 			(child as Composite).parent = null;
 			(child as Composite).dispatchRemovedEvent();
-			dispatchChildRemovedEvent(child);
+			dispatchChildRemovedEvent(child, index);
 			return child;
 		}
 		
@@ -47,6 +47,17 @@ public class Composite extends EventDispatcher implements ICompositeEventDispatc
 			var child:Composite = children.removeItemAt(i) as Composite;
 			child.parent = null;
 		}
+	}
+	
+	protected function getChildIndex(child:Composite):int
+	{
+		for(var i:int = 0; i < numChildren; i++)
+		{
+			if(child == children[i])
+				return i;
+		}
+		
+		return -1;
 	}
 	
 	public function addChildAddedEventListener(listener:Function):void
@@ -74,9 +85,9 @@ public class Composite extends EventDispatcher implements ICompositeEventDispatc
 		removeEventListener(CompositeEvent.CHILD_REMOVED, listener);
 	}
 	
-	protected function dispatchChildRemovedEvent(child:Composite):void
+	protected function dispatchChildRemovedEvent(child:Composite, index:int):void
 	{
-		dispatchEvent(new CompositeEvent(this, CompositeEvent.CHILD_REMOVED, child));
+		dispatchEvent(new CompositeEvent(this, CompositeEvent.CHILD_REMOVED, child, index));
 	}
 	
 	public function addAddedEventListener(listener:Function):void

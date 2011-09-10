@@ -13,6 +13,11 @@ public interface IComponent extends ICompositeEventDispatcher, IDimensionChangeE
 	function set width(val:Number):void;
 	function get height():Number;
 	function set height(val:Number):void;
+	function get percentWidth():Number; 
+	function get percentHeight():Number;
+	function set percentWidth(val:Number):void;
+	function set percentHeight(val:Number):void;
+	
 	function resize(w:Number, h:Number):void;
 	
 	function globalToLocal(point:Point):Point;

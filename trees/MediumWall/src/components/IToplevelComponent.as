@@ -5,7 +5,7 @@ package components
 
 public interface IToplevelComponent
 {
-	function addToApplication(app:IVisualElementContainer):void;
+	function addToApplication(app:IVisualElementContainer = null):void;
 	function removeFromApplication(app:IVisualElementContainer = null):void;
 }
 }

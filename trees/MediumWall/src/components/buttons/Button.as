@@ -1,11 +1,15 @@
 package components.buttons
 {
-import components.Component;
-import spark.components.Button;
 import components.ClickableComponent;
-import flash.events.MouseEvent;
+import components.Component;
+
 import eventing.events.ClickEvent;
+
+import flash.events.MouseEvent;
+
 import mx.core.IVisualElement;
+
+import spark.components.Button;
 
 public class Button extends ClickableComponent
 {
