@@ -1,5 +1,6 @@
 package components.walls
 {
+import eventing.events.CommitEvent;
 import eventing.events.Event;
 
 import flash.filesystem.File;
@@ -26,7 +27,8 @@ public class FileStoredWall extends Wall implements IFileStorable, INameableFile
 			saveAs();
 		}
 		
-		addCommitEventListener( function(e:Event):void  {
+		addCommitEventListener( function(e:CommitEvent):void  {
+			trace("wall commited:" + e.actionName, e.args);
 			saveAs();
 		});
 	}
@@ -56,8 +58,10 @@ public class FileStoredWall extends Wall implements IFileStorable, INameableFile
 	
 	public function saveAs(file:File = null):void
 	{
-		if(file == null)
+		if(file == null)  {
 			saveAs(_file);
+			return;
+		}
 		
 		var xml:XML = super.toXML(); // any errors according to serialization must happen beforehand to opening the file
 		

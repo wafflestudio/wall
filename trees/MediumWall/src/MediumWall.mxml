@@ -14,7 +14,6 @@
 			
 			import mx.controls.Alert;
 			
-			
 		]]>
 	</fx:Script>
 	<s:initialize>
@@ -28,7 +27,6 @@
 		
 			private var controller:DesktopController = new DesktopController();
 			controller.setup(this);
-			var comp:Component;
 			
 		try {
 		}

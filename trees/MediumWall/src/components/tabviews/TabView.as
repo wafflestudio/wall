@@ -9,9 +9,11 @@ import components.buttons.Button;
 import components.buttons.TabButton;
 
 import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
+import eventing.events.CloseEvent;
 import eventing.events.CompositeEvent;
 import eventing.events.NameChangeEvent;
 import eventing.events.SelectionChangeEvent;
+import eventing.events.TabCloseEvent;
 
 import flash.display.DisplayObject;
 
@@ -69,9 +71,10 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 			}
 		);
 		
-		tabBar.addChildRemovedEventListener( function(e:CompositeEvent):void
+		tabBar.addCloseEventListener( function(e:TabCloseEvent):void
 			{
-				removeChild(children[e.index]);
+				var child:Component = children[e.index];
+				removeChild(child);
 			}
 		);
 		
@@ -98,10 +101,10 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 			nc.label = nameablecomp.name;	
 			button.label = nc.label;
 			nameablecomp.addNameChangeEventListener( function(e:NameChangeEvent):void
-			{
-				nc.label = e.name;
-				button.label = e.name;
-			}
+				{
+					nc.label = e.name;
+					button.label = e.name;
+				}
 			);
 		}
 		
@@ -113,6 +116,7 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 	override protected function removeChild(child:Composite):Composite
 	{
 		var component:Component = child as Component;
+		var index:int = getChildIndex(component);
 		var nameablecomp:INameableComponent = component as INameableComponent;
 		
 		for(var i:int = 0 ; i <  visualElementContainer.numElements; i++)  {
@@ -128,12 +132,18 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 		if(nameablecomp)
 			removeAllEventListeners(NameChangeEvent.NAME_CHANGE);
 		
-		return super.removeChild(child);
+		tabBar.removeButton(tabBar._protected_::children[index]);
+		
+		super.removeChild(child);
+		
+		tabBar.selectedIndex = viewStack.selectedIndex;
+		
+		return child;
 	}
 	
 	override protected function attachSparkElement(sparkElement:IVisualElement):void
 	{
-		// no effect. first, navigator content is attached, sparkElement is attached to the navigator content
+		// no effect. first, navigator content is attached, and sparkElement is attached to the navigator content
 	}
 	
 	override protected function detachSparkElement(sparkElement:IVisualElement):void
@@ -158,7 +168,7 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 	
 	public function get selectedIndex():int
 	{
-		return tabBar.selectedIndex;
+		return viewStack.selectedIndex;
 	}
 	
 	public function set selectedIndex(val:int):void

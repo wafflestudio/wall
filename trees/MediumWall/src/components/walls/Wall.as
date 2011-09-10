@@ -53,11 +53,11 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 			zoom = multiplier;
 			dispatchDimensionChangeEvent(extent, extent);
 			dispatchChildrenDimensionChangeEvent();
-			dispatchCommitEvent(self, "ZOOM_CHANGE", [multiplier]);
+			dispatchCommitEvent(self, "ZOOM_CHANGED", [multiplier]);
 		});
 		
 		addNameChangeEventListener( function():void  {
-			dispatchCommitEvent(self, "NAME_CHANGE", [name]);
+			dispatchCommitEvent(self, "NAME_CHANGED", [name]);
 		});
 		
 		addChildAddedEventListener(function(e:CompositeEvent):void  {

@@ -12,6 +12,7 @@ package components.sheets  {
 	import eventing.events.CommitEvent;
 	import eventing.events.DimensionChangeEvent;
 	import eventing.events.FocusEvent;
+	import eventing.events.MoveEvent;
 	import eventing.events.ResizeEvent;
 	
 	import flash.events.MouseEvent;
@@ -59,9 +60,14 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		visualElement = bc;
 		visualElementContainer = bc;
 	
-		addDimensionChangeEventListener(function(e:DimensionChangeEvent):void
+//		addDimensionChangeEventListener(function(e:DimensionChangeEvent):void
+//		{
+//			dispatchCommitEvent(self, DimensionChangeEvent.DIMENSION_CHANGE, [e.oldDimension, e.dimension]);
+//		});
+		
+		addMovedEventListener( function(e:MoveEvent):void
 		{
-			dispatchCommitEvent(self, DimensionChangeEvent.DIMENSION_CHANGE, [e.oldDimension, e.dimension]);
+			dispatchCommitEvent(self, "MOVED", [e.oldX, e.oldY, e.newX, e.newY]);
 		});
 
 	}

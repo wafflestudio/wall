@@ -23,9 +23,7 @@ import spark.components.Group;
 import spark.core.IGraphicElement;
 
 public class Component extends Composite implements IComponent
-{
-	protected namespace _protected_ = "http://cream.wafflestudio.com";	
-	
+{		
 	private var _visualElement:IVisualElement;
 	private var _visualElementContainer:IVisualElementContainer;
 	private var _hasFocus:Boolean = false;
@@ -218,10 +216,6 @@ public class Component extends Composite implements IComponent
 		dispatchEvent(new ExternalDimensionChangeEvent(this));
 	}
 	
-	protected function setChildIndex(component:Component, index:int):void
-	{
-		visualElementContainer.setElementIndex(component.visualElement, index);	
-	}
 	
 	protected function get stage():Stage
 	{

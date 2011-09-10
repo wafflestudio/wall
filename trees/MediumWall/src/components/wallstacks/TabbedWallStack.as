@@ -8,8 +8,11 @@ import components.tabviews.TabView;
 import components.walls.FileStoredWall;
 import components.walls.Wall;
 
+import eventing.eventdispatchers.ICommitEventDispatcher;
 import eventing.eventdispatchers.IEventDispatcher;
+import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
 import eventing.events.CommitEvent;
+import eventing.events.CompositeEvent;
 import eventing.events.NameChangeEvent;
 import eventing.events.SelectionChangeEvent;
 
@@ -18,7 +21,6 @@ import flash.filesystem.File;
 
 import mx.containers.TabNavigator;
 import mx.core.IVisualElementContainer;
-import mx.events.ChildExistenceChangedEvent;
 import mx.events.IndexChangedEvent;
 
 import spark.components.BorderContainer;
@@ -26,7 +28,7 @@ import spark.components.NavigatorContent;
 
 import storages.IXMLizable;
 
-public class TabbedWallStack extends TabView implements IWallStack
+public class TabbedWallStack extends TabView implements IComponent, ISelectionChangeEventDispatcher, ICommitEventDispatcher, IXMLizable
 {	
 	
 	
@@ -38,6 +40,11 @@ public class TabbedWallStack extends TabView implements IWallStack
 		{
 			dispatchCommitEvent(self, "SELECTION_CHANGE", [e.oldSelectedIndex, e.selectedIndex]);
 		});
+		
+		addChildRemovedEventListener( function(e:CompositeEvent):void 
+		{
+			dispatchCommitEvent(self, "REMOVED_WALL", [e.child]);
+		});
 	}
 	
 	public function addWall(wall:Wall):void
@@ -46,12 +53,6 @@ public class TabbedWallStack extends TabView implements IWallStack
 		dispatchCommitEvent(self, "ADDED_WALL", [wall]);
 	}
 	
-	public function removeWall(wall:Wall):void
-	{
-		removeChild(wall);	
-		dispatchCommitEvent(self, "REMOVED_WALL", [wall]);
-	}
-
 	public function get selectedWall():Wall
 	{
 		return selectedComponent as Wall;

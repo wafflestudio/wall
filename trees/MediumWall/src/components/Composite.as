@@ -8,8 +8,14 @@ import mx.collections.ArrayCollection;
 
 public class Composite extends EventDispatcher implements ICompositeEventDispatcher
 {
+	protected namespace _protected_ = "http://cream.wafflestudio.com";
+	
 	protected var parent:Composite;
 	protected var children:ArrayCollection; 
+	
+	_protected_ function get parent():Composite { return parent; }
+	_protected_ function get children():ArrayCollection { return children; }
+	
 	
 	public function Composite()
 	{

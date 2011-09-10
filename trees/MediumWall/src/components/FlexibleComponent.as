@@ -94,7 +94,7 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 		
 		resizeControl.addResizedEventListener(function(e:ResizeEvent):void 
 		{
-			
+			dispatchResizedEvent(e.left, e.top, e.right, e.bottom);
 		});
 	}
 	

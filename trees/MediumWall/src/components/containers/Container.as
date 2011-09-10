@@ -1,8 +1,10 @@
 package components.containers
 {
 import components.Component;
-import flash.geom.Rectangle;
+
 import flash.display.DisplayObject;
+import flash.geom.Rectangle;
+
 import mx.core.IVisualElement;
 
 public class Container extends Component implements IContainer
@@ -79,7 +81,7 @@ public class Container extends Component implements IContainer
 	
 	protected function bringToFront(component:Component):void
 	{
-		setChildIndex(component, numChildren-1); 	
+		visualElementContainer.setElementIndex(component._protected_::visualElement, numChildren-1);	
 	}
 	
 	

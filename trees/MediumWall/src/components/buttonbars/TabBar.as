@@ -4,10 +4,13 @@ package components.buttonbars
 	import components.buttons.TabButton;
 	import components.dialogs.ConfirmDialog;
 	
+	import eventing.eventdispatchers.ICloseEventDispatcher;
 	import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
 	import eventing.events.ClickEvent;
 	import eventing.events.CloseEvent;
+	import eventing.events.DialogEvent;
 	import eventing.events.SelectionChangeEvent;
+	import eventing.events.TabCloseEvent;
 	
 	import mx.core.IVisualElement;
 	import mx.core.IVisualElementContainer;
@@ -15,7 +18,7 @@ package components.buttonbars
 	import spark.components.Group;
 	import spark.components.HGroup;
 
-	public class TabBar extends Component implements ISelectionChangeEventDispatcher
+	public class TabBar extends Component implements ISelectionChangeEventDispatcher, ICloseEventDispatcher
 	{
 		private var _selectedIndex:int = -1;
 		protected var hgroup:HGroup = new HGroup();
@@ -54,9 +57,9 @@ package components.buttonbars
 			var dialog:ConfirmDialog = new ConfirmDialog();
 			dialog.text = "Do you really want to close this tab?";
 			dialog.show();
-			dialog.addConfirmEventDispatcher( function():void
+			dialog.addConfirmEventDispatcher( function(e:DialogEvent):void
 			{
-				removeButton(btn);	
+				dispatchCloseEvent(getChildIndex(btn));	
 			});
 			
 		}
@@ -122,10 +125,25 @@ package components.buttonbars
 			removeEventListener(SelectionChangeEvent.SELECTION_CHANGE, listener);
 		}
 		
+		public function addCloseEventListener(listener:Function):void
+		{
+			addEventListener(CloseEvent.CLOSE, listener);
+		}
+		
+		public function removeCloseEventListener(listener:Function):void
+		{
+			removeEventListener(CloseEvent.CLOSE, listener);
+		}
+		
 		
 		protected function dispatchSelectionChangeEvent(oldIndex:int, newIndex:int):void
 		{
 			dispatchEvent(new SelectionChangeEvent(this, oldIndex, newIndex));
+		}
+		
+		protected function dispatchCloseEvent(index:int):void
+		{
+			dispatchEvent(new TabCloseEvent(this, index));
 		}
 		
 	}
