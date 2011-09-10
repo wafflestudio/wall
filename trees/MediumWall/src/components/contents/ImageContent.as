@@ -44,8 +44,8 @@ package components.contents
 			imageContainer.setStyle("borderAlpha", 0);
 			loadBtn = new Button();
 			loadBtn.label = "Load Image";
-			imageContainer.addElement(loadBtn._::visualElement);
-//			addChildTo(imageContainer, loadBtn);
+			imageContainer.addElement(loadBtn._protected_::visualElement);
+
 			imageContainer.width = 0;
 			imageContainer.height = 0;
 			
@@ -91,7 +91,7 @@ package components.contents
 			imageContainer.graphics.beginBitmapFill(bitmapData, null, false);	//크기조절시 null->matrix
 			imageContainer.graphics.drawRect(0, 0, bitmapData.width, bitmapData.height);
 			imageContainer.graphics.endFill();
-			removeChildFrom(imageContainer, loadBtn);
+			imageContainer.removeElement(loadBtn._protected_::visualElement);
 		}
 		
 		/**
@@ -159,7 +159,7 @@ package components.contents
 			imageContainer.graphics.beginBitmapFill(savedBitmapData, null, false);
 			imageContainer.graphics.drawRect(0, 0, savedBitmapData.width, savedBitmapData.height);
 			imageContainer.graphics.endFill();
-			removeChildFrom(imageContainer, loadBtn);
+			imageContainer.removeElement(loadBtn._protected_::visualElement);
 			return this;
 		}
 		public function getBitmapData():BitmapData {

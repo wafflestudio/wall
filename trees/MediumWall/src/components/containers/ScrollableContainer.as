@@ -1,18 +1,23 @@
 package components.containers
 {
 import components.Component;
-import flash.geom.Rectangle;
+import components.Composite;
+import components.IComponent;
 import components.scrollbars.HScrollbarUIComponent;
 import components.scrollbars.VScrollbarUIComponent;
-import eventing.events.ChildrenDimensionChangeEvent;
-import mx.core.IVisualElementContainer;
 import components.scrollers.Scroller;
-import eventing.events.ScrollEvent;
+
+import eventing.events.ChildrenDimensionChangeEvent;
 import eventing.events.DimensionChangeEvent;
-import mx.events.ResizeEvent;
-import components.IComponent;
-import spark.components.Group;
+import eventing.events.ScrollEvent;
+
+import flash.geom.Rectangle;
+
 import mx.core.IVisualElement;
+import mx.core.IVisualElementContainer;
+import mx.events.ResizeEvent;
+
+import spark.components.Group;
 
 public class ScrollableContainer extends Container implements IScrollableContainer
 {
@@ -25,10 +30,9 @@ public class ScrollableContainer extends Container implements IScrollableContain
 	protected function set scroller(s:Scroller):void
 	{
 		if(_scroller)
-			removeChildFrom(viewport, s);
+			viewport.removeElement(s._protected_::visualElement);
 		
-		
-		addChildTo(viewport, s);
+		viewport.addElement(s._protected_::visualElement);
 		
 		
 		_scroller = s;
@@ -69,18 +73,23 @@ public class ScrollableContainer extends Container implements IScrollableContain
 		dispatchChildrenDimensionChangeEvent();
 	};
 	
-	override protected function addChildTo(visualElementContainer:IVisualElementContainer, component:IComponent):void
+	override protected function addChild(child:Composite):Composite
 	{
-		super.addChildTo(visualElementContainer, component);
-		component.addDimensionChangeEventListener(onChildDimensionChange);
+		
+		super.addChild(child);
+		(child as Component).addDimensionChangeEventListener(onChildDimensionChange);
 		dispatchChildrenDimensionChangeEvent();
+		
+		return child;
 	}
 	
-	override protected function removeChildFrom(visualElementContainer:IVisualElementContainer, component:Component):void
+	override protected function removeChild(child:Composite):Composite
 	{
-		component.removeDimensionChangeEventListener( onChildDimensionChange );
-		super.removeChildFrom(visualElementContainer, component);
+		(child as Component).removeDimensionChangeEventListener( onChildDimensionChange );
+		super.removeChild(child);
 		dispatchChildrenDimensionChangeEvent();
+		
+		return child;
 	}
 	
 	

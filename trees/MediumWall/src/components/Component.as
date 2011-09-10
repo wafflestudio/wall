@@ -24,7 +24,7 @@ import spark.core.IGraphicElement;
 
 public class Component extends Composite implements IComponent
 {
-	protected namespace _ = "http://cream.wafflestudio.com";	
+	protected namespace _protected_ = "http://cream.wafflestudio.com";	
 	
 	private var _visualElement:IVisualElement;
 	private var _visualElementContainer:IVisualElementContainer;
@@ -35,6 +35,9 @@ public class Component extends Composite implements IComponent
 	protected function get visualElementContainer():IVisualElementContainer	{  return _visualElementContainer;	}
 	protected function set visualElementContainer(val:IVisualElementContainer):void {  _visualElementContainer = val; }
 	protected function get parentComponent():IComponent { return parent as IComponent; }
+	
+	_protected_ function get visualElement():IVisualElement  { return visualElement; }
+	_protected_ function get visualElementContainer():IVisualElementContainer  { return visualElementContainer; }
 	
 	public function Component()
 	{
@@ -100,7 +103,8 @@ public class Component extends Composite implements IComponent
 			return null;
 		}
 		
-		addChildTo(visualElementContainer, vchild);
+		attachSparkElement(vchild.visualElement);
+		
 		super.addChild(child);
 		
 		vchild.addFocusInEventListener( onChildFocusIn );
@@ -118,9 +122,19 @@ public class Component extends Composite implements IComponent
 		
 		vchild.removeFocusInEventListener( onChildFocusIn );
 		
-		removeChildFrom(visualElementContainer, vchild);
+		detachSparkElement(vchild.visualElement);
 		
 		return super.removeChild(child);
+	}
+	
+	protected function attachSparkElement(sparkElement:IVisualElement):void
+	{
+		visualElementContainer.addElement( sparkElement );
+	}
+	
+	protected function detachSparkElement(sparkElement:IVisualElement):void
+	{
+		visualElementContainer.removeElement( sparkElement );
 	}
 	
 	override protected function removeAllChildren():void
@@ -129,7 +143,8 @@ public class Component extends Composite implements IComponent
 		{
 			var child:Component = children.removeItemAt(i) as Component;
 			child.parent = null;
-			removeChildFrom(visualElementContainer, child);
+			visualElementContainer.removeElement(child.visualElement);
+			
 		}
 		
 	}
@@ -202,22 +217,6 @@ public class Component extends Composite implements IComponent
 	{
 		dispatchEvent(new ExternalDimensionChangeEvent(this));
 	}
-	
-	
-	
-	// helper function to keep visualElementContainer unexposed
-	protected function addChildTo(visualElementContainer:IVisualElementContainer, component:IComponent):void
-	{
-		visualElementContainer.addElement((component as Component).visualElement);	
-	}
-	
-	protected function removeChildFrom(visualElementContainer:IVisualElementContainer, component:Component):void
-	{
-		visualElementContainer.removeElement((component as Component).visualElement);
-	}
-	
-	_ function get visualElement():IVisualElement  { return visualElement; }
-	_ function get visualElementContainer():IVisualElementContainer  { return visualElementContainer; }
 	
 	protected function setChildIndex(component:Component, index:int):void
 	{

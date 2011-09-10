@@ -18,6 +18,7 @@ import flash.display.DisplayObject;
 import mx.collections.ArrayCollection;
 import mx.containers.TabNavigator;
 import mx.containers.ViewStack;
+import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
 import mx.events.ChildExistenceChangedEvent;
 import mx.events.IndexChangedEvent;
@@ -38,7 +39,7 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 		vgroup.percentWidth = 100;
 		vgroup.percentHeight = 100;
 		
-		addChildTo(vgroup, tabBar);
+		vgroup.addElement(tabBar._protected_::visualElement);
 		tabBar.percentWidth = 100;
 		
 		vgroup.addElement(viewStack);
@@ -70,10 +71,7 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 		
 		tabBar.addChildRemovedEventListener( function(e:CompositeEvent):void
 			{
-				
 				removeChild(children[e.index]);
-				//viewStack.removeChildAt(e.index);
-				
 			}
 		);
 		
@@ -81,68 +79,66 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 	
 	override protected function addChild(child:Composite):Composite
 	{
-		return super.addChild(child);
+		
+		var component:Component = child as Component;
+
+		var nc:NavigatorContent = new NavigatorContent();
+		nc.percentHeight = 100;
+		nc.percentWidth = 100;
+		nc.addElement(component._protected_::visualElement);
+		
+		viewStack.addElement(nc);
+		
+		var button:TabButton = new TabButton();
+		button.label = "unnamed"; 
+		tabBar.addButton(button);
+
+		var nameablecomp:INameableComponent = component as INameableComponent;
+		if(nameablecomp)  {
+			nc.label = nameablecomp.name;	
+			button.label = nc.label;
+			nameablecomp.addNameChangeEventListener( function(e:NameChangeEvent):void
+			{
+				nc.label = e.name;
+				button.label = e.name;
+			}
+			);
+		}
+		
+		super.addChild(child);
+		
+		return child;
 	}
 	
 	override protected function removeChild(child:Composite):Composite
 	{
-		return super.removeChild(child);
+		var component:Component = child as Component;
+		var nameablecomp:INameableComponent = component as INameableComponent;
 		
-	}
-	
-	override protected function addChildTo(visualElementContainer:IVisualElementContainer, component:IComponent):void
-	{
-		if(visualElementContainer == viewStack)  {
-			var nameablecomp:INameableComponent = component as INameableComponent;
-			
-			var nc:NavigatorContent = new NavigatorContent();
-			nc.percentHeight = 100;
-			nc.percentWidth = 100;
-			
-			viewStack.addElement(nc);
-			super.addChildTo(nc, component);
-			
-			var button:TabButton = new TabButton();
-			button.label = "unnamed"; 
-			tabBar.addButton(button);
-			
-			if(nameablecomp)  {
-				nc.label = nameablecomp.name;	
-				button.label = nc.label;
-				nameablecomp.addNameChangeEventListener( function(e:NameChangeEvent):void
-					{
-						nc.label = e.name;
-						button.label = e.name;
-					}
-				);
+		for(var i:int = 0 ; i <  visualElementContainer.numElements; i++)  {
+			var nc:NavigatorContent = visualElementContainer.getElementAt(i) as NavigatorContent;
+			if(!nc)
+				continue;
+			if(nc.contains(component._protected_::visualElement as DisplayObject))  {
+				nc.removeElement(component._protected_::visualElement);
+				visualElementContainer.removeElement(nc);
 			}
-		}
-		else 
-			super.addChildTo(visualElementContainer, component);
+			
+		}		
+		if(nameablecomp)
+			removeAllEventListeners(NameChangeEvent.NAME_CHANGE);
 		
+		return super.removeChild(child);
 	}
 	
-	override protected function removeChildFrom(visualElementContainer:IVisualElementContainer, component:Component):void
+	override protected function attachSparkElement(sparkElement:IVisualElement):void
 	{
-		if(visualElementContainer == viewStack)  {
-			var nameablecomp:INameableComponent = component as INameableComponent;
-			
-			for(var i:int = 0 ; i <  visualElementContainer.numElements; i++)  {
-				var nc:NavigatorContent = visualElementContainer.getElementAt(i) as NavigatorContent;
-				if(!nc)
-					continue;
-				if(nc.contains(component._::visualElement as DisplayObject))  {
-					super.removeChildFrom(nc, component);
-					visualElementContainer.removeElement(nc);
-				}
-			
-			}		
-			if(nameablecomp)
-				removeAllEventListeners(NameChangeEvent.NAME_CHANGE);
-		}
-		else
-			super.removeChildFrom(visualElementContainer, component);
-		
+		// no effect. first, navigator content is attached, sparkElement is attached to the navigator content
+	}
+	
+	override protected function detachSparkElement(sparkElement:IVisualElement):void
+	{
+		// no effect.		
 	}
 	
 	public function addSelectionChangeEventListener(listener:Function):void

@@ -40,13 +40,13 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		ic = new ImageContent();
 		if(option=="image")
 		{
-			addChildTo(bc, ic);
+			bc.addElement(  ic._protected_::visualElement);
 		} else if(option == "text")
 		{
-			addChildTo(bc, tc);
+			bc.addElement(  tc._protected_::visualElement);
 		}else {
-			addChildTo(bc, ic);
-			addChildTo(bc, tc);
+			bc.addElement(  ic._protected_::visualElement);
+			bc.addElement(  tc._protected_::visualElement);
 		}
 
 		bc.setStyle("borderWidth", 1);
@@ -119,10 +119,10 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 			var contentXML:XML = xml.content[0];
 			if(contentXML.child("image").length() == 1) {
 				ic.fromXML(contentXML);
-				removeChildFrom(bc,tc);
+				bc.addElement(tc._protected_::visualElement);
 			} else if (contentXML.child("text").length() == 1) {
 				tc.fromXML(contentXML);
-				removeChildFrom(bc,ic);
+				bc.addElement(ic._protected_::visualElement);
 			} else {
 			}
 		}

@@ -44,7 +44,7 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		
 		// toolbar
 		toolbar = new CommandToolbar();
-		addChildTo(vgroup, toolbar);
+		vgroup.addElement(toolbar._protected_::visualElement);
 		
 		//tabstack
 		
@@ -54,7 +54,7 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 			currentIndex = e.selectedIndex;
 		});
 		
-		addChildTo(vgroup, tabStack);
+		vgroup.addElement(tabStack._protected_::visualElement);
 		
 		toolbar.newWallButton.addClickEventListener(
 			function(e:ClickEvent):void {
@@ -99,10 +99,12 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 	private function setTabStack(tabStack:TabbedWallStack):void
 	{
 		if(this.tabStack)
-			removeChildFrom(vgroup, tabStack);
+			vgroup.removeElement(tabStack._protected_::visualElement);
+			
 		
 		this.tabStack = tabStack;
-		addChildTo(vgroup, tabStack);
+		vgroup.addElement(tabStack._protected_::visualElement);
+		
 	}
 
 	override public function get currentWall():Wall
