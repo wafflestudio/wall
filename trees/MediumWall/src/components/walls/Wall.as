@@ -9,15 +9,20 @@ import components.containers.ScrollableContainer;
 import components.sheets.Sheet;
 
 import eventing.eventdispatchers.IEventDispatcher;
+import eventing.eventdispatchers.IZoomEventDispatcher;
 import eventing.events.CommitEvent;
 import eventing.events.CompositeEvent;
 import eventing.events.Event;
 import eventing.events.FocusEvent;
 import eventing.events.NameChangeEvent;
+import eventing.events.PanEvent;
+import eventing.events.ZoomEvent;
 
 import flash.display.DisplayObject;
 import flash.events.MouseEvent;
+import flash.events.TimerEvent;
 import flash.geom.Point;
+import flash.utils.Timer;
 
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
@@ -29,7 +34,7 @@ import spark.components.Scroller;
 
 import storages.IXMLizable;
 
-public class Wall extends PannableContainer implements IPannableContainer, IXMLizable, INameableComponent, ICommitableComponent, IToplevelComponent
+public class Wall extends PannableContainer implements IPannableContainer, IXMLizable, INameableComponent, ICommitableComponent, IToplevelComponent, IZoomEventDispatcher
 {
 	private var bc:BorderContainer = new BorderContainer();
 	private var group:Group = new Group();
@@ -47,13 +52,37 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		bc.percentWidth = 100;
 		name = "wall";
 		
+		// wheel scroll to zoom
 		visualElement.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
 			var multiplier:Number = Math.pow(1.03, e.delta);
+			var oldZoomX:Number = _zoomX;
+			var oldZoomY:Number = _zoomY;
 			
 			zoom = multiplier;
 			dispatchDimensionChangeEvent(extent, extent);
 			dispatchChildrenDimensionChangeEvent();
-			dispatchCommitEvent(self, "ZOOM_CHANGED", [multiplier]);
+			dispatchZoomEvent(oldZoomX, oldZoomY, _zoomX, _zoomY);
+		});
+		
+		// ignore consecutive zoom as a commit. commit only the last one
+		var delayedZoomTimer:Timer = new Timer(300, 1);
+		var zoomArgs:Array = [];
+		
+		delayedZoomTimer.addEventListener(TimerEvent.TIMER, function():void
+		{
+			dispatchCommitEvent(self, "ZOOM_CHANGED", zoomArgs);
+		});
+		
+		addZoomedEventListener( function(e:ZoomEvent):void {
+			zoomArgs = [e.oldZoomX, e.oldZoomY, e.zoomX, e.zoomY];
+			delayedZoomTimer.reset();
+			delayedZoomTimer.start();
+		});
+		
+		
+		
+		addPannedEventListener( function(e:PanEvent):void {
+			dispatchCommitEvent(self, "PANNED", [e.oldX, e.oldY, e.newX, e.newY]);
 		});
 		
 		addNameChangeEventListener( function():void  {
@@ -149,9 +178,26 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		removeEventListener(CommitEvent.COMMIT, listener);	
 	}
 	
+	public function addZoomedEventListener(listener:Function):void
+	{
+		addEventListener(ZoomEvent.ZOOM, listener);
+	}
+	
+	public function removeZoomedEventListener(listener:Function):void
+	{
+		removeEventListener(ZoomEvent.ZOOM, listener);	
+	}
+	
+	
+	
 	protected function dispatchCommitEvent(dispatcher:IEventDispatcher, actionName:String, args:Array):void
 	{
 		dispatchEvent(new CommitEvent(dispatcher, actionName, args));	
+	}
+	
+	protected function dispatchZoomEvent(oldZoomX:Number, oldZoomY:Number, zoomX:Number, zoomY:Number):void
+	{
+		dispatchEvent(new ZoomEvent(this, oldZoomX, oldZoomY, zoomX, zoomY));	
 	}
 	
 	

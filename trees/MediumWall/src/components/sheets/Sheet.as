@@ -69,6 +69,11 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		{
 			dispatchCommitEvent(self, "MOVED", [e.oldX, e.oldY, e.newX, e.newY]);
 		});
+		
+		addResizedEventListener( function(e:ResizeEvent):void
+		{
+			dispatchCommitEvent(self, "RESIZED", [e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom]);
+		});
 
 	}
 

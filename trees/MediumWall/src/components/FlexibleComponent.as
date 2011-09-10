@@ -94,7 +94,7 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 		
 		resizeControl.addResizedEventListener(function(e:ResizeEvent):void 
 		{
-			dispatchResizedEvent(e.left, e.top, e.right, e.bottom);
+			dispatchResizedEvent(e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom);
 		});
 	}
 	
@@ -119,14 +119,18 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 		removeEventListener(ResizeEvent.RESIZED, listener);
 	}
 	
-	protected function dispatchResizingEvent(left:Number, top:Number, right:Number, bottom:Number):void
+	protected function dispatchResizingEvent(oldLeft:Number, oldTop:Number, oldRight:Number, oldBottom:Number,
+											 left:Number, top:Number, right:Number, bottom:Number):void
 	{
-		dispatchEvent(new ResizeEvent(this, ResizeEvent.RESIZING, left, top, right, bottom));
+		dispatchEvent(new ResizeEvent(this, ResizeEvent.RESIZING, oldLeft, oldTop, oldRight, oldBottom,
+			left, top, right, bottom));
 	}
 	
-	protected function dispatchResizedEvent(left:Number, top:Number, right:Number, bottom:Number):void
+	protected function dispatchResizedEvent(oldLeft:Number, oldTop:Number, oldRight:Number, oldBottom:Number,
+											left:Number, top:Number, right:Number, bottom:Number):void
 	{
-		dispatchEvent(new ResizeEvent(this, ResizeEvent.RESIZED, left, top, right, bottom));
+		dispatchEvent(new ResizeEvent(this, ResizeEvent.RESIZED, oldLeft, oldTop, oldRight, oldBottom,
+			left, top, right, bottom));
 	}
 }
 }

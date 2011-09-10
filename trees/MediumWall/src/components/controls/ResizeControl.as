@@ -88,14 +88,14 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 						break;
 				}
 				
-				dispatchResizingEvent(x, y, x+width, y+height);
+				dispatchResizingEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
 			}
 			
 			function endResize(e:MouseEvent):void
 			{
 				stage.removeEventListener( MouseEvent.MOUSE_MOVE, drag );
 				stage.removeEventListener( MouseEvent.MOUSE_UP, endResize );
-				dispatchResizedEvent(x, y, x+width, y+height);
+				dispatchResizedEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
 			}
 			
 			stage.addEventListener( MouseEvent.MOUSE_MOVE, drag );
@@ -159,14 +159,18 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 		removeEventListener(ResizeEvent.RESIZED, listener);
 	}
 	
-	protected function dispatchResizingEvent(left:Number, top:Number, right:Number, bottom:Number):void
+	protected function dispatchResizingEvent(oldLeft:Number, oldTop:Number, oldRight:Number, oldBottom:Number,
+											 left:Number, top:Number, right:Number, bottom:Number):void
 	{
-		dispatchEvent(new ResizeEvent(this, ResizeEvent.RESIZING, left, top, right, bottom));
+		dispatchEvent(new ResizeEvent(this, ResizeEvent.RESIZING, oldLeft, oldTop, oldRight, oldBottom,
+			left, top, right, bottom));
 	}
 	
-	protected function dispatchResizedEvent(left:Number, top:Number, right:Number, bottom:Number):void
+	protected function dispatchResizedEvent(oldLeft:Number, oldTop:Number, oldRight:Number, oldBottom:Number,
+											left:Number, top:Number, right:Number, bottom:Number):void
 	{
-		dispatchEvent(new ResizeEvent(this, ResizeEvent.RESIZED, left, top, right, bottom));
+		dispatchEvent(new ResizeEvent(this, ResizeEvent.RESIZED, oldLeft, oldTop, oldRight, oldBottom,
+			left, top, right, bottom));
 	}
 }
 }

@@ -31,6 +31,9 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 			var oldY:Number = _panY;
 			_panX = current.x;
 			_panY = current.y;
+			dispatchChildrenDimensionChangeEvent();
+			dispatchDimensionChangeEvent(extent, extent);
+			
 			dispatchPanningEvent(oldX, oldY, _panX, _panY);
 		}
 		
@@ -41,22 +44,14 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 			
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, pan);
 			stage.removeEventListener(MouseEvent.MOUSE_UP, panEnd);
+			dispatchChildrenDimensionChangeEvent();
+			dispatchDimensionChangeEvent(extent, extent);
+			
 			dispatchPannedEvent( initialPos.x, initialPos.y, _panX, _panY);
 		}
 		
 		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, panStart);
-		
-		addPanningEventListener(function(e:PanEvent):void
-		{
-			dispatchChildrenDimensionChangeEvent();
-			dispatchDimensionChangeEvent(extent, extent);
-		});
-		
-		addPannedEventListener(function(e:PanEvent):void
-		{
-			dispatchChildrenDimensionChangeEvent();
-			dispatchDimensionChangeEvent(extent, extent);
-		});
+
 	}
 	
 	
