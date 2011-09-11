@@ -43,9 +43,9 @@ package components.contents
 			removeEventListener(CommitEvent.COMMIT, listener);	
 		}
 		
-		protected function dispatchCommitEvent(dispatcher:IEventDispatcher, actionName:String, args:Array):void
+		protected function dispatchCommitEvent(e:CommitEvent):void
 		{
-			dispatchEvent(new CommitEvent(dispatcher, actionName, args));	
+			dispatchEvent(e);	
 		}
 	}
 }

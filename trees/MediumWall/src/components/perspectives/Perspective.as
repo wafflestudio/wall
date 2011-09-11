@@ -20,7 +20,6 @@ import storages.IXMLizable;
 
 public class Perspective extends ToplevelComponent implements  IXMLizable, ICommitEventDispatcher
 {	
-	protected var toolbar:CommandToolbar;
 	
 	public function Perspective()
 	{
@@ -40,9 +39,9 @@ public class Perspective extends ToplevelComponent implements  IXMLizable, IComm
 		removeEventListener(CommitEvent.COMMIT, listener);	
 	}
 	
-	protected function dispatchCommitEvent(actionName:String, args:Array):void
+	protected function dispatchCommitEvent(e:CommitEvent):void
 	{
-		dispatchEvent(new CommitEvent(this, actionName, args));
+		dispatchEvent(e);
 	}
 
 

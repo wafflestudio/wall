@@ -11,6 +11,7 @@ import components.walls.Wall;
 import eventing.eventdispatchers.ICommitEventDispatcher;
 import eventing.eventdispatchers.IEventDispatcher;
 import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
+import eventing.events.ActionCommitEvent;
 import eventing.events.CommitEvent;
 import eventing.events.CompositeEvent;
 import eventing.events.NameChangeEvent;
@@ -38,19 +39,27 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 		
 		addSelectionChangeEventListener(function(e:SelectionChangeEvent):void
 		{
-			dispatchCommitEvent(self, "SELECTION_CHANGE", [e.oldSelectedIndex, e.selectedIndex]);
+			dispatchCommitEvent(new CommitEvent(self, "SELECTION_CHANGE", [e.oldSelectedIndex, e.selectedIndex]));
 		});
 		
 		addChildRemovedEventListener( function(e:CompositeEvent):void 
 		{
-			dispatchCommitEvent(self, "REMOVED_WALL", [e.child]);
+			dispatchCommitEvent(new ActionCommitEvent(self, "REMOVED_WALL", [e.child]));
+			var wall:Wall = e.child as Wall;
+			wall.removeCommitEventListener(onWallCommit);
 		});
+	}
+	
+	private function onWallCommit(e:CommitEvent):void
+	{
+		dispatchCommitEvent(e);	
 	}
 	
 	public function addWall(wall:Wall):void
 	{
 		addChild(wall);
-		dispatchCommitEvent(self, "ADDED_WALL", [wall]);
+		dispatchCommitEvent(new ActionCommitEvent(self, "ADDED_WALL", [wall]));
+		wall.addCommitEventListener(onWallCommit);
 	}
 	
 	public function get selectedWall():Wall
@@ -68,12 +77,10 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 		removeEventListener(CommitEvent.COMMIT, listener);	
 	}
 	
-	protected function dispatchCommitEvent(dispatcher:IEventDispatcher, actionName:String, args:Array):void
+	protected function dispatchCommitEvent(e:CommitEvent):void
 	{
-		dispatchEvent(new CommitEvent(dispatcher, actionName, args));
+		dispatchEvent(e);
 	}
-	
-	
 	
 	
 	/**

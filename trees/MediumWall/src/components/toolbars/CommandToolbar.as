@@ -21,8 +21,10 @@ public class CommandToolbar extends Toolbar
 	private var openWallBtn:Button;
 	private var newWallBtn:Button;
 	private var newSheetBtn:Button;
-	private var testBtn:Button;
+	
 	private var newImageBtn:Button;
+	private var undoBtn:Button;
+	private var redoBtn:Button;
 	
 	// parent - (group - bg - hgroup) - children
 	public function CommandToolbar()
@@ -53,17 +55,22 @@ public class CommandToolbar extends Toolbar
 		newSheetBtn = new Button();
 		newSheetBtn.label = "new sheet";
 		
-		testBtn = new Button();
-		testBtn.label = "test";
-		
 		newImageBtn = new Button();
 		newImageBtn.label = "new image sheet";
+		
+		undoBtn = new Button();
+		undoBtn.label = "undo";
+		redoBtn = new Button();
+		redoBtn.label = "redo";
+		
 		
 		addChild(openWallBtn);
 		addChild(newWallBtn);
 		addChild(newSheetBtn);
-		addChild(testBtn);
 		addChild(newImageBtn);
+		
+		addChild(undoBtn);
+		addChild(redoBtn);
 		
 		
 	}
@@ -83,13 +90,19 @@ public class CommandToolbar extends Toolbar
 		return newSheetBtn;	
 	}
 	
-	public function get testButton():IClickEventDispatcher
-	{
-		return testBtn;
-	}
 	public function get newImageButton():IClickEventDispatcher
 	{
 		return newImageBtn;
+	}
+	
+	public function get undoButton():IClickEventDispatcher
+	{
+		return undoBtn;
+	}
+	
+	public function get redoButton():IClickEventDispatcher
+	{
+		return redoBtn;
 	}
 }
 }

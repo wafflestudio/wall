@@ -1,7 +1,14 @@
 package controllers
 {
+	import components.dialogs.Dialog;
+	import components.dialogs.OpenWallDialog;
 	import components.perspectives.TabbedPerspective;
+	import components.toolbars.CommandToolbar;
+	import components.walls.FileStoredWall;
 	
+	import eventing.eventdispatchers.ICommitEventDispatcher;
+	import eventing.events.ActionCommitEvent;
+	import eventing.events.ClickEvent;
 	import eventing.events.CommitEvent;
 	
 	import flash.errors.IOError;
@@ -12,16 +19,73 @@ package controllers
 	import spark.components.Application;
 	
 	import storages.IXMLizable;
+	import storages.actions.Action;
+	import storages.actions.IActionCommitter;
 	import storages.history.History;
 
-	public class DesktopController extends FileStoredController 
+	public class DesktopController extends FileStoredController implements ICommitEventDispatcher
 	{
-		protected var history:History;
+		protected var history:History = new History();
 		protected var perspective:TabbedPerspective;
 		
 		public function DesktopController(configFile:File = null)
 		{
 			load(configFile);
+			
+			var toolbar:CommandToolbar = perspective.toolbar;
+			
+			toolbar.newWallButton.addClickEventListener(
+				function(e:ClickEvent):void {
+					perspective.addWall(new FileStoredWall());
+				}
+			);
+			
+			toolbar.openWallButton.addClickEventListener(
+				function(e:ClickEvent):void {
+					var dialog:Dialog = new OpenWallDialog();
+					dialog.show();
+				}
+			);
+			
+			
+			toolbar.newImageButton.addClickEventListener(
+				function(e:ClickEvent):void {
+					perspective.addSheet("image");
+				}
+			);
+			
+			toolbar.newSheetButton.addClickEventListener(
+				function(e:ClickEvent):void {
+					perspective.addSheet("text");
+				}
+			);
+			
+			toolbar.undoButton.addClickEventListener(
+				function(e:ClickEvent):void {
+					var action:Action = history.rollback();
+					if(action)  {
+						disableHistory();
+						action.committer.revertAction(action);
+						trace("undo: " + action.type);
+						enableHistory();
+					}
+				}
+			);
+			
+			toolbar.redoButton.addClickEventListener(
+				function(e:ClickEvent):void {
+					var action:Action = history.playForward();
+					if(action)  {
+						disableHistory();
+						action.committer.applyAction(action);
+						trace("redo: " + action.type);
+						enableHistory();
+					}
+				}
+			);
+			
+			enableHistory();
+			
 		}
 		
 		override public function setup(app:IVisualElementContainer):void
@@ -29,6 +93,41 @@ package controllers
 			perspective.addToApplication(app);
 		}
 		
+		private function onCommit(e:CommitEvent):void
+		{
+			var actionEvent:ActionCommitEvent = e as ActionCommitEvent;
+			trace((actionEvent ? "action committed " : "committed ") + e.actionName, e.args);
+			
+			if(actionEvent)
+				history.writeForward(new Action(e.actionName, e.dispatcher as IActionCommitter, e.args));
+		}
+		
+		
+		protected function enableHistory():void
+		{
+			addCommitEventListener( onCommit );
+		}
+		
+		protected function disableHistory():void
+		{
+			removeCommitEventListener( onCommit );
+		}
+		
+		
+		public function addCommitEventListener(listener:Function):void
+		{
+			addEventListener(CommitEvent.COMMIT, listener);
+		}
+		
+		public function removeCommitEventListener(listener:Function):void
+		{
+			removeEventListener(CommitEvent.COMMIT, listener);	
+		}
+		
+		protected function dispatchCommitEvent(e:CommitEvent):void
+		{
+			dispatchEvent(e);
+		}
 		
 		/**
 		 * <DesktopConfig>
@@ -49,7 +148,7 @@ package controllers
 			
 			perspective.addCommitEventListener(function(e:CommitEvent):void
 			{
-				trace("commited:" + e.actionName, e.args);
+				dispatchCommitEvent(e);
 				saveAs();
 			});
 			

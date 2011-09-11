@@ -28,7 +28,6 @@ public class FileStoredWall extends Wall implements IFileStorable, INameableFile
 		}
 		
 		addCommitEventListener( function(e:CommitEvent):void  {
-			trace("wall commited:" + e.actionName, e.args);
 			saveAs();
 		});
 	}

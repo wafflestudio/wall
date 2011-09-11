@@ -1,5 +1,7 @@
 package components.contents
 {
+	import eventing.events.ActionCommitEvent;
+	
 	import mx.core.IVisualElement;
 	
 	import spark.components.TextArea;
@@ -21,7 +23,7 @@ package components.contents
 			textarea.percentHeight = 70;
 			textarea.addEventListener(TextOperationEvent.CHANGE, function(e:TextOperationEvent):void
 			{
-				dispatchCommitEvent(self, "TEXT_CHANGE", [textarea.text]);
+				dispatchCommitEvent(new ActionCommitEvent(self, "TEXT_CHANGE", [textarea.text]));
 			});
 		}
 		

@@ -49,8 +49,7 @@ package components.contents
 			imageContainer.width = 0;
 			imageContainer.height = 0;
 			
-			loadBtn.addClickEventListener(
-				function(e:ClickEvent):void {
+			loadBtn.addClickEventListener( function(e:ClickEvent):void {
 				loadFile();
 			});
 		}

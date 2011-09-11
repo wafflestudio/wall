@@ -9,6 +9,7 @@ package components.sheets  {
 	import eventing.eventdispatchers.IClickEventDispatcher;
 	import eventing.eventdispatchers.IEventDispatcher;
 	import eventing.eventdispatchers.ISheetEventDispatcher;
+	import eventing.events.ActionCommitEvent;
 	import eventing.events.CommitEvent;
 	import eventing.events.DimensionChangeEvent;
 	import eventing.events.FocusEvent;
@@ -24,10 +25,15 @@ package components.sheets  {
 	import spark.components.BorderContainer;
 	
 	import storages.IXMLizable;
+	import storages.actions.Action;
+	import storages.actions.IActionCommitter;
 
 
-public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDispatcher,ICommitableComponent
+public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDispatcher,IActionCommitter
 {
+	public static const MOVE:String = "MOVE";
+	public static const RESIZE:String = "RESIZE";
+	
 
 	private var bc:BorderContainer = new BorderContainer();
 	override protected function get visualElement():IVisualElement { return bc; }
@@ -44,10 +50,10 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 			bc.addElement(  ic._protected_::visualElement);
 		} else if(option == "text")
 		{
-			bc.addElement(  tc._protected_::visualElement);
+			bc.addElement(tc._protected_::visualElement);
 		}else {
-			bc.addElement(  ic._protected_::visualElement);
-			bc.addElement(  tc._protected_::visualElement);
+			bc.addElement(ic._protected_::visualElement);
+			bc.addElement(tc._protected_::visualElement);
 		}
 
 		bc.setStyle("borderWidth", 1);
@@ -60,19 +66,15 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		visualElement = bc;
 		visualElementContainer = bc;
 	
-//		addDimensionChangeEventListener(function(e:DimensionChangeEvent):void
-//		{
-//			dispatchCommitEvent(self, DimensionChangeEvent.DIMENSION_CHANGE, [e.oldDimension, e.dimension]);
-//		});
 		
 		addMovedEventListener( function(e:MoveEvent):void
 		{
-			dispatchCommitEvent(self, "MOVED", [e.oldX, e.oldY, e.newX, e.newY]);
+			dispatchCommitEvent(new ActionCommitEvent(self, MOVE, [e.oldX, e.oldY, e.newX, e.newY]));
 		});
 		
 		addResizedEventListener( function(e:ResizeEvent):void
 		{
-			dispatchCommitEvent(self, "RESIZED", [e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom]);
+			dispatchCommitEvent(new ActionCommitEvent(self, RESIZE, [e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom]));
 		});
 
 	}
@@ -105,10 +107,67 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		removeEventListener(CommitEvent.COMMIT, listener);	
 	}
 	
-	protected function dispatchCommitEvent(dispatcher:IEventDispatcher, actionName:String, args:Array):void
+	
+	
+	public function applyAction(action:Action):void
 	{
-		dispatchEvent(new CommitEvent(dispatcher, actionName, args));	
+		switch(action.type)
+		{
+			case MOVE:
+				
+				x = action.args[2];
+				y = action.args[3];
+				dispatchFocusInEvent();
+//				dispatchMovedEvent(action.args[0], action.args[1], action.args[2], action.args[3]);
+				break;
+			case RESIZE:
+				
+				x = action.args[4];
+				y = action.args[5];
+				resize(action.args[6] - action.args[4], action.args[7] - action.args[5]);
+//				width = action.args[6] - action.args[4];
+//				height = action.args[7] - action.args[5];
+				
+//				dispatchResizedEvent(action.args[0], action.args[1], action.args[2], action.args[3], 
+//					action.args[4], action.args[5], action.args[6], action.args[7]);
+				dispatchFocusInEvent();
+				break;
+		}
 	}
+	
+	public function revertAction(action:Action):void
+	{
+		switch(action.type)
+		{
+			case MOVE:
+				x = action.args[0];
+				y = action.args[1];
+				dispatchFocusInEvent();
+//				dispatchMovedEvent(action.args[2], action.args[3], action.args[0], action.args[1]);
+				break;
+			case RESIZE:
+				
+				x = action.args[0];
+				y = action.args[1];
+				resize(action.args[2] - action.args[0], action.args[3] - action.args[1]);
+//				width = action.args[2] - action.args[0];
+//				height = action.args[3] - action.args[1];
+				
+//				dispatchResizedEvent(action.args[4], action.args[5], action.args[6], action.args[7], 
+//					action.args[0], action.args[1], action.args[2], action.args[3]);
+				dispatchFocusInEvent();
+				break;
+		}
+		
+	}
+	
+	protected function dispatchCommitEvent(e:CommitEvent):void
+	{
+		dispatchEvent(e);	
+	}
+
+	
+	
 	
 	
 	/**

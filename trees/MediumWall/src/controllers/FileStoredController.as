@@ -1,5 +1,7 @@
 package controllers
 {
+	import eventing.eventdispatchers.EventDispatcher;
+	
 	import flash.errors.EOFError;
 	import flash.errors.IOError;
 	import flash.filesystem.File;
@@ -13,7 +15,7 @@ package controllers
 	import utils.XMLFileStream;
 	
 	
-	public class FileStoredController implements IXMLizable
+	public class FileStoredController extends EventDispatcher implements IXMLizable
 	{
 		protected var defaultFile:File = File.applicationStorageDirectory.resolvePath(".config");
 		

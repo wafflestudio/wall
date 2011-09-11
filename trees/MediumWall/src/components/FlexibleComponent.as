@@ -1,14 +1,18 @@
 package components
 {
-import eventing.events.ResizeEvent;
-import components.controls.ResizeControlUIComponent;
-import mx.core.UIComponent;
-import mx.core.FlexGlobals;
-import flash.geom.Point;
-import spark.components.Application;
 import components.controls.ResizeControl;
+import components.controls.ResizeControlUIComponent;
+
 import eventing.events.FocusEvent;
 import eventing.events.MoveEvent;
+import eventing.events.ResizeEvent;
+
+import flash.geom.Point;
+
+import mx.core.FlexGlobals;
+import mx.core.UIComponent;
+
+import spark.components.Application;
 
 
 
@@ -25,10 +29,9 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 		// show resize control on focus
 		addFocusInEventListener(function(e:FocusEvent):void
 		{
-			if(resizeControl.isActive)
-				return;
+			if(!resizeControl.isActive)
+				resizeControl.addToApplication(FlexGlobals.topLevelApplication as Application);
 			
-			resizeControl.addToApplication(FlexGlobals.topLevelApplication as Application);
 			var wh:Point = new Point(width,height);
 			var xy:Point = new Point(x,y);
 			resizeControl.width = (parent as Component).localToGlobal(new Point(x+width,0)).x - (parent as Component).localToGlobal(xy).x;
@@ -94,7 +97,26 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 		
 		resizeControl.addResizedEventListener(function(e:ResizeEvent):void 
 		{
-			dispatchResizedEvent(e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom);
+			var oldUpperLeft:Point = (parent as Component).globalToLocal((FlexGlobals.topLevelApplication as Application).localToGlobal(new Point(e.oldLeft, e.oldTop)));
+			var oldLowerRight:Point = (parent as Component).globalToLocal((FlexGlobals.topLevelApplication as Application).localToGlobal(new Point(e.oldRight, e.oldBottom)));
+			
+			var upperLeft:Point = (parent as Component).globalToLocal((FlexGlobals.topLevelApplication as Application).localToGlobal(new Point(e.left, e.top)));
+			var lowerRight:Point = (parent as Component).globalToLocal((FlexGlobals.topLevelApplication as Application).localToGlobal(new Point(e.right, e.bottom)));
+			
+			
+			var oldX:Number = oldUpperLeft.x;
+			var oldY:Number = oldUpperLeft.y;
+			var oldDiff:Point = oldLowerRight.subtract(oldUpperLeft);
+			var oldWidth:Number = oldDiff.x;
+			var oldHeight:Number = oldDiff.y;
+			x = upperLeft.x;
+			y = upperLeft.y;
+			
+			var diff:Point = lowerRight.subtract(upperLeft);
+			width = diff.x;
+			height = diff.y;
+			
+			dispatchResizedEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
 		});
 	}
 	

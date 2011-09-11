@@ -10,6 +10,7 @@ import components.sheets.Sheet;
 
 import eventing.eventdispatchers.IEventDispatcher;
 import eventing.eventdispatchers.IZoomEventDispatcher;
+import eventing.events.ActionCommitEvent;
 import eventing.events.CommitEvent;
 import eventing.events.CompositeEvent;
 import eventing.events.Event;
@@ -70,7 +71,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 		delayedZoomTimer.addEventListener(TimerEvent.TIMER, function():void
 		{
-			dispatchCommitEvent(self, "ZOOM_CHANGED", zoomArgs);
+			dispatchCommitEvent(new CommitEvent(self, "ZOOM_CHANGED", zoomArgs));
 		});
 		
 		addZoomedEventListener( function(e:ZoomEvent):void {
@@ -82,21 +83,21 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 		
 		addPannedEventListener( function(e:PanEvent):void {
-			dispatchCommitEvent(self, "PANNED", [e.oldX, e.oldY, e.newX, e.newY]);
+			dispatchCommitEvent(new CommitEvent(self, "PANNED", [e.oldX, e.oldY, e.newX, e.newY]));
 		});
 		
 		addNameChangeEventListener( function():void  {
-			dispatchCommitEvent(self, "NAME_CHANGED", [name]);
+			dispatchCommitEvent(new CommitEvent(self, "NAME_CHANGED", [name]));
 		});
 		
 		addChildAddedEventListener(function(e:CompositeEvent):void  {
 			dispatchChildrenDimensionChangeEvent();
-			dispatchCommitEvent(self, "CHILD_ADDED", [e.child]);
+			dispatchCommitEvent(new ActionCommitEvent(self, "SHEET_ADDED", [e.child]));
 		});
 		
 		addChildRemovedEventListener(function(e:CompositeEvent):void  {
 			dispatchChildrenDimensionChangeEvent();
-			dispatchCommitEvent(self, "CHILD_REMOVED", [e.child]);
+			dispatchCommitEvent(new ActionCommitEvent(self, "SHEET_REMOVED", [e.child]));
 		});
 		
 		
@@ -123,7 +124,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	
 	private function onSheetCommitEvent(e:CommitEvent):void
 	{
-		dispatchCommitEvent(e.dispatcher, e.actionName, e.args);
+		dispatchCommitEvent(e);
 	}
 	
 	private function onSheetFocusEvent(e:FocusEvent):void 
@@ -190,9 +191,9 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	
 	
 	
-	protected function dispatchCommitEvent(dispatcher:IEventDispatcher, actionName:String, args:Array):void
+	protected function dispatchCommitEvent(e:CommitEvent):void
 	{
-		dispatchEvent(new CommitEvent(dispatcher, actionName, args));	
+		dispatchEvent(e);	
 	}
 	
 	protected function dispatchZoomEvent(oldZoomX:Number, oldZoomY:Number, zoomX:Number, zoomY:Number):void

@@ -8,16 +8,13 @@ import components.toolbars.Toolbar;
 import components.walls.FileStoredWall;
 import components.walls.Wall;
 import components.wallstacks.TabbedWallStack;
-
 import eventing.eventdispatchers.IClickEventDispatcher;
 import eventing.events.ClickEvent;
 import eventing.events.CommitEvent;
 import eventing.events.Event;
 import eventing.events.SelectionChangeEvent;
-
 import flash.display.DisplayObject;
 import flash.geom.Point;
-
 import mx.containers.ViewStack;
 import mx.managers.PopUpManager;
 
@@ -30,9 +27,10 @@ import storages.IXMLizable;
 
 public class TabbedPerspective extends MultipleWallPerspective implements IXMLizable
 {
+	public var toolbar:CommandToolbar = new CommandToolbar();
 	private var tabStack:TabbedWallStack;
 	private var vgroup:VGroup = new VGroup();
-	private var option:String;
+	
 	public function TabbedPerspective(paths:Array = null)
 	{	
 		super();
@@ -43,11 +41,9 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		visualElement = vgroup;
 		
 		// toolbar
-		toolbar = new CommandToolbar();
 		vgroup.addElement(toolbar._protected_::visualElement);
 		
 		//tabstack
-		
 		tabStack = new TabbedWallStack();
 		
 		tabStack.addSelectionChangeEventListener( function(e:SelectionChangeEvent):void {
@@ -56,43 +52,9 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		
 		vgroup.addElement(tabStack._protected_::visualElement);
 		
-		toolbar.newWallButton.addClickEventListener(
-			function(e:ClickEvent):void {
-				addWall(new FileStoredWall());
-			}
-		);
-		
-		toolbar.openWallButton.addClickEventListener(
-			function(e:ClickEvent):void {
-				var dialog:Dialog = new OpenWallDialog();
-				dialog.show();
-			}
-		);
-
-
-		toolbar.newImageButton.addClickEventListener(
-			function(e:ClickEvent):void {
-				option = "image";
-				addSheet(option);
-			}
-		);
-		
-		toolbar.newSheetButton.addClickEventListener(
-			function(e:ClickEvent):void {
-				option = "text";
-				addSheet(option);
-			}
-		);
-		
-		(toolbar as CommandToolbar).testButton.addClickEventListener(
-			function(e:ClickEvent):void {
-				
-			}
-		);
-		
 		tabStack.addCommitEventListener( function(e:CommitEvent):void
 		{
-			dispatchCommitEvent(e.actionName, e.args);
+			dispatchCommitEvent(e);
 		});
 	}
 	
