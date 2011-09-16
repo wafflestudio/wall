@@ -14,6 +14,7 @@ import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
 import eventing.events.ActionCommitEvent;
 import eventing.events.CommitEvent;
 import eventing.events.CompositeEvent;
+import eventing.events.FocusEvent;
 import eventing.events.NameChangeEvent;
 import eventing.events.SelectionChangeEvent;
 
@@ -28,10 +29,14 @@ import spark.components.BorderContainer;
 import spark.components.NavigatorContent;
 
 import storages.IXMLizable;
+import storages.actions.Action;
+import storages.actions.IActionCommitter;
 
-public class TabbedWallStack extends TabView implements IComponent, ISelectionChangeEventDispatcher, ICommitEventDispatcher, IXMLizable
+public class TabbedWallStack extends TabView implements IComponent, ISelectionChangeEventDispatcher, ICommitEventDispatcher, IXMLizable, IActionCommitter
 {	
-	
+	protected static const ADDED_WALL:String = "ADDED_WALL";
+	protected static const REMOVED_WALL:String = "REMOVED_WALL";
+	protected static const SELECTION_CHANGE:String = "SELECTION_CHANGE"; 
 	
 	public function TabbedWallStack()
 	{
@@ -39,14 +44,20 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 		
 		addSelectionChangeEventListener(function(e:SelectionChangeEvent):void
 		{
-			dispatchCommitEvent(new CommitEvent(self, "SELECTION_CHANGE", [e.oldSelectedIndex, e.selectedIndex]));
+			dispatchCommitEvent(new CommitEvent(self, SELECTION_CHANGE, [e.oldSelectedIndex, e.selectedIndex]));
 		});
 		
 		addChildRemovedEventListener( function(e:CompositeEvent):void 
 		{
-			dispatchCommitEvent(new ActionCommitEvent(self, "REMOVED_WALL", [e.child]));
+			dispatchCommitEvent(new ActionCommitEvent(self, REMOVED_WALL, [e.child]));
 			var wall:Wall = e.child as Wall;
 			wall.removeCommitEventListener(onWallCommit);
+			wall.removeFocusInEventListener(onWallFocusIn);
+		});
+		
+		addChildAddedEventListener( function(e:CompositeEvent):void
+		{
+			dispatchCommitEvent(new ActionCommitEvent(self, ADDED_WALL, [e.child]));
 		});
 	}
 	
@@ -55,11 +66,29 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 		dispatchCommitEvent(e);	
 	}
 	
+	private function onWallFocusIn(e:FocusEvent):void
+	{
+		if(selectedComponent != e.dispatcher)
+		{
+			for(var i:int = 0; i < children.length; i++)  {
+				if(children[i] == e.dispatcher)  {
+					selectedIndex = i;
+					return;
+				}
+			}
+		}
+	}
+	
 	public function addWall(wall:Wall):void
 	{
 		addChild(wall);
-		dispatchCommitEvent(new ActionCommitEvent(self, "ADDED_WALL", [wall]));
 		wall.addCommitEventListener(onWallCommit);
+		wall.addFocusInEventListener(onWallFocusIn);
+	}
+	
+	public function removeWall(wall:Wall):void
+	{
+		removeChild(wall);
 	}
 	
 	public function get selectedWall():Wall
@@ -82,6 +111,34 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 		dispatchEvent(e);
 	}
 	
+	
+	
+	public function applyAction(action:Action):void
+	{
+		switch(action.type)
+		{
+			case ADDED_WALL:
+				addWall(action.args[0] as Wall);
+				break;
+			case REMOVED_WALL:
+				removeWall(action.args[0] as Wall);
+				break;
+		}
+	}
+	
+	public function revertAction(action:Action):void
+	{
+		switch(action.type)
+		{
+			case ADDED_WALL:
+				removeWall(action.args[0] as Wall);
+				break;
+			case REMOVED_WALL:
+				addWall(action.args[0] as Wall);
+				break;
+		}
+		
+	}
 	
 	/**
 	 * 	<walls>

@@ -13,6 +13,7 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.sampler.StackFrame;
 
+import mx.core.FlexGlobals;
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
 import mx.core.UIComponent;
@@ -48,8 +49,14 @@ public class Component extends Composite implements IComponent
 		});
 		
 		addFocusInEventListener( function(e:FocusEvent):void {
-			if(parent)
+			if(parent)  {
 				(parent as Component).dispatchFocusInEvent();
+				for each(var sibling:Component in parent._protected_::children)  {
+					if(sibling != this)
+						sibling.dispatchFocusOutEvent();
+				}
+			}
+			
 		});
 		
 		addFocusOutEventListener( function(e:FocusEvent):void {
@@ -220,6 +227,11 @@ public class Component extends Composite implements IComponent
 	protected function get stage():Stage
 	{
 		return (visualElement as DisplayObject).stage;
+	}
+	
+	protected function get application():Application
+	{
+		return FlexGlobals.topLevelApplication as Application;
 	}
 	
 	protected function get root():ToplevelComponent

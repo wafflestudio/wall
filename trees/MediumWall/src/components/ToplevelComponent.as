@@ -1,6 +1,5 @@
 package components
 {
-import mx.core.FlexGlobals;
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
 
@@ -8,7 +7,6 @@ import spark.components.Application;
 
 public class ToplevelComponent extends Component implements IToplevelComponent
 {
-	public static var application:IVisualElementContainer;
 	
 	public function ToplevelComponent()
 	{
@@ -18,16 +16,16 @@ public class ToplevelComponent extends Component implements IToplevelComponent
 	public function addToApplication(app:IVisualElementContainer = null):void
 	{
 		if(!app)
-			app = FlexGlobals.topLevelApplication as Application;
+			app = application;
 		
-		application = app;
+
 		app.addElement(this.visualElement);
 	}
 	
 	public function removeFromApplication(app:IVisualElementContainer = null):void
 	{
 		if(!app)
-			app = FlexGlobals.topLevelApplication as Application;
+			app = application;
 
 		app.removeElement(this.visualElement);
 		
