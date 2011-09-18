@@ -1,13 +1,14 @@
 package components.contents
 {
 	import components.Component;
+	import components.ICommitableComponent;
 	
 	import eventing.eventdispatchers.IEventDispatcher;
 	import eventing.events.CommitEvent;
 	
 	import storages.IXMLizable;
 	
-	public class Content extends Component implements IContent
+	public class Content extends Component implements IXMLizable, ICommitableComponent
 	{
 		public function Content()
 		{

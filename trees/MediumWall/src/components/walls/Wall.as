@@ -7,6 +7,7 @@ import components.containers.IPannableContainer;
 import components.containers.PannableContainer;
 import components.containers.ScrollableContainer;
 import components.sheets.Sheet;
+
 import eventing.eventdispatchers.IEventDispatcher;
 import eventing.eventdispatchers.IZoomEventDispatcher;
 import eventing.events.ActionCommitEvent;
@@ -17,17 +18,21 @@ import eventing.events.FocusEvent;
 import eventing.events.NameChangeEvent;
 import eventing.events.PanEvent;
 import eventing.events.ZoomEvent;
+
 import flash.display.DisplayObject;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
 import flash.geom.Point;
 import flash.utils.Timer;
+
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
+
 import spark.components.BorderContainer;
 import spark.components.Group;
 import spark.components.NavigatorContent;
 import spark.components.Scroller;
+
 import storages.IXMLizable;
 import storages.actions.Action;
 import storages.actions.IActionCommitter;
@@ -112,9 +117,9 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	
 	
 	
-	public function addBlankSheet(option:String=null):void
+	public function addBlankSheet(type:String=Sheet.TEXT_SHEET):void
 	{
-		var sheet:Sheet = new Sheet(option);
+		var sheet:Sheet = new Sheet(type);
 		var compCenter:Point = new Point(width/2, height/2);
 		
 		var center:Point = (visualElementContainer as DisplayObject).globalToLocal(localToGlobal(compCenter));
@@ -274,7 +279,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 		for each(var sheetXML:XML in xml.sheets[0].sheet)
 		{
-			var sheet:Sheet = new Sheet();
+			var sheet:Sheet = new Sheet(sheetXML.@type);
 			sheet.fromXML(sheetXML);
 			addSheet(sheet);
 		}

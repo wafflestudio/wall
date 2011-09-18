@@ -1,6 +1,6 @@
 package components.contents
 {
-	public interface ITextContent extends IContent
+	public interface ITextContent
 	{
 		function getTextData():String;
 	}

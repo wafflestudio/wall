@@ -36,28 +36,41 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 	public static const MOVE:String = "MOVE";
 	public static const RESIZE:String = "RESIZE";
 	
+	public static const IMAGE_SHEET:String = "image";
+	public static const TEXT_SHEET:String = "text";
+	
 
 	private var bc:BorderContainer = new BorderContainer();
 	override protected function get visualElement():IVisualElement { return bc; }
-	private var tc:TextContent;
-	private var ic:ImageContent;
+	private var textContent:TextContent;
+	private var imageContent:ImageContent;
+	private var type:String;
 
-	public function Sheet(option:String=null)
+	public function Sheet(type:String)
 	{
 		super();
-		tc = new TextContent();
-		ic = new ImageContent();
-		if(option=="image")
+		textContent = new TextContent();
+		imageContent = new ImageContent();
+		
+		this.type = type;
+	
+		if(type==IMAGE_SHEET)
 		{
-			bc.addElement(  ic._protected_::visualElement);
-		} else if(option == "text")
+			bc.addElement(imageContent._protected_::visualElement);
+			imageContent.addCommitEventListener( function(e:CommitEvent):void
+			{
+				dispatchCommitEvent(e);
+			});
+			
+		} else if(type == TEXT_SHEET)
 		{
-			bc.addElement(tc._protected_::visualElement);
-		}else {
-			bc.addElement(ic._protected_::visualElement);
-			bc.addElement(tc._protected_::visualElement);
-		}
-
+			bc.addElement(textContent._protected_::visualElement);
+			textContent.addCommitEventListener( function(e:CommitEvent):void
+			{
+				dispatchCommitEvent(e);
+			});
+		} 
+		
 		bc.setStyle("borderWidth", 1);
 		
 		// bring to front if clicked
@@ -196,17 +209,15 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		height = xml.@height;
 		x = xml.@x;
 		y = xml.@y;
+		type = xml.@type;
 		
 		if(xml.child("content")[0] != null) {
 			var contentXML:XML = xml.content[0];
-			if(contentXML.child("image").length() == 1) {
-				ic.fromXML(contentXML);
-				bc.addElement(tc._protected_::visualElement);
-			} else if (contentXML.child("text").length() == 1) {
-				tc.fromXML(contentXML);
-				bc.addElement(ic._protected_::visualElement);
-			} else {
-			}
+			if(type == IMAGE_SHEET) {
+				imageContent.fromXML(contentXML);
+			} else if (type == TEXT_SHEET) {
+				textContent.fromXML(contentXML);
+			} 
 		}
 		return this;
 	}
@@ -218,11 +229,13 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		xml.@height = height;
 		xml.@x = x;
 		xml.@y = y;
-		if(this.ic.getBitmapData() != null) {
-			xml.appendChild(ic.toXML());
+		xml.@type = type;
+		
+		if(type == IMAGE_SHEET) {
+			xml.appendChild(imageContent.toXML());
 		}
-		if(this.tc.getTextData() != "") {
-			xml.appendChild(tc.toXML());	
+		else if(type == TEXT_SHEET) {
+			xml.appendChild(textContent.toXML());	
 		}
 		return xml;
 	}

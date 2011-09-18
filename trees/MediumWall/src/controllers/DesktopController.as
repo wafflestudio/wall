@@ -3,6 +3,7 @@ package controllers
 	import components.dialogs.Dialog;
 	import components.dialogs.OpenWallDialog;
 	import components.perspectives.TabbedPerspective;
+	import components.sheets.Sheet;
 	import components.toolbars.CommandToolbar;
 	import components.walls.FileStoredWall;
 	
@@ -48,15 +49,15 @@ package controllers
 			);
 			
 			
-			toolbar.newImageButton.addClickEventListener(
+			toolbar.newImageSheetButton.addClickEventListener(
 				function(e:ClickEvent):void {
-					perspective.addSheet("image");
+					perspective.addSheet(Sheet.IMAGE_SHEET);
 				}
 			);
 			
 			toolbar.newSheetButton.addClickEventListener(
 				function(e:ClickEvent):void {
-					perspective.addSheet("text");
+					perspective.addSheet(Sheet.TEXT_SHEET);
 				}
 			);
 			
