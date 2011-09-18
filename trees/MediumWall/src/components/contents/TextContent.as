@@ -33,7 +33,7 @@ package components.contents
 			super();
 
 			textarea.percentWidth = 100;
-			textarea.percentHeight = 70;
+			textarea.percentHeight = 100;
 			
 			// ignore consecutive textchange as a commit. commit only the last one
 			var delayedTextChangeTimer:Timer = new Timer(300, 1);

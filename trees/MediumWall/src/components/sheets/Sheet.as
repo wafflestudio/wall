@@ -6,11 +6,15 @@ package components.sheets  {
 	import components.MovableComponent;
 	import components.contents.ImageContent;
 	import components.contents.TextContent;
+	import components.controls.CloseControl;
 	
 	import eventing.eventdispatchers.IClickEventDispatcher;
+	import eventing.eventdispatchers.ICloseEventDispatcher;
 	import eventing.eventdispatchers.IEventDispatcher;
 	import eventing.eventdispatchers.ISheetEventDispatcher;
 	import eventing.events.ActionCommitEvent;
+	import eventing.events.ClickEvent;
+	import eventing.events.CloseEvent;
 	import eventing.events.CommitEvent;
 	import eventing.events.CompositeEvent;
 	import eventing.events.DimensionChangeEvent;
@@ -19,7 +23,10 @@ package components.sheets  {
 	import eventing.events.ResizeEvent;
 	
 	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.utils.Timer;
 	
 	import mx.core.IVisualElement;
 	import mx.core.IVisualElementContainer;
@@ -31,7 +38,7 @@ package components.sheets  {
 	import storages.actions.IActionCommitter;
 
 
-public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDispatcher,IActionCommitter
+public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDispatcher,IActionCommitter, ICloseEventDispatcher
 {
 	public static const MOVE:String = "MOVE";
 	public static const RESIZE:String = "RESIZE";
@@ -42,10 +49,23 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 
 	private var bc:BorderContainer = new BorderContainer();
 	override protected function get visualElement():IVisualElement { return bc; }
+	
 	private var textContent:TextContent;
 	private var imageContent:ImageContent;
+	private var closeControl:CloseControl = new CloseControl();
+	
 	private var type:String;
-
+	
+	/** Factory methods **/
+	public static function createImageSheet(/*arguments here*/):Sheet
+	{
+		
+		var newSheet:Sheet = new Sheet(IMAGE_SHEET);
+		return newSheet;
+	}
+	
+	
+	/** Constructor **/
 	public function Sheet(type:String)
 	{
 		super();
@@ -101,6 +121,81 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		{
 			dispatchFocusOutEvent();
 		});
+		
+		
+		/** Close Control **/
+		var detachTimer:Timer = new Timer(500);
+		var closeControlShowing:Boolean = false;
+		var timerPaused:Boolean = false;
+		
+		detachTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void
+		{
+			if(closeControlShowing)  {
+				closeControl.removeFromApplication();
+				closeControlShowing = false;
+			}
+		});
+		
+		
+		bc.addEventListener(MouseEvent.ROLL_OVER, 
+			function ():void
+			{
+				if(detachTimer.running)  {
+					detachTimer.stop();
+					detachTimer.reset();
+				}
+				
+				if(!closeControlShowing)  {
+					closeControl.addToApplication();
+					closeControlShowing = true;
+				}
+				
+				var pt:Point = localToGlobal(new Point(width-closeControl.width/2, -closeControl.height/2));
+				closeControl.x = pt.x;
+				closeControl.y = pt.y;
+				
+			}
+		);
+		
+		bc.addEventListener(MouseEvent.ROLL_OUT, 
+			function ():void
+			{
+				if(closeControlShowing && !detachTimer.running)
+					detachTimer.start();
+				
+			}
+		);
+		
+		closeControl.addRollOverEventListener( function():void
+		{
+			if(detachTimer.running)  {
+				detachTimer.stop();
+				timerPaused = true;
+			}
+		}
+		);
+		
+		closeControl.addRollOutEventListener( function():void
+		{
+			if(timerPaused)  {
+				detachTimer.start();
+				timerPaused = false;
+			}
+		}
+		);
+		
+		closeControl.addClickEventListener( function(e:ClickEvent):void 
+		{
+			dispatchCloseEvent();
+		});
+		
+		addRemovedEventListener( function():void
+		{
+			if(closeControlShowing)  {
+				closeControl.removeFromApplication();
+				closeControlShowing = false;
+			}
+		});
 
 	}
 
@@ -118,7 +213,15 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 	}
 	
 	
+	public function addCloseEventListener(listener:Function):void
+	{
+		addEventListener(CloseEvent.CLOSE, listener);
+	}
 	
+	public function removeCloseEventListener(listener:Function):void
+	{
+		removeEventListener(CloseEvent.CLOSE, listener);
+	}
 	
 	
 	
@@ -132,6 +235,12 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		removeEventListener(CommitEvent.COMMIT, listener);	
 	}
 	
+	
+	
+	protected function dispatchCloseEvent():void
+	{
+		dispatchEvent(new CloseEvent(this));
+	}
 	
 	
 	public function applyAction(action:Action):void

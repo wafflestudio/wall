@@ -11,6 +11,7 @@ import components.sheets.Sheet;
 import eventing.eventdispatchers.IEventDispatcher;
 import eventing.eventdispatchers.IZoomEventDispatcher;
 import eventing.events.ActionCommitEvent;
+import eventing.events.CloseEvent;
 import eventing.events.CommitEvent;
 import eventing.events.CompositeEvent;
 import eventing.events.Event;
@@ -142,16 +143,23 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		bringToFront(e.target as Sheet);
 	}
 	
+	private function onSheetClose(e:CloseEvent):void
+	{
+		removeSheet(e.dispatcher as Sheet);
+	}
+	
 	public function addSheet(sheet:Sheet):void
 	{
 		sheet.addFocusInEventListener(onSheetFocusEvent); 
 		sheet.addCommitEventListener(onSheetCommitEvent);
+		sheet.addCloseEventListener(onSheetClose);
 		addChild(sheet);
 	}
 	
 	public function removeSheet(sheet:Sheet):void
 	{
 		removeChild(sheet);
+		sheet.removeCloseEventListener(onSheetClose);
 		sheet.removeCommitEventListener(onSheetCommitEvent);
 		sheet.removeFocusInEventListener(onSheetFocusEvent);
 	}
