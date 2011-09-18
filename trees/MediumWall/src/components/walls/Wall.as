@@ -7,7 +7,6 @@ import components.containers.IPannableContainer;
 import components.containers.PannableContainer;
 import components.containers.ScrollableContainer;
 import components.sheets.Sheet;
-
 import eventing.eventdispatchers.IEventDispatcher;
 import eventing.eventdispatchers.IZoomEventDispatcher;
 import eventing.events.ActionCommitEvent;
@@ -18,25 +17,33 @@ import eventing.events.FocusEvent;
 import eventing.events.NameChangeEvent;
 import eventing.events.PanEvent;
 import eventing.events.ZoomEvent;
-
 import flash.display.DisplayObject;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
 import flash.geom.Point;
 import flash.utils.Timer;
-
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
-
 import spark.components.BorderContainer;
 import spark.components.Group;
 import spark.components.NavigatorContent;
 import spark.components.Scroller;
-
 import storages.IXMLizable;
+import storages.actions.Action;
+import storages.actions.IActionCommitter;
 
-public class Wall extends PannableContainer implements IPannableContainer, IXMLizable, INameableComponent, ICommitableComponent, IToplevelComponent, IZoomEventDispatcher
+
+
+public class Wall extends PannableContainer implements IPannableContainer, IXMLizable, INameableComponent, ICommitableComponent, 
+	IToplevelComponent, IZoomEventDispatcher, IActionCommitter
 {
+	/** Available Actions  **/
+	public static const ZOOM_CHANGED:String = "zoomChanged";
+	public static const PANNED:String = "Panned";
+	public static const NAME_CHANGED:String = "nameChanged";
+	public static const SHEET_ADDED:String = "sheetAdded";
+	public static const SHEET_REMOVED:String = "sheetRemoved";
+	
 	private var bc:BorderContainer = new BorderContainer();
 	private var group:Group = new Group();
 	
@@ -71,7 +78,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 		delayedZoomTimer.addEventListener(TimerEvent.TIMER, function():void
 		{
-			dispatchCommitEvent(new CommitEvent(self, "ZOOM_CHANGED", zoomArgs));
+			dispatchCommitEvent(new CommitEvent(self, ZOOM_CHANGED, zoomArgs));
 		});
 		
 		addZoomedEventListener( function(e:ZoomEvent):void {
@@ -83,21 +90,21 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 		
 		addPannedEventListener( function(e:PanEvent):void {
-			dispatchCommitEvent(new CommitEvent(self, "PANNED", [e.oldX, e.oldY, e.newX, e.newY]));
+			dispatchCommitEvent(new CommitEvent(self, PANNED, [e.oldX, e.oldY, e.newX, e.newY]));
 		});
 		
 		addNameChangeEventListener( function():void  {
-			dispatchCommitEvent(new CommitEvent(self, "NAME_CHANGED", [name]));
+			dispatchCommitEvent(new CommitEvent(self, NAME_CHANGED, [name]));
 		});
 		
 		addChildAddedEventListener(function(e:CompositeEvent):void  {
 			dispatchChildrenDimensionChangeEvent();
-			dispatchCommitEvent(new ActionCommitEvent(self, "SHEET_ADDED", [e.child]));
+			dispatchCommitEvent(new ActionCommitEvent(self, SHEET_ADDED, [e.child]));
 		});
 		
 		addChildRemovedEventListener(function(e:CompositeEvent):void  {
 			dispatchChildrenDimensionChangeEvent();
-			dispatchCommitEvent(new ActionCommitEvent(self, "SHEET_REMOVED", [e.child]));
+			dispatchCommitEvent(new ActionCommitEvent(self, SHEET_REMOVED, [e.child]));
 		});
 		
 		
@@ -108,8 +115,6 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	public function addBlankSheet(option:String=null):void
 	{
 		var sheet:Sheet = new Sheet(option);
-
-		
 		var compCenter:Point = new Point(width/2, height/2);
 		
 		var center:Point = (visualElementContainer as DisplayObject).globalToLocal(localToGlobal(compCenter));
@@ -214,6 +219,36 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		else
 			(visualElement.parent as IVisualElementContainer).removeElement(visualElement);
 	}
+	
+	
+	public function applyAction(action:Action):void
+	{
+		switch(action.type)
+		{
+			case SHEET_ADDED:
+				addSheet(action.args[0] as Sheet);
+				break;
+			case SHEET_REMOVED:
+				removeSheet(action.args[0] as Sheet);
+				break;
+		}
+	}
+	
+	public function revertAction(action:Action):void
+	{
+		switch(action.type)
+		{
+			case SHEET_ADDED:
+				removeSheet(action.args[0] as Sheet);
+				break;
+			case SHEET_REMOVED:
+				addSheet(action.args[0] as Sheet);
+				break;
+		}
+		
+	}
+	
+	
 	
 	/**
 	 * 	<wall>

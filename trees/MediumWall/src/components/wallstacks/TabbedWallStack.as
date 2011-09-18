@@ -1,6 +1,7 @@
 package components.wallstacks
 {
 import components.Component;
+import components.Composite;
 import components.IComponent;
 import components.INameableComponent;
 import components.containers.Container;
@@ -50,9 +51,6 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 		addChildRemovedEventListener( function(e:CompositeEvent):void 
 		{
 			dispatchCommitEvent(new ActionCommitEvent(self, REMOVED_WALL, [e.child]));
-			var wall:Wall = e.child as Wall;
-			wall.removeCommitEventListener(onWallCommit);
-			wall.removeFocusInEventListener(onWallFocusIn);
 		});
 		
 		addChildAddedEventListener( function(e:CompositeEvent):void
@@ -79,11 +77,26 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 		}
 	}
 	
+	protected override function addChild(child:Composite):Composite
+	{
+		super.addChild(child);
+		(child as Wall).addCommitEventListener(onWallCommit);
+		(child as Wall).addFocusInEventListener(onWallFocusIn);
+		
+		return child;
+	}
+	
+	protected override function removeChild(child:Composite):Composite
+	{
+		var wall:Wall = child as Wall;
+		wall.removeCommitEventListener(onWallCommit);
+		wall.removeFocusInEventListener(onWallFocusIn);
+		return super.removeChild(child);
+	}
+	
 	public function addWall(wall:Wall):void
 	{
 		addChild(wall);
-		wall.addCommitEventListener(onWallCommit);
-		wall.addFocusInEventListener(onWallFocusIn);
 	}
 	
 	public function removeWall(wall:Wall):void

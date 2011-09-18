@@ -1,5 +1,6 @@
 package components.sheets  {
 	import components.Component;
+	import components.Composite;
 	import components.FlexibleComponent;
 	import components.ICommitableComponent;
 	import components.MovableComponent;
@@ -11,6 +12,7 @@ package components.sheets  {
 	import eventing.eventdispatchers.ISheetEventDispatcher;
 	import eventing.events.ActionCommitEvent;
 	import eventing.events.CommitEvent;
+	import eventing.events.CompositeEvent;
 	import eventing.events.DimensionChangeEvent;
 	import eventing.events.FocusEvent;
 	import eventing.events.MoveEvent;
@@ -75,6 +77,16 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		addResizedEventListener( function(e:ResizeEvent):void
 		{
 			dispatchCommitEvent(new ActionCommitEvent(self, RESIZE, [e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom]));
+		});
+		
+		addAddedEventListener( function():void
+		{
+			dispatchFocusInEvent();
+		});
+		
+		addRemovedEventListener( function():void
+		{
+			dispatchFocusOutEvent();
 		});
 
 	}
