@@ -28,6 +28,7 @@ package components.sheets  {
 	import flash.geom.Rectangle;
 	import flash.utils.Timer;
 	
+	import mx.binding.utils.BindingUtils;
 	import mx.core.IVisualElement;
 	import mx.core.IVisualElementContainer;
 	
@@ -128,6 +129,18 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		var closeControlShowing:Boolean = false;
 		var timerPaused:Boolean = false;
 		
+		function updateCloseControlPosition():void {
+			var pt:Point = localToGlobal(new Point(width-closeControl.width/2, -closeControl.height/2));
+			closeControl.x = pt.x;
+			closeControl.y = pt.y;
+		}
+		
+		BindingUtils.bindSetter(updateCloseControlPosition, bc, "x");
+		BindingUtils.bindSetter(updateCloseControlPosition, bc, "y");
+		BindingUtils.bindSetter(updateCloseControlPosition, bc, "width");
+		BindingUtils.bindSetter(updateCloseControlPosition, bc, "height");
+		
+		
 		detachTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void
 		{
 			if(closeControlShowing)  {
@@ -150,9 +163,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 					closeControlShowing = true;
 				}
 				
-				var pt:Point = localToGlobal(new Point(width-closeControl.width/2, -closeControl.height/2));
-				closeControl.x = pt.x;
-				closeControl.y = pt.y;
+				updateCloseControlPosition();
 				
 			}
 		);
