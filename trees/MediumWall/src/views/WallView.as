@@ -12,8 +12,8 @@ package views
 	import cream.storages.IFileReference;
 	import cream.storages.actions.Action;
 	
-	import utils.TemporaryFileStorage;
-	import utils.XMLFileStream;
+	import cream.utils.TemporaryFileStorage;
+	import cream.utils.XMLFileStream;
 
 	public class WallView extends View implements IFileReference
 	{

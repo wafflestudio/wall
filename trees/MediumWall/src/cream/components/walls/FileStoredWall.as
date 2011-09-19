@@ -9,8 +9,8 @@ import cream.storages.IFileStorable;
 import cream.storages.INameableFileReference;
 import cream.storages.IXMLizable;
 
-import utils.TemporaryFileStorage;
-import utils.XMLFileStream;
+import cream.utils.TemporaryFileStorage;
+import cream.utils.XMLFileStream;
 
 public class FileStoredWall extends Wall implements IFileStorable, INameableFileReference
 {

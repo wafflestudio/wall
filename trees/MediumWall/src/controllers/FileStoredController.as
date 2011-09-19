@@ -12,7 +12,7 @@ package controllers
 	
 	import cream.storages.IXMLizable;
 	
-	import utils.XMLFileStream;
+	import cream.utils.XMLFileStream;
 	
 	
 	public class FileStoredController extends EventDispatcher implements IXMLizable

@@ -1,4 +1,4 @@
-package utils
+package cream.utils
 {
 import flash.filesystem.File;
 import flash.filesystem.FileStream;

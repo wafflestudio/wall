@@ -1,4 +1,4 @@
-package utils
+package cream.utils
 {
 import flash.errors.IllegalOperationError;
 import flash.filesystem.File;
