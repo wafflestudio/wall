@@ -1,7 +1,7 @@
 package cream.components
 {
-import misc.INameable;
-import eventing.eventdispatchers.INameChangeEventDispatcher;
+import cream.misc.INameable;
+import cream.eventing.eventdispatchers.INameChangeEventDispatcher;
 
 public interface INameableComponent extends IComponent, INameable, INameChangeEventDispatcher
 {

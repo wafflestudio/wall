@@ -9,8 +9,8 @@ package views
 	import spark.components.Button;
 	import spark.components.View;
 	
-	import storages.IFileReference;
-	import storages.actions.Action;
+	import cream.storages.IFileReference;
+	import cream.storages.actions.Action;
 	
 	import utils.TemporaryFileStorage;
 	import utils.XMLFileStream;

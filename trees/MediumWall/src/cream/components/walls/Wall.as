@@ -8,17 +8,17 @@ import cream.components.containers.PannableContainer;
 import cream.components.containers.ScrollableContainer;
 import cream.components.sheets.Sheet;
 
-import eventing.eventdispatchers.IEventDispatcher;
-import eventing.eventdispatchers.IZoomEventDispatcher;
-import eventing.events.ActionCommitEvent;
-import eventing.events.CloseEvent;
-import eventing.events.CommitEvent;
-import eventing.events.CompositeEvent;
-import eventing.events.Event;
-import eventing.events.FocusEvent;
-import eventing.events.NameChangeEvent;
-import eventing.events.PanEvent;
-import eventing.events.ZoomEvent;
+import cream.eventing.eventdispatchers.IEventDispatcher;
+import cream.eventing.eventdispatchers.IZoomEventDispatcher;
+import cream.eventing.events.ActionCommitEvent;
+import cream.eventing.events.CloseEvent;
+import cream.eventing.events.CommitEvent;
+import cream.eventing.events.CompositeEvent;
+import cream.eventing.events.Event;
+import cream.eventing.events.FocusEvent;
+import cream.eventing.events.NameChangeEvent;
+import cream.eventing.events.PanEvent;
+import cream.eventing.events.ZoomEvent;
 
 import flash.display.DisplayObject;
 import flash.events.MouseEvent;
@@ -34,9 +34,9 @@ import spark.components.Group;
 import spark.components.NavigatorContent;
 import spark.components.Scroller;
 
-import storages.IXMLizable;
-import storages.actions.Action;
-import storages.actions.IActionCommitter;
+import cream.storages.IXMLizable;
+import cream.storages.actions.Action;
+import cream.storages.actions.IActionCommitter;
 
 
 

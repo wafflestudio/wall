@@ -9,15 +9,15 @@ import cream.components.tabviews.TabView;
 import cream.components.walls.FileStoredWall;
 import cream.components.walls.Wall;
 
-import eventing.eventdispatchers.ICommitEventDispatcher;
-import eventing.eventdispatchers.IEventDispatcher;
-import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
-import eventing.events.ActionCommitEvent;
-import eventing.events.CommitEvent;
-import eventing.events.CompositeEvent;
-import eventing.events.FocusEvent;
-import eventing.events.NameChangeEvent;
-import eventing.events.SelectionChangeEvent;
+import cream.eventing.eventdispatchers.ICommitEventDispatcher;
+import cream.eventing.eventdispatchers.IEventDispatcher;
+import cream.eventing.eventdispatchers.ISelectionChangeEventDispatcher;
+import cream.eventing.events.ActionCommitEvent;
+import cream.eventing.events.CommitEvent;
+import cream.eventing.events.CompositeEvent;
+import cream.eventing.events.FocusEvent;
+import cream.eventing.events.NameChangeEvent;
+import cream.eventing.events.SelectionChangeEvent;
 
 import flash.events.Event;
 import flash.filesystem.File;
@@ -29,9 +29,9 @@ import mx.events.IndexChangedEvent;
 import spark.components.BorderContainer;
 import spark.components.NavigatorContent;
 
-import storages.IXMLizable;
-import storages.actions.Action;
-import storages.actions.IActionCommitter;
+import cream.storages.IXMLizable;
+import cream.storages.actions.Action;
+import cream.storages.actions.IActionCommitter;
 
 public class TabbedWallStack extends TabView implements IComponent, ISelectionChangeEventDispatcher, ICommitEventDispatcher, IXMLizable, IActionCommitter
 {	

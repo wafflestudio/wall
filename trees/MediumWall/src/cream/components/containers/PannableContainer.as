@@ -4,7 +4,7 @@ import flash.events.MouseEvent;
 import flash.geom.Point;
 import flash.display.Stage;
 import flash.display.DisplayObject;
-import eventing.events.PanEvent;
+import cream.eventing.events.PanEvent;
 import flash.geom.Rectangle;
 
 public class PannableContainer extends ScrollableContainer implements IPannableContainer

@@ -1,9 +1,9 @@
 package cream.components
 {
-import eventing.eventdispatchers.ICompositeEventDispatcher;
-import eventing.eventdispatchers.IDimensionChangeEventDispatcher;
-import eventing.eventdispatchers.IExternalDimensionChangeEventDispatcher;
-import eventing.eventdispatchers.IFocusEventDispatcher;
+import cream.eventing.eventdispatchers.ICompositeEventDispatcher;
+import cream.eventing.eventdispatchers.IDimensionChangeEventDispatcher;
+import cream.eventing.eventdispatchers.IExternalDimensionChangeEventDispatcher;
+import cream.eventing.eventdispatchers.IFocusEventDispatcher;
 
 import flash.geom.Point;
 

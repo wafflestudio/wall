@@ -7,10 +7,10 @@ package controllers
 	import cream.components.toolbars.CommandToolbar;
 	import cream.components.walls.FileStoredWall;
 	
-	import eventing.eventdispatchers.ICommitEventDispatcher;
-	import eventing.events.ActionCommitEvent;
-	import eventing.events.ClickEvent;
-	import eventing.events.CommitEvent;
+	import cream.eventing.eventdispatchers.ICommitEventDispatcher;
+	import cream.eventing.events.ActionCommitEvent;
+	import cream.eventing.events.ClickEvent;
+	import cream.eventing.events.CommitEvent;
 	
 	import flash.errors.IOError;
 	import flash.filesystem.File;
@@ -19,10 +19,10 @@ package controllers
 	
 	import spark.components.Application;
 	
-	import storages.IXMLizable;
-	import storages.actions.Action;
-	import storages.actions.IActionCommitter;
-	import storages.history.History;
+	import cream.storages.IXMLizable;
+	import cream.storages.actions.Action;
+	import cream.storages.actions.IActionCommitter;
+	import cream.storages.history.History;
 
 	public class DesktopController extends FileStoredController implements ICommitEventDispatcher
 	{

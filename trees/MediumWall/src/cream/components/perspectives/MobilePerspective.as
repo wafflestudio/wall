@@ -1,6 +1,6 @@
 package cream.components.perspectives
 {
-	import storages.IXMLizable;
+	import cream.storages.IXMLizable;
 
 	public class MobilePerspective extends Perspective implements IXMLizable
 	{

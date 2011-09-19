@@ -7,9 +7,9 @@ import cream.components.scrollbars.HScrollbarUIComponent;
 import cream.components.scrollbars.VScrollbarUIComponent;
 import cream.components.scrollers.Scroller;
 
-import eventing.events.ChildrenDimensionChangeEvent;
-import eventing.events.DimensionChangeEvent;
-import eventing.events.ScrollEvent;
+import cream.eventing.events.ChildrenDimensionChangeEvent;
+import cream.eventing.events.DimensionChangeEvent;
+import cream.eventing.events.ScrollEvent;
 
 import flash.geom.Rectangle;
 

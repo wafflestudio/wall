@@ -1,7 +1,7 @@
 package cream.components.scrollers
 {
 import cream.components.IComponent;
-import eventing.eventdispatchers.IScrollEventDispatcher;
+import cream.eventing.eventdispatchers.IScrollEventDispatcher;
 
 public interface IScroller extends IComponent, IScrollEventDispatcher
 {

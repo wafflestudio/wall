@@ -3,7 +3,7 @@ package cream.components
 import flash.geom.Point;
 import flash.events.MouseEvent;
 import flash.geom.Rectangle;
-import eventing.events.MoveEvent;
+import cream.eventing.events.MoveEvent;
 
 public class MovableComponent extends Component implements IMovableComponent
 {

@@ -8,12 +8,12 @@ import cream.components.buttonbars.TabBar;
 import cream.components.buttons.Button;
 import cream.components.buttons.TabButton;
 
-import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
-import eventing.events.CloseEvent;
-import eventing.events.CompositeEvent;
-import eventing.events.NameChangeEvent;
-import eventing.events.SelectionChangeEvent;
-import eventing.events.TabCloseEvent;
+import cream.eventing.eventdispatchers.ISelectionChangeEventDispatcher;
+import cream.eventing.events.CloseEvent;
+import cream.eventing.events.CompositeEvent;
+import cream.eventing.events.NameChangeEvent;
+import cream.eventing.events.SelectionChangeEvent;
+import cream.eventing.events.TabCloseEvent;
 
 import flash.display.DisplayObject;
 

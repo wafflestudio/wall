@@ -1,7 +1,7 @@
 package cream.components.dialogs
 {
-import eventing.eventdispatchers.IFileChooseEventDispatcher;
-import eventing.events.FileChooseEvent;
+import cream.eventing.eventdispatchers.IFileChooseEventDispatcher;
+import cream.eventing.events.FileChooseEvent;
 
 import flash.events.MouseEvent;
 import flash.filesystem.File;

@@ -4,13 +4,13 @@ package cream.components.buttonbars
 	import cream.components.buttons.TabButton;
 	import cream.components.dialogs.ConfirmDialog;
 	
-	import eventing.eventdispatchers.ICloseEventDispatcher;
-	import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
-	import eventing.events.ClickEvent;
-	import eventing.events.CloseEvent;
-	import eventing.events.DialogEvent;
-	import eventing.events.SelectionChangeEvent;
-	import eventing.events.TabCloseEvent;
+	import cream.eventing.eventdispatchers.ICloseEventDispatcher;
+	import cream.eventing.eventdispatchers.ISelectionChangeEventDispatcher;
+	import cream.eventing.events.ClickEvent;
+	import cream.eventing.events.CloseEvent;
+	import cream.eventing.events.DialogEvent;
+	import cream.eventing.events.SelectionChangeEvent;
+	import cream.eventing.events.TabCloseEvent;
 	
 	import mx.core.IVisualElement;
 	import mx.core.IVisualElementContainer;

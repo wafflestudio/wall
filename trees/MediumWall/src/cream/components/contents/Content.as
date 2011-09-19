@@ -3,10 +3,10 @@ package cream.components.contents
 	import cream.components.Component;
 	import cream.components.ICommitableComponent;
 	
-	import eventing.eventdispatchers.IEventDispatcher;
-	import eventing.events.CommitEvent;
+	import cream.eventing.eventdispatchers.IEventDispatcher;
+	import cream.eventing.events.CommitEvent;
 	
-	import storages.IXMLizable;
+	import cream.storages.IXMLizable;
 	
 	public class Content extends Component implements IXMLizable, ICommitableComponent
 	{

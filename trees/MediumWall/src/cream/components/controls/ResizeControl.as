@@ -1,7 +1,7 @@
 package cream.components.controls
 {
-import eventing.eventdispatchers.IResizeEventDispatcher;
-import eventing.events.ResizeEvent;
+import cream.eventing.eventdispatchers.IResizeEventDispatcher;
+import cream.eventing.events.ResizeEvent;
 
 import flash.events.MouseEvent;
 import flash.geom.Point;

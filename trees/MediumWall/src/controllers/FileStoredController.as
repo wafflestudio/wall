@@ -1,6 +1,6 @@
 package controllers
 {
-	import eventing.eventdispatchers.EventDispatcher;
+	import cream.eventing.eventdispatchers.EventDispatcher;
 	
 	import flash.errors.EOFError;
 	import flash.errors.IOError;
@@ -10,7 +10,7 @@ package controllers
 	
 	import mx.core.IVisualElementContainer;
 	
-	import storages.IXMLizable;
+	import cream.storages.IXMLizable;
 	
 	import utils.XMLFileStream;
 	

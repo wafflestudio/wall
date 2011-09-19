@@ -3,8 +3,8 @@ package cream.components.dialogs
 import cream.components.Component;
 import cream.components.popups.Popup;
 
-import eventing.eventdispatchers.IDialogEventDispatcher;
-import eventing.events.DialogEvent;
+import cream.eventing.eventdispatchers.IDialogEventDispatcher;
+import cream.eventing.events.DialogEvent;
 
 import mx.events.CloseEvent;
 

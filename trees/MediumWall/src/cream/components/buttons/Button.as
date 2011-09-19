@@ -3,7 +3,7 @@ package cream.components.buttons
 import cream.components.ClickableComponent;
 import cream.components.Component;
 
-import eventing.events.ClickEvent;
+import cream.eventing.events.ClickEvent;
 
 import flash.events.MouseEvent;
 

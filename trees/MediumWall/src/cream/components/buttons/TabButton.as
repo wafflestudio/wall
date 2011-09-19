@@ -3,9 +3,9 @@ package cream.components.buttons
 	import cream.components.ClickableComponent;
 	import cream.components.controls.CloseControl;
 	
-	import eventing.eventdispatchers.ICloseEventDispatcher;
-	import eventing.events.ClickEvent;
-	import eventing.events.CloseEvent;
+	import cream.eventing.eventdispatchers.ICloseEventDispatcher;
+	import cream.eventing.events.ClickEvent;
+	import cream.eventing.events.CloseEvent;
 	
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;

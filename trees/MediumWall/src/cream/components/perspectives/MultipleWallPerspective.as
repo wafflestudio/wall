@@ -2,8 +2,8 @@ package cream.components.perspectives
 {
 import cream.components.walls.Wall;
 
-import eventing.eventdispatchers.ISelectionChangeEventDispatcher;
-import eventing.events.SelectionChangeEvent;
+import cream.eventing.eventdispatchers.ISelectionChangeEventDispatcher;
+import cream.eventing.events.SelectionChangeEvent;
 
 import mx.collections.ArrayCollection;
 

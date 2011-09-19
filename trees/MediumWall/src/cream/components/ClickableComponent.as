@@ -1,7 +1,7 @@
 package cream.components
 {
-import eventing.events.Event;
-import eventing.events.ClickEvent;
+import cream.eventing.events.Event;
+import cream.eventing.events.ClickEvent;
 
 public class ClickableComponent extends Component implements IClickableComponent
 {

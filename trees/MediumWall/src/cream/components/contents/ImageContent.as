@@ -2,8 +2,8 @@ package cream.components.contents
 {
 	import cream.components.buttons.Button;
 	
-	import eventing.eventdispatchers.IClickEventDispatcher;
-	import eventing.events.ClickEvent;
+	import cream.eventing.eventdispatchers.IClickEventDispatcher;
+	import cream.eventing.events.ClickEvent;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -20,7 +20,7 @@ package cream.components.contents
 	
 	import spark.components.BorderContainer;
 	
-	import storages.IXMLizable;
+	import cream.storages.IXMLizable;
 
 	public class ImageContent extends Content implements IImageContent
 	{

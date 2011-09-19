@@ -8,19 +8,19 @@ package cream.components.sheets  {
 	import cream.components.contents.TextContent;
 	import cream.components.controls.CloseControl;
 	
-	import eventing.eventdispatchers.IClickEventDispatcher;
-	import eventing.eventdispatchers.ICloseEventDispatcher;
-	import eventing.eventdispatchers.IEventDispatcher;
-	import eventing.eventdispatchers.ISheetEventDispatcher;
-	import eventing.events.ActionCommitEvent;
-	import eventing.events.ClickEvent;
-	import eventing.events.CloseEvent;
-	import eventing.events.CommitEvent;
-	import eventing.events.CompositeEvent;
-	import eventing.events.DimensionChangeEvent;
-	import eventing.events.FocusEvent;
-	import eventing.events.MoveEvent;
-	import eventing.events.ResizeEvent;
+	import cream.eventing.eventdispatchers.IClickEventDispatcher;
+	import cream.eventing.eventdispatchers.ICloseEventDispatcher;
+	import cream.eventing.eventdispatchers.IEventDispatcher;
+	import cream.eventing.eventdispatchers.ISheetEventDispatcher;
+	import cream.eventing.events.ActionCommitEvent;
+	import cream.eventing.events.ClickEvent;
+	import cream.eventing.events.CloseEvent;
+	import cream.eventing.events.CommitEvent;
+	import cream.eventing.events.CompositeEvent;
+	import cream.eventing.events.DimensionChangeEvent;
+	import cream.eventing.events.FocusEvent;
+	import cream.eventing.events.MoveEvent;
+	import cream.eventing.events.ResizeEvent;
 	
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
@@ -34,9 +34,9 @@ package cream.components.sheets  {
 	
 	import spark.components.BorderContainer;
 	
-	import storages.IXMLizable;
-	import storages.actions.Action;
-	import storages.actions.IActionCommitter;
+	import cream.storages.IXMLizable;
+	import cream.storages.actions.Action;
+	import cream.storages.actions.IActionCommitter;
 
 
 public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDispatcher,IActionCommitter, ICloseEventDispatcher

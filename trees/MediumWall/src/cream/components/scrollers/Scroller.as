@@ -1,7 +1,7 @@
 package cream.components.scrollers
 {
 import cream.components.Component;
-import eventing.events.ScrollEvent;
+import cream.eventing.events.ScrollEvent;
 import cream.components.scrollbars.HScrollbarUIComponent;
 import cream.components.scrollbars.VScrollbarUIComponent;
 import spark.components.Group;

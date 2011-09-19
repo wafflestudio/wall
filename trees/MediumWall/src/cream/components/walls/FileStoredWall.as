@@ -1,13 +1,13 @@
 package cream.components.walls
 {
-import eventing.events.CommitEvent;
-import eventing.events.Event;
+import cream.eventing.events.CommitEvent;
+import cream.eventing.events.Event;
 
 import flash.filesystem.File;
 
-import storages.IFileStorable;
-import storages.INameableFileReference;
-import storages.IXMLizable;
+import cream.storages.IFileStorable;
+import cream.storages.INameableFileReference;
+import cream.storages.IXMLizable;
 
 import utils.TemporaryFileStorage;
 import utils.XMLFileStream;

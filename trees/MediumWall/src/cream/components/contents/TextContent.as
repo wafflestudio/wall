@@ -1,7 +1,7 @@
 package cream.components.contents
 {
-	import eventing.events.ActionCommitEvent;
-	import eventing.events.CommitEvent;
+	import cream.eventing.events.ActionCommitEvent;
+	import cream.eventing.events.CommitEvent;
 	
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
@@ -11,9 +11,9 @@ package cream.components.contents
 	import spark.components.TextArea;
 	import spark.events.TextOperationEvent;
 	
-	import storages.IXMLizable;
-	import storages.actions.Action;
-	import storages.actions.IActionCommitter;
+	import cream.storages.IXMLizable;
+	import cream.storages.actions.Action;
+	import cream.storages.actions.IActionCommitter;
 	
 	public class TextContent extends Content implements ITextContent, IActionCommitter
 	{

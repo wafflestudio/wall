@@ -4,8 +4,8 @@ import cream.components.Component;
 import cream.components.IClickableComponent;
 import cream.components.buttons.Button;
 
-import eventing.eventdispatchers.IClickEventDispatcher;
-import eventing.eventdispatchers.IMouseEventDispatcher;
+import cream.eventing.eventdispatchers.IClickEventDispatcher;
+import cream.eventing.eventdispatchers.IMouseEventDispatcher;
 
 import flash.events.Event;
 

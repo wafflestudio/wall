@@ -1,9 +1,9 @@
 package cream.components
 {
-import eventing.events.DimensionChangeEvent;
-import eventing.events.Event;
-import eventing.events.ExternalDimensionChangeEvent;
-import eventing.events.FocusEvent;
+import cream.eventing.events.DimensionChangeEvent;
+import cream.eventing.events.Event;
+import cream.eventing.events.ExternalDimensionChangeEvent;
+import cream.eventing.events.FocusEvent;
 
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;

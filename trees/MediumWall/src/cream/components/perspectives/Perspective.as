@@ -6,17 +6,17 @@ import cream.components.ToplevelComponent;
 import cream.components.toolbars.CommandToolbar;
 import cream.components.walls.Wall;
 
-import eventing.eventdispatchers.IClickEventDispatcher;
-import eventing.eventdispatchers.ICommitEventDispatcher;
-import eventing.events.CommitEvent;
-import eventing.events.Event;
+import cream.eventing.eventdispatchers.IClickEventDispatcher;
+import cream.eventing.eventdispatchers.ICommitEventDispatcher;
+import cream.eventing.events.CommitEvent;
+import cream.eventing.events.Event;
 
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
 
 import spark.components.Application;
 
-import storages.IXMLizable;
+import cream.storages.IXMLizable;
 
 public class Perspective extends ToplevelComponent implements  IXMLizable, ICommitEventDispatcher
 {	

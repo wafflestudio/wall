@@ -1,8 +1,8 @@
 package cream.components
 {
-import eventing.eventdispatchers.EventDispatcher;
-import eventing.eventdispatchers.ICompositeEventDispatcher;
-import eventing.events.CompositeEvent;
+import cream.eventing.eventdispatchers.EventDispatcher;
+import cream.eventing.eventdispatchers.ICompositeEventDispatcher;
+import cream.eventing.events.CompositeEvent;
 
 import mx.collections.ArrayCollection;
 

@@ -8,11 +8,11 @@ import cream.components.toolbars.Toolbar;
 import cream.components.walls.FileStoredWall;
 import cream.components.walls.Wall;
 import cream.components.wallstacks.TabbedWallStack;
-import eventing.eventdispatchers.IClickEventDispatcher;
-import eventing.events.ClickEvent;
-import eventing.events.CommitEvent;
-import eventing.events.Event;
-import eventing.events.SelectionChangeEvent;
+import cream.eventing.eventdispatchers.IClickEventDispatcher;
+import cream.eventing.events.ClickEvent;
+import cream.eventing.events.CommitEvent;
+import cream.eventing.events.Event;
+import cream.eventing.events.SelectionChangeEvent;
 import flash.display.DisplayObject;
 import flash.geom.Point;
 import mx.containers.ViewStack;
@@ -21,7 +21,7 @@ import mx.managers.PopUpManager;
 import spark.components.Group;
 import spark.components.VGroup;
 
-import storages.IXMLizable;
+import cream.storages.IXMLizable;
 
 
 

@@ -1,7 +1,7 @@
 package cream.components.dialogs
 {
 	
-	import eventing.eventdispatchers.IDialogEventDispatcher;
+	import cream.eventing.eventdispatchers.IDialogEventDispatcher;
 	
 	import flash.events.MouseEvent;
 	

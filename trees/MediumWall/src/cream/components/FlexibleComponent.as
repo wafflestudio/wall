@@ -3,9 +3,9 @@ package cream.components
 import cream.components.controls.ResizeControl;
 import cream.components.controls.ResizeControlUIComponent;
 
-import eventing.events.FocusEvent;
-import eventing.events.MoveEvent;
-import eventing.events.ResizeEvent;
+import cream.eventing.events.FocusEvent;
+import cream.eventing.events.MoveEvent;
+import cream.eventing.events.ResizeEvent;
 
 import flash.geom.Point;
 

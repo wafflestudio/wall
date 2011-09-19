@@ -2,9 +2,9 @@ package cream.components.controls
 {
 	import cream.components.IClickableComponent;
 	
-	import eventing.eventdispatchers.IRollEventDispatcher;
-	import eventing.events.ClickEvent;
-	import eventing.events.RollEvent;
+	import cream.eventing.eventdispatchers.IRollEventDispatcher;
+	import cream.eventing.events.ClickEvent;
+	import cream.eventing.events.RollEvent;
 	
 	import flash.events.MouseEvent;
 	
