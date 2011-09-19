@@ -1,4 +1,4 @@
-package cream.misc
+package cream.storages
 {
 public interface INameable
 {
