@@ -4,6 +4,5 @@ package storages.actions
 	{
 		function applyAction(action:Action):void;
 		function revertAction(action:Action):void;
-		
 	}
 }

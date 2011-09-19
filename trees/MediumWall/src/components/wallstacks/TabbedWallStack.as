@@ -35,6 +35,7 @@ import storages.actions.IActionCommitter;
 
 public class TabbedWallStack extends TabView implements IComponent, ISelectionChangeEventDispatcher, ICommitEventDispatcher, IXMLizable, IActionCommitter
 {	
+	/** actions **/
 	protected static const ADDED_WALL:String = "ADDED_WALL";
 	protected static const REMOVED_WALL:String = "REMOVED_WALL";
 	protected static const SELECTION_CHANGE:String = "SELECTION_CHANGE"; 
@@ -50,11 +51,13 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 		
 		addChildRemovedEventListener( function(e:CompositeEvent):void 
 		{
+			/** action commit **/
 			dispatchCommitEvent(new ActionCommitEvent(self, REMOVED_WALL, [e.child]));
 		});
 		
 		addChildAddedEventListener( function(e:CompositeEvent):void
 		{
+			/** action commit **/
 			dispatchCommitEvent(new ActionCommitEvent(self, ADDED_WALL, [e.child]));
 		});
 	}

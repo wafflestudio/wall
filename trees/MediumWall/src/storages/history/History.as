@@ -11,7 +11,7 @@ import storages.actions.Action;
  *  action.type
  * 
  */
-public class History implements IHistory
+public class History
 {
 	private var log:ArrayCollection;
 	private var cursor:int;
