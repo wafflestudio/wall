@@ -8,7 +8,7 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import components.Component;
+			import cream.components.Component;
 			
 			import controllers.DesktopController;
 			

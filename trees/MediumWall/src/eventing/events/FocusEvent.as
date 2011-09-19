@@ -2,7 +2,7 @@ package eventing.events
 {
 
 import eventing.eventdispatchers.IEventDispatcher;
-import components.IComponent;
+import cream.components.IComponent;
 
 public class FocusEvent extends ComponentEvent
 {

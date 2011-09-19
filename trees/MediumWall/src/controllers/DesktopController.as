@@ -1,11 +1,11 @@
 package controllers
 {
-	import components.dialogs.Dialog;
-	import components.dialogs.OpenWallDialog;
-	import components.perspectives.TabbedPerspective;
-	import components.sheets.Sheet;
-	import components.toolbars.CommandToolbar;
-	import components.walls.FileStoredWall;
+	import cream.components.dialogs.Dialog;
+	import cream.components.dialogs.OpenWallDialog;
+	import cream.components.perspectives.TabbedPerspective;
+	import cream.components.sheets.Sheet;
+	import cream.components.toolbars.CommandToolbar;
+	import cream.components.walls.FileStoredWall;
 	
 	import eventing.eventdispatchers.ICommitEventDispatcher;
 	import eventing.events.ActionCommitEvent;

@@ -1,6 +1,6 @@
 package views
 {
-	import components.walls.FileStoredWall;
+	import cream.components.walls.FileStoredWall;
 	import components.walls.IFileStoredWall;
 	
 	import flash.events.MouseEvent;

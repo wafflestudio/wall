@@ -1,6 +1,6 @@
 package eventing.events
 {
-import components.IComponent;
+import cream.components.IComponent;
 import eventing.eventdispatchers.IEventDispatcher;
 
 public class ComponentEvent extends Event
