@@ -1,9 +1,9 @@
 package cream.components.contents
 {
 	import cream.components.buttons.Button;
-	
 	import cream.eventing.eventdispatchers.IClickEventDispatcher;
 	import cream.eventing.events.ClickEvent;
+	import cream.storages.IXMLizable;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -19,17 +19,12 @@ package cream.components.contents
 	import mx.utils.Base64Encoder;
 	
 	import spark.components.BorderContainer;
-	
-	import cream.storages.IXMLizable;
 
 	public class ImageContent extends Content implements IImageContent
 	{
-		private var fileRef:FileReference;
 		private var imageContainer:BorderContainer = new BorderContainer();
-		private var loadBtn:Button;
 		private var bitmapData:BitmapData;
-		
-		
+		private var convertedBitmapData:String;
 		//private static const THUMB_WIDTH:uint = 300; // 크기 조절시 필요
 		//private static const THUMB_HEIGHT:uint = 300;
 		
@@ -42,55 +37,20 @@ package cream.components.contents
 			//imageContainer.percentWidth = 100;
 			//imageContainer.percentHeight = 30;
 			imageContainer.setStyle("borderAlpha", 0);
-			loadBtn = new Button();
-			loadBtn.label = "Load Image";
-			imageContainer.addElement(loadBtn._protected_::visualElement);
 
 			imageContainer.width = 0;
 			imageContainer.height = 0;
 			
-			loadBtn.addClickEventListener( function(e:ClickEvent):void {
-				loadFile();
-			});
 		}
 		
-		public function get loadImageButton():IClickEventDispatcher
-		{
-			return loadBtn;
-		}
-		
-		private function loadFile():void
-		{
-			fileRef = new FileReference();
-			fileRef.addEventListener(Event.SELECT, onFileSelect);
-			fileRef.browse();
-		}
-		
-		private function onFileSelect(e:Event):void
-		{
-			fileRef.addEventListener(Event.COMPLETE, onFileLoadComplete);
-			fileRef.load();
-		}
-		
-		private function onFileLoadComplete(e:Event):void
-		{
-			var loader:Loader = new Loader();
-			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onDataLoadComplete);
-			loader.loadBytes(fileRef.data);
-			fileRef = null;
-		}
-		
-		private function onDataLoadComplete(e:Event):void
-		{
-			bitmapData = Bitmap(e.target.content).bitmapData;
+		public function drawImage(imageBitmapData:BitmapData):void {
+			bitmapData = imageBitmapData;
 			//var matrix:Matrix = new Matrix();
 			//matrix.scale(THUMB_WIDTH/bitmapData.width, THUMB_HEIGHT/bitmapData.height); // 크기 조절할 때 필요
-			
 			imageContainer.graphics.clear();
 			imageContainer.graphics.beginBitmapFill(bitmapData, null, false);	//크기조절시 null->matrix
 			imageContainer.graphics.drawRect(0, 0, bitmapData.width, bitmapData.height);
 			imageContainer.graphics.endFill();
-			imageContainer.removeElement(loadBtn._protected_::visualElement);
 		}
 		
 		/**
@@ -103,8 +63,12 @@ package cream.components.contents
 			var xml:XML = super.toXML();
 			if(bitmapData != null) {
 				var imageXML:XML = <image/>;
-				imageXML.@image = convertBitmaptoString(bitmapData);
+				if(!convertedBitmapData) {
+					convertedBitmapData = convertBitmaptoString(bitmapData)
+				}
+				imageXML.@image = convertedBitmapData;
 				xml.appendChild(imageXML);
+				trace("imageContent toXML");
 			}
 			return xml;
 		}
@@ -154,11 +118,8 @@ package cream.components.contents
 		override public function fromXML(xml:XML):IXMLizable {
 			var imagexml:XML = xml.image[0];
 			var savedBitmapData:BitmapData = convertStringtoBitmap(imagexml.@image);
-			imageContainer.graphics.clear();
-			imageContainer.graphics.beginBitmapFill(savedBitmapData, null, false);
-			imageContainer.graphics.drawRect(0, 0, savedBitmapData.width, savedBitmapData.height);
-			imageContainer.graphics.endFill();
-			imageContainer.removeElement(loadBtn._protected_::visualElement);
+			drawImage(savedBitmapData);
+			trace("imageContent fromXML");
 			return this;
 		}
 		public function getBitmapData():BitmapData {

@@ -1,9 +1,10 @@
 package cream.components.perspectives
 {
 import cream.components.walls.Wall;
-
 import cream.eventing.eventdispatchers.ISelectionChangeEventDispatcher;
 import cream.eventing.events.SelectionChangeEvent;
+
+import flash.display.BitmapData;
 
 import mx.collections.ArrayCollection;
 
@@ -24,13 +25,16 @@ public class MultipleWallPerspective extends Perspective implements ISelectionCh
 		
 	}
 	
-	public function addSheet(option:String):void
+	public function addSheet(option:String, imageData:BitmapData=null):void
 	{
 		var wall:Wall = currentWall;
-		if(option)
+		if(imageData) {
+			wall.addBlankSheet(option, imageData);
+		} else if(option) {
 			wall.addBlankSheet(option);
-		else
+		} else {
 			wall.addBlankSheet();
+		}
 	}
 	
 	protected function get currentIndex():int

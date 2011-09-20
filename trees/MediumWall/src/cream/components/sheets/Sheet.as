@@ -7,7 +7,6 @@ package cream.components.sheets  {
 	import cream.components.contents.ImageContent;
 	import cream.components.contents.TextContent;
 	import cream.components.controls.CloseControl;
-	
 	import cream.eventing.eventdispatchers.IClickEventDispatcher;
 	import cream.eventing.eventdispatchers.ICloseEventDispatcher;
 	import cream.eventing.eventdispatchers.IEventDispatcher;
@@ -21,7 +20,11 @@ package cream.components.sheets  {
 	import cream.eventing.events.FocusEvent;
 	import cream.eventing.events.MoveEvent;
 	import cream.eventing.events.ResizeEvent;
+	import cream.storages.IXMLizable;
+	import cream.storages.actions.Action;
+	import cream.storages.actions.IActionCommitter;
 	
+	import flash.display.BitmapData;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
@@ -33,10 +36,6 @@ package cream.components.sheets  {
 	import mx.core.IVisualElementContainer;
 	
 	import spark.components.BorderContainer;
-	
-	import cream.storages.IXMLizable;
-	import cream.storages.actions.Action;
-	import cream.storages.actions.IActionCommitter;
 
 
 public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDispatcher,IActionCommitter, ICloseEventDispatcher
@@ -58,10 +57,11 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 	private var type:String;
 	
 	/** Factory methods **/
-	public static function createImageSheet(/*arguments here*/):Sheet
+	public static function createImageSheet(bitmapData:BitmapData):Sheet
 	{
 		
 		var newSheet:Sheet = new Sheet(IMAGE_SHEET);
+		newSheet.imageContent.drawImage(bitmapData);
 		return newSheet;
 	}
 	

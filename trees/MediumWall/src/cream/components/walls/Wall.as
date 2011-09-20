@@ -7,7 +7,6 @@ import cream.components.containers.IPannableContainer;
 import cream.components.containers.PannableContainer;
 import cream.components.containers.ScrollableContainer;
 import cream.components.sheets.Sheet;
-
 import cream.eventing.eventdispatchers.IEventDispatcher;
 import cream.eventing.eventdispatchers.IZoomEventDispatcher;
 import cream.eventing.events.ActionCommitEvent;
@@ -19,7 +18,11 @@ import cream.eventing.events.FocusEvent;
 import cream.eventing.events.NameChangeEvent;
 import cream.eventing.events.PanEvent;
 import cream.eventing.events.ZoomEvent;
+import cream.storages.IXMLizable;
+import cream.storages.actions.Action;
+import cream.storages.actions.IActionCommitter;
 
+import flash.display.BitmapData;
 import flash.display.DisplayObject;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
@@ -33,10 +36,6 @@ import spark.components.BorderContainer;
 import spark.components.Group;
 import spark.components.NavigatorContent;
 import spark.components.Scroller;
-
-import cream.storages.IXMLizable;
-import cream.storages.actions.Action;
-import cream.storages.actions.IActionCommitter;
 
 
 
@@ -118,9 +117,14 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	
 	
 	
-	public function addBlankSheet(type:String=Sheet.TEXT_SHEET):void
+	public function addBlankSheet(type:String=Sheet.TEXT_SHEET, imageData:BitmapData=null):void
 	{
-		var sheet:Sheet = new Sheet(type);
+		var sheet:Sheet;
+		if (imageData != null) {
+			sheet = Sheet.createImageSheet(imageData);
+		} else {
+			sheet = new Sheet(type);
+		}
 		var compCenter:Point = new Point(width/2, height/2);
 		
 		var center:Point = (visualElementContainer as DisplayObject).globalToLocal(localToGlobal(compCenter));

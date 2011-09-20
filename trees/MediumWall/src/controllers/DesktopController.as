@@ -6,29 +6,33 @@ package controllers
 	import cream.components.sheets.Sheet;
 	import cream.components.toolbars.CommandToolbar;
 	import cream.components.walls.FileStoredWall;
-	
 	import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 	import cream.eventing.events.ActionCommitEvent;
 	import cream.eventing.events.ClickEvent;
 	import cream.eventing.events.CommitEvent;
-	
-	import flash.errors.IOError;
-	import flash.filesystem.File;
-	
-	import mx.core.IVisualElementContainer;
-	
-	import spark.components.Application;
-	
 	import cream.storages.IXMLizable;
 	import cream.storages.actions.Action;
 	import cream.storages.actions.IActionCommitter;
 	import cream.storages.history.History;
+	
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.Loader;
+	import flash.errors.IOError;
+	import flash.events.Event;
+	import flash.filesystem.File;
+	import flash.net.FileReference;
+	
+	import mx.core.IVisualElementContainer;
+	
+	import spark.components.Application;
 
 	public class DesktopController extends FileStoredController implements ICommitEventDispatcher
 	{
 		protected var history:History = new History();
 		protected var perspective:TabbedPerspective;
-		
+		protected var fileRef:FileReference;
+		protected var bitmapData:BitmapData;
 		public function DesktopController(configFile:File = null)
 		{
 			load(configFile);
@@ -51,7 +55,7 @@ package controllers
 			
 			toolbar.newImageSheetButton.addClickEventListener(
 				function(e:ClickEvent):void {
-					perspective.addSheet(Sheet.IMAGE_SHEET);
+					loadFile();
 				}
 			);
 			
@@ -129,6 +133,38 @@ package controllers
 		{
 			dispatchEvent(e);
 		}
+		
+		
+		private function loadFile():void
+		{
+			fileRef = new FileReference();
+			fileRef.addEventListener(Event.SELECT, onFileSelect);
+			fileRef.browse();
+		}
+		
+		private function onFileSelect(e:Event):void
+		{
+			fileRef.addEventListener(Event.COMPLETE, onFileLoadComplete);
+			fileRef.load();
+		}
+		
+		private function onFileLoadComplete(e:Event):void
+		{
+			var loader:Loader = new Loader();
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onDataLoadComplete);
+			loader.loadBytes(fileRef.data);
+			fileRef = null;
+		}
+		
+		private function onDataLoadComplete(e:Event):void
+		{
+			bitmapData = Bitmap(e.target.content).bitmapData;
+			trace(bitmapData);
+			trace("on Data Load Complete");
+			perspective.addSheet(Sheet.IMAGE_SHEET,bitmapData);
+		}
+		
+		
 		
 		/**
 		 * <DesktopConfig>
