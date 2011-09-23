@@ -21,7 +21,7 @@ public class ResizeControlUIComponent extends UIComponent
 	override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void  {
 		super.updateDisplayList(unscaledWidth, unscaledHeight);
 		graphics.clear();
-		graphics.lineStyle(3,0);
+		graphics.lineStyle(1,0);
 
 		graphics.drawRoundRect(0,0, unscaledWidth, unscaledHeight, 5 , 5);	
 		

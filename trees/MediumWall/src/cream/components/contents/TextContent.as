@@ -2,18 +2,21 @@ package cream.components.contents
 {
 	import cream.eventing.events.ActionCommitEvent;
 	import cream.eventing.events.CommitEvent;
+	import cream.storages.IXMLizable;
+	import cream.storages.actions.Action;
+	import cream.storages.actions.IActionCommitter;
 	
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
 	import mx.core.IVisualElement;
 	
-	import spark.components.TextArea;
-	import spark.events.TextOperationEvent;
+	import skins.BlankSkin;
 	
-	import cream.storages.IXMLizable;
-	import cream.storages.actions.Action;
-	import cream.storages.actions.IActionCommitter;
+	import spark.components.TextArea;
+	import spark.components.supportClasses.Skin;
+	import spark.events.TextOperationEvent;
+
 	
 	public class TextContent extends Content implements ITextContent, IActionCommitter
 	{
@@ -51,6 +54,13 @@ package cream.components.contents
 				delayedTextChangeTimer.reset();
 				delayedTextChangeTimer.start();
 			});
+			
+			textarea.setStyle('skinClass', BlankSkin);
+			
+
+			
+			visualElement = textarea;
+			
 		}
 		
 		public function applyAction(action:Action):void

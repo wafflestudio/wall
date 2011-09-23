@@ -36,6 +36,8 @@ package cream.components.sheets  {
 	import mx.core.IVisualElementContainer;
 	
 	import spark.components.BorderContainer;
+	import spark.filters.DropShadowFilter;
+
 
 
 public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDispatcher,IActionCommitter, ICloseEventDispatcher
@@ -92,7 +94,9 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 			});
 		} 
 		
-		bc.setStyle("borderWidth", 1);
+		bc.setStyle("borderWeight", 0);
+		bc.setStyle("borderAlpha", 0);
+//		bc.setStyle("borderColor", 'red');
 		
 		// bring to front if clicked
 		bc.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void {
@@ -207,6 +211,9 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 				closeControlShowing = false;
 			}
 		});
+		
+		
+		bc.filters = [new DropShadowFilter(12, 45,0, 0.4, 30, 30, 0.8)];
 
 	}
 
