@@ -64,6 +64,16 @@ public class ScrollableContainer extends Container implements IScrollableContain
 			
 		});
 		
+		addChildAddedEventListener(function():void
+		{
+			dispatchChildrenDimensionChangeEvent();
+		});
+		
+		addChildRemovedEventListener(function():void
+		{
+			dispatchChildrenDimensionChangeEvent();
+		});
+		
 		
 	}
 	

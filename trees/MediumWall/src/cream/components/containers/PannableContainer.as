@@ -47,6 +47,9 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 			dispatchChildrenDimensionChangeEvent();
 			dispatchDimensionChangeEvent(extent, extent);
 			
+			if(initialPos.x == _panX && initialPos.y == _panY)
+				return;
+			
 			dispatchPannedEvent( initialPos.x, initialPos.y, _panX, _panY);
 		}
 		

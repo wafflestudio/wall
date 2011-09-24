@@ -1,5 +1,6 @@
 package cream.components.walls
 {
+import cream.components.Component;
 import cream.components.ICommitableComponent;
 import cream.components.INameableComponent;
 import cream.components.IToplevelComponent;
@@ -77,6 +78,18 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 			dispatchZoomEvent(oldZoomX, oldZoomY, _zoomX, _zoomY);
 		});
 		
+		/** focus when wall clicked **/
+		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void
+		{
+			if(e.target.parent != visualElement)
+				return;
+			
+			for each(var child:Component in children)  {
+				child._protected_::dispatchFocusOutEvent();
+			}
+			dispatchFocusInEvent();
+		});
+		
 		// ignore consecutive zoom as a commit. commit only the last one
 		var delayedZoomTimer:Timer = new Timer(300, 1);
 		var zoomArgs:Array = [];
@@ -103,12 +116,10 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		});
 		
 		addChildAddedEventListener(function(e:CompositeEvent):void  {
-			dispatchChildrenDimensionChangeEvent();
 			dispatchCommitEvent(new ActionCommitEvent(self, SHEET_ADDED, [e.child]));
 		});
 		
 		addChildRemovedEventListener(function(e:CompositeEvent):void  {
-			dispatchChildrenDimensionChangeEvent();
 			dispatchCommitEvent(new ActionCommitEvent(self, SHEET_REMOVED, [e.child]));
 		});
 		
@@ -122,17 +133,22 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		var sheet:Sheet;
 		if (imageData != null) {
 			sheet = Sheet.createImageSheet(imageData);
-		} else {
+		} 
+		else {
 			sheet = new Sheet(type);
 		}
-		var compCenter:Point = new Point(width/2, height/2);
 		
-		var center:Point = (visualElementContainer as DisplayObject).globalToLocal(localToGlobal(compCenter));
+		var compCenter:Point = new Point(width/2, height/2);
+		var globalCenter:Point = (visualElementContainer as IVisualElement).parent.localToGlobal(compCenter);
+		
+		var center:Point = globalToLocal(globalCenter);
 		
 		sheet.width = 300;
-		sheet.height = 400;
+		sheet.height = 200;
 		sheet.x = center.x-sheet.width/2;
 		sheet.y = center.y-sheet.height/2;
+		
+		trace(center.x, center.y);
 		
 		addSheet(sheet);
 	}

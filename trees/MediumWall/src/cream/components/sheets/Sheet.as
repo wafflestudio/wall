@@ -1,3 +1,5 @@
+/** ## Sheet라고 한다. **/
+
 package cream.components.sheets  {
 	import cream.components.Component;
 	import cream.components.Composite;
@@ -31,6 +33,8 @@ package cream.components.sheets  {
 	import flash.geom.Rectangle;
 	import flash.utils.Timer;
 	
+	import flashx.textLayout.events.UpdateCompleteEvent;
+	
 	import mx.binding.utils.BindingUtils;
 	import mx.core.IVisualElement;
 	import mx.core.IVisualElementContainer;
@@ -61,7 +65,6 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 	/** Factory methods **/
 	public static function createImageSheet(bitmapData:BitmapData):Sheet
 	{
-		
 		var newSheet:Sheet = new Sheet(IMAGE_SHEET);
 		newSheet.imageContent.drawImage(bitmapData);
 		return newSheet;
@@ -77,7 +80,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		
 		this.type = type;
 	
-		if(type==IMAGE_SHEET)
+		if(type == IMAGE_SHEET)
 		{
 			bc.addElement(imageContent._protected_::visualElement);
 			imageContent.addCommitEventListener( function(e:CommitEvent):void
@@ -85,7 +88,8 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 				dispatchCommitEvent(e);
 			});
 			
-		} else if(type == TEXT_SHEET)
+		} 
+		else if(type == TEXT_SHEET)
 		{
 			bc.addElement(textContent._protected_::visualElement);
 			textContent.addCommitEventListener( function(e:CommitEvent):void
@@ -96,8 +100,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		
 		bc.setStyle("borderWeight", 0);
 		bc.setStyle("borderAlpha", 0);
-//		bc.setStyle("borderColor", 'red');
-		
+
 		// bring to front if clicked
 		bc.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void {
 			dispatchFocusInEvent();
@@ -129,14 +132,15 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		
 		
 		/** Close Control **/
-		var detachTimer:Timer = new Timer(500);
+		var detachTimer:Timer = new Timer(400);
 		var closeControlShowing:Boolean = false;
 		var timerPaused:Boolean = false;
 		
+		/** update close control position **/
 		function updateCloseControlPosition():void {
-			var pt:Point = localToGlobal(new Point(width-closeControl.width/2, -closeControl.height/2));
+			var pt:Point = localToGlobal(new Point(width, 0));
 			closeControl.x = pt.x;
-			closeControl.y = pt.y;
+			closeControl.y = pt.y-closeControl.height;
 		}
 		
 		BindingUtils.bindSetter(updateCloseControlPosition, bc, "x");
@@ -144,6 +148,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		BindingUtils.bindSetter(updateCloseControlPosition, bc, "width");
 		BindingUtils.bindSetter(updateCloseControlPosition, bc, "height");
 		
+		addExternalDimensionChangeEventListener(updateCloseControlPosition);
 		
 		detachTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void
 		{
@@ -157,6 +162,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		bc.addEventListener(MouseEvent.ROLL_OVER, 
 			function ():void
 			{
+				
 				if(detachTimer.running)  {
 					detachTimer.stop();
 					detachTimer.reset();
@@ -181,36 +187,42 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 			}
 		);
 		
-		closeControl.addRollOverEventListener( function():void
-		{
-			if(detachTimer.running)  {
-				detachTimer.stop();
-				timerPaused = true;
+		closeControl.addRollOverEventListener( 
+			function():void
+			{
+				if(detachTimer.running)  {
+					detachTimer.stop();
+					timerPaused = true;
+				}
 			}
-		}
 		);
 		
-		closeControl.addRollOutEventListener( function():void
-		{
-			if(timerPaused)  {
-				detachTimer.start();
-				timerPaused = false;
+		closeControl.addRollOutEventListener( 
+			function():void
+			{
+				if(timerPaused)  {
+					detachTimer.start();
+					timerPaused = false;
+				}
 			}
-		}
 		);
 		
-		closeControl.addClickEventListener( function(e:ClickEvent):void 
-		{
-			dispatchCloseEvent();
-		});
-		
-		addRemovedEventListener( function():void
-		{
-			if(closeControlShowing)  {
-				closeControl.removeFromApplication();
-				closeControlShowing = false;
+		closeControl.addClickEventListener( 
+			function(e:ClickEvent):void 
+			{
+				dispatchCloseEvent();
 			}
-		});
+		);
+		
+		addRemovedEventListener( 
+			function():void
+			{
+				if(closeControlShowing)  {
+					closeControl.removeFromApplication();
+					closeControlShowing = false;
+				}
+			}
+		);
 		
 		
 		bc.filters = [new DropShadowFilter(12, 45,0, 0.4, 30, 30, 0.8)];
@@ -270,18 +282,14 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 				x = action.args[2];
 				y = action.args[3];
 				dispatchFocusInEvent();
-//				dispatchMovedEvent(action.args[0], action.args[1], action.args[2], action.args[3]);
+
 				break;
 			case RESIZE:
 				
 				x = action.args[4];
 				y = action.args[5];
 				resize(action.args[6] - action.args[4], action.args[7] - action.args[5]);
-//				width = action.args[6] - action.args[4];
-//				height = action.args[7] - action.args[5];
-				
-//				dispatchResizedEvent(action.args[0], action.args[1], action.args[2], action.args[3], 
-//					action.args[4], action.args[5], action.args[6], action.args[7]);
+
 				dispatchFocusInEvent();
 				break;
 		}
@@ -295,18 +303,14 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 				x = action.args[0];
 				y = action.args[1];
 				dispatchFocusInEvent();
-//				dispatchMovedEvent(action.args[2], action.args[3], action.args[0], action.args[1]);
+
 				break;
 			case RESIZE:
 				
 				x = action.args[0];
 				y = action.args[1];
 				resize(action.args[2] - action.args[0], action.args[3] - action.args[1]);
-//				width = action.args[2] - action.args[0];
-//				height = action.args[3] - action.args[1];
-				
-//				dispatchResizedEvent(action.args[4], action.args[5], action.args[6], action.args[7], 
-//					action.args[0], action.args[1], action.args[2], action.args[3]);
+
 				dispatchFocusInEvent();
 				break;
 		}

@@ -95,6 +95,9 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 			{
 				stage.removeEventListener( MouseEvent.MOUSE_MOVE, drag );
 				stage.removeEventListener( MouseEvent.MOUSE_UP, endResize );
+				if(oldX == x && oldY == y && oldWidth == width && oldHeight == height)
+					return;
+				
 				dispatchResizedEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
 			}
 			

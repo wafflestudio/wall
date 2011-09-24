@@ -2,15 +2,11 @@ package cream.components
 {
 import cream.components.controls.ResizeControl;
 import cream.components.controls.ResizeControlUIComponent;
-
 import cream.eventing.events.FocusEvent;
 import cream.eventing.events.MoveEvent;
 import cream.eventing.events.ResizeEvent;
-
 import flash.geom.Point;
-
 import mx.core.UIComponent;
-
 import spark.components.Application;
 
 
@@ -28,8 +24,6 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 		// show resize control on focus
 		addFocusInEventListener(function(e:FocusEvent):void
 		{
-			if(!resizeControl.isActive)
-				resizeControl.addToApplication(application);
 			
 			var wh:Point = new Point(width,height);
 			var xy:Point = new Point(x,y);
@@ -37,6 +31,11 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 			resizeControl.height = (parent as Component).localToGlobal(new Point(0,y+height)).y - (parent as Component).localToGlobal(xy).y;
 			resizeControl.x = (parent as Component).localToGlobal(xy).x;
 			resizeControl.y = (parent as Component).localToGlobal(xy).y;
+			
+			if(!resizeControl.isActive)
+				resizeControl.addToApplication(application);
+			
+			resizeControl.bringToFront();
 			
 		});
 		

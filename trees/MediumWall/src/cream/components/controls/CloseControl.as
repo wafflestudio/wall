@@ -1,39 +1,52 @@
 package cream.components.controls
 {
 	import cream.components.IClickableComponent;
-	
 	import cream.eventing.eventdispatchers.IRollEventDispatcher;
 	import cream.eventing.events.ClickEvent;
 	import cream.eventing.events.RollEvent;
 	
 	import flash.events.MouseEvent;
 	
+	import mx.core.BitmapAsset;
+	import mx.events.FlexEvent;
+	
+	import resources.Assets;
+	
 	import spark.components.BorderContainer;
+	import spark.components.Image;
 
 	public class CloseControl extends Control implements IClickableComponent, IRollEventDispatcher
 	{
-		private var bc:BorderContainer = new BorderContainer();
+//		private var bc:BorderContainer = new BorderContainer();
+		private var image:Image = new Image();
 		
 		public function CloseControl()
 		{
-			bc.width = 16;
-			bc.height = 16;
-			bc.setStyle("backgroundColor", 'red');
+//			bc.width = 16;
+//			bc.height = 16;
+//			bc.setStyle("backgroundColor", 'red');
 			
-			visualElement = bc;
+			visualElement = image;
 			visualElementContainer = null;
+		
+			var asset:BitmapAsset = new Assets.close_png()
+			image.source = asset;
+			image.width = asset.width;
+			image.height = asset.height
+
 			
-			bc.addEventListener(MouseEvent.ROLL_OVER, function():void
+			
+			visualElement.addEventListener(MouseEvent.ROLL_OVER, function():void
 			{
 				dispatchRollOverEvent();
 			});
 			
-			bc.addEventListener(MouseEvent.ROLL_OUT, function():void
+			visualElement.addEventListener(MouseEvent.ROLL_OUT, function():void
 			{
 				dispatchRollOutEvent();
 			});
 			
-			bc.addEventListener(MouseEvent.CLICK, function():void
+			visualElement.addEventListener(MouseEvent.CLICK, function():void
 			{
 				dispatchClickEvent();
 			});

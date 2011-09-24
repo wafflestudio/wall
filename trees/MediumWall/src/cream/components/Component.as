@@ -1,5 +1,6 @@
 package cream.components
 {
+import cream.components.sheets.Sheet;
 import cream.eventing.events.DimensionChangeEvent;
 import cream.eventing.events.Event;
 import cream.eventing.events.ExternalDimensionChangeEvent;
@@ -41,6 +42,7 @@ public class Component extends Composite implements IComponent
 	public function Component()
 	{
 		super();
+		
 		addDimensionChangeEventListener( function(e:Event):void {
 			for each(var child:Composite in children)
 			{
@@ -52,7 +54,7 @@ public class Component extends Composite implements IComponent
 			if(parent)  {
 				(parent as Component).dispatchFocusInEvent();
 				for each(var sibling:Component in parent._protected_::children)  {
-					if(sibling != this)
+					if(sibling != self)
 						sibling.dispatchFocusOutEvent();
 				}
 			}
@@ -89,16 +91,7 @@ public class Component extends Composite implements IComponent
 		height = h;
 		dispatchDimensionChangeEvent(new Rectangle(x, y, width, height), new Rectangle(x, y, w, h));
 	}
-	
-	// focus-out all siblings
-	private function onChildFocusIn(e:FocusEvent):void
-	{
-		for each(var child:Component in children)
-		{
-			if(e.target != child)
-				child.dispatchFocusOutEvent();
-		}
-	}
+
 	
 	override protected function addChild(child:Composite):Composite
 	{
@@ -111,9 +104,7 @@ public class Component extends Composite implements IComponent
 		attachSparkElement(vchild.visualElement);
 		
 		super.addChild(child);
-		
-		vchild.addFocusInEventListener( onChildFocusIn );
-		
+	
 		return child;
 	}
 	
@@ -124,9 +115,7 @@ public class Component extends Composite implements IComponent
 			new Error("child must be a component");
 			return null;
 		}
-		
-		vchild.removeFocusInEventListener( onChildFocusIn );
-		
+	
 		detachSparkElement(vchild.visualElement);
 		
 		return super.removeChild(child);
@@ -203,13 +192,25 @@ public class Component extends Composite implements IComponent
 	protected function dispatchFocusInEvent():void
 	{
 		_hasFocus = true;
+	
 		dispatchEvent(new FocusEvent(this, FocusEvent.FOCUS_IN));
 	}
 	
 	protected function dispatchFocusOutEvent():void
 	{
 		_hasFocus = false;
+	
 		dispatchEvent(new FocusEvent(this, FocusEvent.FOCUS_OUT));
+	}
+	
+	_protected_ function dispatchFocusInEvent():void
+	{
+		dispatchFocusInEvent();
+	}
+	
+	_protected_ function dispatchFocusOutEvent():void
+	{
+		dispatchFocusOutEvent();
 	}
 		
 	
@@ -272,5 +273,6 @@ public class Component extends Composite implements IComponent
 		else
 			return (visualElement as DisplayObject).localToGlobal(point);
 	}
+	
 }
 }

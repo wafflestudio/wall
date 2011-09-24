@@ -4,7 +4,6 @@ import cream.components.Component;
 import cream.components.IPositionedComponent;
 import cream.components.IToplevelComponent;
 import cream.components.ToplevelComponent;
-
 import mx.core.IVisualElementContainer;
 
 import spark.components.Application;
@@ -43,6 +42,13 @@ public class Control extends ToplevelComponent implements IPositionedComponent
 	{
 		super.removeFromApplication(app);
 		active = false;
+		
+	}
+	
+	public function bringToFront():void
+	{
+		if(parentApplication)
+			parentApplication.setElementIndex(visualElement, parentApplication.numElements-1);
 	}
 	
 }

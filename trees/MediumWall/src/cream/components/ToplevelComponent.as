@@ -6,7 +6,9 @@ import mx.core.IVisualElementContainer;
 import spark.components.Application;
 
 public class ToplevelComponent extends Component implements IToplevelComponent
-{
+{	
+	protected var parentApplication:IVisualElementContainer;
+	
 	
 	public function ToplevelComponent()
 	{
@@ -18,7 +20,7 @@ public class ToplevelComponent extends Component implements IToplevelComponent
 		if(!app)
 			app = application;
 		
-
+		parentApplication = app;
 		app.addElement(this.visualElement);
 	}
 	
@@ -27,6 +29,7 @@ public class ToplevelComponent extends Component implements IToplevelComponent
 		if(!app)
 			app = application;
 
+		parentApplication = null;
 		app.removeElement(this.visualElement);
 		
 	}

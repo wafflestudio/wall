@@ -46,6 +46,10 @@ public class MovableComponent extends Component implements IMovableComponent
 			
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, move);	
 			stage.removeEventListener(MouseEvent.MOUSE_UP, moveEnd);
+			
+			if(initialPos.x == x && initialPos.y == y)
+				return;
+			
 			dispatchMovedEvent(initialPos.x, initialPos.y, x, y);
 					
 		}
