@@ -56,7 +56,7 @@ public class FileChooseDialog extends Dialog implements IFileChooseEventDispatch
 		hg.addElement(ok);
 		
 		ok.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { 
-			dispatchEvent(new FileChooseEvent(this, new File(fg.selectedPath)));
+			dispatchEvent(new FileChooseEvent(self ,new File(fg.selectedPath)));
 			close();
 		});
 		

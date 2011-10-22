@@ -133,9 +133,13 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		var sheet:Sheet;
 		if (imageData != null) {
 			sheet = Sheet.createImageSheet(imageData);
+			sheet.width = imageData.width;
+			sheet.height = imageData.height;
 		} 
 		else {
 			sheet = new Sheet(type);
+			sheet.width = 300;
+			sheet.height = 200;
 		}
 		
 		var compCenter:Point = new Point(width/2, height/2);
@@ -143,8 +147,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 		var center:Point = globalToLocal(globalCenter);
 		
-		sheet.width = 300;
-		sheet.height = 200;
+
 		sheet.x = center.x-sheet.width/2;
 		sheet.y = center.y-sheet.height/2;
 		

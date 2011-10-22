@@ -55,7 +55,7 @@ package controllers
 			
 			toolbar.newImageSheetButton.addClickEventListener(
 				function(e:ClickEvent):void {
-					loadFile();
+					loadImageFile();
 				}
 			);
 			
@@ -135,7 +135,7 @@ package controllers
 		}
 		
 		
-		private function loadFile():void
+		private function loadImageFile():void
 		{
 			fileRef = new FileReference();
 			fileRef.addEventListener(Event.SELECT, onFileSelect);

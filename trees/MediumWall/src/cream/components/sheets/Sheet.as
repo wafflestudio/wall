@@ -83,6 +83,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		if(type == IMAGE_SHEET)
 		{
 			bc.addElement(imageContent._protected_::visualElement);
+			
 			imageContent.addCommitEventListener( function(e:CommitEvent):void
 			{
 				dispatchCommitEvent(e);
@@ -118,6 +119,9 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		addResizedEventListener( function(e:ResizeEvent):void
 		{
 			dispatchCommitEvent(new ActionCommitEvent(self, RESIZE, [e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom]));
+			if(imageContent.getBitmapData() != null) {
+				imageContent.resizeImage(e.right-e.left,e.bottom-e.top);
+			}
 		});
 		
 		addAddedEventListener( function():void
@@ -346,6 +350,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 			var contentXML:XML = xml.content[0];
 			if(type == IMAGE_SHEET) {
 				imageContent.fromXML(contentXML);
+				imageContent.resizeImage(width,height);
 			} else if (type == TEXT_SHEET) {
 				textContent.fromXML(contentXML);
 			} 
@@ -371,7 +376,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		return xml;
 	}
 	
-	
+
 	
 }
 }
