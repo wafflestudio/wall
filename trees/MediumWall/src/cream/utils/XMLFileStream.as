@@ -24,6 +24,7 @@ public class XMLFileStream
 			fileStream.open( file, FileMode.WRITE );
 			fileStream.writeUTFBytes( xml );
 			trace('saved ' + file.nativePath);
+			// fs.close is not needed??
 		}
 		catch(e:IOError)  {
 			trace('IOError:' + e.name + ":" + e.message);

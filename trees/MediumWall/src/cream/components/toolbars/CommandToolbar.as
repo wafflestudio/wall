@@ -3,7 +3,6 @@ package cream.components.toolbars
 import cream.components.Component;
 import cream.components.IClickableComponent;
 import cream.components.buttons.Button;
-
 import cream.eventing.eventdispatchers.IClickEventDispatcher;
 import cream.eventing.eventdispatchers.IMouseEventDispatcher;
 
@@ -25,7 +24,7 @@ public class CommandToolbar extends Toolbar
 	private var newImageSheetBtn:Button;
 	private var undoBtn:Button;
 	private var redoBtn:Button;
-	
+	private var saveAsBtn:Button;
 	// parent - (group - bg - hgroup) - children
 	public function CommandToolbar()
 	{
@@ -63,6 +62,8 @@ public class CommandToolbar extends Toolbar
 		redoBtn = new Button();
 		redoBtn.label = "redo";
 		
+		saveAsBtn = new Button();
+		saveAsBtn.label = "save as";
 		
 		addChild(openWallBtn);
 		addChild(newWallBtn);
@@ -71,7 +72,7 @@ public class CommandToolbar extends Toolbar
 		
 		addChild(undoBtn);
 		addChild(redoBtn);
-		
+		addChild(saveAsBtn);
 		
 	}
 	
@@ -103,6 +104,10 @@ public class CommandToolbar extends Toolbar
 	public function get redoButton():IClickEventDispatcher
 	{
 		return redoBtn;
+	}
+	public function get saveAsButton():IClickEventDispatcher
+	{
+		return saveAsBtn;
 	}
 }
 }

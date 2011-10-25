@@ -22,11 +22,14 @@ import cream.eventing.events.ZoomEvent;
 import cream.storages.IXMLizable;
 import cream.storages.actions.Action;
 import cream.storages.actions.IActionCommitter;
+import cream.utils.XMLFileStream;
 
 import flash.display.BitmapData;
 import flash.display.DisplayObject;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
+import flash.filesystem.File;
 import flash.geom.Point;
 import flash.utils.Timer;
 
@@ -284,6 +287,17 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 	}
 	
+	public function saveWallAs():void {
+		var f:File = File.desktopDirectory;
+		f.browseForSave("Save As");
+		f.addEventListener(flash.events.Event.SELECT, function(e:flash.events.Event):void {
+			var xml:XML = toXML(); // any errors according to serialization must happen beforehand to opening the file
+			//why toXML execute FileStoredWall's toXML?? T.T
+			var fs:XMLFileStream = new XMLFileStream(e.target as File);
+			trace("xml is " + xml);
+			fs.setXML(xml);
+		});
+	}
 	
 	
 	/**

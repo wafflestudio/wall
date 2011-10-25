@@ -2,11 +2,11 @@ package cream.components.buttons
 {
 	import cream.components.ClickableComponent;
 	import cream.components.controls.CloseControl;
-	
 	import cream.eventing.eventdispatchers.ICloseEventDispatcher;
 	import cream.eventing.events.ClickEvent;
 	import cream.eventing.events.CloseEvent;
 	
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
@@ -17,6 +17,7 @@ package cream.components.buttons
 	
 	import spark.components.ButtonBarButton;
 	import spark.components.Group;
+	import spark.components.TextInput;
 
 	public class TabButton extends ClickableComponent implements ICloseEventDispatcher
 	{
@@ -33,7 +34,23 @@ package cream.components.buttons
 					dispatchClickEvent(new ClickEvent(self));
 				}
 			);
-			
+			button.addEventListener(MouseEvent.RIGHT_CLICK,
+				function(e:MouseEvent):void {
+					// To do : change code
+					var here = e.currentTarget;
+					var textInput:TextInput = new TextInput();
+					textInput.addEventListener(KeyboardEvent.KEY_UP, function(e:KeyboardEvent):void {
+						if (e.keyCode == 13)
+						{
+							here.label = textInput.text;
+							here.name = textInput.text;
+							here.parent.removeElement(textInput);
+						}
+					});
+					
+					e.currentTarget.parent.addElement(textInput);
+				}
+			);
 			var detachTimer:Timer = new Timer(100);
 			var closeControlShowing:Boolean = false;
 			var timerPaused:Boolean = false;

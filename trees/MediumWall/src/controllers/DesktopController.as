@@ -89,6 +89,13 @@ package controllers
 				}
 			);
 			
+			toolbar.saveAsButton.addClickEventListener(
+				function(e:ClickEvent):void {
+					trace(perspective.currentWall.name);
+					perspective.currentWall.saveWallAs();
+				}
+			);
+			
 			enableHistory();
 			
 		}
@@ -163,7 +170,6 @@ package controllers
 			trace("on Data Load Complete");
 			perspective.addSheet(Sheet.IMAGE_SHEET,bitmapData);
 		}
-		
 		
 		
 		/**
