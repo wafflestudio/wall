@@ -1,6 +1,8 @@
 package controllers
 {
 	import cream.eventing.eventdispatchers.EventDispatcher;
+	import cream.storages.IXMLizable;
+	import cream.utils.XMLFileStream;
 	
 	import flash.errors.EOFError;
 	import flash.errors.IOError;
@@ -9,10 +11,6 @@ package controllers
 	import flash.filesystem.FileStream;
 	
 	import mx.core.IVisualElementContainer;
-	
-	import cream.storages.IXMLizable;
-	
-	import cream.utils.XMLFileStream;
 	
 	
 	public class FileStoredController extends EventDispatcher implements IXMLizable
@@ -78,7 +76,7 @@ package controllers
 		
 		public function setup(app:IVisualElementContainer):void
 		{
-			
+			throw new Error("this method should've been overrided!");
 		}
 		
 		

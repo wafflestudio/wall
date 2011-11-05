@@ -105,6 +105,9 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 			_zoomX = zoomX * multiplier;
 			_zoomY = zoomY * multiplier;
 		}
+		
+		trace('change zoom');
+		
 		_panX = (panX - width/2) * multiplier + width/2;
 		_panY = (panY - height/2) * multiplier + height/2;
 	}

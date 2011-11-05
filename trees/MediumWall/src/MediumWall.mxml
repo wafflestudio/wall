@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			     xmlns:s="library://ns.adobe.com/flex/spark" 
-			     xmlns:mx="library://ns.adobe.com/flex/mx"
-			    	>
+			     xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- Main Application.-->
+	
+	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import cream.components.Component;
-			
 			import controllers.DesktopController;
+			
+			import cream.components.Component;
 			
 			import mx.controls.Alert;
 			
@@ -25,10 +27,13 @@
 		<![CDATA[
 		
 		
-			private var controller:DesktopController = new DesktopController();
-			controller.setup(this);
+		private var controller:DesktopController = new DesktopController();
+		controller.setup(this);
+		
+		this.addEventListener(Event.COPY, function():void {});
 			
 		try {
+		
 		}
 		catch(e:Error)
 		{ 

@@ -29,10 +29,12 @@ package controllers
 
 	public class DesktopController extends FileStoredController implements ICommitEventDispatcher
 	{
-		protected var history:History = new History();
-		protected var perspective:TabbedPerspective;
-		protected var fileRef:FileReference;
-		protected var bitmapData:BitmapData;
+
+		protected var history:History = new History();     // Undo/redo capability
+		protected var perspective:TabbedPerspective;       // Root of Visual Elements
+		protected var fileRef:FileReference;               // Configuration file
+		protected var clipboard;
+
 		public function DesktopController(configFile:File = null)
 		{
 			load(configFile);
@@ -103,6 +105,7 @@ package controllers
 		override public function setup(app:IVisualElementContainer):void
 		{
 			perspective.addToApplication(app);
+			
 		}
 		
 		private function onCommit(e:CommitEvent):void
@@ -165,7 +168,7 @@ package controllers
 		
 		private function onDataLoadComplete(e:Event):void
 		{
-			bitmapData = Bitmap(e.target.content).bitmapData;
+			var bitmapData:BitmapData = Bitmap(e.target.content).bitmapData;
 			trace(bitmapData);
 			trace("on Data Load Complete");
 			perspective.addSheet(Sheet.IMAGE_SHEET,bitmapData);

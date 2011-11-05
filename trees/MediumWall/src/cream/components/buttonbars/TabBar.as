@@ -25,7 +25,7 @@ package cream.components.buttonbars
 		
 		override protected function get visualElement():IVisualElement  {  return hgroup;  }
 		
-		public function TabBar(buttonsByLabel:Array = null)
+		public function TabBar(/*buttonsByLabel:Array = null*/)
 		{
 			super();
 			
