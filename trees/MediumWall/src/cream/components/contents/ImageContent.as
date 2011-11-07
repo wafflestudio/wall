@@ -57,6 +57,7 @@ package cream.components.contents
 			imageContainer.graphics.beginBitmapFill(bitmapData, matrix, false);
 			imageContainer.graphics.drawRect(0, 0, w, h);
 			imageContainer.graphics.endFill();
+
 			
 		}
 		

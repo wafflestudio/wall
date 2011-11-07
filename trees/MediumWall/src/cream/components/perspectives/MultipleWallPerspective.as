@@ -25,11 +25,15 @@ public class MultipleWallPerspective extends Perspective implements ISelectionCh
 		
 	}
 	
-	public function addSheet(option:String, imageFile:File=null):void
+	public function addSheet(option:String, imageFile:File=null, w:uint=0, h:uint=0):void
 	{
 		var wall:Wall = currentWall;
 		if(imageFile) {
-			wall.addBlankSheet(option, imageFile);
+			if(w != 0) {
+				wall.addBlankSheet(option, imageFile, w, h);
+			} else {
+				wall.addBlankSheet(option, imageFile);
+			}
 		} else if(option) {
 			wall.addBlankSheet(option);
 		} else {

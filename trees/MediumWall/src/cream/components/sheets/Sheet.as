@@ -120,7 +120,10 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		addResizedEventListener( function(e:ResizeEvent):void
 		{
 			dispatchCommitEvent(new ActionCommitEvent(self, RESIZE, [e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom]));
-			imageContent.resizeImage(e.right-e.left,e.bottom-e.top);
+			if(type == Sheet.IMAGE_SHEET) {
+				imageContent.resizeImage(e.right-e.left,e.bottom-e.top);	
+			}
+			
 		});
 		
 		addAddedEventListener( function():void

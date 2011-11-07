@@ -15,9 +15,16 @@ package controllers
 	import cream.storages.actions.IActionCommitter;
 	import cream.storages.history.History;
 	
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.Loader;
+	import flash.display.LoaderInfo;
 	import flash.errors.IOError;
 	import flash.events.Event;
 	import flash.filesystem.File;
+	import flash.filesystem.FileMode;
+	import flash.filesystem.FileStream;
+	import flash.utils.ByteArray;
 	
 	import mx.core.IVisualElementContainer;
 	
@@ -148,7 +155,18 @@ package controllers
 		
 		private function onFileSelect(e:Event):void
 		{
-			perspective.addSheet(Sheet.IMAGE_SHEET, imageFile);
+			var loader:Loader = new Loader();
+			var fs:FileStream = new FileStream();
+			var ba:ByteArray = new ByteArray();
+			fs.open(e.target as File, FileMode.READ);
+			fs.readBytes(ba, 0, ba.bytesAvailable);
+			ba.position = 0;
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(e:Event):void {
+				var bitmapData:BitmapData;
+				bitmapData = Bitmap(LoaderInfo(e.target).content).bitmapData;
+				perspective.addSheet(Sheet.IMAGE_SHEET, imageFile, bitmapData.width, bitmapData.height);
+			});
+			loader.loadBytes(ba);
 		}
 
 		/**

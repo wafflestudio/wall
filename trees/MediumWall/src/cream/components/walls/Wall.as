@@ -135,14 +135,20 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	
 	
 	
-	public function addBlankSheet(type:String=Sheet.TEXT_SHEET, imageFile:File=null):void
+	public function addBlankSheet(type:String=Sheet.TEXT_SHEET, imageFile:File=null, w:uint=0, h:uint=0):void
 	{
 		var sheet:Sheet;
 		if (imageFile != null) {
 			sheet = Sheet.createImageSheet(imageFile);
+			if(w != 0) {
+				sheet.width = w;
+				sheet.height = h;
+			} else {
+				trace("image size error");
+				sheet.width = 300;
+				sheet.height = 300;
+			}
 
-			sheet.width = 300;
-			sheet.height = 300;
 		} 
 		else {
 			sheet = new Sheet(type);
