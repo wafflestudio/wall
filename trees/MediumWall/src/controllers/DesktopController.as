@@ -15,13 +15,9 @@ package controllers
 	import cream.storages.actions.IActionCommitter;
 	import cream.storages.history.History;
 	
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.display.Loader;
 	import flash.errors.IOError;
 	import flash.events.Event;
 	import flash.filesystem.File;
-	import flash.net.FileReference;
 	
 	import mx.core.IVisualElementContainer;
 	
@@ -29,10 +25,9 @@ package controllers
 
 	public class DesktopController extends FileStoredController implements ICommitEventDispatcher
 	{
-
-		protected var history:History = new History();     // Undo/redo capability
-		protected var perspective:TabbedPerspective;       // Root of Visual Elements
-		protected var fileRef:FileReference;               // Configuration file
+		protected var history:History = new History();
+		protected var perspective:TabbedPerspective;
+		protected var imageFile:File;
 		protected var clipboard;
 
 		public function DesktopController(configFile:File = null)
@@ -105,7 +100,6 @@ package controllers
 		override public function setup(app:IVisualElementContainer):void
 		{
 			perspective.addToApplication(app);
-			
 		}
 		
 		private function onCommit(e:CommitEvent):void
@@ -147,34 +141,16 @@ package controllers
 		
 		private function loadImageFile():void
 		{
-			fileRef = new FileReference();
-			fileRef.addEventListener(Event.SELECT, onFileSelect);
-			fileRef.browse();
+			imageFile = new File();
+			imageFile.addEventListener(Event.SELECT, onFileSelect);
+			imageFile.browse();
 		}
 		
 		private function onFileSelect(e:Event):void
 		{
-			fileRef.addEventListener(Event.COMPLETE, onFileLoadComplete);
-			fileRef.load();
+			perspective.addSheet(Sheet.IMAGE_SHEET, imageFile);
 		}
-		
-		private function onFileLoadComplete(e:Event):void
-		{
-			var loader:Loader = new Loader();
-			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onDataLoadComplete);
-			loader.loadBytes(fileRef.data);
-			fileRef = null;
-		}
-		
-		private function onDataLoadComplete(e:Event):void
-		{
-			var bitmapData:BitmapData = Bitmap(e.target.content).bitmapData;
-			trace(bitmapData);
-			trace("on Data Load Complete");
-			perspective.addSheet(Sheet.IMAGE_SHEET,bitmapData);
-		}
-		
-		
+
 		/**
 		 * <DesktopConfig>
 		 * 	<perspective>

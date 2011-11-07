@@ -4,6 +4,6 @@ package cream.components.contents
 
 	public interface IImageContent
 	{
-		function getBitmapData():BitmapData;
+		
 	}
 }

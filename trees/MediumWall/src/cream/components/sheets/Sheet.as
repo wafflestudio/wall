@@ -26,9 +26,9 @@ package cream.components.sheets  {
 	import cream.storages.actions.Action;
 	import cream.storages.actions.IActionCommitter;
 	
-	import flash.display.BitmapData;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
+	import flash.filesystem.File;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.Timer;
@@ -63,10 +63,11 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 	private var type:String;
 	
 	/** Factory methods **/
-	public static function createImageSheet(bitmapData:BitmapData):Sheet
+	public static function createImageSheet(imageFile:File):Sheet
 	{
 		var newSheet:Sheet = new Sheet(IMAGE_SHEET);
-		newSheet.imageContent.drawImage(bitmapData);
+		newSheet.imageContent.drawImage(imageFile);
+		newSheet.imageContent.setImageFilePath(imageFile.nativePath);
 		return newSheet;
 	}
 	
@@ -119,9 +120,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		addResizedEventListener( function(e:ResizeEvent):void
 		{
 			dispatchCommitEvent(new ActionCommitEvent(self, RESIZE, [e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom]));
-			if(imageContent.getBitmapData() != null) {
-				imageContent.resizeImage(e.right-e.left,e.bottom-e.top);
-			}
+			imageContent.resizeImage(e.right-e.left,e.bottom-e.top);
 		});
 		
 		addAddedEventListener( function():void
@@ -350,7 +349,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 			var contentXML:XML = xml.content[0];
 			if(type == IMAGE_SHEET) {
 				imageContent.fromXML(contentXML);
-				imageContent.resizeImage(width,height);
+				imageContent.setSize(width, height);
 			} else if (type == TEXT_SHEET) {
 				textContent.fromXML(contentXML);
 			} 

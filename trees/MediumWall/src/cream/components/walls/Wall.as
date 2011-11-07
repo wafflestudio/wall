@@ -24,13 +24,17 @@ import cream.storages.actions.Action;
 import cream.storages.actions.IActionCommitter;
 import cream.utils.XMLFileStream;
 
-import flash.display.BitmapData;
+
 import flash.display.DisplayObject;
+import flash.display.Loader;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
 import flash.filesystem.File;
+import flash.filesystem.FileMode;
+import flash.filesystem.FileStream;
 import flash.geom.Point;
+import flash.utils.ByteArray;
 import flash.utils.Timer;
 
 import mx.core.IVisualElement;
@@ -131,13 +135,14 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	
 	
 	
-	public function addBlankSheet(type:String=Sheet.TEXT_SHEET, imageData:BitmapData=null):void
+	public function addBlankSheet(type:String=Sheet.TEXT_SHEET, imageFile:File=null):void
 	{
 		var sheet:Sheet;
-		if (imageData != null) {
-			sheet = Sheet.createImageSheet(imageData);
-			sheet.width = imageData.width;
-			sheet.height = imageData.height;
+		if (imageFile != null) {
+			sheet = Sheet.createImageSheet(imageFile);
+
+			sheet.width = 300;
+			sheet.height = 300;
 		} 
 		else {
 			sheet = new Sheet(type);
