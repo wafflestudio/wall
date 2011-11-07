@@ -14,6 +14,7 @@ package controllers
 	import cream.storages.actions.Action;
 	import cream.storages.actions.IActionCommitter;
 	import cream.storages.history.History;
+	import cream.utils.TemporaryFileStorage;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -24,6 +25,7 @@ package controllers
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
+	import flash.net.FileReference;
 	import flash.utils.ByteArray;
 	
 	import mx.core.IVisualElementContainer;
@@ -155,6 +157,14 @@ package controllers
 		
 		private function onFileSelect(e:Event):void
 		{
+			var destFile:File = TemporaryFileStorage.imageAssetsResolve(imageFile.name);
+			if(destFile.exists) {
+				trace("file name already exists");
+			} else {
+				imageFile.copyTo(destFile);
+			}
+
+			
 			var loader:Loader = new Loader();
 			var fs:FileStream = new FileStream();
 			var ba:ByteArray = new ByteArray();
@@ -164,9 +174,10 @@ package controllers
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(e:Event):void {
 				var bitmapData:BitmapData;
 				bitmapData = Bitmap(LoaderInfo(e.target).content).bitmapData;
-				perspective.addSheet(Sheet.IMAGE_SHEET, imageFile, bitmapData.width, bitmapData.height);
+				perspective.addSheet(Sheet.IMAGE_SHEET, destFile, bitmapData.width, bitmapData.height);
 			});
 			loader.loadBytes(ba);
+
 		}
 
 		/**

@@ -2,8 +2,9 @@ package cream.utils
 {
 import flash.errors.IllegalOperationError;
 import flash.filesystem.File;
-import mx.utils.StringUtil;
 import flash.globalization.StringTools;
+
+import mx.utils.StringUtil;
 
 public class TemporaryFileStorage
 {
@@ -41,6 +42,16 @@ public class TemporaryFileStorage
 			
 			trace("file(" + newName + ") already exists, skipping");
 		}
+		
+		return file;
+	}
+	
+	public static function imageAssetsResolve(name:String):File
+	{
+		var file:File = null;
+		file = File.applicationStorageDirectory.resolvePath("assets/images/"+name);
+		if(!file.exists) 
+			trace("name conflict");
 		
 		return file;
 	}
