@@ -1,5 +1,7 @@
 package cream.components
 {
+import cream.eventing.eventdispatchers.IClipboardPasteEventDispatcher;
+import cream.eventing.eventdispatchers.IClipboardSaveEventDispatcher;
 import cream.eventing.eventdispatchers.ICompositeEventDispatcher;
 import cream.eventing.eventdispatchers.IDimensionChangeEventDispatcher;
 import cream.eventing.eventdispatchers.IExternalDimensionChangeEventDispatcher;

@@ -8,9 +8,11 @@ import cream.components.containers.IPannableContainer;
 import cream.components.containers.PannableContainer;
 import cream.components.containers.ScrollableContainer;
 import cream.components.sheets.Sheet;
+import cream.eventing.eventdispatchers.IClipboardPasteEventDispatcher;
 import cream.eventing.eventdispatchers.IEventDispatcher;
 import cream.eventing.eventdispatchers.IZoomEventDispatcher;
 import cream.eventing.events.ActionCommitEvent;
+import cream.eventing.events.ClipboardEvent;
 import cream.eventing.events.CloseEvent;
 import cream.eventing.events.CommitEvent;
 import cream.eventing.events.CompositeEvent;
@@ -23,9 +25,10 @@ import cream.storages.IXMLizable;
 import cream.storages.actions.Action;
 import cream.storages.actions.IActionCommitter;
 import cream.utils.XMLFileStream;
-
-
+import flash.desktop.NativeApplication;
+import flash.display.BitmapData;
 import flash.display.DisplayObject;
+import flash.display.InteractiveObject;
 import flash.display.Loader;
 import flash.events.Event;
 import flash.events.MouseEvent;
@@ -39,16 +42,15 @@ import flash.utils.Timer;
 
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
+import mx.managers.FocusManager;
 
 import spark.components.BorderContainer;
 import spark.components.Group;
 import spark.components.NavigatorContent;
 import spark.components.Scroller;
 
-
-
 public class Wall extends PannableContainer implements IPannableContainer, IXMLizable, INameableComponent, ICommitableComponent, 
-	IToplevelComponent, IZoomEventDispatcher, IActionCommitter
+	IToplevelComponent, IZoomEventDispatcher, IActionCommitter, IClipboardPasteEventDispatcher
 {
 	/** Available Actions  **/
 	public static const ZOOM_CHANGED:String = "zoomChanged";
@@ -97,6 +99,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 			dispatchFocusInEvent();
 		});
 		
+	
 		// ignore consecutive zoom as a commit. commit only the last one
 		var delayedZoomTimer:Timer = new Timer(300, 1);
 		var zoomArgs:Array = [];
@@ -129,6 +132,8 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		addChildRemovedEventListener(function(e:CompositeEvent):void  {
 			dispatchCommitEvent(new ActionCommitEvent(self, SHEET_REMOVED, [e.child]));
 		});
+		
+		
 		
 		
 	}
@@ -245,7 +250,6 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	}
 	
 	
-	
 	protected function dispatchCommitEvent(e:CommitEvent):void
 	{
 		dispatchEvent(e);	
@@ -255,6 +259,8 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	{
 		dispatchEvent(new ZoomEvent(this, oldZoomX, oldZoomY, zoomX, zoomY));	
 	}
+	
+
 	
 	
 	public function addToApplication(app:IVisualElementContainer = null):void

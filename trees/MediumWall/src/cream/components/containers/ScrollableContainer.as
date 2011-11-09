@@ -34,7 +34,6 @@ public class ScrollableContainer extends Container implements IScrollableContain
 		
 		viewport.addElement(s._protected_::visualElement);
 		
-		
 		_scroller = s;
 		
 		s.addScrollEventListener( function(e:ScrollEvent):void {
@@ -85,7 +84,6 @@ public class ScrollableContainer extends Container implements IScrollableContain
 	
 	override protected function addChild(child:Composite):Composite
 	{
-		
 		super.addChild(child);
 		(child as Component).addDimensionChangeEventListener(onChildDimensionChange);
 		dispatchChildrenDimensionChangeEvent();

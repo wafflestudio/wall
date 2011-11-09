@@ -178,9 +178,7 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 			}
 			
 			addWall(wall);
-			var c:Container;
-			
-			
+	
 		}
 		
 		selectedIndex = xml.@selectedIndex;

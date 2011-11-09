@@ -10,18 +10,21 @@ import cream.components.walls.Wall;
 import cream.components.wallstacks.TabbedWallStack;
 import cream.eventing.eventdispatchers.IClickEventDispatcher;
 import cream.eventing.events.ClickEvent;
+import cream.eventing.events.ClipboardEvent;
 import cream.eventing.events.CommitEvent;
 import cream.eventing.events.Event;
 import cream.eventing.events.SelectionChangeEvent;
+import cream.storages.IXMLizable;
+
 import flash.display.DisplayObject;
 import flash.geom.Point;
+
+import mx.collections.ArrayCollection;
 import mx.containers.ViewStack;
 import mx.managers.PopUpManager;
 
 import spark.components.Group;
 import spark.components.VGroup;
-
-import cream.storages.IXMLizable;
 
 
 
@@ -30,6 +33,7 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 	public var toolbar:CommandToolbar = new CommandToolbar();
 	private var tabStack:TabbedWallStack;
 	private var vgroup:VGroup = new VGroup();
+	private var group:VGroup = new VGroup(); 
 	
 	public function TabbedPerspective(paths:Array = null)
 	{	
@@ -37,36 +41,42 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		
 		vgroup.percentHeight = 100;
 		vgroup.percentWidth = 100;
+		
+		group.percentHeight = 100;
+		group.percentWidth = 100;
 				
 		visualElement = vgroup;
+		visualElementContainer = group;
 		
 		// toolbar
 		vgroup.addElement(toolbar._protected_::visualElement);
+		vgroup.addElement(group);
 		
 		//tabstack
 		tabStack = new TabbedWallStack();
+		tabStack.percentHeight = 100;
+		tabStack.percentWidth = 100;
 		
 		tabStack.addSelectionChangeEventListener( function(e:SelectionChangeEvent):void {
 			currentIndex = e.selectedIndex;
 		});
 		
-		vgroup.addElement(tabStack._protected_::visualElement);
-		
 		tabStack.addCommitEventListener( function(e:CommitEvent):void
 		{
 			dispatchCommitEvent(e);
 		});
+		
+		addChild( tabStack );
+	
 	}
 	
 	private function setTabStack(tabStack:TabbedWallStack):void
 	{
-		if(this.tabStack)
-			vgroup.removeElement(tabStack._protected_::visualElement);
-			
+		if(tabStack)
+			removeChild(tabStack);
 		
-		this.tabStack = tabStack;
-		vgroup.addElement(tabStack._protected_::visualElement);
-		
+		tabStack = tabStack;
+		addChild(tabStack);
 	}
 
 	override public function get currentWall():Wall
@@ -89,7 +99,7 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 	 */
 	override public function fromXML(xml:XML):IXMLizable
 	{
-		reset();
+		
 		if(xml.walls && xml.walls[0])
 			tabStack.fromXML(xml.walls[0]);
 		

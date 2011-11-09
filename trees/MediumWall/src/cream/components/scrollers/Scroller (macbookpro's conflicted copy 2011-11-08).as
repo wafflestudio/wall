@@ -55,12 +55,13 @@ public class Scroller extends Component implements IScroller
 		vPos = (rect.y-min)/(max-min);
 		vLen = rect.height/(max-min);
 		
+		hPos = (rect.x-min)/(max-min);
+		hLen = rect.width/(max-min);
+		
 		min = crect.x < 0 ? crect.x : 0;
 		max = crect.x+crect.width > 0+rect.width ? 
 			crect.x+crect.width : 0+rect.width;
 		
-		hPos = (rect.x-min)/(max-min);
-		hLen = rect.width/(max-min);
 		
 		if(crect.width == 0 && crect.height == 0)  {
 			vPos = 0;
@@ -69,6 +70,7 @@ public class Scroller extends Component implements IScroller
 			vLen = 1.0;
 		}
 
+		
 		if(hLen >= 1.0)
 			hScrollbar.visible = false;
 		else

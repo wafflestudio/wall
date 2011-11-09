@@ -1,15 +1,22 @@
 package cream.components
 {
 import cream.components.sheets.Sheet;
+import cream.eventing.eventdispatchers.IEventDispatcher;
+import cream.eventing.events.ClipboardEvent;
+import cream.eventing.events.CompositeEvent;
 import cream.eventing.events.DimensionChangeEvent;
 import cream.eventing.events.Event;
 import cream.eventing.events.ExternalDimensionChangeEvent;
 import cream.eventing.events.FocusEvent;
 
+import flash.desktop.InteractiveIcon;
+import flash.desktop.NativeApplication;
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
+import flash.display.InteractiveObject;
 import flash.display.Stage;
 import flash.errors.IllegalOperationError;
+import flash.events.MouseEvent;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.sampler.StackFrame;
@@ -58,7 +65,6 @@ public class Component extends Composite implements IComponent
 						sibling.dispatchFocusOutEvent();
 				}
 			}
-			
 		});
 		
 		addFocusOutEventListener( function(e:FocusEvent):void {
@@ -67,7 +73,9 @@ public class Component extends Composite implements IComponent
 				(child as Component).dispatchFocusOutEvent();
 			}
 		});
-	
+		
+		addAddedEventListener(onAdded);
+		
 	}
 	
 	
@@ -92,6 +100,52 @@ public class Component extends Composite implements IComponent
 		dispatchDimensionChangeEvent(new Rectangle(x, y, width, height), new Rectangle(x, y, w, h));
 	}
 
+	private function onAdded(e:CompositeEvent):void 
+	{
+		// event only valid on first addition
+		removeAddedEventListener( onAdded );
+		
+		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void
+		{
+			if(e.target.parent != visualElement)
+				return;
+			
+			bringSystemFocus();
+		});
+		
+		
+		// To make use of system clipboard event
+		visualElement.addEventListener(flash.events.Event.COPY, function(e:flash.events.Event):void 
+		{
+			dispatchCopyEvent(self);
+		});
+		
+		visualElement.addEventListener(flash.events.Event.CUT, function(e:flash.events.Event):void 
+		{ 
+			dispatchCutEvent(self);
+		});
+		
+		visualElement.addEventListener(flash.events.Event.PASTE, function(e:flash.events.Event):void 
+		{ 
+			dispatchPasteEvent(self);
+		});
+		
+	}
+	
+	private function onSystemClipboardCopy(e:ClipboardEvent):void
+	{
+		dispatchCopyEvent(e.dispatcher);
+	}
+	
+	private function onSystemClipboardCut(e:ClipboardEvent):void
+	{
+		dispatchCutEvent(e.dispatcher);
+	}
+	
+	private function onSystemClipboardPaste(e:ClipboardEvent):void
+	{
+		dispatchPasteEvent(e.dispatcher);
+	}
 	
 	override protected function addChild(child:Composite):Composite
 	{
@@ -102,9 +156,32 @@ public class Component extends Composite implements IComponent
 		}
 		
 		attachSparkElement(vchild.visualElement);
+		// For propagating System Clipboard event
+		vchild.addCopyEventListener( onSystemClipboardCopy );
+		vchild.addCutEventListener( onSystemClipboardCut );
+		vchild.addPasteEventListener( onSystemClipboardPaste );
 		
 		super.addChild(child);
 	
+		return child;
+	}
+	
+	protected function addChild2(child:Composite):Composite
+	{
+		var vchild:Component = child as Component;
+		if(vchild == null)  {
+			new Error("child must be a component");
+			return null;
+		}
+		
+		attachSparkElement(vchild.visualElement);
+//		// For propagating System Clipboard event
+//		vchild.addCopyEventListener( onCopy );
+//		vchild.addCutEventListener( onCut );
+//		vchild.addPasteEventListener( onPaste );
+//		
+		super.addChild(child);
+//		
 		return child;
 	}
 	
@@ -115,7 +192,12 @@ public class Component extends Composite implements IComponent
 			new Error("child must be a component");
 			return null;
 		}
-	
+		
+		// For propagating System Clipboard event
+		vchild.removePasteEventListener( onSystemClipboardPaste );
+		vchild.removeCutEventListener( onSystemClipboardCut );
+		vchild.removeCopyEventListener( onSystemClipboardCopy );
+		
 		detachSparkElement(vchild.visualElement);
 		
 		return super.removeChild(child);
@@ -188,6 +270,60 @@ public class Component extends Composite implements IComponent
 		removeEventListener(ExternalDimensionChangeEvent.EXTERNAL_DIMENSION_CHANGE, listener);
 	}
 	
+	public function addCopyEventListener(listener:Function):void
+	{
+		addEventListener(ClipboardEvent.COPY, listener);
+	}
+	
+	public function removeCopyEventListener(listener:Function):void
+	{
+		removeEventListener(ClipboardEvent.COPY, listener);
+	}
+	
+	public function addCutEventListener(listener:Function):void
+	{
+		addEventListener(ClipboardEvent.CUT, listener);
+	}
+	
+	public function removeCutEventListener(listener:Function):void
+	{
+		removeEventListener(ClipboardEvent.CUT, listener);
+	}
+	
+	public function addPasteEventListener(listener:Function):void
+	{
+		addEventListener(ClipboardEvent.PASTE, listener);
+	}
+	
+	public function removePasteEventListener(listener:Function):void
+	{
+		removeEventListener(ClipboardEvent.PASTE, listener);
+	}
+	
+	
+	public function get hasFocus():Boolean
+	{
+		return _hasFocus;
+	}
+	
+	
+	public function globalToLocal(point:Point):Point
+	{
+		return (visualElementContainer as DisplayObject).globalToLocal(point);
+	}
+	
+	public function localToGlobal(point:Point):Point
+	{	
+		if(visualElementContainer)
+			return (visualElementContainer as DisplayObject).localToGlobal(point);
+		else
+			return (visualElement as DisplayObject).localToGlobal(point);
+	}
+	
+	public static function get savedFocus():InteractiveObject { return _savedFocus; }
+	
+	private static var _savedFocus:InteractiveObject;
+	
 
 	protected function dispatchFocusInEvent():void
 	{
@@ -202,6 +338,7 @@ public class Component extends Composite implements IComponent
 	
 		dispatchEvent(new FocusEvent(this, FocusEvent.FOCUS_OUT));
 	}
+	
 	
 	_protected_ function dispatchFocusInEvent():void
 	{
@@ -225,10 +362,28 @@ public class Component extends Composite implements IComponent
 	}
 	
 	
+	protected function dispatchCopyEvent(dispatcher:IEventDispatcher):void
+	{
+		dispatchEvent(new ClipboardEvent(dispatcher, ClipboardEvent.COPY));
+	}
+	
+	protected function dispatchCutEvent(dispatcher:IEventDispatcher):void
+	{
+		dispatchEvent(new ClipboardEvent(dispatcher, ClipboardEvent.CUT));
+	}
+	
+	protected function dispatchPasteEvent(dispatcher:IEventDispatcher):void
+	{
+		dispatchEvent(new ClipboardEvent(dispatcher, ClipboardEvent.PASTE));
+	}
+	
+	
+	
 	protected function get stage():Stage
 	{
 		return (visualElement as DisplayObject).stage;
 	}
+
 	
 	protected function get application():Application
 	{
@@ -245,6 +400,8 @@ public class Component extends Composite implements IComponent
 		return root;
 	}
 	
+	protected function bringSystemFocus():void { stage.focus = visualElement as InteractiveObject; _savedFocus = stage.focus; }
+	
 	protected function dispatchComponentFocusInEvent(component:Component):void
 	{
 		component.dispatchFocusInEvent();
@@ -255,24 +412,7 @@ public class Component extends Composite implements IComponent
 		component.dispatchFocusOutEvent();
 	}
 
-	public function get hasFocus():Boolean
-	{
-		return _hasFocus;
-	}
 	
-	
-	public function globalToLocal(point:Point):Point
-	{
-		return (visualElementContainer as DisplayObject).globalToLocal(point);
-	}
-	
-	public function localToGlobal(point:Point):Point
-	{	
-		if(visualElementContainer)
-			return (visualElementContainer as DisplayObject).localToGlobal(point);
-		else
-			return (visualElement as DisplayObject).localToGlobal(point);
-	}
 	
 }
 }

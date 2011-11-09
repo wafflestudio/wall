@@ -51,6 +51,8 @@ public class Container extends Component implements IContainer
 	// extent of children, scaled by current component scale
 	protected function get childrenExtent():Rectangle  {
 		var rect:Rectangle = unscaledChildrenExtent;
+		
+		trace(rect);
 	
 		return new Rectangle(panX + rect.x * zoomX, 
 			panY + rect.y * zoomY, 

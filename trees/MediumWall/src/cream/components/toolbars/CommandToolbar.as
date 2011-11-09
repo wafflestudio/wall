@@ -25,12 +25,16 @@ public class CommandToolbar extends Toolbar
 	private var undoBtn:Button;
 	private var redoBtn:Button;
 	private var saveAsBtn:Button;
+	private var copyBtn:Button;
+	private var pasteBtn:Button;
+	
 	// parent - (group - bg - hgroup) - children
 	public function CommandToolbar()
 	{
 		var group:Group = new Group();
 		group.percentWidth = 100;
 		group.height = 48+16;
+		
 		
 		var bg:BorderContainer = new BorderContainer();
 		bg.percentHeight = 100;
@@ -65,6 +69,11 @@ public class CommandToolbar extends Toolbar
 		saveAsBtn = new Button();
 		saveAsBtn.label = "save as";
 		
+		copyBtn = new Button();
+		copyBtn.label = "copy";
+		pasteBtn = new Button();
+		pasteBtn.label = "paste";
+		
 		addChild(openWallBtn);
 		addChild(newWallBtn);
 		addChild(newSheetBtn);
@@ -73,6 +82,9 @@ public class CommandToolbar extends Toolbar
 		addChild(undoBtn);
 		addChild(redoBtn);
 		addChild(saveAsBtn);
+		
+		addChild(copyBtn);
+		addChild(pasteBtn);
 		
 	}
 	
@@ -108,6 +120,16 @@ public class CommandToolbar extends Toolbar
 	public function get saveAsButton():IClickEventDispatcher
 	{
 		return saveAsBtn;
+	}
+	
+	public function get copyButton():IClickEventDispatcher
+	{
+		return copyBtn;
+	}
+	
+	public function get pasteButton():IClickEventDispatcher
+	{
+		return pasteBtn;
 	}
 }
 }

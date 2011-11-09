@@ -9,13 +9,16 @@ package controllers
 	import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 	import cream.eventing.events.ActionCommitEvent;
 	import cream.eventing.events.ClickEvent;
+	import cream.eventing.events.ClipboardEvent;
 	import cream.eventing.events.CommitEvent;
 	import cream.storages.IXMLizable;
 	import cream.storages.actions.Action;
 	import cream.storages.actions.IActionCommitter;
+	import cream.storages.clipboards.Clipboard;
 	import cream.storages.history.History;
 	import cream.utils.TemporaryFileStorage;
 	
+	import flash.desktop.NativeApplication;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Loader;
@@ -34,10 +37,13 @@ package controllers
 
 	public class DesktopController extends FileStoredController implements ICommitEventDispatcher
 	{
-		protected var history:History = new History();
-		protected var perspective:TabbedPerspective;
+
+		protected var history:History = new History();        // Undo/redo capability
+		protected var perspective:TabbedPerspective;          // Root of Visual Elements
+		protected var fileRef:FileReference;                  // Configuration file
+		protected var clipboard:Clipboard = new Clipboard();  // Clipboard
 		protected var imageFile:File;
-		protected var clipboard;
+
 
 		public function DesktopController(configFile:File = null)
 		{
@@ -102,6 +108,12 @@ package controllers
 				}
 			);
 			
+			toolbar.copyButton.addClickEventListener(
+				function(e:ClickEvent):void {
+					clipboard.copyTest();
+				}
+			);
+			
 			enableHistory();
 			
 		}
@@ -109,6 +121,19 @@ package controllers
 		override public function setup(app:IVisualElementContainer):void
 		{
 			perspective.addToApplication(app);
+
+			perspective.addCopyEventListener( function(e:ClipboardEvent):void {
+				trace('some copy event', e.dispatcher);
+			});
+			
+			perspective.addCutEventListener( function(e:ClipboardEvent):void {
+				trace('some cut event', e.dispatcher);
+			});
+			
+			perspective.addPasteEventListener( function(e:ClipboardEvent):void {
+				trace('some paste event', e.dispatcher);
+			});
+		
 		}
 		
 		private function onCommit(e:CommitEvent):void
