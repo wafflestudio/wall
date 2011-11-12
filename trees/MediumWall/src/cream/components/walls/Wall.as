@@ -24,7 +24,9 @@ import cream.eventing.events.ZoomEvent;
 import cream.storages.IXMLizable;
 import cream.storages.actions.Action;
 import cream.storages.actions.IActionCommitter;
+import cream.storages.clipboards.Clipboard;
 import cream.utils.XMLFileStream;
+
 import flash.desktop.NativeApplication;
 import flash.display.BitmapData;
 import flash.display.DisplayObject;
@@ -58,6 +60,9 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	public static const NAME_CHANGED:String = "nameChanged";
 	public static const SHEET_ADDED:String = "sheetAdded";
 	public static const SHEET_REMOVED:String = "sheetRemoved";
+	
+	public static const DEFAULT_SHEET_SIZE:Number = 300;
+	
 	
 	private var bc:BorderContainer = new BorderContainer();
 	private var group:Group = new Group();
@@ -133,47 +138,50 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 			dispatchCommitEvent(new ActionCommitEvent(self, SHEET_REMOVED, [e.child]));
 		});
 		
-		
+		addPasteEventListener( function(e:ClipboardEvent):void
+		{
+			if(e.format == ClipboardEvent.TEXT_FORMAT)
+				addTextSheet(e.object as String);
+		});
 		
 		
 	}
 	
 	
-	
-	public function addBlankSheet(type:String=Sheet.TEXT_SHEET, imageFile:File=null, w:uint=0, h:uint=0):void
+	public function addTextSheet(text:String = "", width:Number = 0, height:Number = 0):void
 	{
-		var sheet:Sheet;
-		if (imageFile != null) {
-			sheet = Sheet.createImageSheet(imageFile);
-			if(w != 0) {
-				sheet.width = w;
-				sheet.height = h;
-			} else {
-				trace("image size error");
-				sheet.width = 300;
-				sheet.height = 300;
-			}
-
-		} 
-		else {
-			sheet = new Sheet(type);
-			sheet.width = 300;
-			sheet.height = 200;
-		}
+		var sheet:Sheet = Sheet.createTextSheet(text);
+		width = width == 0 ? DEFAULT_SHEET_SIZE : width;
+		height = height == 0 ? DEFAULT_SHEET_SIZE : height;
 		
-		var compCenter:Point = new Point(width/2, height/2);
+		addNewSheetAtCenter(sheet, width, height);
+	}
+	
+	public function addImageSheet(imageFile:File = null, width:Number = 0, height:Number = 0):void
+	{
+		var sheet:Sheet = Sheet.createImageSheet(imageFile);
+		width = width == 0 ? DEFAULT_SHEET_SIZE : width;
+		height = height == 0 ? DEFAULT_SHEET_SIZE : height;
+		
+		addNewSheetAtCenter(sheet, width, height);
+	}
+	
+	
+	protected function addNewSheetAtCenter(sheet:Sheet, width:Number, height:Number):void
+	{
+		var compCenter:Point = new Point(this.width/2, this.height/2);
 		var globalCenter:Point = (visualElementContainer as IVisualElement).parent.localToGlobal(compCenter);
 		
 		var center:Point = globalToLocal(globalCenter);
 		
-
-		sheet.x = center.x-sheet.width/2;
-		sheet.y = center.y-sheet.height/2;
-		
-		trace(center.x, center.y);
+		sheet.width = width;
+		sheet.height = height;
+		sheet.x = center.x-width/2;
+		sheet.y = center.y-height/2;
 		
 		addSheet(sheet);
 	}
+
 	
 	private function onSheetCommitEvent(e:CommitEvent):void
 	{

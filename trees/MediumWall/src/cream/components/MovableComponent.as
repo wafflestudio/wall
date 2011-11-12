@@ -1,9 +1,10 @@
 package cream.components
 {
-import flash.geom.Point;
-import flash.events.MouseEvent;
-import flash.geom.Rectangle;
 import cream.eventing.events.MoveEvent;
+
+import flash.events.MouseEvent;
+import flash.geom.Point;
+import flash.geom.Rectangle;
 
 public class MovableComponent extends Component implements IMovableComponent
 {
@@ -11,21 +12,35 @@ public class MovableComponent extends Component implements IMovableComponent
 	{
 		var initialPos:Point;
 		var moveGlobalLocalDiff:Point;
+		/** control minimum mouse movement for initiating actual move **/
+		var moveStarted:Boolean = false;
+		var initialMousePos:Point;
 		
 		function moveStart(e:MouseEvent):void
 		{
 			initialPos = new Point(x,y);
+			initialMousePos = new Point(e.stageX, e.stageY);
 			var moveStartPos:Point;
 			
 			e.stopPropagation();
 			moveStartPos = (parent as IComponent).localToGlobal(initialPos);
-			moveGlobalLocalDiff = moveStartPos.subtract(new Point(e.stageX, e.stageY));
+			moveGlobalLocalDiff = moveStartPos.subtract(initialMousePos);
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, move);
 			stage.addEventListener(MouseEvent.MOUSE_UP, moveEnd);
 		}
 		
 		function move(e:MouseEvent):void
 		{
+			/** control minimum mouse movement for initiating actual move **/
+			if(!moveStarted)
+			{
+				var mouseDistance:Point = (new Point(e.stageX, e.stageY)).subtract(initialMousePos);
+				if(Math.abs(mouseDistance.x) < 2 && Math.abs(mouseDistance.y) < 2)
+					return;
+				else
+					moveStarted = true;
+			}
+			
 			var current:Point = (parent as IComponent).globalToLocal((new Point(e.stageX, e.stageY)).add(moveGlobalLocalDiff));
 			var oldX:Number = x;
 			var oldY:Number = y;

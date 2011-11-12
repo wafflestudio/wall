@@ -71,18 +71,23 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		return newSheet;
 	}
 	
+	public static function createTextSheet(text:String):Sheet
+	{
+		var newSheet:Sheet = new Sheet(TEXT_SHEET);
+		newSheet.textContent.text = text;
+		return newSheet;	
+	}
 	
 	/** Constructor **/
 	public function Sheet(type:String)
 	{
 		super();
-		textContent = new TextContent();
-		imageContent = new ImageContent();
 		
 		this.type = type;
 	
 		if(type == IMAGE_SHEET)
 		{
+			imageContent = new ImageContent();
 			bc.addElement(imageContent._protected_::visualElement);
 			
 			imageContent.addCommitEventListener( function(e:CommitEvent):void
@@ -93,6 +98,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		} 
 		else if(type == TEXT_SHEET)
 		{
+			textContent = new TextContent();
 			bc.addElement(textContent._protected_::visualElement);
 			textContent.addCommitEventListener( function(e:CommitEvent):void
 			{

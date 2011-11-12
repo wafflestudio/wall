@@ -30,7 +30,6 @@
 		
 		this.maximize();
 		
-		
 		private var controller:DesktopController = new DesktopController();
 		controller.setup(this);
 		

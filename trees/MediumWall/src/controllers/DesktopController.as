@@ -42,7 +42,6 @@ package controllers
 		protected var perspective:TabbedPerspective;          // Root of Visual Elements
 		protected var fileRef:FileReference;                  // Configuration file
 		protected var clipboard:Clipboard = new Clipboard();  // Clipboard
-		protected var imageFile:File;
 
 
 		public function DesktopController(configFile:File = null)
@@ -67,13 +66,13 @@ package controllers
 			
 			toolbar.newImageSheetButton.addClickEventListener(
 				function(e:ClickEvent):void {
-					loadImageFile();
+					browseFileForNewImageSheet();
 				}
 			);
 			
 			toolbar.newSheetButton.addClickEventListener(
 				function(e:ClickEvent):void {
-					perspective.addSheet(Sheet.TEXT_SHEET);
+					perspective.addTextSheet();					
 				}
 			);
 			
@@ -121,19 +120,7 @@ package controllers
 		override public function setup(app:IVisualElementContainer):void
 		{
 			perspective.addToApplication(app);
-
-			perspective.addCopyEventListener( function(e:ClipboardEvent):void {
-				trace('some copy event', e.dispatcher);
-			});
 			
-			perspective.addCutEventListener( function(e:ClipboardEvent):void {
-				trace('some cut event', e.dispatcher);
-			});
-			
-			perspective.addPasteEventListener( function(e:ClipboardEvent):void {
-				trace('some paste event', e.dispatcher);
-			});
-		
 		}
 		
 		private function onCommit(e:CommitEvent):void
@@ -173,38 +160,36 @@ package controllers
 		}
 		
 		
-		private function loadImageFile():void
+		private function browseFileForNewImageSheet():void
 		{
-			imageFile = new File();
-			imageFile.addEventListener(Event.SELECT, onFileSelect);
+			var imageFile:File = new File();
+			imageFile.addEventListener(Event.SELECT, 
+				function onSelect(e:Event):void  {
+					var destFile:File = TemporaryFileStorage.imageAssetsResolve(imageFile.name);
+					if(destFile.exists) {
+						trace("file name already exists");
+					} else {
+						imageFile.copyTo(destFile);
+					}
+					
+					var loader:Loader = new Loader();
+					var fs:FileStream = new FileStream();
+					var ba:ByteArray = new ByteArray();
+					fs.open(e.target as File, FileMode.READ);
+					fs.readBytes(ba, 0, ba.bytesAvailable);
+					ba.position = 0;
+					
+					loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(e:Event):void {
+						var bitmapData:BitmapData;
+						bitmapData = Bitmap(LoaderInfo(e.target).content).bitmapData;
+						perspective.addImageSheet(destFile, bitmapData.width, bitmapData.height);
+					});
+					loader.loadBytes(ba);
+				}
+			);
 			imageFile.browse();
 		}
-		
-		private function onFileSelect(e:Event):void
-		{
-			var destFile:File = TemporaryFileStorage.imageAssetsResolve(imageFile.name);
-			if(destFile.exists) {
-				trace("file name already exists");
-			} else {
-				imageFile.copyTo(destFile);
-			}
-
-			
-			var loader:Loader = new Loader();
-			var fs:FileStream = new FileStream();
-			var ba:ByteArray = new ByteArray();
-			fs.open(e.target as File, FileMode.READ);
-			fs.readBytes(ba, 0, ba.bytesAvailable);
-			ba.position = 0;
-			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(e:Event):void {
-				var bitmapData:BitmapData;
-				bitmapData = Bitmap(LoaderInfo(e.target).content).bitmapData;
-				perspective.addSheet(Sheet.IMAGE_SHEET, destFile, bitmapData.width, bitmapData.height);
-			});
-			loader.loadBytes(ba);
-
-		}
-
+	
 		/**
 		 * <DesktopConfig>
 		 * 	<perspective>

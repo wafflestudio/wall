@@ -78,7 +78,6 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 		removeEventListener(PanEvent.PANNED, listener);	
 	}
 	
-	
 	protected function dispatchPanningEvent(oldX:Number, oldY:Number, newX:Number, newY:Number):void
 	{
 		dispatchEvent(new PanEvent(this, PanEvent.PANNING, oldX, oldY, newX, newY));
@@ -88,7 +87,6 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 	{
 		dispatchEvent(new PanEvent(this, PanEvent.PANNED, oldX, oldY, newX, newY));
 	}
-	
 	
 	protected function set zoom(multiplier:Number):void
 	{
@@ -105,8 +103,6 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 			_zoomX = zoomX * multiplier;
 			_zoomY = zoomY * multiplier;
 		}
-		
-		trace('change zoom');
 		
 		_panX = (panX - width/2) * multiplier + width/2;
 		_panY = (panY - height/2) * multiplier + height/2;

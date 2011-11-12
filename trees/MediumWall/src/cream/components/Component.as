@@ -9,8 +9,11 @@ import cream.eventing.events.Event;
 import cream.eventing.events.ExternalDimensionChangeEvent;
 import cream.eventing.events.FocusEvent;
 
+import flash.desktop.Clipboard;
+import flash.desktop.ClipboardFormats;
 import flash.desktop.InteractiveIcon;
 import flash.desktop.NativeApplication;
+import flash.display.BitmapData;
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.InteractiveObject;
@@ -20,6 +23,7 @@ import flash.events.MouseEvent;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.sampler.StackFrame;
+import flash.utils.ByteArray;
 
 import mx.core.FlexGlobals;
 import mx.core.IVisualElement;
@@ -105,6 +109,7 @@ public class Component extends Composite implements IComponent
 		// event only valid on first addition
 		removeAddedEventListener( onAdded );
 		
+		// Manage focus
 		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void
 		{
 			if(e.target.parent != visualElement)
@@ -117,36 +122,84 @@ public class Component extends Composite implements IComponent
 		// To make use of system clipboard event
 		visualElement.addEventListener(flash.events.Event.COPY, function(e:flash.events.Event):void 
 		{
-			dispatchCopyEvent(self);
+			if(e.target != visualElement)
+				return;
+			
+//			dispatchCopyEvent(self);
 		});
 		
 		visualElement.addEventListener(flash.events.Event.CUT, function(e:flash.events.Event):void 
 		{ 
-			dispatchCutEvent(self);
+			if(e.target != visualElement)
+				return;
+			
+//			dispatchCutEvent(self);
 		});
 		
 		visualElement.addEventListener(flash.events.Event.PASTE, function(e:flash.events.Event):void 
 		{ 
-			dispatchPasteEvent(self);
+			if(e.target != visualElement)
+				return;
+			
+			var object:Object;
+			var format:String;
+				
+			if(Clipboard.generalClipboard.hasFormat(ClipboardFormats.TEXT_FORMAT))  {
+				format = ClipboardEvent.TEXT_FORMAT;
+				var string:String = Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT) as String;
+				object = string;
+			}
+//			if(Clipboard.generalClipboard.hasFormat(ClipboardFormats.BITMAP_FORMAT))  {
+//				format = ClipboardEvent.BITMAP_FORMAT;
+//				var bitmap:BitmapData = Clipboard.generalClipboard.getData(ClipboardFormats.BITMAP_FORMAT) as BitmapData;
+//				object = bitmap;
+//				trace("bitmap");
+//			}
+//			if(Clipboard.generalClipboard.hasFormat(ClipboardFormats.RICH_TEXT_FORMAT))  {
+//				format = ClipboardEvent.RICH_TEXT_FORMAT;
+//				var text:ByteArray = Clipboard.generalClipboard.getData(ClipboardFormats.RICH_TEXT_FORMAT) as ByteArray;
+//				object = text;
+//				trace("rtf", text);
+//			}
+//			if(Clipboard.generalClipboard.hasFormat(ClipboardFormats.HTML_FORMAT))  {
+//				format = ClipboardEvent.HTML_FORMAT;
+//				var html:String = Clipboard.generalClipboard.getData(ClipboardFormats.HTML_FORMAT) as String;
+//				object = html;
+//				trace("html");
+//			}
+//			if(Clipboard.generalClipboard.hasFormat(ClipboardFormats.URL_FORMAT))  {
+//				format = ClipboardEvent.URL_FORMAT;
+//				var url:String = Clipboard.generalClipboard.getData(ClipboardFormats.URL_FORMAT) as String;
+//				object = url;
+//				trace("url");
+//			}
+//			if(Clipboard.generalClipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT))  {
+//				format = ClipboardEvent.FILE_LIST_FORMAT;
+//				var fileList:Array = Clipboard.generalClipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+//				object = fileList;
+//				trace("file list");
+//			}
+		
+			dispatchPasteEvent(self, format, object);
 		});
 		
 	}
-	
-	private function onSystemClipboardCopy(e:ClipboardEvent):void
-	{
-		dispatchCopyEvent(e.dispatcher);
-	}
-	
-	private function onSystemClipboardCut(e:ClipboardEvent):void
-	{
-		dispatchCutEvent(e.dispatcher);
-	}
-	
-	private function onSystemClipboardPaste(e:ClipboardEvent):void
-	{
-		dispatchPasteEvent(e.dispatcher);
-	}
-	
+//	
+//	private function onSystemClipboardCopy(e:ClipboardEvent):void
+//	{
+//		dispatchCopyEvent(e.dispatcher, e.format, e.object);
+//	}
+//	
+//	private function onSystemClipboardCut(e:ClipboardEvent):void
+//	{
+//		dispatchCutEvent(e.dispatcher, e.format, e.object);
+//	}
+//	
+//	private function onSystemClipboardPaste(e:ClipboardEvent):void
+//	{
+//		dispatchPasteEvent(e.dispatcher, e.format, e.object);
+//	}
+//	
 	override protected function addChild(child:Composite):Composite
 	{
 		var vchild:Component = child as Component;
@@ -156,34 +209,16 @@ public class Component extends Composite implements IComponent
 		}
 		
 		attachSparkElement(vchild.visualElement);
-		// For propagating System Clipboard event
-		vchild.addCopyEventListener( onSystemClipboardCopy );
-		vchild.addCutEventListener( onSystemClipboardCut );
-		vchild.addPasteEventListener( onSystemClipboardPaste );
-		
-		super.addChild(child);
-	
-		return child;
-	}
-	
-	protected function addChild2(child:Composite):Composite
-	{
-		var vchild:Component = child as Component;
-		if(vchild == null)  {
-			new Error("child must be a component");
-			return null;
-		}
-		
-		attachSparkElement(vchild.visualElement);
 //		// For propagating System Clipboard event
-//		vchild.addCopyEventListener( onCopy );
-//		vchild.addCutEventListener( onCut );
-//		vchild.addPasteEventListener( onPaste );
-//		
+//		vchild.addCopyEventListener( onSystemClipboardCopy );
+//		vchild.addCutEventListener( onSystemClipboardCut );
+//		vchild.addPasteEventListener( onSystemClipboardPaste );
+		
 		super.addChild(child);
-//		
+	
 		return child;
 	}
+	
 	
 	override protected function removeChild(child:Composite):Composite
 	{
@@ -193,10 +228,10 @@ public class Component extends Composite implements IComponent
 			return null;
 		}
 		
-		// For propagating System Clipboard event
-		vchild.removePasteEventListener( onSystemClipboardPaste );
-		vchild.removeCutEventListener( onSystemClipboardCut );
-		vchild.removeCopyEventListener( onSystemClipboardCopy );
+//		// For propagating System Clipboard event
+//		vchild.removePasteEventListener( onSystemClipboardPaste );
+//		vchild.removeCutEventListener( onSystemClipboardCut );
+//		vchild.removeCopyEventListener( onSystemClipboardCopy );
 		
 		detachSparkElement(vchild.visualElement);
 		
@@ -362,19 +397,19 @@ public class Component extends Composite implements IComponent
 	}
 	
 	
-	protected function dispatchCopyEvent(dispatcher:IEventDispatcher):void
+	protected function dispatchCopyEvent(dispatcher:IEventDispatcher, format:String, object:Object):void
 	{
-		dispatchEvent(new ClipboardEvent(dispatcher, ClipboardEvent.COPY));
+		dispatchEvent(new ClipboardEvent(dispatcher, ClipboardEvent.COPY, format, object));
 	}
 	
-	protected function dispatchCutEvent(dispatcher:IEventDispatcher):void
+	protected function dispatchCutEvent(dispatcher:IEventDispatcher, format:String, object:Object):void
 	{
-		dispatchEvent(new ClipboardEvent(dispatcher, ClipboardEvent.CUT));
+		dispatchEvent(new ClipboardEvent(dispatcher, ClipboardEvent.CUT, format, object));
 	}
 	
-	protected function dispatchPasteEvent(dispatcher:IEventDispatcher):void
+	protected function dispatchPasteEvent(dispatcher:IEventDispatcher, format:String, object:Object):void
 	{
-		dispatchEvent(new ClipboardEvent(dispatcher, ClipboardEvent.PASTE));
+		dispatchEvent(new ClipboardEvent(dispatcher, ClipboardEvent.PASTE, format, object));
 	}
 	
 	

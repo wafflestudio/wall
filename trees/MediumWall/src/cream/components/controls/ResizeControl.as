@@ -40,17 +40,29 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 		var startResize:Function = function(e:MouseEvent):void
 		{
 			var app:Application = (resizeUIComponent.parentApplication as Application);
-			var initialMouseDownPos:Point = app.globalToLocal(new Point(e.stageX, e.stageY));
+			var initialMousePos:Point = new Point(e.stageX, e.stageY);
+			var initialMousePosLocal:Point = app.globalToLocal(initialMousePos);
 			var oldX:Number = x;
 			var oldY:Number = y;
 			var oldWidth:Number = width;
 			var oldHeight:Number = height;
 			var control:UIComponent = e.currentTarget as UIComponent;
+			var moveStarted:Boolean = false;
 	
 			function drag(e:MouseEvent):void
 			{
+				/** control minimum mouse movement for initiating actual move **/
+				if(!moveStarted)
+				{
+					var mouseDistance:Point = (new Point(e.stageX, e.stageY)).subtract(initialMousePos);
+					if(Math.abs(mouseDistance.x) < 2 && Math.abs(mouseDistance.y) < 2)
+						return;
+					else
+						moveStarted = true;
+				}
+				
 				var curMousePos:Point = app.globalToLocal(new Point(e.stageX, e.stageY));
-				var diff:Point = curMousePos.subtract(initialMouseDownPos);
+				var diff:Point = curMousePos.subtract(initialMousePosLocal);
 				switch(control)  {
 					case up:
 						y = oldY + diff.y;

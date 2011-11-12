@@ -23,36 +23,6 @@ package cream.storages.clipboards
 			trace('copied');
 		}
 		
-//		public function addCopyEventListener(listener:Function):void
-//		{
-////			sysClipboard.
-//		}
-//		
-//		public function removeCopyEventListener(listener:Function):void
-//		{
-//			
-//		}
-//		
-//		public function addCutEventListener(listener:Function):void
-//		{
-//			
-//		}
-//		
-//		public function removeCutEventListener(listener:Function):void
-//		{
-//			
-//		}
-//		
-//		public function addPasteEventListener(listener:Function):void
-//		{
-//			
-//		}
-//		
-//		public function removePasteEventListener(listener:Function):void
-//		{
-//			
-//		}
-		
 //		public function get bitmap():BitmapData
 //		{
 //			

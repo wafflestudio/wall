@@ -18,7 +18,7 @@ package cream.components.contents
 	import spark.events.TextOperationEvent;
 
 	
-	public class TextContent extends Content implements ITextContent, IActionCommitter
+	public class TextContent extends Content implements IActionCommitter
 	{
 		// actions
 		public static const TEXT_CHANGE:String = "TEXT_CHANGE";
@@ -26,8 +26,8 @@ package cream.components.contents
 		protected var textarea:TextArea = new TextArea;
 		protected var _text:String = "";
 		
-		protected function get text():String { return _text; }
-		protected function set text(value:String):void { textarea.text = _text = value; }
+		public function get text():String { return _text; }
+		public function set text(value:String):void { textarea.text = _text = value; }
 		
 		override protected function get visualElement():IVisualElement { return textarea; }
 		
@@ -56,10 +56,9 @@ package cream.components.contents
 			});
 			
 			textarea.setStyle('skinClass', BlankSkin);
-			
 
-			
 			visualElement = textarea;
+				
 			
 		}
 		
@@ -106,9 +105,6 @@ package cream.components.contents
 			var textxml:XML = xml.text[0];
 			textarea.text = textxml.@text;
 			return this;
-		}
-		public function getTextData():String {
-			return textarea.text;
 		}
 	}
 }

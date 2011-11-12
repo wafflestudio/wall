@@ -21,7 +21,7 @@ package cream.components.contents
 	
 	import spark.components.BorderContainer;
 
-	public class ImageContent extends Content implements IImageContent
+	public class ImageContent extends Content
 	{
 		private var imageContainer:BorderContainer = new BorderContainer();
 		private var bitmapData:BitmapData;
@@ -83,7 +83,7 @@ package cream.components.contents
 				}
 			});
 			loader.loadBytes(ba);
-
+			
 		}
 
 		/**
