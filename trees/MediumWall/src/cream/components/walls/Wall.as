@@ -40,6 +40,7 @@ import flash.filesystem.File;
 import flash.filesystem.FileMode;
 import flash.filesystem.FileStream;
 import flash.geom.Point;
+import flash.sampler.getLexicalScopes;
 import flash.utils.ByteArray;
 import flash.utils.Timer;
 
@@ -189,9 +190,17 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		var globalCenter:Point = (visualElementContainer as IVisualElement).parent.localToGlobal(compCenter);
 		
 		var center:Point = globalToLocal(globalCenter);
-		
-		sheet.width = width;
-		sheet.height = height;
+		if(width > this.width*2/3) {
+			var rate:Number = height/width;
+			var gDimension:Point = globalToLocal(new Point(this.width*2/3, this.width*2/3*rate));
+			
+			sheet.width = gDimension.x;
+			sheet.height = gDimension.y;
+			trace("resize too big image width:"+gDimension.x+"height:"+gDimension.y);
+		}else {
+			sheet.width = width;
+			sheet.height = height;
+		}
 		sheet.x = center.x-width/2;
 		sheet.y = center.y-height/2;
 		
