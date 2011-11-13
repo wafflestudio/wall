@@ -25,11 +25,9 @@ package cream.components.contents
 	{
 		private var imageContainer:BorderContainer = new BorderContainer();
 		private var bitmapData:BitmapData;
-		private var savedImageFilePath:String;	
+		private var imageFile:File;	
 		private var savedWidth:uint;
 		private var savedHeight:uint;
-		override protected function get visualElement():IVisualElement { return imageContainer; }
-		
 		
 		public function ImageContent()
 		{
@@ -38,30 +36,27 @@ package cream.components.contents
 			imageContainer.setStyle("borderAlpha", 0);
 			imageContainer.width = 0;
 			imageContainer.height = 0;
+			visualElement = imageContainer;
 			
 		}
-		public function setImageFilePath(path:String):void {
-			savedImageFilePath = path;
-		}
-		public function setSize(w:uint, h:uint):void {
-			savedWidth = w;
-			savedHeight = h;
-		}
-		public function resizeImage(w:int, h:int):void {
-			trace("image resized width:"+w+"height:"+h);
-			
-			var matrix:Matrix = new Matrix();
-			matrix.scale(w/bitmapData.width, h/bitmapData.height);
-			
-			imageContainer.graphics.clear();
-			imageContainer.graphics.beginBitmapFill(bitmapData, matrix, false);
-			imageContainer.graphics.drawRect(0, 0, w, h);
-			imageContainer.graphics.endFill();
 
-			
+		public override function set width(val:Number):void
+		{
+			savedWidth = val;
+			if(bitmapData)
+				imageContainer.scaleX = (val/bitmapData.width);
 		}
 		
-		public function drawImage(imageFile:File):void {
+		public override function set height(val:Number):void
+		{
+			savedHeight= val;
+			if(bitmapData)
+				imageContainer.scaleY = (val/bitmapData.height);
+		}
+
+		public function set file(imageFile:File):void
+		{
+			this.imageFile = imageFile; 
 			var loader:Loader = new Loader();
 			
 			var fs:FileStream = new FileStream();
@@ -77,25 +72,29 @@ package cream.components.contents
 				imageContainer.graphics.beginBitmapFill(bitmapData, null, false);
 				imageContainer.graphics.drawRect(0, 0, bitmapData.width, bitmapData.height);
 				imageContainer.graphics.endFill();
-
-				if(savedWidth) {
-					resizeImage(savedWidth,savedHeight);
-				}
+				
+				width = savedWidth == 0 ? bitmapData.width : savedWidth;
+				height = savedHeight == 0 ? bitmapData.height : savedHeight;
+				
 			});
 			loader.loadBytes(ba);
 			
 		}
-
+		
+		public function get file():File
+		{
+			return imageFile;
+		}
+		
 		/**
 		 * 	<content>
 		 * 		<image image="...">
 		 * 	</content>
-		 */ 
-		
+		 */ 	
 		override public function toXML():XML {
 			var xml:XML = super.toXML();
 			var imageXML:XML = <image/>;
-			imageXML.@image = savedImageFilePath;
+			imageXML.@image = imageFile.nativePath;
 			xml.appendChild(imageXML);
 			trace("imageContent toXML");
 			return xml;
@@ -104,10 +103,7 @@ package cream.components.contents
 		override public function fromXML(xml:XML):IXMLizable {
 			trace("imageContent fromXML");
 			var imagexml:XML = xml.image[0];
-			savedImageFilePath = imagexml.@image;
-			setImageFilePath(savedImageFilePath);
-			var imageFile:File = new File(savedImageFilePath);
-			drawImage(imageFile);
+			file = File.applicationStorageDirectory.resolvePath(imagexml.@image);
 			return this;
 		}
 	}

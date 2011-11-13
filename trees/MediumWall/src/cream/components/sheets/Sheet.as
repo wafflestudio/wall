@@ -66,8 +66,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 	public static function createImageSheet(imageFile:File):Sheet
 	{
 		var newSheet:Sheet = new Sheet(IMAGE_SHEET);
-		newSheet.imageContent.drawImage(imageFile);
-		newSheet.imageContent.setImageFilePath(imageFile.nativePath);
+		newSheet.imageContent.file = imageFile;
 		return newSheet;
 	}
 	
@@ -127,7 +126,9 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		{
 			dispatchCommitEvent(new ActionCommitEvent(self, RESIZE, [e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom]));
 			if(type == Sheet.IMAGE_SHEET) {
-				imageContent.resizeImage(e.right-e.left,e.bottom-e.top);	
+				imageContent.width = e.right - e.left;
+				imageContent.height = e.bottom - e.top;
+				//imageContent.resizeImage(e.right-e.left,e.bottom-e.top);	
 			}
 			
 		});
@@ -241,7 +242,12 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 
 	}
 
-	
+	public override function set width(val:Number):void {
+		if(imageContent)
+			;
+		super.width = val;
+		
+	}
 	
 	
 	public function addContentChangeEventListener(listener:Function):void
@@ -358,7 +364,9 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 			var contentXML:XML = xml.content[0];
 			if(type == IMAGE_SHEET) {
 				imageContent.fromXML(contentXML);
-				imageContent.setSize(width, height);
+				imageContent.width = width;
+				imageContent.height = height;
+//				imageContent.setSize(width, height);
 			} else if (type == TEXT_SHEET) {
 				textContent.fromXML(contentXML);
 			} 

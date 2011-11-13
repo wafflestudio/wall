@@ -187,22 +187,25 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	protected function addNewSheetAtCenter(sheet:Sheet, width:Number, height:Number):void
 	{
 		var compCenter:Point = new Point(this.width/2, this.height/2);
-		var globalCenter:Point = (visualElementContainer as IVisualElement).parent.localToGlobal(compCenter);
-		
+		var globalCenter:Point = (visualElement as DisplayObject).localToGlobal(compCenter);
 		var center:Point = globalToLocal(globalCenter);
-		if(width > this.width*2/3) {
-			var rate:Number = height/width;
-			var gDimension:Point = globalToLocal(new Point(this.width*2/3, this.width*2/3*rate));
+		var dimension:Point = (visualElement as DisplayObject).globalToLocal(localToGlobal(new Point(width, height))).subtract(
+			(visualElement as DisplayObject).globalToLocal(localToGlobal(new Point(0,0))));
+		
+		// resize if image is too big
+		if(dimension.x > this.width*2/3) {
+			var ratio:Number = height/width;
+			var adjustedDimension:Point = globalToLocal(new Point(this.width*5/6, this.width*5/6*ratio)).subtract(globalToLocal(new Point(this.width/6, this.width/6*ratio)));
 			
-			sheet.width = gDimension.x;
-			sheet.height = gDimension.y;
-			trace("resize too big image width:"+gDimension.x+"height:"+gDimension.y);
-		}else {
+			sheet.width = adjustedDimension.x;
+			sheet.height = adjustedDimension.y;	
+		}
+		else {
 			sheet.width = width;
 			sheet.height = height;
 		}
-		sheet.x = center.x-width/2;
-		sheet.y = center.y-height/2;
+		sheet.x = center.x-sheet.width/2;
+		sheet.y = center.y-sheet.height/2;
 		
 		addSheet(sheet);
 	}
