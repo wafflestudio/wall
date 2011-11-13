@@ -13,10 +13,12 @@ public class TemporaryFileStorage
 		throw new IllegalOperationError("Access to a singleton constructor");
 	}
 	
-	public static function resolve(extension:String):File
+	public static function resolve(extension:String, targetDirectory:File = null):File
 	{
-		var directory:File = File.applicationStorageDirectory;
-		var contents:Array = directory.getDirectoryListing();
+		if(!targetDirectory)
+			targetDirectory = File.applicationStorageDirectory;
+		
+		var contents:Array = targetDirectory.getDirectoryListing();
 		var num:int = 0;
 		for (var i:uint = 0; i < contents.length; i++) 
 		{
