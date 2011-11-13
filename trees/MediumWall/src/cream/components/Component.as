@@ -149,12 +149,11 @@ public class Component extends Composite implements IComponent
 				var string:String = Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT) as String;
 				object = string;
 			}
-//			if(Clipboard.generalClipboard.hasFormat(ClipboardFormats.BITMAP_FORMAT))  {
-//				format = ClipboardEvent.BITMAP_FORMAT;
-//				var bitmap:BitmapData = Clipboard.generalClipboard.getData(ClipboardFormats.BITMAP_FORMAT) as BitmapData;
-//				object = bitmap;
-//				trace("bitmap");
-//			}
+			else if(Clipboard.generalClipboard.hasFormat(ClipboardFormats.BITMAP_FORMAT))  {
+				format = ClipboardEvent.BITMAP_FORMAT;
+				var bitmap:BitmapData = Clipboard.generalClipboard.getData(ClipboardFormats.BITMAP_FORMAT) as BitmapData;
+				object = bitmap;
+			}
 //			if(Clipboard.generalClipboard.hasFormat(ClipboardFormats.RICH_TEXT_FORMAT))  {
 //				format = ClipboardEvent.RICH_TEXT_FORMAT;
 //				var text:ByteArray = Clipboard.generalClipboard.getData(ClipboardFormats.RICH_TEXT_FORMAT) as ByteArray;

@@ -25,6 +25,7 @@ import cream.storages.IXMLizable;
 import cream.storages.actions.Action;
 import cream.storages.actions.IActionCommitter;
 import cream.storages.clipboards.Clipboard;
+import cream.utils.TemporaryFileStorage;
 import cream.utils.XMLFileStream;
 
 import flash.desktop.NativeApplication;
@@ -44,6 +45,7 @@ import flash.utils.Timer;
 
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
+import mx.graphics.codec.PNGEncoder;
 import mx.managers.FocusManager;
 
 import spark.components.BorderContainer;
@@ -140,8 +142,22 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 		addPasteEventListener( function(e:ClipboardEvent):void
 		{
-			if(e.format == ClipboardEvent.TEXT_FORMAT)
+			if(e.format == ClipboardEvent.TEXT_FORMAT) {
 				addTextSheet(e.object as String);
+			} else if(e.format == (ClipboardEvent.BITMAP_FORMAT)) {
+				trace("clipboard to image sheet");
+				var imageFile:File = null;
+				var encoder:PNGEncoder = new PNGEncoder();
+				var bitmapData:BitmapData = e.object as BitmapData;
+				var rawBytes:ByteArray = encoder.encode(bitmapData);
+				
+//				imageFile = File.applicationStorageDirectory.resolvePath("assets/images/test.png");
+				imageFile = TemporaryFileStorage.resolve("png", File.applicationStorageDirectory.resolvePath("assets/images"));
+				var fileStream:FileStream = new FileStream();
+				fileStream.open( imageFile, FileMode.WRITE );
+				fileStream.writeBytes( rawBytes );
+				addImageSheet(imageFile, bitmapData.width, bitmapData.height );
+			}
 		});
 		
 		

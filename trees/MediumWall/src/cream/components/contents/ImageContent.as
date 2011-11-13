@@ -93,14 +93,11 @@ package cream.components.contents
 		 */ 
 		
 		override public function toXML():XML {
-			// Todo : initial create can't exec toXML?
 			var xml:XML = super.toXML();
-			if(bitmapData != null) {
-				var imageXML:XML = <image/>;
-				imageXML.@image = savedImageFilePath;
-				xml.appendChild(imageXML);
-				trace("imageContent toXML");
-			}
+			var imageXML:XML = <image/>;
+			imageXML.@image = savedImageFilePath;
+			xml.appendChild(imageXML);
+			trace("imageContent toXML");
 			return xml;
 		}
 
