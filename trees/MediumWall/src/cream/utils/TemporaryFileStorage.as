@@ -38,7 +38,7 @@ public class TemporaryFileStorage
 			var newName:String = "0000" + num;
 			newName = "unnamed" + newName.substr(newName.length-5, 5) + "." + extension; // "000011" => "00011"
 			
-			file = File.applicationStorageDirectory.resolvePath(newName);
+			file = targetDirectory.resolvePath(newName);
 			if(!file.exists) 
 				break;
 			
