@@ -2,19 +2,19 @@ package cream.components.walls
 {
 import cream.eventing.events.CommitEvent;
 import cream.eventing.events.Event;
-
-import flash.filesystem.File;
-
 import cream.storages.IFileStorable;
 import cream.storages.INameableFileReference;
 import cream.storages.IXMLizable;
-
 import cream.utils.TemporaryFileStorage;
 import cream.utils.XMLFileStream;
 
+import flash.filesystem.File;
+
 public class FileStoredWall extends Wall implements IFileStorable, INameableFileReference
 {
+	public static const EXTENSION:String = "wall";
 	private var _file:File;
+	
 	
 	public function FileStoredWall(file:File = null)
 	{
@@ -23,7 +23,7 @@ public class FileStoredWall extends Wall implements IFileStorable, INameableFile
 		if(file != null)
 			load(file);
 		else  {
-			_file = TemporaryFileStorage.resolve();
+			_file = TemporaryFileStorage.resolve(EXTENSION);
 			saveAs();
 		}
 		
