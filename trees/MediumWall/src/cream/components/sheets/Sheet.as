@@ -241,14 +241,22 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		bc.filters = [new DropShadowFilter(12, 45,0, 0.4, 30, 30, 0.8)];
 
 	}
-
-	public override function set width(val:Number):void {
+	
+	
+	public override function set width(val:Number):void
+	{
 		if(imageContent)
-			;
+			imageContent.width = val;
 		super.width = val;
-		
 	}
 	
+	public override function set height(val:Number):void
+	{
+		if(imageContent)
+			imageContent.height = val;
+		super.height = val;
+	}
+
 	
 	public function addContentChangeEventListener(listener:Function):void
 	{
@@ -289,7 +297,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 	{
 		dispatchEvent(new CloseEvent(this));
 	}
-	
+
 	
 	public function applyAction(action:Action):void
 	{

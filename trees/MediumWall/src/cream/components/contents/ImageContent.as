@@ -43,16 +43,22 @@ package cream.components.contents
 		public override function set width(val:Number):void
 		{
 			savedWidth = val;
-			if(bitmapData)
+			if(bitmapData)  {
 				imageContainer.scaleX = (val/bitmapData.width);
+				trace(imageContainer.scaleX);
+			}
+			
 		}
 		
 		public override function set height(val:Number):void
 		{
-			savedHeight= val;
+			savedHeight = val;
 			if(bitmapData)
 				imageContainer.scaleY = (val/bitmapData.height);
 		}
+		
+		public override function get width():Number { return savedWidth; }
+		public override function get height():Number { return savedHeight; }
 
 		public function set file(imageFile:File):void
 		{
@@ -73,8 +79,11 @@ package cream.components.contents
 				imageContainer.graphics.drawRect(0, 0, bitmapData.width, bitmapData.height);
 				imageContainer.graphics.endFill();
 				
-				width = savedWidth == 0 ? bitmapData.width : savedWidth;
-				height = savedHeight == 0 ? bitmapData.height : savedHeight;
+				// if loading for the first time, width/height may be empty
+				trace(savedWidth, savedHeight, width, height, bitmapData.width, bitmapData.height);
+				width = (savedWidth == 0 ? bitmapData.width : savedWidth);
+				height = (savedHeight == 0 ? bitmapData.height : savedHeight);
+				
 				
 			});
 			loader.loadBytes(ba);
