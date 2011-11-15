@@ -45,7 +45,7 @@ package cream.components.contents
 			savedWidth = val;
 			if(bitmapData)  {
 				imageContainer.scaleX = (val/bitmapData.width);
-				trace(imageContainer.scaleX);
+				
 			}
 			
 		}
@@ -80,7 +80,6 @@ package cream.components.contents
 				imageContainer.graphics.endFill();
 				
 				// if loading for the first time, width/height may be empty
-				trace(savedWidth, savedHeight, width, height, bitmapData.width, bitmapData.height);
 				width = (savedWidth == 0 ? bitmapData.width : savedWidth);
 				height = (savedHeight == 0 ? bitmapData.height : savedHeight);
 				

@@ -16,6 +16,7 @@ package controllers
 	import cream.storages.actions.IActionCommitter;
 	import cream.storages.clipboards.Clipboard;
 	import cream.storages.history.History;
+	import cream.utils.Platform;
 	import cream.utils.TemporaryFileStorage;
 	
 	import flash.desktop.NativeApplication;
@@ -25,13 +26,16 @@ package controllers
 	import flash.display.LoaderInfo;
 	import flash.errors.IOError;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	import flash.net.FileReference;
 	import flash.utils.ByteArray;
 	
+	import mx.core.FlexGlobals;
 	import mx.core.IVisualElementContainer;
+	import mx.core.mx_internal;
 	
 	import spark.components.Application;
 
@@ -76,29 +80,10 @@ package controllers
 				}
 			);
 			
-			toolbar.undoButton.addClickEventListener(
-				function(e:ClickEvent):void {
-					var action:Action = history.rollback();
-					if(action)  {
-						disableHistory();
-						action.committer.revertAction(action);
-						trace("undo: " + action.type);
-						enableHistory();
-					}
-				}
-			);
+			toolbar.undoButton.addClickEventListener( function(e:ClickEvent):void { onUndo() } );
 			
-			toolbar.redoButton.addClickEventListener(
-				function(e:ClickEvent):void {
-					var action:Action = history.playForward();
-					if(action)  {
-						disableHistory();
-						action.committer.applyAction(action);
-						trace("redo: " + action.type);
-						enableHistory();
-					}
-				}
-			);
+			toolbar.redoButton.addClickEventListener( function(e:ClickEvent):void { onRedo() } );
+				
 			
 			toolbar.saveAsButton.addClickEventListener(
 				function(e:ClickEvent):void {
@@ -107,11 +92,30 @@ package controllers
 				}
 			);
 			
-			toolbar.copyButton.addClickEventListener(
-				function(e:ClickEvent):void {
-					clipboard.copyTest();
+			FlexGlobals.topLevelApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, function (e:KeyboardEvent):void
+			{
+				
+				// ctrl-z // command-z
+				if(((Platform.isWindows && e.ctrlKey) && (e.keyCode == 90 || e.keyCode == 122)) ||
+					(Platform.isMac && e.commandKey && !e.shiftKey && (e.keyCode == 90 || e.keyCode == 122)))
+				{
+					onUndo();
 				}
-			);
+				// ctrl-y // command-shift-z
+				else if((Platform.isWindows && e.ctrlKey && (e.keyCode == 89 || e.keyCode == 121)) ||
+					(Platform.isMac && e.commandKey && e.shiftKey && (e.keyCode == 90 || e.keyCode == 122)) )
+				{
+					onRedo();
+				}
+				
+				
+			});
+			
+//			toolbar.pasteButton.addClickEventListener(
+//				function(e:ClickEvent):void {
+//					
+//				}
+//			);
 			
 			enableHistory();
 			
@@ -121,6 +125,29 @@ package controllers
 		{
 			perspective.addToApplication(app);
 			
+		}
+		
+		private function onUndo():void
+		{
+			var action:Action = history.rollback();
+			if(action)  {
+				disableHistory();
+				action.committer.revertAction(action);
+				trace("undo: " + action.type);
+				enableHistory();
+			}
+		}
+		
+		private function onRedo():void
+		{
+			var action:Action = history.playForward();
+			if(action)  {
+				disableHistory();
+				action.committer.applyAction(action);
+				trace("redo: " + action.type);
+				enableHistory();
+			}
+		
 		}
 		
 		private function onCommit(e:CommitEvent):void
