@@ -17,6 +17,7 @@ package cream.components.buttons
 	
 	import spark.components.ButtonBarButton;
 	import spark.components.Group;
+	import spark.components.HGroup;
 	import spark.components.TextInput;
 
 	public class TabButton extends ClickableComponent implements ICloseEventDispatcher
@@ -37,14 +38,15 @@ package cream.components.buttons
 			button.addEventListener(MouseEvent.RIGHT_CLICK,
 				function(e:MouseEvent):void {
 					// To do : change code
-					var here = e.currentTarget;
+					var here:ButtonBarButton = e.currentTarget as ButtonBarButton;
 					var textInput:TextInput = new TextInput();
 					textInput.addEventListener(KeyboardEvent.KEY_UP, function(e:KeyboardEvent):void {
 						if (e.keyCode == 13)
 						{
 							here.label = textInput.text;
 							here.name = textInput.text;
-							here.parent.removeElement(textInput);
+							var hGroup:HGroup = here.parent as HGroup;
+							hGroup.removeElement(textInput);
 						}
 					});
 					

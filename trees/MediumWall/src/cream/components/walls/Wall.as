@@ -16,7 +16,6 @@ import cream.eventing.events.ClipboardEvent;
 import cream.eventing.events.CloseEvent;
 import cream.eventing.events.CommitEvent;
 import cream.eventing.events.CompositeEvent;
-import cream.eventing.events.Event;
 import cream.eventing.events.FocusEvent;
 import cream.eventing.events.MoveEvent;
 import cream.eventing.events.NameChangeEvent;
@@ -47,12 +46,9 @@ import flash.utils.Timer;
 
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
-<<<<<<< .mine
 import mx.effects.AnimateProperty;
 import mx.effects.Tween;
-=======
 import mx.graphics.codec.PNGEncoder;
->>>>>>> .r113
 import mx.managers.FocusManager;
 
 import spark.components.BorderContainer;
@@ -160,6 +156,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 				var fileStream:FileStream = new FileStream();
 				fileStream.open( imageFile, FileMode.WRITE );
 				fileStream.writeBytes( rawBytes );
+				fileStream.close();
 				addImageSheet(imageFile, bitmapData.width, bitmapData.height );
 			}
 		});
