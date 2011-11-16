@@ -91,7 +91,8 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 		// wheel scroll to zoom
 		visualElement.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
-			setZoom(0.03 * e.delta);
+			setZoom(zoomX* Math.pow(1.03,e.delta));
+			
 		});
 		
 		/** focus when wall clicked **/
@@ -238,24 +239,26 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	
 	private function onSheetMove(e:MoveEvent):void
 	{
-		var dScale:Number = 0.0;
 		
-	//	trace(childrenExtent.x, childrenExtent.y);
-	//	trace(childrenExtent.width, childrenExtent.height);
-	//	trace(width, height);
-		
-		if(childrenExtent.x < 0)
-			dScale = Math.min(2 * childrenExtent.x / width, dScale);
-		if(childrenExtent.y < 0)
-			dScale = Math.min(2 * childrenExtent.y / height, dScale);
-		if(childrenExtent.x + childrenExtent.width > width)
-			dScale = Math.min(2 * (childrenExtent.x + childrenExtent.width - width) / width, dScale);
-		if(childrenExtent.y + childrenExtent.height > height)
-			dScale = Math.min(2 * (childrenExtent.y + childrenExtent.height - height) / height, dScale);
-		
-		trace("multiplier: " + dScale);
-		
-		setZoom(dScale * zoomX);
+	/**** LETS FIX THIS! ****/
+//		var dScale:Number = 0.0;
+//		
+//	//	trace(childrenExtent.x, childrenExtent.y);
+//	//	trace(childrenExtent.width, childrenExtent.height);
+//	//	trace(width, height);
+//		
+//		if(childrenExtent.x < 0)
+//			dScale = Math.min(2 * childrenExtent.x / width, dScale);
+//		if(childrenExtent.y < 0)
+//			dScale = Math.min(2 * childrenExtent.y / height, dScale);
+//		if(childrenExtent.x + childrenExtent.width > width)
+//			dScale = Math.min(2 * (childrenExtent.x + childrenExtent.width - width) / width, dScale);
+//		if(childrenExtent.y + childrenExtent.height > height)
+//			dScale = Math.min(2 * (childrenExtent.y + childrenExtent.height - height) / height, dScale);
+//		
+//		trace("multiplier: " + dScale);
+//		
+//		setZoom(dScale * zoomX);
 	}
 	
 	public function addSheet(sheet:Sheet):void

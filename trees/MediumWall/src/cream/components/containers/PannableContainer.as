@@ -1,10 +1,11 @@
 package cream.components.containers
 {
+import cream.eventing.events.PanEvent;
+
+import flash.display.DisplayObject;
+import flash.display.Stage;
 import flash.events.MouseEvent;
 import flash.geom.Point;
-import flash.display.Stage;
-import flash.display.DisplayObject;
-import cream.eventing.events.PanEvent;
 import flash.geom.Rectangle;
 
 public class PannableContainer extends ScrollableContainer implements IPannableContainer
@@ -88,8 +89,10 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 		dispatchEvent(new PanEvent(this, PanEvent.PANNED, oldX, oldY, newX, newY));
 	}
 	
-	protected function set zoom(multiplier:Number):void
+	protected function set zoom(value:Number):void
 	{
+		var multiplier:Number = value/zoomX;
+		
 		const MIN_SCALE:Number = 0.1;
 		if(multiplier < 1.0 && (zoomX <= MIN_SCALE || zoomY <= MIN_SCALE))
 		{
@@ -100,12 +103,12 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 			_zoomY = MIN_SCALE;
 		}
 		else  {
-			_zoomX = zoomX + multiplier;
-			_zoomY = zoomY + multiplier;
+			_zoomX = zoomX * multiplier;
+			_zoomY = zoomY * multiplier;
 		}
 		
-		_panX = (panX - width/2) * zoomX / (zoomX - multiplier) + width / 2;
-		_panY = (panY - height/2) * zoomY / (zoomY - multiplier) + height / 2;
+		_panX = (panX - width/2) * multiplier + width/2;
+		_panY = (panY - height/2) * multiplier + height/2;
 	}
 	
 	
