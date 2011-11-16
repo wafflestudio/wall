@@ -6,9 +6,11 @@ package cream.components.sheets  {
 	import cream.components.FlexibleComponent;
 	import cream.components.ICommitableComponent;
 	import cream.components.MovableComponent;
+	import cream.components.containers.Container;
 	import cream.components.contents.ImageContent;
 	import cream.components.contents.TextContent;
 	import cream.components.controls.CloseControl;
+	import cream.components.walls.Wall;
 	import cream.eventing.eventdispatchers.IClickEventDispatcher;
 	import cream.eventing.eventdispatchers.ICloseEventDispatcher;
 	import cream.eventing.eventdispatchers.IEventDispatcher;
@@ -119,6 +121,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		
 		addMovedEventListener( function(e:MoveEvent):void
 		{
+			trace(e.newX, e.newY);
 			dispatchCommitEvent(new ActionCommitEvent(self, MOVE, [e.oldX, e.oldY, e.newX, e.newY]));
 		});
 		
@@ -326,6 +329,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		switch(action.type)
 		{
 			case MOVE:
+			
 				x = action.args[0];
 				y = action.args[1];
 				dispatchFocusInEvent();

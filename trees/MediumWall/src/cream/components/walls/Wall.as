@@ -18,6 +18,7 @@ import cream.eventing.events.CommitEvent;
 import cream.eventing.events.CompositeEvent;
 import cream.eventing.events.Event;
 import cream.eventing.events.FocusEvent;
+import cream.eventing.events.MoveEvent;
 import cream.eventing.events.NameChangeEvent;
 import cream.eventing.events.PanEvent;
 import cream.eventing.events.ZoomEvent;
@@ -46,13 +47,20 @@ import flash.utils.Timer;
 
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
+<<<<<<< .mine
+import mx.effects.AnimateProperty;
+import mx.effects.Tween;
+=======
 import mx.graphics.codec.PNGEncoder;
+>>>>>>> .r113
 import mx.managers.FocusManager;
 
 import spark.components.BorderContainer;
 import spark.components.Group;
 import spark.components.NavigatorContent;
 import spark.components.Scroller;
+import spark.effects.Animate;
+import spark.effects.animation.Animation;
 
 public class Wall extends PannableContainer implements IPannableContainer, IXMLizable, INameableComponent, ICommitableComponent, 
 	IToplevelComponent, IZoomEventDispatcher, IActionCommitter, IClipboardPasteEventDispatcher
@@ -83,16 +91,11 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		bc.percentWidth = 100;
 		name = "wall";
 		
+		
+		
 		// wheel scroll to zoom
 		visualElement.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
-			var multiplier:Number = Math.pow(1.03, e.delta);
-			var oldZoomX:Number = _zoomX;
-			var oldZoomY:Number = _zoomY;
-			
-			zoom = multiplier;
-			dispatchDimensionChangeEvent(extent, extent);
-			dispatchChildrenDimensionChangeEvent();
-			dispatchZoomEvent(oldZoomX, oldZoomY, _zoomX, _zoomY);
+			setZoom(0.03 * e.delta);
 		});
 		
 		/** focus when wall clicked **/
@@ -164,6 +167,16 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 	}
 	
+	public function setZoom(_multiplier:Number):void {
+		var multiplier:Number = _multiplier;
+		var oldZoomX:Number = _zoomX;
+		var oldZoomY:Number = _zoomY;
+		
+		zoom = multiplier;
+		dispatchDimensionChangeEvent(extent, extent);
+		dispatchChildrenDimensionChangeEvent();
+		dispatchZoomEvent(oldZoomX, oldZoomY, _zoomX, _zoomY);
+	}
 	
 	public function addTextSheet(text:String = "", width:Number = 0, height:Number = 0):void
 	{
@@ -226,11 +239,34 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		removeSheet(e.dispatcher as Sheet);
 	}
 	
+	private function onSheetMove(e:MoveEvent):void
+	{
+		var dScale:Number = 0.0;
+		
+	//	trace(childrenExtent.x, childrenExtent.y);
+	//	trace(childrenExtent.width, childrenExtent.height);
+	//	trace(width, height);
+		
+		if(childrenExtent.x < 0)
+			dScale = Math.min(2 * childrenExtent.x / width, dScale);
+		if(childrenExtent.y < 0)
+			dScale = Math.min(2 * childrenExtent.y / height, dScale);
+		if(childrenExtent.x + childrenExtent.width > width)
+			dScale = Math.min(2 * (childrenExtent.x + childrenExtent.width - width) / width, dScale);
+		if(childrenExtent.y + childrenExtent.height > height)
+			dScale = Math.min(2 * (childrenExtent.y + childrenExtent.height - height) / height, dScale);
+		
+		trace("multiplier: " + dScale);
+		
+		setZoom(dScale * zoomX);
+	}
+	
 	public function addSheet(sheet:Sheet):void
 	{
 		sheet.addFocusInEventListener(onSheetFocusEvent); 
 		sheet.addCommitEventListener(onSheetCommitEvent);
 		sheet.addCloseEventListener(onSheetClose);
+		sheet.addMovedEventListener(onSheetMove);
 		addChild(sheet);
 	}
 	
@@ -240,9 +276,8 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		sheet.removeCloseEventListener(onSheetClose);
 		sheet.removeCommitEventListener(onSheetCommitEvent);
 		sheet.removeFocusInEventListener(onSheetFocusEvent);
+		sheet.removeMovedEventListener(onSheetMove);
 	}
-		
-	
 	
 	private var _name:String = "noname";
 	

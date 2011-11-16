@@ -63,43 +63,44 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 				
 				var curMousePos:Point = app.globalToLocal(new Point(e.stageX, e.stageY));
 				var diff:Point = curMousePos.subtract(initialMousePosLocal);
+				trace(x, y);
+				trace(diff.x, diff.y);
 				switch(control)  {
 					case up:
-						y = oldY + diff.y;
-						height = oldHeight - diff.y;
+						y = oldHeight - diff.y < 0 ? oldY + oldHeight - 10 : oldY + diff.y;
+						height = oldHeight - diff.y < 0 ? 10 : oldHeight - diff.y;
 						break;
 					case down:
-						height = oldHeight + diff.y;
+						height = oldHeight + diff.y < 0? 10 : oldHeight + diff.y;
 						break;
 					case left:
-						x = oldX + diff.x;
-						width = oldWidth - diff.x;
+						x = oldWidth - diff.x < 0 ? oldX + oldWidth - 10 : oldX + diff.x;
+						width = oldWidth - diff.x < 0? 10 : oldWidth - diff.x;
 						break;
 					case right:
-						width = oldWidth + diff.x;
+						width = oldWidth + diff.x < 0? 10 : oldWidth + diff.x;
 						break;
 					case upperLeft:
-						x = oldX + diff.x;
-						y = oldY + diff.y;
-						width = oldWidth - diff.x;
-						height = oldHeight - diff.y;
+						y = oldHeight - diff.y < 0 ? oldY + oldHeight - 10 : oldY + diff.y;
+						height = oldHeight - diff.y < 0 ? 10 : oldHeight - diff.y;
+						x = oldWidth - diff.x < 0 ? oldX + oldWidth - 10 : oldX + diff.x;
+						width = oldWidth - diff.x < 0? 10 : oldWidth - diff.x;
 						break;
 					case upperRight:
-						y = oldY + diff.y;
-						height = oldHeight - diff.y;
-						width = oldWidth + diff.x;
+						y = oldHeight - diff.y < 0 ? oldY + oldHeight - 10 : oldY + diff.y;
+						height = oldHeight - diff.y < 0 ? 10 : oldHeight - diff.y;
+						width = oldWidth + diff.x < 0? 10 : oldWidth + diff.x;
 						break;
 					case lowerLeft:
-						x = oldX + diff.x;
-						width = oldWidth - diff.x;
-						height = oldHeight + diff.y;
+						height = oldHeight + diff.y < 0? 10 : oldHeight + diff.y;
+						x = oldWidth - diff.x < 0 ? oldX + oldWidth - 10 : oldX + diff.x;
+						width = oldWidth - diff.x < 0? 10 : oldWidth - diff.x;
 						break;
 					case lowerRight:
-						width = oldWidth + diff.x;
-						height = oldHeight + diff.y;
+						height = oldHeight + diff.y < 0? 10 : oldHeight + diff.y;
+						width = oldWidth + diff.x < 0? 10 : oldWidth + diff.x;
 						break;
 				}
-				
 				dispatchResizingEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
 			}
 			

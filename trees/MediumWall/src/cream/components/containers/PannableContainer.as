@@ -100,12 +100,12 @@ public class PannableContainer extends ScrollableContainer implements IPannableC
 			_zoomY = MIN_SCALE;
 		}
 		else  {
-			_zoomX = zoomX * multiplier;
-			_zoomY = zoomY * multiplier;
+			_zoomX = zoomX + multiplier;
+			_zoomY = zoomY + multiplier;
 		}
 		
-		_panX = (panX - width/2) * multiplier + width/2;
-		_panY = (panY - height/2) * multiplier + height/2;
+		_panX = (panX - width/2) * zoomX / (zoomX - multiplier) + width / 2;
+		_panY = (panY - height/2) * zoomY / (zoomY - multiplier) + height / 2;
 	}
 	
 	
