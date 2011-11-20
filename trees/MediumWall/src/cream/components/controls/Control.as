@@ -42,7 +42,6 @@ public class Control extends ToplevelComponent implements IPositionedComponent
 	{
 		super.removeFromApplication(app);
 		active = false;
-		
 	}
 	
 	public function bringToFront():void

@@ -107,11 +107,7 @@ package controllers
 				{
 					onRedo();
 				}
-				else if(Platform.isMac && e.keyCode == 46)
-				{
-					// Delete key
-					trace('delete');
-				}
+			
 				
 				
 				

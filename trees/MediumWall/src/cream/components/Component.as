@@ -109,7 +109,7 @@ public class Component extends Composite implements IComponent
 		// event only valid on first addition
 		removeAddedEventListener( onAdded );
 		
-		// Manage focus
+		// Manage system focus (copy/paste depend on it)
 		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void
 		{
 			if(e.target.parent != visualElement)

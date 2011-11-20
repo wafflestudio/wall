@@ -146,7 +146,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 			if(e.format == ClipboardEvent.TEXT_FORMAT) {
 				addTextSheet(e.object as String);
 			} else if(e.format == (ClipboardEvent.BITMAP_FORMAT)) {
-				trace("clipboard to image sheet");
+				
 				var imageFile:File = null;
 				var encoder:PNGEncoder = new PNGEncoder();
 				var bitmapData:BitmapData = e.object as BitmapData;

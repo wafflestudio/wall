@@ -27,7 +27,9 @@ package cream.components.sheets  {
 	import cream.storages.IXMLizable;
 	import cream.storages.actions.Action;
 	import cream.storages.actions.IActionCommitter;
+	import cream.utils.Platform;
 	
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.filesystem.File;
@@ -42,6 +44,7 @@ package cream.components.sheets  {
 	import mx.core.IVisualElementContainer;
 	
 	import spark.components.BorderContainer;
+	import spark.effects.Fade;
 	import spark.filters.DropShadowFilter;
 
 
@@ -54,7 +57,6 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 	public static const IMAGE_SHEET:String = "image";
 	public static const TEXT_SHEET:String = "text";
 	
-
 	private var bc:BorderContainer = new BorderContainer();
 	override protected function get visualElement():IVisualElement { return bc; }
 	
@@ -113,6 +115,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		// bring to front if clicked
 		bc.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void {
 			dispatchFocusInEvent();
+			bringSystemFocus();
 		}, false, 1);
 		
 		visualElement = bc;
@@ -130,8 +133,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 			dispatchCommitEvent(new ActionCommitEvent(self, RESIZE, [e.oldLeft, e.oldTop, e.oldRight, e.oldBottom, e.left, e.top, e.right, e.bottom]));
 			if(type == Sheet.IMAGE_SHEET) {
 				imageContent.width = e.right - e.left;
-				imageContent.height = e.bottom - e.top;
-				//imageContent.resizeImage(e.right-e.left,e.bottom-e.top);	
+				imageContent.height = e.bottom - e.top;	
 			}
 			
 		});
@@ -166,12 +168,29 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		
 		addExternalDimensionChangeEventListener(updateCloseControlPosition);
 		
-		detachTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void
+		function removeCloseControl():void
 		{
 			if(closeControlShowing)  {
 				closeControl.removeFromApplication();
 				closeControlShowing = false;
 			}
+		}
+		
+		function showCloseControl():void
+		{
+			if(!closeControlShowing)  {
+				closeControl.addToApplication();
+				var effect:Fade = new Fade(closeControl._protected_::visualElement);
+				effect.alphaFrom = 0;
+				effect.alphaTo = 1.0;
+				effect.play();
+				closeControlShowing = true;
+			}
+		}
+		
+		detachTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void
+		{
+			removeCloseControl();
 		});
 		
 		
@@ -184,10 +203,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 					detachTimer.reset();
 				}
 				
-				if(!closeControlShowing)  {
-					closeControl.addToApplication();
-					closeControlShowing = true;
-				}
+				showCloseControl();
 				
 				updateCloseControlPosition();
 				
@@ -202,6 +218,18 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 				
 			}
 		);
+		
+		
+		// hide close control when dragging the sheet
+		addMovingEventListener( function(e:MoveEvent):void
+		{
+			removeCloseControl();
+		});
+		
+		addMovedEventListener( function(e:MoveEvent):void
+		{
+			showCloseControl();
+		});
 		
 		closeControl.addRollOverEventListener( 
 			function():void
@@ -233,15 +261,22 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		addRemovedEventListener( 
 			function():void
 			{
-				if(closeControlShowing)  {
-					closeControl.removeFromApplication();
-					closeControlShowing = false;
-				}
+				removeCloseControl();
 			}
 		);
 		
 		
+		// shadow effect
 		bc.filters = [new DropShadowFilter(12, 45,0, 0.4, 30, 30, 0.8)];
+		
+		// delete key dispatches close event
+		bc.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void
+		{
+			if(Platform.isMac && e.keyCode == 46)
+			{
+				dispatchCloseEvent();
+			}
+		});
 
 	}
 	

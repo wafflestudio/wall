@@ -12,8 +12,7 @@ package cream.components.contents
 	{
 		public function Content()
 		{
-			super();
-			
+			super();			
 		}
 		
 		
