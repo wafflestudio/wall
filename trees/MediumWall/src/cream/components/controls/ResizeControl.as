@@ -63,8 +63,7 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 				
 				var curMousePos:Point = app.globalToLocal(new Point(e.stageX, e.stageY));
 				var diff:Point = curMousePos.subtract(initialMousePosLocal);
-				trace(x, y);
-				trace(diff.x, diff.y);
+				
 				switch(control)  {
 					case up:
 						y = oldHeight - diff.y < 0 ? oldY + oldHeight - 10 : oldY + diff.y;

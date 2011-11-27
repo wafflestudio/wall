@@ -87,7 +87,6 @@ package controllers
 			
 			toolbar.saveAsButton.addClickEventListener(
 				function(e:ClickEvent):void {
-					trace(perspective.currentWall.name);
 					perspective.currentWall.saveWallAs();
 				}
 			);

@@ -382,7 +382,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 			var xml:XML = toXML(); // any errors according to serialization must happen beforehand to opening the file
 			//why toXML execute FileStoredWall's toXML?? T.T
 			var fs:XMLFileStream = new XMLFileStream(e.target as File);
-			trace("xml is " + xml);
+			
 			fs.setXML(xml);
 		});
 	}

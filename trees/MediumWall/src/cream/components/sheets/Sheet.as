@@ -124,7 +124,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 		
 		addMovedEventListener( function(e:MoveEvent):void
 		{
-			trace(e.newX, e.newY);
+			
 			dispatchCommitEvent(new ActionCommitEvent(self, MOVE, [e.oldX, e.oldY, e.newX, e.newY]));
 		});
 		

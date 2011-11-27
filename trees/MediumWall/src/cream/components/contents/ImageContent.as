@@ -104,12 +104,12 @@ package cream.components.contents
 			var imageXML:XML = <image/>;
 			imageXML.@image = imageFile.nativePath;
 			xml.appendChild(imageXML);
-			trace("imageContent toXML");
+			
 			return xml;
 		}
 
 		override public function fromXML(xml:XML):IXMLizable {
-			trace("imageContent fromXML");
+			
 			var imagexml:XML = xml.image[0];
 			file = File.applicationStorageDirectory.resolvePath(imagexml.@image);
 			return this;
