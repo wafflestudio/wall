@@ -20,20 +20,21 @@ package cream.components.controls
 //		private var bc:BorderContainer = new BorderContainer();
 		private var image:Image = new Image();
 		
-		public function set imageSource(asset:BitmapAsset):void { image.source = asset; image.width = asset.width; image.height = asset.height; }
-		
+		public function set imageSource(asset:BitmapAsset):void { image.graphics.clear();image.source = asset; image.width = asset.width; image.height = asset.height; }
 		
 		public function CloseControl()
 		{
-//			bc.width = 16;
-//			bc.height = 16;
-//			bc.setStyle("backgroundColor", 'red');
+			image.width = 16;
+			image.height = 16;
+			image.graphics.beginFill(0);
+			image.graphics.drawRect(0,0,16,16);
+			image.graphics.endFill();
 			
 			visualElement = image;
 			visualElementContainer = null;
 		
 			// default asset
-			imageSource = new Assets.close_png();
+//			imageSource = new Assets.close_png();
 			
 			
 			visualElement.addEventListener(MouseEvent.ROLL_OVER, function():void

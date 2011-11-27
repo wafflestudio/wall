@@ -43,6 +43,8 @@ package cream.components.sheets  {
 	import mx.core.IVisualElement;
 	import mx.core.IVisualElementContainer;
 	
+	import resources.Assets;
+	
 	import spark.components.BorderContainer;
 	import spark.effects.Fade;
 	import spark.filters.DropShadowFilter;
@@ -108,6 +110,8 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 				dispatchCommitEvent(e);
 			});
 		} 
+		
+		closeControl.imageSource = new Assets.close_png();
 		
 		bc.setStyle("borderWeight", 0);
 		bc.setStyle("borderAlpha", 0);

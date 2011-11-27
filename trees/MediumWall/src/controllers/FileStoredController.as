@@ -60,16 +60,19 @@ package controllers
 		
 		public function fromXML(configXML:XML):IXMLizable
 		{
+			throw new Error("this method should've been overrided!");
 			return null;
 		}
 		
 		public function toXML():XML
 		{
+			throw new Error("this method should've been overrided!");
 			return null;	
 		}
 		
 		public function get defaultXML():XML
 		{
+			throw new Error("this method should've been overrided!");
 			return null;
 		}
 		
