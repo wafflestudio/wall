@@ -3,7 +3,6 @@ package cream.components.wallstacks
 import cream.components.Component;
 import cream.components.Composite;
 import cream.components.IComponent;
-import cream.components.INameableComponent;
 import cream.components.containers.Container;
 import cream.components.tabviews.TabView;
 import cream.components.walls.FileStoredWall;

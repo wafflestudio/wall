@@ -20,6 +20,9 @@ package cream.components.controls
 //		private var bc:BorderContainer = new BorderContainer();
 		private var image:Image = new Image();
 		
+		public function set imageSource(asset:BitmapAsset):void { image.source = asset; image.width = asset.width; image.height = asset.height; }
+		
+		
 		public function CloseControl()
 		{
 //			bc.width = 16;
@@ -29,11 +32,8 @@ package cream.components.controls
 			visualElement = image;
 			visualElementContainer = null;
 		
-			var asset:BitmapAsset = new Assets.close_png()
-			image.source = asset;
-			image.width = asset.width;
-			image.height = asset.height
-
+			// default asset
+			imageSource = new Assets.close_png();
 			
 			
 			visualElement.addEventListener(MouseEvent.ROLL_OVER, function():void

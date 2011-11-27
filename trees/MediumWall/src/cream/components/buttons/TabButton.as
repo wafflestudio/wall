@@ -15,6 +15,8 @@ package cream.components.buttons
 	import mx.core.IVisualElement;
 	import mx.core.UIComponent;
 	
+	import resources.Assets;
+	
 	import spark.components.ButtonBarButton;
 	import spark.components.Group;
 	import spark.components.HGroup;
@@ -29,6 +31,8 @@ package cream.components.buttons
 		public function TabButton()
 		{
 			super();
+			
+			closeControl.imageSource = new Assets.close_small_png()
 			
 			button.addEventListener(MouseEvent.CLICK, 
 				function(e:MouseEvent):void {

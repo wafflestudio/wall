@@ -5,8 +5,6 @@ package cream.components.images
 	import mx.core.BitmapAsset;
 	import mx.events.FlexEvent;
 	
-	import resources.Assets;
-	
 	import spark.components.Image;
 
 	public class Image extends FlexibleComponent
