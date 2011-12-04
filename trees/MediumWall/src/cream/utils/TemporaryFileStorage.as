@@ -13,11 +13,42 @@ public class TemporaryFileStorage
 		throw new IllegalOperationError("Access to a singleton constructor");
 	}
 	
-	public static function resolve(extension:String, targetDirectory:File = null):File
+	public static function resolve(extension:String, targetDirectory:File = null, targetFileName:String = null):File
 	{
 		if(!targetDirectory)
 			targetDirectory = File.applicationStorageDirectory;
+		var file:File = null;
+		if(targetFileName) {
+			file = targetDirectory.resolvePath(targetFileName+"."+extension);
+			if(file.exists)
+				trace("wall name conflict");
+		} else {
+			file = setUnnamedFile(extension, targetDirectory);
+		}
 		
+		return file;
+	}
+
+	public static function imageAssetsResolve(extension:String, targetDirectory:File = null, imageFileName:String = null):File
+	{
+		if(!targetDirectory)
+			targetDirectory = File.applicationStorageDirectory.resolvePath("assets/images");
+		else
+			targetDirectory = targetDirectory.resolvePath("assets/images");
+		
+		var file:File = null;
+		if(imageFileName) {
+			file = targetDirectory.resolvePath(imageFileName+"."+extension);
+			if(file.exists)
+				trace("wall name conflict");
+			
+		} else {
+			file = setUnnamedFile(extension, targetDirectory);
+		}
+		return file;
+	}
+	
+	private static function setUnnamedFile(extension:String, targetDirectory:File):File {
 		var contents:Array = targetDirectory.getDirectoryListing();
 		var num:int = 0;
 		for (var i:uint = 0; i < contents.length; i++) 
@@ -30,36 +61,20 @@ public class TemporaryFileStorage
 			var n:int = parseInt(name.replace(new RegExp("/\bunnamed([0-9]{5})\." + extension + "\b/"), "$1"), 10);
 			num = n > num ? n : num;	
 		}
-		
-		var file:File = null;
-		
+		var _file:File = null;
 		while(true) {
 			num ++;
 			var newName:String = "0000" + num;
 			newName = "unnamed" + newName.substr(newName.length-5, 5) + "." + extension; // "000011" => "00011"
-			
-			file = targetDirectory.resolvePath(newName);
-			if(!file.exists) 
+			//TODO get current wall's name
+			_file = targetDirectory.resolvePath(newName);
+			if(!_file.exists) 
 				break;
 			
 			trace("file(" + newName + ") already exists, skipping");
 		}
-		
-		return file;
+		return _file;
 	}
-	
-	public static function imageAssetsResolve(name:String):File
-	{
-		var file:File = null;
-		file = File.applicationStorageDirectory.resolvePath("assets/images/"+name);
-		if(!file.exists) 
-			trace("name conflict");
-		
-		return file;
-	}
-	
-	
-	
 	
 }
 }

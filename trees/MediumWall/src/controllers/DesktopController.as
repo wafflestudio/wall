@@ -193,7 +193,7 @@ package controllers
 			var imageFile:File = new File();
 			imageFile.addEventListener(Event.SELECT, 
 				function onSelect(e:Event):void  {
-					var destFile:File = TemporaryFileStorage.imageAssetsResolve(imageFile.name);
+					var destFile:File = TemporaryFileStorage.imageAssetsResolve(imageFile.extension,null,imageFile.name);
 					if(destFile.exists) {
 						trace("file name already exists");
 					} else {
