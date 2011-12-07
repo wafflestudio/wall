@@ -23,7 +23,7 @@ public class FileStoredWall extends Wall implements IFileStorable, INameableFile
 		if(file != null)
 			load(file);
 		else  {
-			_file = TemporaryFileStorage.resolve(EXTENSION);
+			_file = TemporaryFileStorage.resolve(EXTENSION,File.applicationStorageDirectory.resolvePath(this.name),"index");
 			saveAs();
 		}
 		
