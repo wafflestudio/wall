@@ -31,36 +31,43 @@ public class TemporaryFileStorage
 
 	public static function imageAssetsResolve(extension:String, targetDirectory:File = null, imageFileName:String = null):File
 	{
+		var _targetDirectory:File = null;
 		if(!targetDirectory)
-			targetDirectory = File.applicationStorageDirectory.resolvePath("assets/images");
+			_targetDirectory = File.applicationStorageDirectory.resolvePath("assets/images");
 		else
-			targetDirectory = targetDirectory.resolvePath("assets/images");
+			_targetDirectory = targetDirectory.resolvePath("assets/images");
 		
 		var file:File = null;
 		if(imageFileName) {
-			file = targetDirectory.resolvePath(imageFileName+"."+extension);
+			file = _targetDirectory.resolvePath(imageFileName+"."+extension);
 			if(file.exists)
 				trace("wall name conflict");
 			
 		} else {
-			file = setUnnamedFile(extension, targetDirectory);
+			file = setUnnamedFile(extension, _targetDirectory);
 		}
 		return file;
 	}
 	
 	private static function setUnnamedFile(extension:String, targetDirectory:File):File {
-		var contents:Array = targetDirectory.getDirectoryListing();
+		var contents:Array = null;
 		var num:int = 0;
-		for (var i:uint = 0; i < contents.length; i++) 
-		{
-			var name:String = contents[i].name as String;
-			var matches:Array = name.match(new RegExp("\bunnamed[0-9]{5}\." + extension + "\b/"));
-			if(matches == null || matches.length != 1)
-				continue;
-			
-			var n:int = parseInt(name.replace(new RegExp("/\bunnamed([0-9]{5})\." + extension + "\b/"), "$1"), 10);
-			num = n > num ? n : num;	
+		if(targetDirectory.exists) {
+			contents = targetDirectory.getDirectoryListing();
+			for (var i:uint = 0; i < contents.length; i++) 
+			{
+				var name:String = contents[i].name as String;
+				var matches:Array = name.match(new RegExp("\bunnamed[0-9]{5}\." + extension + "\b/"));
+				if(matches == null || matches.length != 1)
+					continue;
+				
+				var n:int = parseInt(name.replace(new RegExp("/\bunnamed([0-9]{5})\." + extension + "\b/"), "$1"), 10);
+				num = n > num ? n : num;	
+			}
+		} else {
+			num = 1;
 		}
+
 		var _file:File = null;
 		while(true) {
 			num ++;
@@ -73,6 +80,7 @@ public class TemporaryFileStorage
 			
 			trace("file(" + newName + ") already exists, skipping");
 		}
+		
 		return _file;
 	}
 	

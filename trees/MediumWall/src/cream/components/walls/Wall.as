@@ -150,8 +150,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 				var encoder:PNGEncoder = new PNGEncoder();
 				var bitmapData:BitmapData = e.object as BitmapData;
 				var rawBytes:ByteArray = encoder.encode(bitmapData);
-				
-				imageFile = TemporaryFileStorage.imageAssetsResolve("png",File.applicationStorageDirectory.resolvePath(this.name));
+				imageFile = TemporaryFileStorage.imageAssetsResolve("png",File.applicationStorageDirectory.resolvePath(name));
 				var fileStream:FileStream = new FileStream();
 				fileStream.open( imageFile, FileMode.WRITE );
 				fileStream.writeBytes( rawBytes );
