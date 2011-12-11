@@ -40,6 +40,7 @@ import flash.filesystem.File;
 import flash.filesystem.FileMode;
 import flash.filesystem.FileStream;
 import flash.geom.Point;
+import flash.net.FileReference;
 import flash.sampler.getLexicalScopes;
 import flash.utils.ByteArray;
 import flash.utils.Timer;
@@ -403,11 +404,13 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		var f:File = File.desktopDirectory;
 		f.browseForSave("Save As");
 		f.addEventListener(flash.events.Event.SELECT, function(e:flash.events.Event):void {
-			var xml:XML = toXML(); // any errors according to serialization must happen beforehand to opening the file
+//			var xml:XML = wallXML; // any errors according to serialization must happen beforehand to opening the file
 			//why toXML execute FileStoredWall's toXML?? T.T
-			var fs:XMLFileStream = new XMLFileStream(e.target as File);
-			
-			fs.setXML(xml);
+			var targetDirectory:File = e.target as File;
+//			var fs:XMLFileStream = new XMLFileStream(targetDirectory.resolvePath("index.wall"));
+//			fs.setXML(xml);
+			var sourceDirectory:File = File.applicationStorageDirectory.resolvePath(name);
+			sourceDirectory.copyTo(targetDirectory,true);
 		});
 	}
 	
@@ -444,9 +447,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		return this;
 	}
 	
-	
-	public function toXML():XML
-	{
+	protected function get wallXML():XML {
 		var xml:XML = <wall/>;
 		xml.@name = name;
 		xml.@panX = panX;
@@ -462,6 +463,10 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		}
 		xml.appendChild(sheetsXML);
 		return xml;
+	}
+	public function toXML():XML
+	{
+		return wallXML;
 	}
 	
 	

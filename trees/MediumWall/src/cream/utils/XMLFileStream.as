@@ -22,8 +22,9 @@ public class XMLFileStream
 		
 		try {
 			fileStream.open( file, FileMode.WRITE );
-			fileStream.writeUTFBytes( xml );
+			fileStream.writeUTFBytes( xml.toXMLString() );
 			trace('saved ' + file.nativePath);
+			fileStream.close();
 			// fs.close is not needed??
 		}
 		catch(e:IOError)  {
