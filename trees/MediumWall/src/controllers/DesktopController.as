@@ -11,6 +11,7 @@ package controllers
 	import cream.eventing.events.ClickEvent;
 	import cream.eventing.events.ClipboardEvent;
 	import cream.eventing.events.CommitEvent;
+	import cream.eventing.events.SheetEvent;
 	import cream.storages.IXMLizable;
 	import cream.storages.actions.Action;
 	import cream.storages.actions.IActionCommitter;
@@ -62,8 +63,17 @@ package controllers
 			
 			toolbar.openWallButton.addClickEventListener(
 				function(e:ClickEvent):void {
-					var dialog:Dialog = new OpenWallDialog();
-					dialog.show();
+//					var dialog:OpenWallDialog = new OpenWallDialog();
+//					dialog.show();
+//					dialog.addFileChoseEventListener(function(e:flash.events.Event):void {
+//						perspective.addWall(new FileStoredWall(e.target as File));
+//						
+//					});
+					var f:File = File.desktopDirectory;
+					f.browseForOpen("Open wall");
+					f.addEventListener(flash.events.Event.SELECT, function(e:flash.events.Event):void { 
+						perspective.addWall(new FileStoredWall(e.target as File));
+					});
 				}
 			);
 			
