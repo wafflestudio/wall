@@ -8,7 +8,9 @@ package cream.components.controls
 	import flash.events.MouseEvent;
 	
 	import mx.core.BitmapAsset;
-	import mx.events.FlexEvent;
+import mx.core.IVisualElement;
+import mx.core.IVisualElementContainer;
+import mx.events.FlexEvent;
 	
 	import resources.Assets;
 	
@@ -19,6 +21,9 @@ package cream.components.controls
 	{
 //		private var bc:BorderContainer = new BorderContainer();
 		private var image:Image = new Image();
+
+        override protected function get visualElement():IVisualElement {  return image;  }
+        override protected function get visualElementContainer():IVisualElementContainer	{  return null;	}
 		
 		public function set imageSource(asset:BitmapAsset):void { image.graphics.clear();image.source = asset; image.width = asset.width; image.height = asset.height; }
 		
@@ -29,9 +34,6 @@ package cream.components.controls
 			image.graphics.beginFill(0);
 			image.graphics.drawRect(0,0,16,16);
 			image.graphics.endFill();
-			
-			visualElement = image;
-			visualElementContainer = null;
 		
 			// default asset
 //			imageSource = new Assets.close_png();

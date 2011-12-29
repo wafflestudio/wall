@@ -6,6 +6,9 @@ import cream.components.popups.Popup;
 import cream.eventing.eventdispatchers.IDialogEventDispatcher;
 import cream.eventing.events.DialogEvent;
 
+import mx.core.IVisualElement;
+import mx.core.IVisualElementContainer;
+
 import mx.events.CloseEvent;
 
 import spark.components.TitleWindow;
@@ -13,12 +16,14 @@ import spark.components.TitleWindow;
 public class Dialog extends Popup implements IDialogEventDispatcher
 {
 	protected var tw:TitleWindow;
+
+    override protected function get visualElement():IVisualElement {  return tw;  }
+    override protected function get visualElementContainer():IVisualElementContainer	{  return tw;	}
+
 	
 	public function Dialog()
 	{
 		tw = new TitleWindow();
-		visualElement = tw;
-		visualElementContainer = tw;
 		
 		tw.alpha = 0.8;
 		tw.addEventListener(CloseEvent.CLOSE, function(e:CloseEvent):void { close(); });

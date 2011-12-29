@@ -30,7 +30,7 @@
 		
 		this.maximize();
 		
-		private var controller:DesktopController = new DesktopController();
+	    var controller:DesktopController = new DesktopController();
 		controller.setup(this);
 		
 		NativeApplication.nativeApplication.addEventListener(Event.ACTIVATE, function():void
@@ -46,6 +46,7 @@
 		{ 
 			Alert.show(e.name + " : " + e.message, "Uncaught Error");
 			trace(e.name, e.message, e.getStackTrace());
+
 		}
 		
 			

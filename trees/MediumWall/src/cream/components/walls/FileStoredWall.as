@@ -2,15 +2,16 @@ package cream.components.walls
 {
 import cream.eventing.events.CommitEvent;
 import cream.eventing.events.Event;
+import cream.storages.IFileReference;
 import cream.storages.IFileStorable;
-import cream.storages.INameableFileReference;
+import cream.storages.INameable;
 import cream.storages.IXMLizable;
 import cream.utils.TemporaryFileStorage;
 import cream.utils.XMLFileStream;
 
 import flash.filesystem.File;
 
-public class FileStoredWall extends Wall implements IFileStorable, INameableFileReference
+public class FileStoredWall extends Wall implements IFileStorable, IFileReference, INameable
 {
 	public static const EXTENSION:String = "wall";
 	private var _file:File;
@@ -49,6 +50,7 @@ public class FileStoredWall extends Wall implements IFileStorable, INameableFile
 			throw new Error("cannot load already loaded object");
 		
 		_file = file ? file : _file;
+
 		var fs:XMLFileStream = new XMLFileStream(file);
 		
 		// must read from Wall.fromXML 

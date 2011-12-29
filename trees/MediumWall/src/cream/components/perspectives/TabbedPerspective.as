@@ -2,6 +2,7 @@ package cream.components.perspectives
 {
 import cream.components.dialogs.Dialog;
 import cream.components.dialogs.OpenWallDialog;
+import cream.components.docks.Dock;
 import cream.components.sheets.Sheet;
 import cream.components.toolbars.CommandToolbar;
 import cream.components.toolbars.Toolbar;
@@ -21,6 +22,8 @@ import flash.geom.Point;
 
 import mx.collections.ArrayCollection;
 import mx.containers.ViewStack;
+import mx.core.IVisualElement;
+import mx.core.IVisualElementContainer;
 import mx.managers.PopUpManager;
 
 import spark.components.Group;
@@ -30,10 +33,16 @@ import spark.components.VGroup;
 
 public class TabbedPerspective extends MultipleWallPerspective implements IXMLizable
 {
+    // Spark Elements: vgroup -> [toolbar, group -> [tabstack]]
 	public var toolbar:CommandToolbar = new CommandToolbar();
 	private var tabStack:TabbedWallStack;
 	private var vgroup:VGroup = new VGroup();
-	private var group:VGroup = new VGroup(); 
+	private var group:VGroup = new VGroup();
+
+    override protected function get visualElement():IVisualElement {  return vgroup;  }
+    override protected function get visualElementContainer():IVisualElementContainer	{  return group;	}
+
+    private var dock:Dock;
 	
 	public function TabbedPerspective(paths:Array = null)
 	{	
@@ -44,11 +53,9 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		
 		group.percentHeight = 100;
 		group.percentWidth = 100;
-				
-		visualElement = vgroup;
-		visualElementContainer = group;
+
 		
-		// toolbar
+		// force add toolbar
 		vgroup.addElement(toolbar._protected_::visualElement);
 		vgroup.addElement(group);
 		
@@ -67,7 +74,9 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		});
 		
 		addChild( tabStack );
-	
+
+
+
 	}
 	
 	private function setTabStack(tabStack:TabbedWallStack):void

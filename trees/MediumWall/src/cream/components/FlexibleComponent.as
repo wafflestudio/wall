@@ -14,7 +14,7 @@ import spark.components.Application;
 // Movability + Resizability
 public class FlexibleComponent extends MovableComponent implements IFlexibleComponent
 {
-	private var resizeControl:ResizeControl;
+    protected var resizeControl:ResizeControl;
 	
 	public function FlexibleComponent()
 	{

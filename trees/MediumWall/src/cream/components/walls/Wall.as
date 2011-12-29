@@ -6,10 +6,8 @@ import cream.components.INameableComponent;
 import cream.components.IToplevelComponent;
 import cream.components.containers.IPannableContainer;
 import cream.components.containers.PannableContainer;
-import cream.components.containers.ScrollableContainer;
 import cream.components.sheets.Sheet;
 import cream.eventing.eventdispatchers.IClipboardPasteEventDispatcher;
-import cream.eventing.eventdispatchers.IEventDispatcher;
 import cream.eventing.eventdispatchers.IZoomEventDispatcher;
 import cream.eventing.events.ActionCommitEvent;
 import cream.eventing.events.ClipboardEvent;
@@ -24,15 +22,11 @@ import cream.eventing.events.ZoomEvent;
 import cream.storages.IXMLizable;
 import cream.storages.actions.Action;
 import cream.storages.actions.IActionCommitter;
-import cream.storages.clipboards.Clipboard;
 import cream.utils.TemporaryFileStorage;
 import cream.utils.XMLFileStream;
 
-import flash.desktop.NativeApplication;
 import flash.display.BitmapData;
 import flash.display.DisplayObject;
-import flash.display.InteractiveObject;
-import flash.display.Loader;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
@@ -40,24 +34,17 @@ import flash.filesystem.File;
 import flash.filesystem.FileMode;
 import flash.filesystem.FileStream;
 import flash.geom.Point;
-import flash.net.FileReference;
-import flash.sampler.getLexicalScopes;
+
 import flash.utils.ByteArray;
 import flash.utils.Timer;
 
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
-import mx.effects.AnimateProperty;
-import mx.effects.Tween;
 import mx.graphics.codec.PNGEncoder;
-import mx.managers.FocusManager;
 
 import spark.components.BorderContainer;
 import spark.components.Group;
-import spark.components.NavigatorContent;
-import spark.components.Scroller;
-import spark.effects.Animate;
-import spark.effects.animation.Animation;
+
 
 public class Wall extends PannableContainer implements IPannableContainer, IXMLizable, INameableComponent, ICommitableComponent, 
 	IToplevelComponent, IZoomEventDispatcher, IActionCommitter, IClipboardPasteEventDispatcher
@@ -159,7 +146,8 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 				addImageSheet(imageFile, bitmapData.width, bitmapData.height );
 			}
 		});
-		
+
+
 		
 	}
 	
@@ -459,7 +447,8 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		for(var i:int = 0; i < numChildren; i++)
 		{
 			var sheet:Sheet = children[i] as Sheet;
-			sheetsXML.appendChild(sheet.toXML());
+            if(sheet)
+			    sheetsXML.appendChild(sheet.toXML());
 		}
 		xml.appendChild(sheetsXML);
 		return xml;
@@ -469,9 +458,6 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		return wallXML;
 	}
 	
-	
-	
-	
-	
+
 }
 }

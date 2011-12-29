@@ -18,8 +18,9 @@ package cream.components.contents
 	import flash.utils.ByteArray;
 	
 	import mx.core.IVisualElement;
-	
-	import spark.components.BorderContainer;
+import mx.core.IVisualElementContainer;
+
+import spark.components.BorderContainer;
 
 	public class ImageContent extends Content
 	{
@@ -28,6 +29,10 @@ package cream.components.contents
 		private var imageFile:File;	
 		private var savedWidth:uint;
 		private var savedHeight:uint;
+
+        override protected function get visualElement():IVisualElement {  return imageContainer;  }
+        override protected function get visualElementContainer():IVisualElementContainer	{  return null;	}
+
 		
 		public function ImageContent()
 		{
@@ -36,7 +41,6 @@ package cream.components.contents
 			imageContainer.setStyle("borderAlpha", 0);
 			imageContainer.width = 0;
 			imageContainer.height = 0;
-			visualElement = imageContainer;
 			
 		}
 

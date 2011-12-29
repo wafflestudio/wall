@@ -1,31 +1,27 @@
 package controllers
 {
-	import cream.components.dialogs.Dialog;
-	import cream.components.dialogs.OpenWallDialog;
-	import cream.components.perspectives.TabbedPerspective;
-	import cream.components.sheets.Sheet;
+import cream.components.dialogs.AlertDialog;
+import cream.components.dialogs.ChatDialog;
+import cream.components.perspectives.TabbedPerspective;
 	import cream.components.toolbars.CommandToolbar;
 	import cream.components.walls.FileStoredWall;
 	import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 	import cream.eventing.events.ActionCommitEvent;
 	import cream.eventing.events.ClickEvent;
-	import cream.eventing.events.ClipboardEvent;
 	import cream.eventing.events.CommitEvent;
-	import cream.eventing.events.SheetEvent;
 	import cream.storages.IXMLizable;
 	import cream.storages.actions.Action;
 	import cream.storages.actions.IActionCommitter;
 	import cream.storages.clipboards.Clipboard;
 	import cream.storages.history.History;
-	import cream.utils.Platform;
+    import cream.utils.CometConnection;
+    import cream.utils.Platform;
 	import cream.utils.TemporaryFileStorage;
-	
-	import flash.desktop.NativeApplication;
+
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
-	import flash.errors.IOError;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.filesystem.File;
@@ -36,9 +32,7 @@ package controllers
 	
 	import mx.core.FlexGlobals;
 	import mx.core.IVisualElementContainer;
-	import mx.core.mx_internal;
-	
-	import spark.components.Application;
+
 
 	public class DesktopController extends FileStoredController implements ICommitEventDispatcher
 	{
@@ -67,7 +61,7 @@ package controllers
 //					dialog.show();
 //					dialog.addFileChoseEventListener(function(e:flash.events.Event):void {
 //						perspective.addWall(new FileStoredWall(e.target as File));
-//						
+//
 //					});
 					var f:File = File.desktopDirectory;
 					f.browseForOpen("Open wall");
@@ -101,6 +95,15 @@ package controllers
 				}
 			);
 			
+            // test
+            toolbar.testButton.addClickEventListener(
+                function(e:ClickEvent):void {
+                    var dialog:ChatDialog = new ChatDialog();
+					dialog.show();
+                }
+            );
+            
+            
 			FlexGlobals.topLevelApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, function (e:KeyboardEvent):void
 			{
 				
@@ -116,10 +119,7 @@ package controllers
 				{
 					onRedo();
 				}
-			
-				
-				
-				
+
 			});
 			
 //			toolbar.pasteButton.addClickEventListener(

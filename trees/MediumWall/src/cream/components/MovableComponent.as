@@ -2,12 +2,18 @@ package cream.components
 {
 import cream.eventing.events.MoveEvent;
 
+import flash.display.DisplayObject;
+
 import flash.events.MouseEvent;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
+import mx.core.IVisualElement;
+
 public class MovableComponent extends Component implements IMovableComponent
 {
+    protected function get moveControl():IVisualElement  { return visualElement; }
+
 	public function MovableComponent()
 	{
 		var initialPos:Point;
@@ -25,7 +31,7 @@ public class MovableComponent extends Component implements IMovableComponent
 			e.stopPropagation();
 			moveStartPos = (parent as IComponent).localToGlobal(initialPos);
 			moveGlobalLocalDiff = moveStartPos.subtract(initialMousePos);
-			stage.addEventListener(MouseEvent.MOUSE_MOVE, move);
+            stage.addEventListener(MouseEvent.MOUSE_MOVE, move);
 			stage.addEventListener(MouseEvent.MOUSE_UP, moveEnd);
 		}
 		
@@ -69,7 +75,7 @@ public class MovableComponent extends Component implements IMovableComponent
 					
 		}
 		
-		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, moveStart);
+		moveControl.addEventListener(MouseEvent.MOUSE_DOWN, moveStart);
 		
 		addMovingEventListener( function(e:MoveEvent):void
 		{

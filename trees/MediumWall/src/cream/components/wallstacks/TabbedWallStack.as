@@ -1,32 +1,19 @@
 package cream.components.wallstacks
 {
-import cream.components.Component;
 import cream.components.Composite;
 import cream.components.IComponent;
-import cream.components.containers.Container;
 import cream.components.tabviews.TabView;
 import cream.components.walls.FileStoredWall;
 import cream.components.walls.Wall;
 
 import cream.eventing.eventdispatchers.ICommitEventDispatcher;
-import cream.eventing.eventdispatchers.IEventDispatcher;
 import cream.eventing.eventdispatchers.ISelectionChangeEventDispatcher;
 import cream.eventing.events.ActionCommitEvent;
 import cream.eventing.events.CommitEvent;
 import cream.eventing.events.CompositeEvent;
 import cream.eventing.events.FocusEvent;
-import cream.eventing.events.NameChangeEvent;
 import cream.eventing.events.SelectionChangeEvent;
-
-import flash.events.Event;
 import flash.filesystem.File;
-
-import mx.containers.TabNavigator;
-import mx.core.IVisualElementContainer;
-import mx.events.IndexChangedEvent;
-
-import spark.components.BorderContainer;
-import spark.components.NavigatorContent;
 
 import cream.storages.IXMLizable;
 import cream.storages.actions.Action;
@@ -59,6 +46,10 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 			/** action commit **/
 			dispatchCommitEvent(new ActionCommitEvent(self, ADDED_WALL, [e.child]));
 		});
+
+
+
+
 	}
 	
 	private function onWallCommit(e:CommitEvent):void
@@ -82,9 +73,7 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 	protected override function addChild(child:Composite):Composite
 	{
 		super.addChild(child);
-		(child as Wall).addCommitEventListener(onWallCommit);
-		(child as Wall).addFocusInEventListener(onWallFocusIn);
-		
+
 		return child;
 	}
 	
@@ -99,6 +88,8 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 	public function addWall(wall:Wall):void
 	{
 		addChild(wall);
+        wall.addCommitEventListener(onWallCommit);
+        wall.addFocusInEventListener(onWallFocusIn);
 	}
 	
 	public function removeWall(wall:Wall):void
@@ -192,7 +183,8 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 		for(var i:int = 0; i < numChildren; i++)
 		{
 			var wall:Wall = children[i] as Wall;
-			xml.appendChild(wall.toXML());
+            if(wall)
+			    xml.appendChild(wall.toXML());
 		}
 		
 		return xml;

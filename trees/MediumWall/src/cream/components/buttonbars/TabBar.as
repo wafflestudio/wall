@@ -22,16 +22,15 @@ package cream.components.buttonbars
 	{
 		private var _selectedIndex:int = -1;
 		protected var hgroup:HGroup = new HGroup();
-		
-		override protected function get visualElement():IVisualElement  {  return hgroup;  }
+
+        override protected function get visualElement():IVisualElement {  return hgroup;  }
+        override protected function get visualElementContainer():IVisualElementContainer	{  return hgroup;	}
 		
 		public function TabBar(/*buttonsByLabel:Array = null*/)
 		{
 			super();
 			
 			hgroup.gap = 0;
-			visualElement = hgroup;
-			visualElementContainer = hgroup;
 		}
 		
 		

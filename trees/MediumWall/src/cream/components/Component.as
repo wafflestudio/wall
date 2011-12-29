@@ -1,6 +1,5 @@
 package cream.components
 {
-import cream.components.sheets.Sheet;
 import cream.eventing.eventdispatchers.IEventDispatcher;
 import cream.eventing.events.ClipboardEvent;
 import cream.eventing.events.CompositeEvent;
@@ -11,45 +10,33 @@ import cream.eventing.events.FocusEvent;
 
 import flash.desktop.Clipboard;
 import flash.desktop.ClipboardFormats;
-import flash.desktop.InteractiveIcon;
-import flash.desktop.NativeApplication;
 import flash.display.BitmapData;
 import flash.display.DisplayObject;
-import flash.display.DisplayObjectContainer;
 import flash.display.InteractiveObject;
 import flash.display.Stage;
-import flash.errors.IllegalOperationError;
 import flash.events.MouseEvent;
 import flash.geom.Point;
 import flash.geom.Rectangle;
-import flash.sampler.StackFrame;
-import flash.utils.ByteArray;
-
 import mx.core.FlexGlobals;
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
-import mx.core.UIComponent;
-
 import spark.components.Application;
-import spark.components.Button;
-import spark.components.Group;
-import spark.core.IGraphicElement;
 
 public class Component extends Composite implements IComponent
 {		
-	private var _visualElement:IVisualElement;
-	private var _visualElementContainer:IVisualElementContainer;
+//	private var _visualElement:IVisualElement;
+//	private var _visualElementContainer:IVisualElementContainer;
 	private var _hasFocus:Boolean = false;
 	
-	protected function get visualElement():IVisualElement {  return _visualElement;  }
-	protected function set visualElement(val:IVisualElement):void {  _visualElement = val;  }
-	protected function get visualElementContainer():IVisualElementContainer	{  return _visualElementContainer;	}
-	protected function set visualElementContainer(val:IVisualElementContainer):void {  _visualElementContainer = val; }
+	protected function get visualElement():IVisualElement {  return null;  }
+//	protected function set visualElement(val:IVisualElement):void {  _visualElement = val;  }
+	protected function get visualElementContainer():IVisualElementContainer	{  return null;	}
+//	protected function set visualElementContainer(val:IVisualElementContainer):void {  _visualElementContainer = val; }
 	protected function get parentComponent():IComponent { return parent as IComponent; }
 	
 	_protected_ function get visualElement():IVisualElement  { return visualElement; }
 	_protected_ function get visualElementContainer():IVisualElementContainer  { return visualElementContainer; }
-	
+
 	public function Component()
 	{
 		super();
@@ -79,11 +66,11 @@ public class Component extends Composite implements IComponent
 		});
 		
 		addAddedEventListener(onAdded);
-		
-	}
-	
-	
-	
+
+
+
+    }
+
 	public function get x():Number  { return visualElement.x; }
 	public function get y():Number  { return visualElement.y; }
 	

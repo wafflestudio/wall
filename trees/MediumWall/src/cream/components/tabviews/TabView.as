@@ -33,6 +33,9 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 	private var vgroup:VGroup = new VGroup();
 	private var tabBar:TabBar = new TabBar();
 	private var viewStack:ViewStack = new ViewStack();
+
+    override protected function get visualElement():IVisualElement {  return vgroup;  }
+    override protected function get visualElementContainer():IVisualElementContainer	{  return viewStack;	}
 	
 	public function TabView()
 	{
@@ -47,9 +50,6 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 		vgroup.addElement(viewStack);
 		viewStack.percentHeight = 100;
 		viewStack.percentWidth = 100;
-		
-		visualElement = vgroup;
-		visualElementContainer = viewStack;
 		
 		var self:TabView = this;
 		

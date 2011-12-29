@@ -10,8 +10,9 @@ package cream.components.contents
 	import flash.utils.Timer;
 	
 	import mx.core.IVisualElement;
-	
-	import skins.BlankSkin;
+import mx.core.IVisualElementContainer;
+
+import skins.BlankSkin;
 	
 	import spark.components.TextArea;
 	import spark.components.supportClasses.Skin;
@@ -25,11 +26,12 @@ package cream.components.contents
 		
 		protected var textarea:TextArea = new TextArea;
 		protected var _text:String = "";
-		
+
+        override protected function get visualElement():IVisualElement {  return textarea;  }
+        override protected function get visualElementContainer():IVisualElementContainer	{  return null;	}
+
 		public function get text():String { return _text; }
 		public function set text(value:String):void { textarea.text = _text = value; }
-		
-		override protected function get visualElement():IVisualElement { return textarea; }
 		
 		public function TextContent()
 		{
@@ -57,9 +59,6 @@ package cream.components.contents
 			
 			textarea.setStyle('skinClass', BlankSkin);
 
-			visualElement = textarea;
-				
-			
 		}
 		
 		public function applyAction(action:Action):void

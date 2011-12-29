@@ -13,7 +13,8 @@ package cream.components.buttons
 	import flash.utils.Timer;
 	
 	import mx.core.IVisualElement;
-	import mx.core.UIComponent;
+import mx.core.IVisualElementContainer;
+import mx.core.UIComponent;
 	
 	import resources.Assets;
 	
@@ -26,6 +27,9 @@ package cream.components.buttons
 	{
 		private var button:ButtonBarButton = new ButtonBarButton();
 		private var closeControl:CloseControl = new CloseControl();
+
+        override protected function get visualElement():IVisualElement {  return button;  }
+        override protected function get visualElementContainer():IVisualElementContainer	{  return null;	}
 		
 		
 		public function TabButton()
@@ -123,12 +127,7 @@ package cream.components.buttons
 				}
 			);
 			
-			
-			visualElement = button;
-			visualElementContainer = null;
-			
-			
-			
+
 		}
 		
 		public function set label(text:String):void

@@ -23,6 +23,8 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 	private var left:UIComponent = new UIComponent();
 	private var right:UIComponent = new UIComponent();
 	private var down:UIComponent = new UIComponent();
+
+    private static const MIN_SPACE:Number = 10;
 	
 	override protected function get visualElement():IVisualElement { return resizeUIComponent; }
 	override protected function get visualElementContainer():IVisualElementContainer { return null; }
@@ -31,9 +33,6 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 	{
 		super();
 		resizeUIComponent = new ResizeControlUIComponent();
-		
-		visualElement = resizeUIComponent;
-		visualElementContainer = null;
 		
 		var arr:Array = [up, right, left, down, upperLeft, upperRight, lowerLeft, lowerRight];
 		
@@ -66,38 +65,38 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 				
 				switch(control)  {
 					case up:
-						y = oldHeight - diff.y < 0 ? oldY + oldHeight - 10 : oldY + diff.y;
-						height = oldHeight - diff.y < 0 ? 10 : oldHeight - diff.y;
+						y = oldHeight - diff.y < 0 ? oldY + oldHeight - MIN_SPACE : oldY + diff.y;
+						height = oldHeight - diff.y < 0 ? MIN_SPACE : oldHeight - diff.y;
 						break;
 					case down:
-						height = oldHeight + diff.y < 0? 10 : oldHeight + diff.y;
+						height = oldHeight + diff.y < 0? MIN_SPACE : oldHeight + diff.y;
 						break;
 					case left:
-						x = oldWidth - diff.x < 0 ? oldX + oldWidth - 10 : oldX + diff.x;
-						width = oldWidth - diff.x < 0? 10 : oldWidth - diff.x;
+						x = oldWidth - diff.x < 0 ? oldX + oldWidth - MIN_SPACE : oldX + diff.x;
+						width = oldWidth - diff.x < 0? MIN_SPACE : oldWidth - diff.x;
 						break;
 					case right:
-						width = oldWidth + diff.x < 0? 10 : oldWidth + diff.x;
+						width = oldWidth + diff.x < 0? MIN_SPACE : oldWidth + diff.x;
 						break;
 					case upperLeft:
-						y = oldHeight - diff.y < 0 ? oldY + oldHeight - 10 : oldY + diff.y;
-						height = oldHeight - diff.y < 0 ? 10 : oldHeight - diff.y;
-						x = oldWidth - diff.x < 0 ? oldX + oldWidth - 10 : oldX + diff.x;
-						width = oldWidth - diff.x < 0? 10 : oldWidth - diff.x;
+						y = oldHeight - diff.y < 0 ? oldY + oldHeight - MIN_SPACE : oldY + diff.y;
+						height = oldHeight - diff.y < 0 ? MIN_SPACE : oldHeight - diff.y;
+						x = oldWidth - diff.x < 0 ? oldX + oldWidth - MIN_SPACE : oldX + diff.x;
+						width = oldWidth - diff.x < 0? MIN_SPACE : oldWidth - diff.x;
 						break;
 					case upperRight:
-						y = oldHeight - diff.y < 0 ? oldY + oldHeight - 10 : oldY + diff.y;
-						height = oldHeight - diff.y < 0 ? 10 : oldHeight - diff.y;
-						width = oldWidth + diff.x < 0? 10 : oldWidth + diff.x;
+						y = oldHeight - diff.y < 0 ? oldY + oldHeight - MIN_SPACE : oldY + diff.y;
+						height = oldHeight - diff.y < 0 ? MIN_SPACE : oldHeight - diff.y;
+						width = oldWidth + diff.x < 0? MIN_SPACE : oldWidth + diff.x;
 						break;
 					case lowerLeft:
-						height = oldHeight + diff.y < 0? 10 : oldHeight + diff.y;
-						x = oldWidth - diff.x < 0 ? oldX + oldWidth - 10 : oldX + diff.x;
-						width = oldWidth - diff.x < 0? 10 : oldWidth - diff.x;
+						height = oldHeight + diff.y < 0? MIN_SPACE : oldHeight + diff.y;
+						x = oldWidth - diff.x < 0 ? oldX + oldWidth - MIN_SPACE : oldX + diff.x;
+						width = oldWidth - diff.x < 0? MIN_SPACE : oldWidth - diff.x;
 						break;
 					case lowerRight:
-						height = oldHeight + diff.y < 0? 10 : oldHeight + diff.y;
-						width = oldWidth + diff.x < 0? 10 : oldWidth + diff.x;
+						height = oldHeight + diff.y < 0? MIN_SPACE : oldHeight + diff.y;
+						width = oldWidth + diff.x < 0? MIN_SPACE : oldWidth + diff.x;
 						break;
 				}
 				dispatchResizingEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);

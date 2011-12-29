@@ -7,12 +7,12 @@ package cream.components.contents
 	import cream.eventing.events.CommitEvent;
 	
 	import cream.storages.IXMLizable;
-	
+
 	public class Content extends Component implements IXMLizable, ICommitableComponent
 	{
 		public function Content()
 		{
-			super();			
+			super();
 		}
 		
 		

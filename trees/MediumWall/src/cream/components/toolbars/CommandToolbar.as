@@ -9,6 +9,7 @@ import cream.eventing.eventdispatchers.IMouseEventDispatcher;
 import flash.events.Event;
 
 import mx.core.IVisualElement;
+import mx.core.IVisualElementContainer;
 
 import spark.components.BorderContainer;
 import spark.components.Group;
@@ -16,6 +17,7 @@ import spark.components.HGroup;
 
 public class CommandToolbar extends Toolbar
 {
+    private var group:Group;
 	private var hgroup:HGroup;
 	private var openWallBtn:Button;
 	private var newWallBtn:Button;
@@ -27,11 +29,15 @@ public class CommandToolbar extends Toolbar
 	private var saveAsBtn:Button;
 	private var copyBtn:Button;
 	private var pasteBtn:Button;
+    private var testBtn:Button;
+
+    override protected function get visualElement():IVisualElement {  return group;  }
+    override protected function get visualElementContainer():IVisualElementContainer	{  return hgroup;	}
 	
 	// parent - (group - bg - hgroup) - children
 	public function CommandToolbar()
 	{
-		var group:Group = new Group();
+        group = new Group();
 		group.percentWidth = 100;
 		group.height = 48+16;
 		
@@ -47,10 +53,7 @@ public class CommandToolbar extends Toolbar
 		hgroup.percentHeight = 100;
 		hgroup.percentWidth = 100;
 		bg.addElement(hgroup);
-		
-		visualElement = group;
-		visualElementContainer = hgroup;
-		
+
 		openWallBtn = new Button();
 		openWallBtn.label = "open wall";
 		newWallBtn = new Button();
@@ -73,6 +76,9 @@ public class CommandToolbar extends Toolbar
 		copyBtn.label = "copy";
 		pasteBtn = new Button();
 		pasteBtn.label = "paste";
+
+        testBtn = new Button();
+        testBtn.label = "test";
 		
 		addChild(openWallBtn);
 		addChild(newWallBtn);
@@ -85,6 +91,8 @@ public class CommandToolbar extends Toolbar
 		
 		addChild(copyBtn);
 		addChild(pasteBtn);
+
+        addChild(testBtn);
 		
 	}
 	
@@ -131,5 +139,10 @@ public class CommandToolbar extends Toolbar
 	{
 		return pasteBtn;
 	}
+
+    public function get testButton():IClickEventDispatcher
+    {
+        return testBtn;
+    }
 }
 }

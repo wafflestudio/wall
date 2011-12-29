@@ -53,35 +53,41 @@ package cream.components.sheets  {
 
 public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDispatcher,IActionCommitter, ICloseEventDispatcher
 {
+    /** Actions **/
 	public static const MOVE:String = "MOVE";
 	public static const RESIZE:String = "RESIZE";
-	
+
+    /** Sheet Types **/
 	public static const IMAGE_SHEET:String = "image";
 	public static const TEXT_SHEET:String = "text";
-	
-	private var bc:BorderContainer = new BorderContainer();
-	override protected function get visualElement():IVisualElement { return bc; }
-	
-	private var textContent:TextContent;
-	private var imageContent:ImageContent;
-	private var closeControl:CloseControl = new CloseControl();
-	
-	private var type:String;
-	
-	/** Factory methods **/
-	public static function createImageSheet(imageFile:File):Sheet
-	{
-		var newSheet:Sheet = new Sheet(IMAGE_SHEET);
-		newSheet.imageContent.file = imageFile;
-		return newSheet;
-	}
-	
-	public static function createTextSheet(text:String):Sheet
-	{
-		var newSheet:Sheet = new Sheet(TEXT_SHEET);
-		newSheet.textContent.text = text;
-		return newSheet;	
-	}
+
+    private var bc:BorderContainer = new BorderContainer();
+    override protected function get visualElement():IVisualElement {  return bc;  }
+    override protected function get visualElementContainer():IVisualElementContainer	{  return bc;	}
+
+    private var textContent:TextContent;
+    private var imageContent:ImageContent;
+    private var closeControl:CloseControl = new CloseControl();
+
+    private var type:String;
+
+    /** Factory methods -> **/
+    public static function createImageSheet(imageFile:File):Sheet
+    {
+        var newSheet:Sheet = new Sheet(IMAGE_SHEET);
+        newSheet.imageContent.file = imageFile;
+        return newSheet;
+    }
+
+    public static function createTextSheet(text:String):Sheet
+    {
+        var newSheet:Sheet = new Sheet(TEXT_SHEET);
+        newSheet.textContent.text = text;
+        return newSheet;
+    }
+
+    /** <- Factory methods **/
+
 	
 	/** Constructor **/
 	public function Sheet(type:String)
@@ -121,14 +127,10 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 			dispatchFocusInEvent();
 			bringSystemFocus();
 		}, false, 1);
-		
-		visualElement = bc;
-		visualElementContainer = bc;
-	
+
 		
 		addMovedEventListener( function(e:MoveEvent):void
 		{
-			
 			dispatchCommitEvent(new ActionCommitEvent(self, MOVE, [e.oldX, e.oldY, e.newX, e.newY]));
 		});
 		
