@@ -30,9 +30,9 @@ import spark.components.VGroup;
 
 public class TabView extends Component implements ISelectionChangeEventDispatcher
 {
-	private var vgroup:VGroup = new VGroup();
-	private var tabBar:TabBar = new TabBar();
-	private var viewStack:ViewStack = new ViewStack();
+	private var vgroup:VGroup;
+	private var tabBar:TabBar;
+	private var viewStack:ViewStack;
 
     override protected function get visualElement():IVisualElement {  return vgroup;  }
     override protected function get visualElementContainer():IVisualElementContainer	{  return viewStack;	}
@@ -40,45 +40,52 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 	public function TabView()
 	{
 		super();
-		
-		vgroup.percentWidth = 100;
-		vgroup.percentHeight = 100;
-		
-		vgroup.addElement(tabBar._protected_::visualElement);
-		tabBar.percentWidth = 100;
-		
-		vgroup.addElement(viewStack);
-		viewStack.percentHeight = 100;
-		viewStack.percentWidth = 100;
-		
-		var self:TabView = this;
-		
-		tabBar.addSelectionChangeEventListener(
-			function(e:SelectionChangeEvent):void
-			{
-				viewStack.selectedIndex = e.selectedIndex;
-				
-				dispatchSelectionChangeEvent(e.oldSelectedIndex, e.selectedIndex);
-				for each(var child:Component in children)
-				{
-					if(child === selectedComponent)  {
-						if(!child.hasFocus)
-							dispatchComponentFocusInEvent(child);
-					}
-					else
-						dispatchComponentFocusOutEvent(child);
-				}
-			}
-		);
-		
-		tabBar.addCloseEventListener( function(e:TabCloseEvent):void
-			{
-				var child:Component = children[e.index];
-				removeChild(child);
-			}
-		);
-		
+
 	}
+
+    override protected function initUnderlyingComponents():void
+    {
+        vgroup = new VGroup();
+        tabBar = new TabBar();
+        viewStack = new ViewStack();
+
+        vgroup.percentWidth = 100;
+        vgroup.percentHeight = 100;
+
+        vgroup.addElement(tabBar._protected_::visualElement);
+        tabBar.percentWidth = 100;
+
+        vgroup.addElement(viewStack);
+        viewStack.percentHeight = 100;
+        viewStack.percentWidth = 100;
+
+        var self:TabView = this;
+
+        tabBar.addSelectionChangeEventListener(
+                function(e:SelectionChangeEvent):void
+                {
+                    viewStack.selectedIndex = e.selectedIndex;
+
+                    dispatchSelectionChangeEvent(e.oldSelectedIndex, e.selectedIndex);
+                    for each(var child:Component in children)
+                    {
+                        if(child === selectedComponent)  {
+                            if(!child.hasFocus)
+                                dispatchComponentFocusInEvent(child);
+                        }
+                        else
+                            dispatchComponentFocusOutEvent(child);
+                    }
+                }
+        );
+
+        tabBar.addCloseEventListener( function(e:TabCloseEvent):void
+                {
+                    var child:Component = children[e.index];
+                    removeChild(child);
+                }
+        );
+    }
 	
 	override protected function addChild(child:Composite):Composite
 	{

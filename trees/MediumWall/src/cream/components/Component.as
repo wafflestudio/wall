@@ -23,15 +23,12 @@ import mx.core.IVisualElementContainer;
 import spark.components.Application;
 
 public class Component extends Composite implements IComponent
-{		
-//	private var _visualElement:IVisualElement;
-//	private var _visualElementContainer:IVisualElementContainer;
+{
 	private var _hasFocus:Boolean = false;
 	
 	protected function get visualElement():IVisualElement {  return null;  }
-//	protected function set visualElement(val:IVisualElement):void {  _visualElement = val;  }
 	protected function get visualElementContainer():IVisualElementContainer	{  return null;	}
-//	protected function set visualElementContainer(val:IVisualElementContainer):void {  _visualElementContainer = val; }
+
 	protected function get parentComponent():IComponent { return parent as IComponent; }
 	
 	_protected_ function get visualElement():IVisualElement  { return visualElement; }
@@ -67,8 +64,12 @@ public class Component extends Composite implements IComponent
 		
 		addAddedEventListener(onAdded);
 
+        initUnderlyingComponents();
+    }
 
-
+    protected function initUnderlyingComponents():void
+    {
+        throw new Error("Must override this method");
     }
 
 	public function get x():Number  { return visualElement.x; }

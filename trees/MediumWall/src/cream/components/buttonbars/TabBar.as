@@ -21,7 +21,7 @@ package cream.components.buttonbars
 	public class TabBar extends Component implements ISelectionChangeEventDispatcher, ICloseEventDispatcher
 	{
 		private var _selectedIndex:int = -1;
-		protected var hgroup:HGroup = new HGroup();
+		protected var hgroup:HGroup;
 
         override protected function get visualElement():IVisualElement {  return hgroup;  }
         override protected function get visualElementContainer():IVisualElementContainer	{  return hgroup;	}
@@ -29,9 +29,13 @@ package cream.components.buttonbars
 		public function TabBar(/*buttonsByLabel:Array = null*/)
 		{
 			super();
-			
-			hgroup.gap = 0;
 		}
+
+        override protected function initUnderlyingComponents():void
+        {
+            hgroup = new HGroup();
+            hgroup.gap = 0;
+        }
 		
 		
 		private function onButtonClicked(e:ClickEvent):void

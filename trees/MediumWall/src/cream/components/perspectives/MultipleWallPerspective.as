@@ -27,22 +27,6 @@ public class MultipleWallPerspective extends Perspective implements ISelectionCh
 		
 	}
 	
-//	public function addSheet(type:String, imageFile:File=null, w:uint=0, h:uint=0):void
-//	{
-//		var wall:Wall = currentWall;
-//		if(imageFile) {
-//			if(w != 0) {
-//				wall.addBlankSheet(type, imageFile, w, h);
-//			} else {
-//				wall.addBlankSheet(type, imageFile);
-//			}
-//		} else if(type) {
-//			wall.addBlankSheet(type);
-//		} else {
-//			wall.addBlankSheet();
-//		}
-//	}
-	
 	public function addTextSheet(text:String = "", width:Number = 0, height:Number = 0):void
 	{
 		currentWall.addTextSheet(text, width, height);

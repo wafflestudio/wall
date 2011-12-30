@@ -20,7 +20,7 @@ import mx.events.FlexEvent;
 	public class CloseControl extends Control implements IClickableComponent, IRollEventDispatcher
 	{
 //		private var bc:BorderContainer = new BorderContainer();
-		private var image:Image = new Image();
+		private var image:Image;
 
         override protected function get visualElement():IVisualElement {  return image;  }
         override protected function get visualElementContainer():IVisualElementContainer	{  return null;	}
@@ -29,16 +29,8 @@ import mx.events.FlexEvent;
 		
 		public function CloseControl()
 		{
-			image.width = 16;
-			image.height = 16;
-			image.graphics.beginFill(0);
-			image.graphics.drawRect(0,0,16,16);
-			image.graphics.endFill();
-		
-			// default asset
-//			imageSource = new Assets.close_png();
-			
-			
+			super();
+
 			visualElement.addEventListener(MouseEvent.ROLL_OVER, function():void
 			{
 				dispatchRollOverEvent();
@@ -53,8 +45,20 @@ import mx.events.FlexEvent;
 			{
 				dispatchClickEvent();
 			});
-			
 		}
+
+        override protected function initUnderlyingComponents():void
+        {
+            image = new Image();
+            image.width = 16;
+            image.height = 16;
+            image.graphics.beginFill(0);
+            image.graphics.drawRect(0,0,16,16);
+            image.graphics.endFill();
+
+            // default asset
+//			imageSource = new Assets.close_png();
+        }
 		
 		public function addClickEventListener(listener:Function):void
 		{

@@ -24,7 +24,7 @@ import spark.components.BorderContainer;
 
 	public class ImageContent extends Content
 	{
-		private var imageContainer:BorderContainer = new BorderContainer();
+		private var imageContainer:BorderContainer;
 		private var bitmapData:BitmapData;
 		private var imageFile:File;	
 		private var savedWidth:uint;
@@ -37,12 +37,15 @@ import spark.components.BorderContainer;
 		public function ImageContent()
 		{
 			super();
-			
-			imageContainer.setStyle("borderAlpha", 0);
-			imageContainer.width = 0;
-			imageContainer.height = 0;
-			
 		}
+
+        override protected function initUnderlyingComponents():void
+        {
+            imageContainer = new BorderContainer();
+            imageContainer.setStyle("borderAlpha", 0);
+            imageContainer.width = 0;
+            imageContainer.height = 0;
+        }
 
 		public override function set width(val:Number):void
 		{

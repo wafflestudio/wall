@@ -11,7 +11,7 @@ public class Container extends Component implements IContainer
 {
 	public function Container()
 	{
-
+       super();
 	}
 	
 	// extent of children unscaled

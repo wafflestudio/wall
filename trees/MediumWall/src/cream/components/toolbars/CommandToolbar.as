@@ -37,64 +37,69 @@ public class CommandToolbar extends Toolbar
 	// parent - (group - bg - hgroup) - children
 	public function CommandToolbar()
 	{
-        group = new Group();
-		group.percentWidth = 100;
-		group.height = 48+16;
+        super();
 		
-		
-		var bg:BorderContainer = new BorderContainer();
-		bg.percentHeight = 100;
-		bg.percentWidth = 100;
-		bg.setStyle("backgroundColor", 0xffffff);
-		bg.setStyle("borderAlpha",0);
-		group.addElement(bg);
-		
-		hgroup = new HGroup();
-		hgroup.percentHeight = 100;
-		hgroup.percentWidth = 100;
-		bg.addElement(hgroup);
+	}
 
-		openWallBtn = new Button();
-		openWallBtn.label = "open wall";
-		newWallBtn = new Button();
-		newWallBtn.label = "new wall";
-		newSheetBtn = new Button();
-		newSheetBtn.label = "new sheet";
-		
-		newImageSheetBtn = new Button();
-		newImageSheetBtn.label = "new image sheet";
-		
-		undoBtn = new Button();
-		undoBtn.label = "undo";
-		redoBtn = new Button();
-		redoBtn.label = "redo";
-		
-		saveAsBtn = new Button();
-		saveAsBtn.label = "save as";
-		
-		copyBtn = new Button();
-		copyBtn.label = "copy";
-		pasteBtn = new Button();
-		pasteBtn.label = "paste";
+    override protected function initUnderlyingComponents():void
+    {
+        group = new Group();
+        group.percentWidth = 100;
+        group.height = 48+16;
+
+
+        var bg:BorderContainer = new BorderContainer();
+        bg.percentHeight = 100;
+        bg.percentWidth = 100;
+        bg.setStyle("backgroundColor", 0xffffff);
+        bg.setStyle("borderAlpha",0);
+        group.addElement(bg);
+
+        hgroup = new HGroup();
+        hgroup.percentHeight = 100;
+        hgroup.percentWidth = 100;
+        bg.addElement(hgroup);
+
+        openWallBtn = new Button();
+        openWallBtn.label = "open wall";
+        newWallBtn = new Button();
+        newWallBtn.label = "new wall";
+        newSheetBtn = new Button();
+        newSheetBtn.label = "new sheet";
+
+        newImageSheetBtn = new Button();
+        newImageSheetBtn.label = "new image sheet";
+
+        undoBtn = new Button();
+        undoBtn.label = "undo";
+        redoBtn = new Button();
+        redoBtn.label = "redo";
+
+        saveAsBtn = new Button();
+        saveAsBtn.label = "save as";
+
+        copyBtn = new Button();
+        copyBtn.label = "copy";
+        pasteBtn = new Button();
+        pasteBtn.label = "paste";
 
         testBtn = new Button();
         testBtn.label = "test";
-		
-		addChild(openWallBtn);
-		addChild(newWallBtn);
-		addChild(newSheetBtn);
-		addChild(newImageSheetBtn);
-		
-		addChild(undoBtn);
-		addChild(redoBtn);
-		addChild(saveAsBtn);
-		
-		addChild(copyBtn);
-		addChild(pasteBtn);
+
+        addChild(openWallBtn);
+        addChild(newWallBtn);
+        addChild(newSheetBtn);
+        addChild(newImageSheetBtn);
+
+        addChild(undoBtn);
+        addChild(redoBtn);
+        addChild(saveAsBtn);
+
+        addChild(copyBtn);
+        addChild(pasteBtn);
 
         addChild(testBtn);
-		
-	}
+    }
 	
 	public function get openWallButton():IClickEventDispatcher
 	{

@@ -59,8 +59,8 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	public static const DEFAULT_SHEET_SIZE:Number = 300;
 	
 	
-	private var bc:BorderContainer = new BorderContainer();
-	private var group:Group = new Group();
+	private var bc:BorderContainer;
+	private var group:Group;
 	
 	override protected function get visualElement():IVisualElement  { return bc; }
 	override protected function get visualElementContainer():IVisualElementContainer  { return group; }
@@ -68,88 +68,89 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	public function Wall()
 	{
 		super();
-		
-		bc.setStyle("borderAlpha", 0x0);
-		bc.setStyle("backgroundColor", 0xF2F2F2);
-		bc.percentHeight = 100;
-		bc.percentWidth = 100;
-		
-		
-		
-		// wheel scroll to zoom
-		visualElement.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
-			setZoom(zoomX* Math.pow(1.03,e.delta));
-			
-		});
-		
-		/** focus when wall clicked **/
-		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void
-		{
-			if(e.target.parent != visualElement)
-				return;
-			
-			for each(var child:Component in children)  {
-				child._protected_::dispatchFocusOutEvent();
-			}
-			dispatchFocusInEvent();
-		});
-		
-	
-		// ignore consecutive zoom as a commit. commit only the last one
-		var delayedZoomTimer:Timer = new Timer(300, 1);
-		var zoomArgs:Array = [];
-		
-		delayedZoomTimer.addEventListener(TimerEvent.TIMER, function():void
-		{
-			dispatchCommitEvent(new CommitEvent(self, ZOOM_CHANGED, zoomArgs));
-		});
-		
-		addZoomedEventListener( function(e:ZoomEvent):void {
-			zoomArgs = [e.oldZoomX, e.oldZoomY, e.zoomX, e.zoomY];
-			delayedZoomTimer.reset();
-			delayedZoomTimer.start();
-		});
-		
-		
-		
-		addPannedEventListener( function(e:PanEvent):void {
-			dispatchCommitEvent(new CommitEvent(self, PANNED, [e.oldX, e.oldY, e.newX, e.newY]));
-		});
-		
-		addNameChangeEventListener( function():void  {
-			dispatchCommitEvent(new CommitEvent(self, NAME_CHANGED, [name]));
-		});
-		
-		addChildAddedEventListener(function(e:CompositeEvent):void  {
-			dispatchCommitEvent(new ActionCommitEvent(self, SHEET_ADDED, [e.child]));
-		});
-		
-		addChildRemovedEventListener(function(e:CompositeEvent):void  {
-			dispatchCommitEvent(new ActionCommitEvent(self, SHEET_REMOVED, [e.child]));
-		});
-		
-		addPasteEventListener( function(e:ClipboardEvent):void
-		{
-			if(e.format == ClipboardEvent.TEXT_FORMAT) {
-				addTextSheet(e.object as String);
-			} else if(e.format == (ClipboardEvent.BITMAP_FORMAT)) {
-				
-				var imageFile:File = null;
-				var encoder:PNGEncoder = new PNGEncoder();
-				var bitmapData:BitmapData = e.object as BitmapData;
-				var rawBytes:ByteArray = encoder.encode(bitmapData);
-				imageFile = TemporaryFileStorage.imageAssetsResolve("png",File.applicationStorageDirectory.resolvePath(name));
-				var fileStream:FileStream = new FileStream();
-				fileStream.open( imageFile, FileMode.WRITE );
-				fileStream.writeBytes( rawBytes );
-				fileStream.close();
-				addImageSheet(imageFile, bitmapData.width, bitmapData.height );
-			}
-		});
+
+        // wheel scroll to zoom
+        visualElement.addEventListener(MouseEvent.MOUSE_WHEEL,function(e:MouseEvent):void {
+            setZoom(zoomX* Math.pow(1.03,e.delta));
+        });
+
+        /** focus when wall clicked **/
+        visualElement.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void
+        {
+            if(e.target.parent != visualElement)
+                return;
+
+            for each(var child:Component in children)  {
+                child._protected_::dispatchFocusOutEvent();
+            }
+            dispatchFocusInEvent();
+        });
 
 
-		
+        // ignore consecutive zoom as a commit. commit only the last one
+        var delayedZoomTimer:Timer = new Timer(300, 1);
+        var zoomArgs:Array = [];
+
+        delayedZoomTimer.addEventListener(TimerEvent.TIMER, function():void
+        {
+            dispatchCommitEvent(new CommitEvent(self, ZOOM_CHANGED, zoomArgs));
+        });
+
+        addZoomedEventListener( function(e:ZoomEvent):void {
+            zoomArgs = [e.oldZoomX, e.oldZoomY, e.zoomX, e.zoomY];
+            delayedZoomTimer.reset();
+            delayedZoomTimer.start();
+        });
+
+
+
+        addPannedEventListener( function(e:PanEvent):void {
+            dispatchCommitEvent(new CommitEvent(self, PANNED, [e.oldX, e.oldY, e.newX, e.newY]));
+        });
+
+        addNameChangeEventListener( function():void  {
+            dispatchCommitEvent(new CommitEvent(self, NAME_CHANGED, [name]));
+        });
+
+        addChildAddedEventListener(function(e:CompositeEvent):void  {
+            dispatchCommitEvent(new ActionCommitEvent(self, SHEET_ADDED, [e.child]));
+        });
+
+        addChildRemovedEventListener(function(e:CompositeEvent):void  {
+            dispatchCommitEvent(new ActionCommitEvent(self, SHEET_REMOVED, [e.child]));
+        });
+
+        addPasteEventListener( function(e:ClipboardEvent):void
+        {
+            if(e.format == ClipboardEvent.TEXT_FORMAT) {
+                addTextSheet(e.object as String);
+            } else if(e.format == (ClipboardEvent.BITMAP_FORMAT)) {
+
+                var imageFile:File = null;
+                var encoder:PNGEncoder = new PNGEncoder();
+                var bitmapData:BitmapData = e.object as BitmapData;
+                var rawBytes:ByteArray = encoder.encode(bitmapData);
+                imageFile = TemporaryFileStorage.imageAssetsResolve("png",File.applicationStorageDirectory.resolvePath(name));
+                var fileStream:FileStream = new FileStream();
+                fileStream.open( imageFile, FileMode.WRITE );
+                fileStream.writeBytes( rawBytes );
+                fileStream.close();
+                addImageSheet(imageFile, bitmapData.width, bitmapData.height );
+            }
+        });
+
 	}
+
+    override protected function initUnderlyingComponents():void
+    {
+        bc = new BorderContainer();
+        group = new Group();
+
+        bc.setStyle("borderAlpha", 0x0);
+        bc.setStyle("backgroundColor", 0xF2F2F2);
+        bc.percentHeight = 100;
+        bc.percentWidth = 100;
+    }
 	
 	public function setZoom(_multiplier:Number):void {
 		var multiplier:Number = _multiplier;
@@ -427,7 +428,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 		for each(var sheetXML:XML in xml.sheets[0].sheet)
 		{
-			var sheet:Sheet = new Sheet(sheetXML.@type);
+			var sheet:Sheet = Sheet.createSheetByType(sheetXML.@type);
 			sheet.fromXML(sheetXML);
 			addSheet(sheet);
 		}

@@ -10,10 +10,15 @@ package cream.components.dialogs {
 public class ChatDialog extends Dialog {
     public function ChatDialog() {
         super();
+        title = "Chat";
+    }
 
+    override protected function initUnderlyingComponents():void
+    {
+        super.initUnderlyingComponents();
         tw.width = 400;
         tw.height = 600;
-        title = "Chat";
+
     }
 }
 }

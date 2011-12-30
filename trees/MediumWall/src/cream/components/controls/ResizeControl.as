@@ -124,10 +124,13 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 			ui.graphics.endFill();
 			ui.addEventListener(MouseEvent.MOUSE_DOWN, startResize); 
 		}
-	
-		
-		
+
 	}
+
+    override protected function initUnderlyingComponents():void
+    {
+
+    }
 	
 	override public function set width(val:Number):void
 	{

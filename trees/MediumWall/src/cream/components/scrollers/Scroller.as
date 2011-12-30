@@ -17,7 +17,7 @@ import cream.components.scrollbars.ScrollbarUIComponent;
 public class Scroller extends Component implements IScroller
 {
 	public static const padding:Number = 5;
-	private var group:Group = new Group();
+	private var group:Group;
 	private var hScrollbar:HScrollbarUIComponent;
 	private var vScrollbar:VScrollbarUIComponent;
 	private var hPos:Number;
@@ -31,20 +31,25 @@ public class Scroller extends Component implements IScroller
 	public function Scroller()
 	{
 		super();
-		group.percentHeight = 100;
-		group.percentWidth = 100;
-		group.clipAndEnableScrolling = true;
-		
-		hScrollbar = new HScrollbarUIComponent();
-		vScrollbar = new VScrollbarUIComponent();
-		group.addEventListener(ResizeEvent.RESIZE, function (e:ResizeEvent):void {
-			refresh();
-		});
-		
-		visualElementContainer.addElement(hScrollbar);
-		visualElementContainer.addElement(vScrollbar);
-		
 	}
+
+    override protected function initUnderlyingComponents():void
+    {
+        group = new Group();
+        group.percentHeight = 100;
+        group.percentWidth = 100;
+        group.clipAndEnableScrolling = true;
+
+        hScrollbar = new HScrollbarUIComponent();
+        vScrollbar = new VScrollbarUIComponent();
+        group.addEventListener(ResizeEvent.RESIZE, function (e:ResizeEvent):void {
+            refresh();
+        });
+
+        group.addElement(hScrollbar);
+        group.addElement(vScrollbar);
+
+    }
 	
 	public function update(rect:Rectangle, crect:Rectangle):void
 	{

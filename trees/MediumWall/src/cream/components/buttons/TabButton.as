@@ -25,8 +25,8 @@ import mx.core.UIComponent;
 
 	public class TabButton extends ClickableComponent implements ICloseEventDispatcher
 	{
-		private var button:ButtonBarButton = new ButtonBarButton();
-		private var closeControl:CloseControl = new CloseControl();
+		private var button:ButtonBarButton;
+		private var closeControl:CloseControl;
 
         override protected function get visualElement():IVisualElement {  return button;  }
         override protected function get visualElementContainer():IVisualElementContainer	{  return null;	}
@@ -35,102 +35,104 @@ import mx.core.UIComponent;
 		public function TabButton()
 		{
 			super();
-			
-			closeControl.imageSource = new Assets.close_small_png()
-			
-			button.addEventListener(MouseEvent.CLICK, 
-				function(e:MouseEvent):void {
-					dispatchClickEvent(new ClickEvent(self));
-				}
-			);
-			button.addEventListener(MouseEvent.RIGHT_CLICK,
-				function(e:MouseEvent):void {
-					// To do : change code
-					var here:ButtonBarButton = e.currentTarget as ButtonBarButton;
-					var textInput:TextInput = new TextInput();
-					textInput.addEventListener(KeyboardEvent.KEY_UP, function(e:KeyboardEvent):void {
-						if (e.keyCode == 13)
-						{
-							here.label = textInput.text;
-							here.name = textInput.text;
-							var hGroup:HGroup = here.parent as HGroup;
-							hGroup.removeElement(textInput);
-						}
-					});
-					
-					e.currentTarget.parent.addElement(textInput);
-				}
-			);
-			var detachTimer:Timer = new Timer(100);
-			var closeControlShowing:Boolean = false;
-			var timerPaused:Boolean = false;
-			
-			detachTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void
-			{
-				if(closeControlShowing)  {
-					closeControl.removeFromApplication();
-					closeControlShowing = false;
-				}
-			});
-			
-			
-			button.addEventListener(MouseEvent.ROLL_OVER, 
-				function ():void
-				{
-					if(detachTimer.running)  {
-						detachTimer.stop();
-						detachTimer.reset();
-					}
-					
-					if(!closeControlShowing)  {
-						closeControl.addToApplication();
-						closeControlShowing = true;
-					}
-					
-					var pt:Point = localToGlobal(new Point(width-16,0));
-					closeControl.x = pt.x;
-					closeControl.y = pt.y;
-					
-				}
-			);
-			
-			button.addEventListener(MouseEvent.ROLL_OUT, 
-				function ():void
-				{
-					if(closeControlShowing && !detachTimer.running)
-						detachTimer.start();
-					
-				}
-			);
-			
-			closeControl.addRollOverEventListener( function():void
-				{
-					if(detachTimer.running)  {
-						detachTimer.stop();
-						timerPaused = true;
-					}
-				}
-			);
-			
-			closeControl.addRollOutEventListener( function():void
-				{
-					if(timerPaused)  {
-						detachTimer.start();
-						timerPaused = false;
-					}
-				}
-			);
-			
-			closeControl.addClickEventListener( function(e:ClickEvent):void 
-				{
-					dispatchCloseEvent();
-				}
-			);
-			
-
 		}
-		
-		public function set label(text:String):void
+
+        override protected function initUnderlyingComponents():void {
+            closeControl = new CloseControl();
+            button = new ButtonBarButton();
+            closeControl.imageSource = new Assets.close_small_png();
+
+            button.addEventListener(MouseEvent.CLICK,
+                    function(e:MouseEvent):void {
+                        dispatchClickEvent(new ClickEvent(self));
+                    }
+            );
+            button.addEventListener(MouseEvent.RIGHT_CLICK,
+                    function(e:MouseEvent):void {
+                        // To do : change code
+                        var here:ButtonBarButton = e.currentTarget as ButtonBarButton;
+                        var textInput:TextInput = new TextInput();
+                        textInput.addEventListener(KeyboardEvent.KEY_UP, function(e:KeyboardEvent):void {
+                            if (e.keyCode == 13)
+                            {
+                                here.label = textInput.text;
+                                here.name = textInput.text;
+                                var hGroup:HGroup = here.parent as HGroup;
+                                hGroup.removeElement(textInput);
+                            }
+                        });
+
+                        e.currentTarget.parent.addElement(textInput);
+                    }
+            );
+            var detachTimer:Timer = new Timer(100);
+            var closeControlShowing:Boolean = false;
+            var timerPaused:Boolean = false;
+
+            detachTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void
+            {
+                if(closeControlShowing)  {
+                    closeControl.removeFromApplication();
+                    closeControlShowing = false;
+                }
+            });
+
+
+            button.addEventListener(MouseEvent.ROLL_OVER,
+                    function ():void
+                    {
+                        if(detachTimer.running)  {
+                            detachTimer.stop();
+                            detachTimer.reset();
+                        }
+
+                        if(!closeControlShowing)  {
+                            closeControl.addToApplication();
+                            closeControlShowing = true;
+                        }
+
+                        var pt:Point = localToGlobal(new Point(width-16,0));
+                        closeControl.x = pt.x;
+                        closeControl.y = pt.y;
+
+                    }
+            );
+
+            button.addEventListener(MouseEvent.ROLL_OUT,
+                    function ():void
+                    {
+                        if(closeControlShowing && !detachTimer.running)
+                            detachTimer.start();
+
+                    }
+            );
+
+            closeControl.addRollOverEventListener( function():void
+                    {
+                        if(detachTimer.running)  {
+                            detachTimer.stop();
+                            timerPaused = true;
+                        }
+                    }
+            );
+
+            closeControl.addRollOutEventListener( function():void
+                    {
+                        if(timerPaused)  {
+                            detachTimer.start();
+                            timerPaused = false;
+                        }
+                    }
+            );
+
+            closeControl.addClickEventListener( function(e:ClickEvent):void
+                    {
+                        dispatchCloseEvent();
+                    }
+            );
+        }
+
+        public function set label(text:String):void
 		{
 			button.label = text;	
 		}

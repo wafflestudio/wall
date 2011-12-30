@@ -23,11 +23,16 @@ public class Dialog extends Popup implements IDialogEventDispatcher
 	
 	public function Dialog()
 	{
-		tw = new TitleWindow();
-		
-		tw.alpha = 0.8;
-		tw.addEventListener(CloseEvent.CLOSE, function(e:CloseEvent):void { close(); });
+        super();
+
+        visualElement.addEventListener(CloseEvent.CLOSE, function(e:CloseEvent):void { close(); });
 	}
+
+    override protected function initUnderlyingComponents():void
+    {
+        tw = new TitleWindow();
+        tw.alpha = 0.8;
+    }
 	
 	public function set title(text:String):void
 	{

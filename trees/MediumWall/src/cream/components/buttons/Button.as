@@ -11,26 +11,29 @@ import mx.core.IVisualElement;
 
 import spark.components.Button;
 
+import spark.components.Button;
+
 public class Button extends ClickableComponent
 {
 	private var button:spark.components.Button = new spark.components.Button();
 	
-	override protected function get visualElement():IVisualElement
-	{
-		return button;
-	}
+	override protected function get visualElement():IVisualElement { return button; }
 	
 	public function Button()
 	{
 		super();
-		var self:Button = this;
-	
-		button.addEventListener(MouseEvent.CLICK, 
-			function(e:MouseEvent):void {
-				dispatchClickEvent(new ClickEvent(self));
-			}
-		);
 	}
+
+    override protected function initUnderlyingComponents():void {
+        button = new spark.components.Button();
+        var self:Button = this;
+
+        button.addEventListener(MouseEvent.CLICK,
+                function(e:MouseEvent):void {
+                    dispatchClickEvent(new ClickEvent(self));
+                }
+        );
+    }
 		
 	public function set label(text:String):void
 	{

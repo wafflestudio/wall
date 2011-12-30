@@ -1,32 +1,13 @@
 package cream.components.perspectives
 {
-import cream.components.dialogs.Dialog;
-import cream.components.dialogs.OpenWallDialog;
-import cream.components.docks.Dock;
-import cream.components.sheets.Sheet;
 import cream.components.toolbars.CommandToolbar;
-import cream.components.toolbars.Toolbar;
-import cream.components.walls.FileStoredWall;
 import cream.components.walls.Wall;
 import cream.components.wallstacks.TabbedWallStack;
-import cream.eventing.eventdispatchers.IClickEventDispatcher;
-import cream.eventing.events.ClickEvent;
-import cream.eventing.events.ClipboardEvent;
 import cream.eventing.events.CommitEvent;
-import cream.eventing.events.Event;
 import cream.eventing.events.SelectionChangeEvent;
 import cream.storages.IXMLizable;
-
-import flash.display.DisplayObject;
-import flash.geom.Point;
-
-import mx.collections.ArrayCollection;
-import mx.containers.ViewStack;
 import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
-import mx.managers.PopUpManager;
-
-import spark.components.Group;
 import spark.components.VGroup;
 
 
@@ -34,50 +15,54 @@ import spark.components.VGroup;
 public class TabbedPerspective extends MultipleWallPerspective implements IXMLizable
 {
     // Spark Elements: vgroup -> [toolbar, group -> [tabstack]]
-	public var toolbar:CommandToolbar = new CommandToolbar();
+	public var toolbar:CommandToolbar;
 	private var tabStack:TabbedWallStack;
 	private var vgroup:VGroup = new VGroup();
 	private var group:VGroup = new VGroup();
 
     override protected function get visualElement():IVisualElement {  return vgroup;  }
     override protected function get visualElementContainer():IVisualElementContainer	{  return group;	}
-
-    private var dock:Dock;
 	
 	public function TabbedPerspective(paths:Array = null)
 	{	
 		super();
-		
-		vgroup.percentHeight = 100;
-		vgroup.percentWidth = 100;
-		
-		group.percentHeight = 100;
-		group.percentWidth = 100;
-
-		
-		// force add toolbar
-		vgroup.addElement(toolbar._protected_::visualElement);
-		vgroup.addElement(group);
-		
-		//tabstack
-		tabStack = new TabbedWallStack();
-		tabStack.percentHeight = 100;
-		tabStack.percentWidth = 100;
-		
-		tabStack.addSelectionChangeEventListener( function(e:SelectionChangeEvent):void {
-			currentIndex = e.selectedIndex;
-		});
-		
-		tabStack.addCommitEventListener( function(e:CommitEvent):void
-		{
-			dispatchCommitEvent(e);
-		});
-		
-		addChild( tabStack );
-
-
 
 	}
+
+    override protected function initUnderlyingComponents():void
+    {
+        vgroup = new VGroup();
+        group = new VGroup();
+        tabStack = new TabbedWallStack();
+        toolbar = new CommandToolbar();
+
+        vgroup.percentHeight = 100;
+        vgroup.percentWidth = 100;
+
+        group.percentHeight = 100;
+        group.percentWidth = 100;
+
+
+        // force add toolbar
+        vgroup.addElement(toolbar._protected_::visualElement);
+        vgroup.addElement(group);
+
+        //tabstack
+
+        tabStack.percentHeight = 100;
+        tabStack.percentWidth = 100;
+
+        tabStack.addSelectionChangeEventListener( function(e:SelectionChangeEvent):void {
+            currentIndex = e.selectedIndex;
+        });
+
+        tabStack.addCommitEventListener( function(e:CommitEvent):void
+        {
+            dispatchCommitEvent(e);
+        });
+
+        addChild( tabStack );
+    }
 	
 	private function setTabStack(tabStack:TabbedWallStack):void
 	{

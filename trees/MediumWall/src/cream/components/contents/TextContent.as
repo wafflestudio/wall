@@ -7,7 +7,8 @@ package cream.components.contents
 	import cream.storages.actions.IActionCommitter;
 	
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;
+import flash.html.script.Package;
+import flash.utils.Timer;
 	
 	import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
@@ -24,7 +25,7 @@ import skins.BlankSkin;
 		// actions
 		public static const TEXT_CHANGE:String = "TEXT_CHANGE";
 		
-		protected var textarea:TextArea = new TextArea;
+		protected var textarea:TextArea;
 		protected var _text:String = "";
 
         override protected function get visualElement():IVisualElement {  return textarea;  }
@@ -36,30 +37,34 @@ import skins.BlankSkin;
 		public function TextContent()
 		{
 			super();
-
-			textarea.percentWidth = 100;
-			textarea.percentHeight = 100;
-			
-			// ignore consecutive textchange as a commit. commit only the last one
-			var delayedTextChangeTimer:Timer = new Timer(300, 1);
-			var textChangeArgs:Array = [];
-			
-			delayedTextChangeTimer.addEventListener(TimerEvent.TIMER, function():void
-			{
-				dispatchCommitEvent(new ActionCommitEvent(self, TEXT_CHANGE, textChangeArgs));
-				_text = textarea.text;
-			});
-			
-			textarea.addEventListener(TextOperationEvent.CHANGE, function(e:TextOperationEvent):void
-			{
-				textChangeArgs = [new String(text), textarea.text];
-				delayedTextChangeTimer.reset();
-				delayedTextChangeTimer.start();
-			});
-			
-			textarea.setStyle('skinClass', BlankSkin);
-
 		}
+
+        override protected function initUnderlyingComponents():void
+        {
+            textarea = new TextArea();
+            textarea.percentWidth = 100;
+            textarea.percentHeight = 100;
+
+            // ignore consecutive textchange as a commit. commit only the last one
+            var delayedTextChangeTimer:Timer = new Timer(300, 1);
+            var textChangeArgs:Array = [];
+
+            delayedTextChangeTimer.addEventListener(TimerEvent.TIMER, function():void
+            {
+                dispatchCommitEvent(new ActionCommitEvent(self, TEXT_CHANGE, textChangeArgs));
+                _text = textarea.text;
+            });
+
+            textarea.addEventListener(TextOperationEvent.CHANGE, function(e:TextOperationEvent):void
+            {
+                textChangeArgs = [new String(text), textarea.text];
+                delayedTextChangeTimer.reset();
+                delayedTextChangeTimer.start();
+            });
+
+            textarea.setStyle('skinClass', BlankSkin);
+
+        }
 		
 		public function applyAction(action:Action):void
 		{

@@ -23,12 +23,9 @@ public class Perspective extends ToplevelComponent implements  IXMLizable, IComm
 	
 	public function Perspective()
 	{
-
+        super();
 	}
-	
-//	override protected function set visualElementContainer(val:IVisualElementContainer):void { }
-//	override protected function get visualElementContainer():IVisualElementContainer { return null; }
-//	
+
 	public function addCommitEventListener(listener:Function):void
 	{
 		addEventListener(CommitEvent.COMMIT, listener);	

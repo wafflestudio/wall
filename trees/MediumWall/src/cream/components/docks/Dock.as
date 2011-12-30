@@ -33,7 +33,12 @@ public class Dock extends FlexibleComponent {
 
 
     public function Dock() {
+        super();
 
+    }
+
+    override protected function initUnderlyingComponents():void
+    {
         titleBar.backgroundFill = new SolidColor(0);
         titleBar.percentWidth = 100;
         titleBar.height = 26;
@@ -42,7 +47,6 @@ public class Dock extends FlexibleComponent {
 
         bc.addElement(vgroup);
         vgroup.addElement(titleBar);
-
     }
 }
 }

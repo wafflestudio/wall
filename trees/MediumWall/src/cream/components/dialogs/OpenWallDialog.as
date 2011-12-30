@@ -9,5 +9,6 @@ public class OpenWallDialog extends FileChooseDialog
 		super();
 		title = "Open Wall..";
 	}
+
 }
 }
