@@ -100,7 +100,7 @@ public class Component extends Composite implements IComponent
 		// Manage system focus (copy/paste depend on it)
 		visualElement.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void
 		{
-			if(e.target.parent != visualElement)
+			if(e.target.owner != visualElement)
 				return;
 			
 			bringSystemFocus();
@@ -227,6 +227,8 @@ public class Component extends Composite implements IComponent
 	
 	protected function attachSparkElement(sparkElement:IVisualElement):void
 	{
+
+
 		visualElementContainer.addElement( sparkElement );
 	}
 	

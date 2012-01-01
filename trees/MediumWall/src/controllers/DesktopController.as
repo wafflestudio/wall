@@ -5,7 +5,8 @@ import cream.components.dialogs.ChatDialog;
 import cream.components.perspectives.TabbedPerspective;
 	import cream.components.toolbars.CommandToolbar;
 	import cream.components.walls.FileStoredWall;
-	import cream.eventing.eventdispatchers.ICommitEventDispatcher;
+import cream.components.walls.RemoteWall;
+import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 	import cream.eventing.events.ActionCommitEvent;
 	import cream.eventing.events.ClickEvent;
 	import cream.eventing.events.CommitEvent;
@@ -54,8 +55,14 @@ import cream.components.perspectives.TabbedPerspective;
 					perspective.addWall(new FileStoredWall());
 				}
 			);
-			
-			toolbar.openWallButton.addClickEventListener(
+
+            toolbar.newRemoteWallButton.addClickEventListener(
+                function(e:ClickEvent):void {
+                    perspective.addWall(new RemoteWall());
+                }
+            );
+
+            toolbar.openWallButton.addClickEventListener(
 				function(e:ClickEvent):void {
 //					var dialog:OpenWallDialog = new OpenWallDialog();
 //					dialog.show();
@@ -94,6 +101,8 @@ import cream.components.perspectives.TabbedPerspective;
 					perspective.currentWall.saveWallAs();
 				}
 			);
+            
+
 			
             // test
             toolbar.testButton.addClickEventListener(
@@ -122,11 +131,7 @@ import cream.components.perspectives.TabbedPerspective;
 
 			});
 			
-//			toolbar.pasteButton.addClickEventListener(
-//				function(e:ClickEvent):void {
-//					
-//				}
-//			);
+
 			
 			enableHistory();
 			

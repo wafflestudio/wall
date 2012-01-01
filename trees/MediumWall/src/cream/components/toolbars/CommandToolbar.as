@@ -21,7 +21,8 @@ public class CommandToolbar extends Toolbar
 	private var hgroup:HGroup;
 	private var openWallBtn:Button;
 	private var newWallBtn:Button;
-	private var newSheetBtn:Button;
+	private var newRemoteWallBtn:Button;
+    private var newSheetBtn:Button;
 	
 	private var newImageSheetBtn:Button;
 	private var undoBtn:Button;
@@ -30,17 +31,19 @@ public class CommandToolbar extends Toolbar
 	private var copyBtn:Button;
 	private var pasteBtn:Button;
     private var testBtn:Button;
+    
 
-    override protected function get visualElement():IVisualElement {  return group;  }
-    override protected function get visualElementContainer():IVisualElementContainer	{  return hgroup;	}
-	
-	// parent - (group - bg - hgroup) - children
+
 	public function CommandToolbar()
 	{
         super();
 		
 	}
 
+    override protected function get visualElement():IVisualElement {  return group;  }
+    override protected function get visualElementContainer():IVisualElementContainer	{  return hgroup;	}
+
+    // parent - (group - bg - hgroup) - children
     override protected function initUnderlyingComponents():void
     {
         group = new Group();
@@ -64,6 +67,9 @@ public class CommandToolbar extends Toolbar
         openWallBtn.label = "open wall";
         newWallBtn = new Button();
         newWallBtn.label = "new wall";
+        newRemoteWallBtn = new Button();
+        newRemoteWallBtn.label = "new remote wall";
+
         newSheetBtn = new Button();
         newSheetBtn.label = "new sheet";
 
@@ -88,6 +94,7 @@ public class CommandToolbar extends Toolbar
 
         addChild(openWallBtn);
         addChild(newWallBtn);
+        addChild(newRemoteWallBtn);
         addChild(newSheetBtn);
         addChild(newImageSheetBtn);
 
@@ -110,6 +117,11 @@ public class CommandToolbar extends Toolbar
 	{
 		return newWallBtn;
 	}
+
+    public function get newRemoteWallButton():IClickEventDispatcher
+    {
+        return newRemoteWallBtn;
+    }
 	
 	public function get newSheetButton():IClickEventDispatcher
 	{
@@ -133,7 +145,7 @@ public class CommandToolbar extends Toolbar
 	public function get saveAsButton():IClickEventDispatcher
 	{
 		return saveAsBtn;
-	}
+    }
 	
 	public function get copyButton():IClickEventDispatcher
 	{

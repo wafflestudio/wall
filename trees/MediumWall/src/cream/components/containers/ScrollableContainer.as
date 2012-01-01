@@ -11,6 +11,8 @@ import cream.eventing.events.ChildrenDimensionChangeEvent;
 import cream.eventing.events.DimensionChangeEvent;
 import cream.eventing.events.ScrollEvent;
 
+import flash.display.DisplayObject;
+
 import flash.geom.Rectangle;
 
 import mx.core.IVisualElement;
@@ -18,49 +20,25 @@ import mx.core.IVisualElementContainer;
 import mx.events.ResizeEvent;
 
 import spark.components.Group;
+import spark.components.supportClasses.GroupBase;
+import spark.core.IGraphicElementContainer;
+import spark.core.ISharedDisplayObject;
 
 public class ScrollableContainer extends Container implements IScrollableContainer
 {
-	
-	private var _viewport:Group = new Group();
-	private var _scroller:Scroller;
-	
-	protected function get viewport():Group {	return _viewport;	}
-	
-	protected function set scroller(s:Scroller):void
-	{
-		if(_scroller)
-			viewport.removeElement(s._protected_::visualElement);
-		
-		viewport.addElement(s._protected_::visualElement);
-		
-		_scroller = s;
-		
-		s.addScrollEventListener( function(e:ScrollEvent):void {
-			
-		});
-	}
-	
-	
+	private var defaultScroller:Scroller;
+
+    protected function get viewport():Group {	return visualElementContainer as Group;	}
+    protected function get scroller():Scroller { return defaultScroller; }
+
 	public function ScrollableContainer()
 	{
 		super();
-		
-		(visualElement as IVisualElementContainer).addElement(viewport);
-		viewport.addElement(visualElementContainer as IVisualElement);
-			
-		_viewport.percentHeight = 100;
-		_viewport.percentWidth = 100;
-		
-		_viewport.clipAndEnableScrolling = true;
-		_viewport.setStyle("horizontalScrollPolicy", "off");
-		
-		scroller = new Scroller();
-		
-		this.addChildrenDimensionChangeEventListener( function(e:ChildrenDimensionChangeEvent):void {
-			if(_scroller)
-				_scroller.update(extent, childrenExtent);
-			
+        initScroll();
+
+		addChildrenDimensionChangeEventListener( function(e:ChildrenDimensionChangeEvent):void {
+			if(scroller)
+                scroller.update(extent, childrenExtent);
 		});
 		
 		addChildAddedEventListener(function():void
@@ -72,9 +50,16 @@ public class ScrollableContainer extends Container implements IScrollableContain
 		{
 			dispatchChildrenDimensionChangeEvent();
 		});
-		
-		
 	}
+
+    protected function initScroll():void
+    {
+        defaultScroller = new Scroller();
+        viewport.addElement(defaultScroller._protected_::visualElement);
+
+        viewport.clipAndEnableScrolling = true;
+        viewport.setStyle("horizontalScrollPolicy", "off");
+    }
 	
 	
 	private function onChildDimensionChange(e:DimensionChangeEvent):void 

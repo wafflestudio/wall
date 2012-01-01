@@ -7,13 +7,29 @@
  */
 
 package cream.components.walls {
+import mx.core.IVisualElementContainer;
+
+import spark.components.BorderContainer;
 
 public class RemoteWall extends Wall {
 
     private var url:String;
 
+    protected var wrapper:BorderContainer;
+    
+    override protected function get visualElementContainer():IVisualElementContainer { return wrapper; }
+
     public function RemoteWall() {
         super();
     }
+
+    override protected function initUnderlyingComponents():void
+    {
+        super.initUnderlyingComponents();
+        wrapper = new BorderContainer();
+        
+        wrapper.addElement(bc);
+    }
+
 }
 }

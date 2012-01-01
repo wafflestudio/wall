@@ -39,6 +39,7 @@ public class Scroller extends Component implements IScroller
         group.percentHeight = 100;
         group.percentWidth = 100;
         group.clipAndEnableScrolling = true;
+        group.includeInLayout = false;
 
         hScrollbar = new HScrollbarUIComponent();
         vScrollbar = new VScrollbarUIComponent();

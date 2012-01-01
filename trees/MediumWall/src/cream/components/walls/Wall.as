@@ -23,7 +23,6 @@ import cream.storages.IXMLizable;
 import cream.storages.actions.Action;
 import cream.storages.actions.IActionCommitter;
 import cream.utils.TemporaryFileStorage;
-import cream.utils.XMLFileStream;
 
 import flash.display.BitmapData;
 import flash.display.DisplayObject;
@@ -59,8 +58,9 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	public static const DEFAULT_SHEET_SIZE:Number = 300;
 	
 	
-	private var bc:BorderContainer;
-	private var group:Group;
+	protected var bc:BorderContainer;
+    protected var viewGroup:Group;
+	protected var group:Group;
 	
 	override protected function get visualElement():IVisualElement  { return bc; }
 	override protected function get visualElementContainer():IVisualElementContainer  { return group; }
@@ -141,15 +141,25 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 
 	}
 
+
+    override protected function get viewport():Group { return viewGroup; }
+
     override protected function initUnderlyingComponents():void
     {
         bc = new BorderContainer();
+        viewGroup = new Group();
         group = new Group();
+
+        viewGroup.percentHeight = 100;
+        viewGroup.percentWidth = 100;
+        viewGroup.addElement(group);
 
         bc.setStyle("borderAlpha", 0x0);
         bc.setStyle("backgroundColor", 0xF2F2F2);
         bc.percentHeight = 100;
         bc.percentWidth = 100;
+
+        bc.addElement(viewGroup);
     }
 	
 	public function setZoom(_multiplier:Number):void {
@@ -170,6 +180,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		height = height == 0 ? DEFAULT_SHEET_SIZE : height;
 		
 		addNewSheetAtCenter(sheet, width, height);
+
 	}
 	
 	public function addImageSheet(imageFile:File = null, width:Number = 0, height:Number = 0):void
@@ -346,8 +357,6 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	}
 	
 
-	
-	
 	public function addToApplication(app:IVisualElementContainer = null):void
 	{
 		app.addElement(visualElement);
