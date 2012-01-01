@@ -81,9 +81,9 @@ public class Component extends Composite implements IComponent
 	public function set height(val:Number):void { visualElement.height = val; }
 	
 	public function get percentWidth():Number { return visualElement.percentWidth; }
-	public function get percentHeight():Number { return visualElement.percentWidth; }
+	public function get percentHeight():Number { return visualElement.percentHeight; }
 	public function set percentWidth(val:Number):void { visualElement.percentWidth = val; }
-	public function set percentHeight(val:Number):void { visualElement.percentWidth = val; }
+	public function set percentHeight(val:Number):void { visualElement.percentHeight = val; }
 	
 	public function resize(w:Number, h:Number):void
 	{
