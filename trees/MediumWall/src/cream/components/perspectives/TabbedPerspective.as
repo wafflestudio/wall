@@ -1,6 +1,7 @@
 package cream.components.perspectives
 {
 import cream.components.toolbars.CommandToolbar;
+import cream.components.walls.FileStoredWall;
 import cream.components.walls.Wall;
 import cream.components.wallstacks.TabbedWallStack;
 import cream.eventing.events.CommitEvent;
@@ -73,9 +74,10 @@ public class TabbedPerspective extends MultipleWallPerspective implements IXMLiz
 		addChild(tabStack);
 	}
 
-	override public function get currentWall():Wall
+	override public function get currentWall():FileStoredWall
 	{
-		return tabStack.selectedWall;	
+        // must be a filestoredwall
+		return tabStack.selectedWall as FileStoredWall;
 	}
 	
 	override public function addWall(wall:Wall):void

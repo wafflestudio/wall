@@ -7,28 +7,30 @@
  */
 
 package cream.components.walls {
+import cream.components.docks.Dock;
+import cream.components.walls.FileStoredWall;
+
 import mx.core.IVisualElementContainer;
 
 import spark.components.BorderContainer;
 
-public class RemoteWall extends Wall {
+public class SynchronizableWall extends FileStoredWall {
 
-    private var url:String;
+    private var syncURL:String;
 
-    protected var wrapper:BorderContainer;
-    
-    override protected function get visualElementContainer():IVisualElementContainer { return wrapper; }
+    protected var chatDock:Dock;
 
-    public function RemoteWall() {
+    public function SynchronizableWall() {
         super();
     }
 
     override protected function initUnderlyingComponents():void
     {
         super.initUnderlyingComponents();
-        wrapper = new BorderContainer();
-        
-        wrapper.addElement(bc);
+        chatDock = new Dock();
+        chatDock.width = 200;
+        chatDock.percentHeight = 100;
+        bc.addElement(chatDock._protected_::visualElement);
     }
 
 }

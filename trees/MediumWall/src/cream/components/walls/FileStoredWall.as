@@ -9,6 +9,8 @@ import cream.storages.IXMLizable;
 import cream.utils.TemporaryFileStorage;
 import cream.utils.XMLFileStream;
 
+import flash.events.Event;
+
 import flash.filesystem.File;
 
 public class FileStoredWall extends Wall implements IFileStorable, IFileReference, INameable
@@ -69,6 +71,20 @@ public class FileStoredWall extends Wall implements IFileStorable, IFileReferenc
 		var fs:XMLFileStream = new XMLFileStream(_file);
 		fs.setXML(xml);
 	}
+
+    public function saveWallAs():void {
+        var f:File = File.desktopDirectory;
+        f.browseForSave("Save As");
+        f.addEventListener(flash.events.Event.SELECT, function(e:flash.events.Event):void {
+//			var xml:XML = wallXML; // any errors according to serialization must happen beforehand to opening the file
+            //why toXML execute FileStoredWall's toXML?? T.T
+            var targetDirectory:File = e.target as File;
+//			var fs:XMLFileStream = new XMLFileStream(targetDirectory.resolvePath("index.wall"));
+//			fs.setXML(xml);
+            var sourceDirectory:File = File.applicationStorageDirectory.resolvePath(name);
+            sourceDirectory.copyTo(targetDirectory,true);
+        });
+    }
 	
 	/**
 	 * 	<wall>

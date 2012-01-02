@@ -5,7 +5,7 @@ import cream.components.dialogs.ChatDialog;
 import cream.components.perspectives.TabbedPerspective;
 	import cream.components.toolbars.CommandToolbar;
 	import cream.components.walls.FileStoredWall;
-import cream.components.walls.RemoteWall;
+import cream.components.walls.SynchronizableWall;
 import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 	import cream.eventing.events.ActionCommitEvent;
 	import cream.eventing.events.ClickEvent;
@@ -58,7 +58,7 @@ import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 
             toolbar.newRemoteWallButton.addClickEventListener(
                 function(e:ClickEvent):void {
-                    perspective.addWall(new RemoteWall());
+                    perspective.addWall(new SynchronizableWall());
                 }
             );
 

@@ -32,104 +32,102 @@ public class ResizeControl extends Control implements IResizeEventDispatcher
 	public function ResizeControl()
 	{
 		super();
-		resizeUIComponent = new ResizeControlUIComponent();
-		
-		var arr:Array = [up, right, left, down, upperLeft, upperRight, lowerLeft, lowerRight];
-		
-		var startResize:Function = function(e:MouseEvent):void
-		{
-			var app:Application = (resizeUIComponent.parentApplication as Application);
-			var initialMousePos:Point = new Point(e.stageX, e.stageY);
-			var initialMousePosLocal:Point = app.globalToLocal(initialMousePos);
-			var oldX:Number = x;
-			var oldY:Number = y;
-			var oldWidth:Number = width;
-			var oldHeight:Number = height;
-			var control:UIComponent = e.currentTarget as UIComponent;
-			var moveStarted:Boolean = false;
-	
-			function drag(e:MouseEvent):void
-			{
-				/** control minimum mouse movement for initiating actual move **/
-				if(!moveStarted)
-				{
-					var mouseDistance:Point = (new Point(e.stageX, e.stageY)).subtract(initialMousePos);
-					if(Math.abs(mouseDistance.x) < 2 && Math.abs(mouseDistance.y) < 2)
-						return;
-					else
-						moveStarted = true;
-				}
-				
-				var curMousePos:Point = app.globalToLocal(new Point(e.stageX, e.stageY));
-				var diff:Point = curMousePos.subtract(initialMousePosLocal);
-				
-				switch(control)  {
-					case up:
-						y = oldHeight - diff.y < 0 ? oldY + oldHeight - MIN_SPACE : oldY + diff.y;
-						height = oldHeight - diff.y < 0 ? MIN_SPACE : oldHeight - diff.y;
-						break;
-					case down:
-						height = oldHeight + diff.y < 0? MIN_SPACE : oldHeight + diff.y;
-						break;
-					case left:
-						x = oldWidth - diff.x < 0 ? oldX + oldWidth - MIN_SPACE : oldX + diff.x;
-						width = oldWidth - diff.x < 0? MIN_SPACE : oldWidth - diff.x;
-						break;
-					case right:
-						width = oldWidth + diff.x < 0? MIN_SPACE : oldWidth + diff.x;
-						break;
-					case upperLeft:
-						y = oldHeight - diff.y < 0 ? oldY + oldHeight - MIN_SPACE : oldY + diff.y;
-						height = oldHeight - diff.y < 0 ? MIN_SPACE : oldHeight - diff.y;
-						x = oldWidth - diff.x < 0 ? oldX + oldWidth - MIN_SPACE : oldX + diff.x;
-						width = oldWidth - diff.x < 0? MIN_SPACE : oldWidth - diff.x;
-						break;
-					case upperRight:
-						y = oldHeight - diff.y < 0 ? oldY + oldHeight - MIN_SPACE : oldY + diff.y;
-						height = oldHeight - diff.y < 0 ? MIN_SPACE : oldHeight - diff.y;
-						width = oldWidth + diff.x < 0? MIN_SPACE : oldWidth + diff.x;
-						break;
-					case lowerLeft:
-						height = oldHeight + diff.y < 0? MIN_SPACE : oldHeight + diff.y;
-						x = oldWidth - diff.x < 0 ? oldX + oldWidth - MIN_SPACE : oldX + diff.x;
-						width = oldWidth - diff.x < 0? MIN_SPACE : oldWidth - diff.x;
-						break;
-					case lowerRight:
-						height = oldHeight + diff.y < 0? MIN_SPACE : oldHeight + diff.y;
-						width = oldWidth + diff.x < 0? MIN_SPACE : oldWidth + diff.x;
-						break;
-				}
-				dispatchResizingEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
-			}
-			
-			function endResize(e:MouseEvent):void
-			{
-				stage.removeEventListener( MouseEvent.MOUSE_MOVE, drag );
-				stage.removeEventListener( MouseEvent.MOUSE_UP, endResize );
-				if(oldX == x && oldY == y && oldWidth == width && oldHeight == height)
-					return;
-				
-				dispatchResizedEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
-			}
-			
-			stage.addEventListener( MouseEvent.MOUSE_MOVE, drag );
-			stage.addEventListener( MouseEvent.MOUSE_UP, endResize );
-			
-		};
-		
-		for each(var ui:UIComponent in arr)  {
-			resizeUIComponent.addChild(ui);
-			ui.graphics.beginFill(0);
-			ui.graphics.drawCircle(0, 0, 5);
-			ui.graphics.endFill();
-			ui.addEventListener(MouseEvent.MOUSE_DOWN, startResize); 
-		}
-
 	}
 
     override protected function initUnderlyingComponents():void
     {
+        const arr:Array = [up, right, left, down, upperLeft, upperRight, lowerLeft, lowerRight];
 
+        resizeUIComponent = new ResizeControlUIComponent();
+
+        var startResize:Function = function(e:MouseEvent):void
+        {
+            var app:Application = (resizeUIComponent.parentApplication as Application);
+            var initialMousePos:Point = new Point(e.stageX, e.stageY);
+            var initialMousePosLocal:Point = app.globalToLocal(initialMousePos);
+            var oldX:Number = x;
+            var oldY:Number = y;
+            var oldWidth:Number = width;
+            var oldHeight:Number = height;
+            var control:UIComponent = e.currentTarget as UIComponent;
+            var moveStarted:Boolean = false;
+
+            function drag(e:MouseEvent):void
+            {
+                /** control minimum mouse movement for initiating actual move **/
+                if(!moveStarted)
+                {
+                    var mouseDistance:Point = (new Point(e.stageX, e.stageY)).subtract(initialMousePos);
+                    if(Math.abs(mouseDistance.x) < 2 && Math.abs(mouseDistance.y) < 2)
+                        return;
+                    else
+                        moveStarted = true;
+                }
+
+                var curMousePos:Point = app.globalToLocal(new Point(e.stageX, e.stageY));
+                var diff:Point = curMousePos.subtract(initialMousePosLocal);
+
+                switch(control)  {
+                    case up:
+                        y = oldHeight - diff.y < 0 ? oldY + oldHeight - MIN_SPACE : oldY + diff.y;
+                        height = oldHeight - diff.y < 0 ? MIN_SPACE : oldHeight - diff.y;
+                        break;
+                    case down:
+                        height = oldHeight + diff.y < 0? MIN_SPACE : oldHeight + diff.y;
+                        break;
+                    case left:
+                        x = oldWidth - diff.x < 0 ? oldX + oldWidth - MIN_SPACE : oldX + diff.x;
+                        width = oldWidth - diff.x < 0? MIN_SPACE : oldWidth - diff.x;
+                        break;
+                    case right:
+                        width = oldWidth + diff.x < 0? MIN_SPACE : oldWidth + diff.x;
+                        break;
+                    case upperLeft:
+                        y = oldHeight - diff.y < 0 ? oldY + oldHeight - MIN_SPACE : oldY + diff.y;
+                        height = oldHeight - diff.y < 0 ? MIN_SPACE : oldHeight - diff.y;
+                        x = oldWidth - diff.x < 0 ? oldX + oldWidth - MIN_SPACE : oldX + diff.x;
+                        width = oldWidth - diff.x < 0? MIN_SPACE : oldWidth - diff.x;
+                        break;
+                    case upperRight:
+                        y = oldHeight - diff.y < 0 ? oldY + oldHeight - MIN_SPACE : oldY + diff.y;
+                        height = oldHeight - diff.y < 0 ? MIN_SPACE : oldHeight - diff.y;
+                        width = oldWidth + diff.x < 0? MIN_SPACE : oldWidth + diff.x;
+                        break;
+                    case lowerLeft:
+                        height = oldHeight + diff.y < 0? MIN_SPACE : oldHeight + diff.y;
+                        x = oldWidth - diff.x < 0 ? oldX + oldWidth - MIN_SPACE : oldX + diff.x;
+                        width = oldWidth - diff.x < 0? MIN_SPACE : oldWidth - diff.x;
+                        break;
+                    case lowerRight:
+                        height = oldHeight + diff.y < 0? MIN_SPACE : oldHeight + diff.y;
+                        width = oldWidth + diff.x < 0? MIN_SPACE : oldWidth + diff.x;
+                        break;
+                }
+                dispatchResizingEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
+            }
+
+            function endResize(e:MouseEvent):void
+            {
+                stage.removeEventListener( MouseEvent.MOUSE_MOVE, drag );
+                stage.removeEventListener( MouseEvent.MOUSE_UP, endResize );
+                if(oldX == x && oldY == y && oldWidth == width && oldHeight == height)
+                    return;
+
+                dispatchResizedEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
+            }
+
+            stage.addEventListener( MouseEvent.MOUSE_MOVE, drag );
+            stage.addEventListener( MouseEvent.MOUSE_UP, endResize );
+
+        };
+
+        for each(var ui:UIComponent in arr)  {
+            resizeUIComponent.addChild(ui);
+            ui.graphics.beginFill(0);
+            ui.graphics.drawCircle(0, 0, 5);
+            ui.graphics.endFill();
+            ui.addEventListener(MouseEvent.MOUSE_DOWN, startResize);
+        }
     }
 	
 	override public function set width(val:Number):void

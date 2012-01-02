@@ -278,6 +278,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	}
 	
 	private var _name:String = setUnnamedWall(File.applicationStorageDirectory);
+
 	private function setUnnamedWall(targetDirectory:File):String {
 		var contents:Array = targetDirectory.getDirectoryListing();
 		var num:int = 0;
@@ -307,8 +308,8 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	}
 	
 	public function get name():String  { return _name; }
-	public function set name(val:String):void  { _name = val; dispatchNameChangeEvent(new NameChangeEvent(null, val));}
-	
+	public function set name(val:String):void  { if(_name == val) return; _name = val; dispatchNameChangeEvent(new NameChangeEvent(this, val));}
+
 	public function addNameChangeEventListener(listener:Function):void
 	{
 		addEventListener(NameChangeEvent.NAME_CHANGE, listener);	
@@ -398,19 +399,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		
 	}
 	
-	public function saveWallAs():void {
-		var f:File = File.desktopDirectory;
-		f.browseForSave("Save As");
-		f.addEventListener(flash.events.Event.SELECT, function(e:flash.events.Event):void {
-//			var xml:XML = wallXML; // any errors according to serialization must happen beforehand to opening the file
-			//why toXML execute FileStoredWall's toXML?? T.T
-			var targetDirectory:File = e.target as File;
-//			var fs:XMLFileStream = new XMLFileStream(targetDirectory.resolvePath("index.wall"));
-//			fs.setXML(xml);
-			var sourceDirectory:File = File.applicationStorageDirectory.resolvePath(name);
-			sourceDirectory.copyTo(targetDirectory,true);
-		});
-	}
+
 	
 	
 	/**

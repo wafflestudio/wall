@@ -1,6 +1,7 @@
 package cream.components.perspectives
 {
 import cream.components.sheets.Sheet;
+import cream.components.walls.FileStoredWall;
 import cream.components.walls.Wall;
 import cream.eventing.eventdispatchers.ISelectionChangeEventDispatcher;
 import cream.eventing.events.SelectionChangeEvent;
@@ -16,7 +17,7 @@ public class MultipleWallPerspective extends Perspective implements ISelectionCh
 		super();
 	}
 	
-	public function get currentWall():Wall
+	public function get currentWall():FileStoredWall
 	{
 		trace('bad access');
 		return null;	
