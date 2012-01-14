@@ -16,8 +16,7 @@ import flash.filesystem.File;
 public class ImageSheet extends Sheet{
 
     private var imageContent:ImageContent;
-    
-    
+
     public function get file():File { return imageContent.file; }
     public function set file(value:File):void { imageContent.file = value;}
 
