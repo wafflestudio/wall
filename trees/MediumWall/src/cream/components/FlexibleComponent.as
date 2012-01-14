@@ -117,8 +117,7 @@ public class FlexibleComponent extends MovableComponent implements IFlexibleComp
 			dispatchResizedEvent(oldX, oldY, oldX+oldWidth, oldY+oldHeight, x, y, x+width, y+height);
 		});
         
-        if(resizeControl.isActive)
-            resizeControl.removeFromApplication();
+
 	}
 	
 	public function addResizingEventListener(listener:Function):void

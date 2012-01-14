@@ -13,17 +13,17 @@ public class TemporaryFileStorage
 		throw new IllegalOperationError("Access to a singleton constructor");
 	}
 	
-	public static function resolve(extension:String, targetDirectory:File = null, targetFileName:String = null):File
+	public static function resolve(targetDirectory:File = null, targetFileName:String = null, extension:String = null):File
 	{
 		if(!targetDirectory)
 			targetDirectory = File.applicationStorageDirectory;
 		var file:File = null;
 		if(targetFileName) {
-			file = targetDirectory.resolvePath(targetFileName+"."+extension);
+			file = targetDirectory.resolvePath(targetFileName+(extension ? "."+extension : ""));
 			if(file.exists)
 				trace("wall name conflict");
 		} else {
-			file = setUnnamedFile(extension, targetDirectory);
+			file = resolveUnnamedFile(targetDirectory, extension);
 		}
 		
 		return file;
@@ -44,12 +44,12 @@ public class TemporaryFileStorage
 				trace("wall name conflict");
 			
 		} else {
-			file = setUnnamedFile(extension, _targetDirectory);
+			file = resolveUnnamedFile(_targetDirectory, extension);
 		}
 		return file;
 	}
 	
-	private static function setUnnamedFile(extension:String, targetDirectory:File):File {
+	private static function resolveUnnamedFile(targetDirectory:File, extension:String):File {
 		var contents:Array = null;
 		var num:int = 0;
 		if(targetDirectory.exists) {

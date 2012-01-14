@@ -117,11 +117,6 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 
         });
 
-        addAddedEventListener( function():void
-        {
-            dispatchFocusInEvent();
-        });
-
         addRemovedEventListener( function():void
         {
             dispatchFocusOutEvent();
@@ -364,7 +359,7 @@ public class Sheet extends FlexibleComponent implements IXMLizable,ISheetEventDi
 	 */ 
 	public function fromXML(xml:XML):IXMLizable
 	{
-		reset();
+//		reset();
 		width = xml.@width;
 		height = xml.@height;
 		x = xml.@x;

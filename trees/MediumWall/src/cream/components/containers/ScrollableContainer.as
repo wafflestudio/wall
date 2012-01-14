@@ -69,8 +69,9 @@ public class ScrollableContainer extends Container implements IScrollableContain
 	
 	override protected function addChild(child:Composite):Composite
 	{
+        (child as Component).addDimensionChangeEventListener(onChildDimensionChange);
 		super.addChild(child);
-		(child as Component).addDimensionChangeEventListener(onChildDimensionChange);
+
 		dispatchChildrenDimensionChangeEvent();
 		
 		return child;

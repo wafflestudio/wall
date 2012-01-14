@@ -248,6 +248,10 @@ public class Component extends Composite implements IComponent
 		}
 		
 	}
+
+    public function focus():void{
+        dispatchFocusInEvent();
+    }
 	
 	public function addFocusInEventListener(listener:Function):void
 	{

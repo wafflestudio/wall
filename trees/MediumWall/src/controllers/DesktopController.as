@@ -98,7 +98,7 @@ import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 			
 			toolbar.saveAsButton.addClickEventListener(
 				function(e:ClickEvent):void {
-					perspective.currentWall.saveWallAs();
+					perspective.currentWall.saveAsDialog();
 				}
 			);
             

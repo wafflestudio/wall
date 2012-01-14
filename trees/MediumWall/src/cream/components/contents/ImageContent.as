@@ -1,6 +1,10 @@
 package cream.components.contents
 {
-	import cream.components.buttons.Button;
+import cream.components.Component;
+import cream.components.Composite;
+import cream.components.IComponent;
+import cream.components.IFileStoredComponent;
+import cream.components.buttons.Button;
 	import cream.eventing.eventdispatchers.IClickEventDispatcher;
 	import cream.eventing.events.ClickEvent;
 	import cream.storages.IXMLizable;
@@ -9,7 +13,8 @@ package cream.components.contents
 	import flash.display.BitmapData;
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
-	import flash.events.Event;
+import flash.errors.IOError;
+import flash.events.Event;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
@@ -22,11 +27,11 @@ import mx.core.IVisualElementContainer;
 
 import spark.components.BorderContainer;
 
-	public class ImageContent extends Content
+	public class ImageContent extends Content implements IFileStoredComponent
 	{
 		private var imageContainer:BorderContainer;
 		private var bitmapData:BitmapData;
-		private var imageFile:File;	
+		private var _file:File;
 		private var savedWidth:uint;
 		private var savedHeight:uint;
 
@@ -67,9 +72,22 @@ import spark.components.BorderContainer;
 		public override function get width():Number { return savedWidth; }
 		public override function get height():Number { return savedHeight; }
 
+
+        public function get relativePath():File {
+
+            for(var node:Composite = parent; node != null; node = node._protected_::parent)  {
+                var fileStoredAncestor = node as IFileStoredComponent;
+                if(fileStoredAncestor)  {
+                    var rpath:File = fileStoredAncestor.relativePath;
+                    return rpath;
+                }
+            }
+            return null;
+        }
+        
 		public function set file(imageFile:File):void
 		{
-			this.imageFile = imageFile; 
+			this._file = imageFile;
 			var loader:Loader = new Loader();
 			
 			var fs:FileStream = new FileStream();
@@ -98,8 +116,17 @@ import spark.components.BorderContainer;
 		
 		public function get file():File
 		{
-			return imageFile;
+			return _file;
 		}
+        
+        
+        private function get nativePath():String
+        {
+            if(relativePath)
+                var path:String = relativePath.getRelativePath(_file);
+
+            return path ? path : _file.nativePath;
+        }
 		
 		/**
 		 * 	<content>
@@ -109,7 +136,8 @@ import spark.components.BorderContainer;
 		override public function toXML():XML {
 			var xml:XML = super.toXML();
 			var imageXML:XML = <image/>;
-			imageXML.@image = imageFile.nativePath;
+
+			imageXML.@file = nativePath;
 			xml.appendChild(imageXML);
 			
 			return xml;
@@ -118,7 +146,11 @@ import spark.components.BorderContainer;
 		override public function fromXML(xml:XML):IXMLizable {
 			
 			var imagexml:XML = xml.image[0];
-			file = File.applicationStorageDirectory.resolvePath(imagexml.@image);
+            // use relativePath if exists, else use default
+            var searchPath:File = relativePath ? relativePath : File.applicationStorageDirectory;
+
+			file = searchPath.resolvePath(imagexml.@file.toString());
+
 			return this;
 		}
 	}

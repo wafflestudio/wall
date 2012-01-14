@@ -34,7 +34,7 @@ package controllers
 			}
 			catch(e:IOError)
 			{
-				trace("unable to load file " + file.nativePath + ", using default");
+				trace("unable to load file " + file.nativePath +"(" + e.toString() + "), using default");
 				fromXML(defaultXML);
 				saveAs();
 				

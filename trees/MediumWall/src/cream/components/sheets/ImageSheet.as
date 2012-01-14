@@ -13,7 +13,7 @@ import cream.storages.IXMLizable;
 
 import flash.filesystem.File;
 
-public class ImageSheet extends Sheet{
+public class ImageSheet extends Sheet {
 
     private var imageContent:ImageContent;
 
@@ -23,7 +23,7 @@ public class ImageSheet extends Sheet{
     public function ImageSheet() {
         super(Sheet.IMAGE_SHEET);
 
-        addResizedEventListener( function(e:ResizeEvent)
+        addResizedEventListener( function(e:ResizeEvent):void
         {
             imageContent.width = e.right - e.left;
             imageContent.height = e.bottom - e.top;
@@ -35,7 +35,8 @@ public class ImageSheet extends Sheet{
         super.initUnderlyingComponents();
 
         imageContent = new ImageContent();
-        bc.addElement(imageContent._protected_::visualElement);
+//        bc.addElement(imageContent._protected_::visualElement);
+        addChild(imageContent);
 
         imageContent.addCommitEventListener( function(e:CommitEvent):void
         {

@@ -1,5 +1,6 @@
 package cream.components.walls
 {
+import cream.components.IFileStoredComponent;
 import cream.eventing.events.CommitEvent;
 import cream.eventing.events.Event;
 import cream.storages.IFileReference;
@@ -13,7 +14,7 @@ import flash.events.Event;
 
 import flash.filesystem.File;
 
-public class FileStoredWall extends Wall implements IFileStorable, IFileReference, INameable
+public class FileStoredWall extends Wall implements IFileStorable, IFileReference, IFileStoredComponent, INameable
 {
 	public static const EXTENSION:String = "wall";
 	private var _file:File;
@@ -26,7 +27,7 @@ public class FileStoredWall extends Wall implements IFileStorable, IFileReferenc
 		if(file != null)
 			load(file);
 		else  {
-			_file = TemporaryFileStorage.resolve(EXTENSION,File.applicationStorageDirectory.resolvePath(this.name),"index");
+			_file = TemporaryFileStorage.resolve(File.applicationStorageDirectory.resolvePath(this.name),"index.wall");
 			saveAs();
 		}
 		
@@ -34,6 +35,12 @@ public class FileStoredWall extends Wall implements IFileStorable, IFileReferenc
 			saveAs();
 		});
 	}
+
+    public function get relativePath():File {
+        if(_file)
+            return _file.parent; // containing directory
+        return null;
+    }
 	
 	public function get file():File
 	{
@@ -72,7 +79,7 @@ public class FileStoredWall extends Wall implements IFileStorable, IFileReferenc
 		fs.setXML(xml);
 	}
 
-    public function saveWallAs():void {
+    public function saveAsDialog():void {
         var f:File = File.desktopDirectory;
         f.browseForSave("Save As");
         f.addEventListener(flash.events.Event.SELECT, function(e:flash.events.Event):void {

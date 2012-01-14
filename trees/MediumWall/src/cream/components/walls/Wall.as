@@ -215,6 +215,12 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		}
 		sheet.x = center.x-sheet.width/2;
 		sheet.y = center.y-sheet.height/2;
+
+        // let's bring focus to the created sheet
+        sheet.addAddedEventListener(function bringFocus(e:CompositeEvent):void {
+            sheet.removeAddedEventListener(bringFocus);
+            sheet.focus();
+        });
 		
 		addSheet(sheet);
 	}
@@ -265,6 +271,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		sheet.addCommitEventListener(onSheetCommitEvent);
 		sheet.addCloseEventListener(onSheetClose);
 		sheet.addMovedEventListener(onSheetMove);
+
 		addChild(sheet);
 	}
 	
@@ -427,8 +434,9 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		for each(var sheetXML:XML in xml.sheets[0].sheet)
 		{
 			var sheet:Sheet = Sheet.createSheetByType(sheetXML.@type);
-			sheet.fromXML(sheetXML);
-			addSheet(sheet);
+            addSheet(sheet);
+            sheet.fromXML(sheetXML);
+
 		}
 		
 		return this;
