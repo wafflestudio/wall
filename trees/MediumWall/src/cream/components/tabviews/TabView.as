@@ -89,7 +89,6 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 	
 	override protected function addChild(child:Composite):Composite
 	{
-		
 		var component:Component = child as Component;
 
 		var nc:NavigatorContent = new NavigatorContent();
@@ -113,6 +112,8 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 				}
 			);
 		}
+
+
 		
 		super.addChild(child);
 		

@@ -28,7 +28,8 @@ import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
-	import flash.net.FileReference;
+import flash.net.FileFilter;
+import flash.net.FileReference;
 	import flash.utils.ByteArray;
 	
 	import mx.core.FlexGlobals;
@@ -71,7 +72,8 @@ import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 //
 //					});
 					var f:File = File.desktopDirectory;
-					f.browseForOpen("Open wall");
+					f.browseForDirectory("Open wall root");
+//                    var filter:FileFilter = new FileFilter()
 					f.addEventListener(flash.events.Event.SELECT, function(e:flash.events.Event):void { 
 						perspective.addWall(new FileStoredWall(e.target as File));
 					});
