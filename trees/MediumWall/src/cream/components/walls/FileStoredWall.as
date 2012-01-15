@@ -1,6 +1,7 @@
 package cream.components.walls
 {
 import cream.components.IFileStoredComponent;
+import cream.eventing.events.ClipboardEvent;
 import cream.eventing.events.CommitEvent;
 import cream.eventing.events.Event;
 import cream.storages.IFileReference;
@@ -10,41 +11,67 @@ import cream.storages.IXMLizable;
 import cream.utils.TemporaryFileStorage;
 import cream.utils.XMLFileStream;
 
+import flash.display.BitmapData;
+
 import flash.events.Event;
 
 import flash.filesystem.File;
+import flash.filesystem.FileMode;
+import flash.filesystem.FileStream;
+import flash.utils.ByteArray;
+
+import mx.graphics.codec.PNGEncoder;
 
 public class FileStoredWall extends Wall implements IFileStorable, IFileReference, IFileStoredComponent, INameable
 {
 	public static const EXTENSION:String = "wall";
-	private var _file:File;
+	private var rootDirectory:File;
 	
 	
 	public function FileStoredWall(file:File = null)
 	{
 		super();
 		
-		if(file != null)
+		if(file)
 			load(file);
 		else  {
-			_file = TemporaryFileStorage.resolve(File.applicationStorageDirectory.resolvePath(this.name),"index.wall");
+			rootDirectory = TemporaryFileStorage.resolve();
 			saveAs();
 		}
 		
 		addCommitEventListener( function(e:CommitEvent):void  {
 			saveAs();
 		});
+
+        addPasteEventListener( function(e:ClipboardEvent):void
+        {
+            if(e.format == ClipboardEvent.TEXT_FORMAT) {
+                addTextSheet(e.object as String);
+            } else if(e.format == (ClipboardEvent.BITMAP_FORMAT)) {
+
+                var imageFile:File = null;
+                var encoder:PNGEncoder = new PNGEncoder();
+                var bitmapData:BitmapData = e.object as BitmapData;
+                var rawBytes:ByteArray = encoder.encode(bitmapData);
+                imageFile = TemporaryFileStorage.imageAssetsResolve("png",File.applicationStorageDirectory.resolvePath(name));
+                var fileStream:FileStream = new FileStream();
+                fileStream.open( imageFile, FileMode.WRITE );
+                fileStream.writeBytes( rawBytes );
+                fileStream.close();
+                addImageSheet(imageFile, bitmapData.width, bitmapData.height );
+            }
+        });
 	}
 
     public function get relativePath():File {
-        if(_file)
-            return _file.parent; // containing directory
+        if(rootDirectory)
+            return rootDirectory; // containing directory
         return null;
     }
 	
 	public function get file():File
 	{
-		return _file;
+		return rootDirectory;
 	}
 	
 	public function moveFile():void
@@ -55,12 +82,13 @@ public class FileStoredWall extends Wall implements IFileStorable, IFileReferenc
 	public function load(file:File = null):void
 	{
 		// prevent load after first load
-		if(_file != null)
+		if(rootDirectory != null)
 			throw new Error("cannot load already loaded object");
 		
-		_file = file ? file : _file;
+		rootDirectory = file ? file : rootDirectory;
 
-		var fs:XMLFileStream = new XMLFileStream(file);
+		var fs:XMLFileStream = new XMLFileStream(file.resolvePath("index.wall"));
+
 		
 		// must read from Wall.fromXML 
 		super.fromXML(fs.getXML());
@@ -69,13 +97,13 @@ public class FileStoredWall extends Wall implements IFileStorable, IFileReferenc
 	public function saveAs(file:File = null):void
 	{
 		if(file == null)  {
-			saveAs(_file);
+			saveAs(rootDirectory);
 			return;
 		}
 		
 		var xml:XML = super.toXML(); // any errors according to serialization must happen beforehand to opening the file
 		
-		var fs:XMLFileStream = new XMLFileStream(_file);
+		var fs:XMLFileStream = new XMLFileStream(rootDirectory.resolvePath("index.wall"));
 		fs.setXML(xml);
 	}
 
@@ -114,7 +142,7 @@ public class FileStoredWall extends Wall implements IFileStorable, IFileReferenc
 	override public function toXML():XML
 	{
 		var xml:XML = <wall/>;
-		xml.@file = _file.nativePath;
+		xml.@file = rootDirectory.nativePath;
 		return xml;
 	}
 }

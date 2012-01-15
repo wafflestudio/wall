@@ -100,7 +100,6 @@ public class TabView extends Component implements ISelectionChangeEventDispatche
 		viewStack.addElement(nc);
 		
 		var button:TabButton = new TabButton();
-		button.label = "unnamed"; 
 		tabBar.addButton(button);
 
 		var nameablecomp:INameableComponent = component as INameableComponent;

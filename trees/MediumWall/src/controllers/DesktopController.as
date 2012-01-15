@@ -208,7 +208,7 @@ import cream.eventing.eventdispatchers.ICommitEventDispatcher;
 			var imageFile:File = new File();
 			imageFile.addEventListener(Event.SELECT, 
 				function onSelect(e:Event):void  {
-					var destFile:File = TemporaryFileStorage.imageAssetsResolve(imageFile.extension,File.applicationStorageDirectory.resolvePath(perspective.currentWall.name),imageFile.name);
+					var destFile:File = TemporaryFileStorage.imageAssetsResolve(imageFile.extension, perspective.currentWall.relativePath, imageFile.name);
 					if(destFile.exists) {
 						trace("file name already exists");
 					} else {

@@ -5,14 +5,17 @@ package cream.components.buttons
 	import cream.eventing.eventdispatchers.ICloseEventDispatcher;
 	import cream.eventing.events.ClickEvent;
 	import cream.eventing.events.CloseEvent;
-	
-	import flash.events.KeyboardEvent;
+import cream.eventing.events.Event;
+
+import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
-	
-	import mx.core.IVisualElement;
+
+import mx.binding.utils.BindingUtils;
+
+import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
 import mx.core.UIComponent;
 	
@@ -40,6 +43,7 @@ import mx.core.UIComponent;
         override protected function initUnderlyingComponents():void {
             closeControl = new CloseControl();
             button = new ButtonBarButton();
+
             closeControl.imageSource = new Assets.close_small_png();
 
             button.addEventListener(MouseEvent.CLICK,
@@ -49,6 +53,7 @@ import mx.core.UIComponent;
             );
             button.addEventListener(MouseEvent.RIGHT_CLICK,
                     function(e:MouseEvent):void {
+
                         // To do : change code
                         var here:ButtonBarButton = e.currentTarget as ButtonBarButton;
                         var textInput:TextInput = new TextInput();
@@ -130,11 +135,12 @@ import mx.core.UIComponent;
                         dispatchCloseEvent();
                     }
             );
+
         }
 
         public function set label(text:String):void
 		{
-			button.label = text;	
+			button.label = text;
 		}
 		
 		public function set selected(value:Boolean):void

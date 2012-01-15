@@ -155,7 +155,7 @@ public class TabbedWallStack extends TabView implements IComponent, ISelectionCh
 	 */
 	public function fromXML(xml:XML):IXMLizable
 	{
-		reset();
+//		reset();
 		if(xml.wall)
 		for each(var wallXML:XML in xml.wall)
 		{

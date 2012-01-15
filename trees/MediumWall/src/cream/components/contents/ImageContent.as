@@ -1,28 +1,20 @@
 package cream.components.contents
 {
-import cream.components.Component;
 import cream.components.Composite;
-import cream.components.IComponent;
 import cream.components.IFileStoredComponent;
-import cream.components.buttons.Button;
-	import cream.eventing.eventdispatchers.IClickEventDispatcher;
-	import cream.eventing.events.ClickEvent;
-	import cream.storages.IXMLizable;
-	
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.display.Loader;
-	import flash.display.LoaderInfo;
-import flash.errors.IOError;
+import cream.storages.IXMLizable;
+
+import flash.display.Bitmap;
+import flash.display.BitmapData;
+import flash.display.Loader;
+import flash.display.LoaderInfo;
 import flash.events.Event;
-	import flash.filesystem.File;
-	import flash.filesystem.FileMode;
-	import flash.filesystem.FileStream;
-	import flash.geom.Matrix;
-	import flash.geom.Rectangle;
-	import flash.utils.ByteArray;
+import flash.filesystem.File;
+import flash.filesystem.FileMode;
+import flash.filesystem.FileStream;
+import flash.utils.ByteArray;
 	
-	import mx.core.IVisualElement;
+import mx.core.IVisualElement;
 import mx.core.IVisualElementContainer;
 
 import spark.components.BorderContainer;
@@ -122,8 +114,12 @@ import spark.components.BorderContainer;
         
         private function get nativePath():String
         {
+            var relativePath:File = this.relativePath;
+            var path:String;
+
+
             if(relativePath)
-                var path:String = relativePath.getRelativePath(_file);
+                path = relativePath.getRelativePath(_file);
 
             return path ? path : _file.nativePath;
         }

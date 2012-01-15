@@ -109,7 +109,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
         });
 
         addNameChangeEventListener( function():void  {
-            dispatchCommitEvent(new CommitEvent(self, NAME_CHANGED, [name]));
+            dispatchCommitEvent(new CommitEvent(self, NAME_CHANGED, [_name]));
         });
 
         addChildAddedEventListener(function(e:CompositeEvent):void  {
@@ -120,24 +120,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
             dispatchCommitEvent(new ActionCommitEvent(self, SHEET_REMOVED, [e.child]));
         });
 
-        addPasteEventListener( function(e:ClipboardEvent):void
-        {
-            if(e.format == ClipboardEvent.TEXT_FORMAT) {
-                addTextSheet(e.object as String);
-            } else if(e.format == (ClipboardEvent.BITMAP_FORMAT)) {
 
-                var imageFile:File = null;
-                var encoder:PNGEncoder = new PNGEncoder();
-                var bitmapData:BitmapData = e.object as BitmapData;
-                var rawBytes:ByteArray = encoder.encode(bitmapData);
-                imageFile = TemporaryFileStorage.imageAssetsResolve("png",File.applicationStorageDirectory.resolvePath(name));
-                var fileStream:FileStream = new FileStream();
-                fileStream.open( imageFile, FileMode.WRITE );
-                fileStream.writeBytes( rawBytes );
-                fileStream.close();
-                addImageSheet(imageFile, bitmapData.width, bitmapData.height );
-            }
-        });
 
 	}
 
@@ -284,37 +267,10 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 		sheet.removeMovedEventListener(onSheetMove);
 	}
 	
-	private var _name:String = setUnnamedWall(File.applicationStorageDirectory);
+	private var _name:String; //setUnnamedWall(File.applicationStorageDirectory);
 
-	private function setUnnamedWall(targetDirectory:File):String {
-		var contents:Array = targetDirectory.getDirectoryListing();
-		var num:int = 0;
-		for (var i:uint = 0; i < contents.length; i++) 
-		{
-			var name:String = contents[i].name as String;
-			var matches:Array = name.match(new RegExp("\bunnamed[0-9]{5}\b/"));
-			if(matches == null || matches.length != 1)
-				continue;
-			
-			var n:int = parseInt(name.replace(new RegExp("/\bunnamed([0-9]{5})\b/"), "$1"), 10);
-			num = n > num ? n : num;	
-		}
-		var _file:File = null;
-		while(true) {
-			num ++;
-			var newName:String = "0000" + num;
-			newName = "unnamed" + newName.substr(newName.length-5, 5); // "000011" => "00011"
-			//TODO get current wall's name
-			_file = targetDirectory.resolvePath(newName);
-			if(!_file.exists) 
-				break;
-			
-			trace("file(" + newName + ") already exists, skipping");
-		}
-		return newName;
-	}
-	
-	public function get name():String  { return _name; }
+
+	public function get name():String  { return _name ? _name : "unnamed"; }
 	public function set name(val:String):void  { if(_name == val) return; _name = val; dispatchNameChangeEvent(new NameChangeEvent(this, val));}
 
 	public function addNameChangeEventListener(listener:Function):void
@@ -418,7 +374,7 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	 */
 	public function fromXML(xml:XML):IXMLizable
 	{	
-		reset();
+//		reset();
 		
 		if(xml.@name)
 			name = xml.@name;
@@ -444,7 +400,9 @@ public class Wall extends PannableContainer implements IPannableContainer, IXMLi
 	
 	protected function get wallXML():XML {
 		var xml:XML = <wall/>;
-		xml.@name = name;
+        if(_name)
+		    xml.@name = _name;
+
 		xml.@panX = panX;
 		xml.@panY = panY;
 		xml.@zoomX = zoomX;
