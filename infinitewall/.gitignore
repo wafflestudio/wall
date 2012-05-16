@@ -5,3 +5,7 @@ target
 tmp
 .history
 dist
+.project
+.classpath
+.settings/
+.scala_dependencies
