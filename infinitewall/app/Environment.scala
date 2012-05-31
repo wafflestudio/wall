@@ -9,7 +9,7 @@ import play.db.DB
 import com.typesafe.config._
 import org.h2.Driver
 
-object Global extends GlobalSettings {
+object Environment extends GlobalSettings {
 
 	override def onStart(app: Application) {
 		activateSqueryl(false)
