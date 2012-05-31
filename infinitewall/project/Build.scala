@@ -9,6 +9,12 @@ object ApplicationBuild extends Build {
 
     val appDependencies = Seq(
       // Add your project dependencies here,
+    	"org.squeryl" %% "squeryl" % "0.9.5",
+		"postgresql" % "postgresql" % "8.4-701.jdbc4",
+		"ru.circumflex" % "circumflex-markeven" % "2.0",
+		/*"com.typesafe" %% "play-plugins-mailer" % "2.0.2",*/
+		"org.apache.commons" % "commons-email" % "1.2",
+		"org.mindrot" % "jbcrypt" % "0.3m"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
