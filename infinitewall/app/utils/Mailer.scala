@@ -3,6 +3,7 @@ package utils
 import play.api.Play.current
 import org.apache.commons.mail._
 import com.typesafe.config.ConfigFactory
+import models._
 
 object Mailer {
 
@@ -30,14 +31,14 @@ object Mailer {
 
 	}
 
-	//	def sendVerification(user: User) = {
-	//		send("Verify your account at Infinite wall", """
-	//			<html>
-	//				<p><a href="@URL"></a></p>
-	//			</html>
-	//			""".replaceAll("@URL", "http://localhost:9000/user/verify?value="),
-	//			user.email)
-	//	}
+		def sendVerification(user: User) = {
+			send("Verify your account at Infinite wall", """
+				<html>
+					<p><a href="@URL"></a></p>
+				</html>
+				""".replaceAll("@URL", "http://localhost:9000/user/verify?value="),
+				user.email)
+		}
 }
 
 

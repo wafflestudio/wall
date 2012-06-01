@@ -24,8 +24,11 @@ object Environment extends GlobalSettings {
 			val dbPass = config.getString("db.default.password")
 			val dbDriver = config.getString("db.default.driver")
 
-			SessionFactory.concreteFactory = Some(() =>
-				Session.create(java.sql.DriverManager.getConnection(dbURL, dbUser, dbPass), new H2Adapter))
+			SessionFactory.concreteFactory = Some(() => {
+				val session = Session.create(java.sql.DriverManager.getConnection(dbURL, dbUser, dbPass), new H2Adapter)
+				session.setLogger(println _)
+				session
+			})
 
 			if (usingConsole)
 				Class.forName(dbDriver);
