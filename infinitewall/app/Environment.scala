@@ -22,12 +22,13 @@ object Environment extends GlobalSettings {
 			val dbURL = config.getString("db.default.url")
 			val dbUser = config.getString("db.default.user")
 			val dbPass = config.getString("db.default.password")
+			val dbDriver = config.getString("db.default.driver")
 
 			SessionFactory.concreteFactory = Some(() =>
 				Session.create(java.sql.DriverManager.getConnection(dbURL, dbUser, dbPass), new H2Adapter))
 
 			if (usingConsole)
-				Class.forName("org.h2.Driver");
+				Class.forName(dbDriver);
 		}
 		else {
 			SessionFactory.concreteFactory = Some(
