@@ -1,0 +1,68 @@
+@(signupForm:Form[SignUpData])(implicit loginForm:Form[LoginData], request:play.api.mvc.Request[play.api.mvc.AnyContent])
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@main("Ochazuke")({
+	
+	<form method="POST" action="@routes.Application.authenticate" class="pull-right well-small form-inline" style="margin:0;padding:5px">
+		<ul class="nav">
+			<input type="text" value='@loginForm("Username").value' class="input-small" name="username" placeholder="username">
+			<input type="password" value='@loginForm("Password").value' class="input-small" name="password" placeholder="password">
+			<button type="submit" class="btn-small">Sign in</button>
+		</ul>
+	</form>
+	 
+}){
+
+
+
+ 
+	<h2>Fill up the sign up form</h2>
+	<form method="POST" action="@routes.Application.createNewUser" class="well">
+		<p><input type="text" value='@signupForm("Username").value' name="username" placeholder="username"></p>
+		<p><input type="password" value='@signupForm("Password").value' name="password" placeholder="password"></p>
+		<p><input type="password" value='@signupForm("Password").value' name="password" placeholder="password confirm"></p>
+		<p><button type="submit" class="btn-small">Sign up</button></p>
+	</form>
+
+	@helper.form(action = routes.Application.createNewUser, 'class -> "well") {
+        
+        <fieldset>
+            <legend>New Account</legend>
+            
+            @inputText(
+                signupForm("Username"), 
+                '_label -> "Username", 
+                '_error -> signupForm.globalError
+            )
+            
+            @inputText(
+                signupForm("email"), '_label -> "Email"
+            )
+            
+            @inputPassword(
+                signupForm("Password.main"), 
+                '_label -> "Password",
+                '_help -> "A password must be at least 6 characters. "
+            )
+            
+            @inputPassword(
+                signupForm("Password.confirm"), 
+                '_label -> "Repeat password",
+                '_help -> "Please repeat your password again.",
+                '_error -> signupForm.error("Password")
+            )
+            
+        </fieldset>
+        
+        <div class="actions">
+            <input type="submit" class="btn primary" value="Sign Up">
+            <a href="@routes.Application.index" class="btn">Cancel</a>
+        </div>
+        
+    }
+	
+		
+	
+}
