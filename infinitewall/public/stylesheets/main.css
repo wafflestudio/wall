@@ -1,3 +1,7 @@
 .main.container {
   margin-top: 50px;
 }
+
+form .actions {
+	text-align:center
+}

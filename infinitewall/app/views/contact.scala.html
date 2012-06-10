@@ -1,4 +1,6 @@
-@main("Wall Project") {
+@()(implicit loginForm:Form[LoginData], request:play.api.mvc.Request[play.api.mvc.AnyContent])
+
+@layouts.default("Wall Project") {
   Contact : wall at wafflestudio.com<br />
   Taekmin Kim, Jae Ho Jeon, Jineok Kim, Sungmin Choi, Joosik Yoon, Won-wook Hong
 }
