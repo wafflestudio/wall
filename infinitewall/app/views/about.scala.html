@@ -1,3 +1,5 @@
-@main("Wall Project") {
+@()(implicit loginForm:Form[LoginData], request:play.api.mvc.Request[play.api.mvc.AnyContent])
+
+@layouts.default("Wall Project") {
   We are Wafflestudio Wall Project Team!
 }

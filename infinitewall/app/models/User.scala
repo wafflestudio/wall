@@ -17,11 +17,11 @@ object User {
 		}
 	}
 	
-	def authenticate(username: String, password: String):Option[User] = {
+	def authenticate(email: String, password: String):Option[User] = {
 		inTransaction {			
 			
 			from(InfiniteWallSchema.users)(
-					user => where(user.username === username) select(user)
+					user => where(user.email === email) select(user)
 			).headOption.flatMap { user =>
 				if(BCrypt.checkpw(password, user.hashedPW))
 					Some(user)
@@ -31,14 +31,14 @@ object User {
 		}
 	}
 	
-	def signup(username: String, email:String, password: String): Option[User] = {
+	def signup(email:String, password: String): Option[User] = {
 		inTransaction {				
 			
 			if(from(InfiniteWallSchema.users)(
-					user => where(user.username === username) select(user)
+					user => where(user.email === email) select(user)
 			).isEmpty)  {
 				
-				val newUser:User = InfiniteWallSchema.users.insert(new User(username, email, hashedPW(password), Permission.NormalUser))
+				val newUser:User = InfiniteWallSchema.users.insert(new User(email, hashedPW(password), Permission.NormalUser))
 				Mailer.sendVerification(newUser)
 				Some(newUser)			
 			}
@@ -52,7 +52,7 @@ object User {
 	
 }
 
-class User(val username: String, val email:String, val hashedPW:String, val permission:Permission) extends KeyedEntity[Long] {
+class User(val email:String, val hashedPW:String, val permission:Permission) extends KeyedEntity[Long] {
 	val id: Long = 0 
 //	lazy val pictures: OneToMany[PictureRef] = OchazukeSchema.userToPicture.left(this)
 

@@ -1,4 +1,4 @@
-@(title: String)(content: Html = Html(""), header:Html=Html(""), footer:Html=Html(""))
+@(title: String)(header: Html)(content: Html, footer: Html = Html(""))
 
 <!DOCTYPE html>
 
@@ -15,18 +15,14 @@
       <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
           <div class="container">
-            <a class="brand" href="/">
-              Wall Project
-            </a>
-            <ul class="nav">
-              <li><a href="/about">About</a></li>
-              <li><a href="/contact">Contact</a></li>
-            </ul>
+          	<a class="brand" href="/">Infinite Wall</a>
+            @header
           </div>
         </div>
       </div>
       <div class="main container">
         @content
       </div>
+      @footer
     </body>
 </html>

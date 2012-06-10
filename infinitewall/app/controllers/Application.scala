@@ -11,10 +11,13 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 import models._
 import views._
+import helpers._
 import org.squeryl.PrimitiveTypeMode._
 
-case class LoginData(val username: String, val password: String)
-case class SignUpData(val username: String, val email: String, val password: String)
+
+
+case class LoginData(val email: String, val password: String)
+case class SignUpData(val email: String, val password: String)
 
 trait Login {
 	self: Controller =>
@@ -31,7 +34,7 @@ trait Login {
 	implicit val loginForm = Form {
 		mapping("username" -> nonEmptyText, "password" -> text)(LoginData.apply)(LoginData.unapply)
 			.verifying("Invalid username or password",
-				loginData => User.authenticate(loginData.username, loginData.password).isDefined
+				loginData => User.authenticate(loginData.email, loginData.password).isDefined
 			)
 	}
 }
@@ -39,20 +42,19 @@ trait Login {
 trait SignUp {
 
 	val signupForm = Form {
-		val user2Tuple = (user: User) => (user.username, "", "")
+		val user2Tuple = (user: User) => (user.email, "", "")
 
-		mapping("Username" -> nonEmptyText,
-			"email" -> email,
+		mapping("Email" -> email,
 			"Password" -> tuple(
-				"main" -> text(minLength = 6),
+				"main" -> text(minLength = 8),
 				"confirm" -> text
 			).verifying("password fields must be identical", t => t._1 == t._2)
 		) {
-				(username, email, passwords) =>
-					SignUpData(username, email, passwords._1)
+				(email, passwords) =>
+					SignUpData(email, passwords._1)
 		} {
-				signupData => Some(signupData.username, signupData.email, ("", ""))
-		}.verifying("Username is already taken", signup => User.signup(signup.username, signup.email, signup.password).isDefined)
+				signupData => Some(signupData.email, ("", ""))
+		}.verifying("Username is already taken", signup => User.signup(signup.email, signup.password).isDefined)
 	}
 }
 
@@ -62,13 +64,13 @@ object Application extends Controller with Login with SignUp {
 		Ok(views.html.index())
 	}
 
-	def about = Action {
+	def about = Action { implicit request =>
 		Ok(views.html.about())
 	}
-	def contact = Action {
+	def contact = Action { implicit request =>
 		Ok(views.html.contact())
 	}
-	def hello(name: String) = Action {
+	def hello(name: String) = Action { implicit request =>
 		Ok("Hello " + name)
 	}
 
@@ -77,7 +79,7 @@ object Application extends Controller with Login with SignUp {
 	}
 
 	def signup = Action { implicit request =>
-		Ok(views.html.signup(signupForm) + "")
+		Ok(views.html.signup(signupForm))
 	}
 
 	def authenticate = Action { implicit request =>
@@ -86,8 +88,9 @@ object Application extends Controller with Login with SignUp {
 				//Redirect(routes.MainController.index).flashing("error" -> "Bad login") 
 				BadRequest(views.html.index()(formWithErrors, request))
 			},
-			user => Redirect(routes.Application.index).withSession("current_user" -> user.username)
+			user => Redirect(routes.Application.index).withSession("current_user" -> user.email)
 		)
+			
 	}
 
 	def createNewUser = Action { implicit request =>
