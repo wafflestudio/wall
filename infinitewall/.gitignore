@@ -5,6 +5,9 @@ target
 tmp
 .history
 .cache
+infinitewall.h2.db
+infinitewall.trace.db
+infinitewall.lock.db
 dist
 .project
 .classpath

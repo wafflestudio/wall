@@ -43,13 +43,13 @@ object Environment extends GlobalSettings {
 	def dropSchema() {
 		transaction {
 			Session.cleanupResources
-			//			Schema.drop
+			InfiniteWallSchema.drop
 		}
 	}
 
 	def createSchema() {
 		transaction {
-			//			Schema.create
+			InfiniteWallSchema.create
 		}
 	}
 

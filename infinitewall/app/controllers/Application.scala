@@ -54,7 +54,7 @@ trait SignUp {
 					SignUpData(email, passwords._1)
 		} {
 				signupData => Some(signupData.email, ("", ""))
-		}.verifying("Username is already taken", signup => User.signup(signup.email, signup.password).isDefined)
+		}.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password).isDefined)
 	}
 }
 
@@ -97,6 +97,7 @@ object Application extends Controller with Login with SignUp {
 
 		signupForm.bindFromRequest.fold(
 			formWithErrors => {
+				Logger.debug(formWithErrors.toString())
 				BadRequest(views.html.signup(formWithErrors)(loginForm, request)) //.flashing(formWithErrors.get.left.get.toSeq:_*)
 			},
 			newUser => Redirect(routes.Application.index)
