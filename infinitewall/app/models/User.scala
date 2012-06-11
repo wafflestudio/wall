@@ -35,7 +35,6 @@ object User {
 			if (from(InfiniteWallSchema.users)(
 				user => where(user.email === email) select (user)
 			).isEmpty) {
-
 				val newUser: User = InfiniteWallSchema.users.insert(new User(email, hashedPW(password), Permission.NormalUser))
 				Mailer.sendVerification(newUser)
 				Some(newUser)
