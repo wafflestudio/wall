@@ -52,6 +52,11 @@ object Environment extends GlobalSettings {
 			InfiniteWallSchema.create
 		}
 	}
+	
+	def resetSchema() {
+		dropSchema()
+		createSchema()
+	}
 
 }
 

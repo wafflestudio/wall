@@ -21,11 +21,11 @@ object User {
 			from(InfiniteWallSchema.users)(
 				user => where(user.email === email) select (user)
 			).headOption.flatMap { user =>
-					if (BCrypt.checkpw(password, user.hashedPW))
-						Some(user)
-					else
-						None
-				}
+				if (BCrypt.checkpw(password, user.hashedPW))
+					Some(user)
+				else
+					None
+			}
 		}
 	}
 
@@ -50,6 +50,8 @@ object User {
 
 class User(val email: String, val hashedPW: String, val permission: Permission) extends KeyedEntity[Long] {
 	val id: Long = 0
+	def this() = this("", "", Permission.NormalUser) // Required for enumeration field
+
 	//	lazy val pictures: OneToMany[PictureRef] = OchazukeSchema.userToPicture.left(this)
 
 }

@@ -32,7 +32,7 @@ trait Login {
 	}
 
 	implicit val loginForm = Form {
-		mapping("username" -> nonEmptyText, "password" -> text)(LoginData.apply)(LoginData.unapply)
+		mapping("email" -> nonEmptyText, "password" -> text)(LoginData.apply)(LoginData.unapply)
 			.verifying("Invalid username or password",
 				loginData => User.authenticate(loginData.email, loginData.password).isDefined
 			)

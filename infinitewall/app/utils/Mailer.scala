@@ -4,6 +4,7 @@ import play.api.Play.current
 import org.apache.commons.mail._
 import com.typesafe.config.ConfigFactory
 import models._
+import play.api.Logger
 
 object Mailer {
 
@@ -16,7 +17,6 @@ object Mailer {
 	lazy val from = config.getString("smtp.from")
 
 	def send(subject: String, content: String, recipient: String) = {
-
 		var email: Email = new HtmlEmail();
 		email.setHostName(host);
 		email.setSmtpPort(port);
@@ -26,7 +26,7 @@ object Mailer {
 		email.setFrom(from);
 		email.setSubject(subject);
 		email.setMsg(content);
-		email.addTo(recipient);
+		email.addTo(recipient);		
 		email.send();
 
 	}
