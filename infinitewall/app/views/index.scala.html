@@ -1,4 +1,22 @@
 @()(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.default("Infinite Wall") {
+
+
+	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
+	<div id="">
+	</div>
+	
+	<script type="text/javascript">
+	$(function() {
+		$('#sendBtn').click(function() {
+			$('#sendBtn').attr('disabled', true)
+			$.post('/chat/send/'+ $('#talk').val(), function()  {
+				$('#sendBtn').removeAttr('disabled')
+			})
+		})
+	})
+	
+	</script>
+
 }  
