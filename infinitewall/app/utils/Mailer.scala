@@ -22,23 +22,23 @@ object Mailer {
 		email.setSmtpPort(port);
 		email.setAuthenticator(new DefaultAuthenticator(username, password));
 		email.setSSL(ssl);
-		
+
 		email.setFrom(from);
 		email.setSubject(subject);
 		email.setMsg(content);
-		email.addTo(recipient);		
+		email.addTo(recipient);
 		email.send();
 
 	}
 
-		def sendVerification(user: User) = {
-			send("Verify your account at Infinite wall", """
+	def sendVerification(user: User) = {
+		send("Verify your account at Infinite wall", """
 				<html>
 					<p><a href="@URL"></a></p>
 				</html>
 				""".replaceAll("@URL", "http://localhost:9000/user/verify?value="),
-				user.email)
-		}
+			user.email)
+	}
 }
 
 

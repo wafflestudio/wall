@@ -18,6 +18,7 @@ import org.squeryl.PrimitiveTypeMode._
 
 case class LoginData(val email: String, val password: String)
 case class SignUpData(val email: String, val password: String)
+case class CurrentUser(val email:String)
 
 trait Login {
 	self: Controller =>
@@ -96,8 +97,7 @@ object Application extends Controller with Login with SignUp {
 	def createNewUser = Action { implicit request =>
 
 		signupForm.bindFromRequest.fold(
-			formWithErrors => {
-				Logger.debug(formWithErrors.toString())
+			formWithErrors => {				
 				BadRequest(views.html.signup(formWithErrors)(loginForm, request)) //.flashing(formWithErrors.get.left.get.toSeq:_*)
 			},
 			newUser => Redirect(routes.Application.index)

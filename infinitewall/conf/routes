@@ -13,5 +13,8 @@ GET     /signup        							controllers.Application.signup
 POST    /users/create   						controllers.Application.createNewUser
 GET     /logout         						controllers.Application.logout
 
+POST    /chat/send/:message         controllers.Chat.send(message)
+GET     /chat/retrieve/:timestamp   controllers.Chat.retrieve(timestamp:Int)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
