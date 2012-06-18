@@ -2,14 +2,9 @@
 
 @layouts.default("Infinite Wall") {
 
+@if(request.session.get("current_user").isDefined)  {
 
 	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
-	<div id="">
-	</div>
-	
-	<script type="text/javascript">
-	$(function() {
-		$('#sendBtn').click(function() {
 	<div id="log">
 	</div>
 	
@@ -30,17 +25,38 @@
 	}
 
 	$(function() {
-		$('#sendBtn').click(function() {			
+		$('#talk').keyup(function(event) {
+			
+			if(event.keyCode == 13)
+			{
+				$('#sendBtn').click()
+			}
+		})
+		
+		$('#sendBtn').click(function() {
+			var msg = $('#talk').val()
+			
+			if(msg.charAt(msg.length-1) == '\n')
+				msg = msg.substr(0,msg.length-1)
+				
+			
+			if(msg.length == 0 || /^(\s)+$/.test(msg))  {
+				$('#talk').val("")
+				return
+			}
+			
+			
 			$('#sendBtn').attr('disabled', true)
-			$.post('/chat/send/'+ $('#talk').val(), function()  {
+			$.post('/chat/send/'+ msg, function()  {
 				$('#sendBtn').removeAttr('disabled')
+				$('#talk').val("")
 			})
-			$('#talk').val("")
+			
 		})
 		
 		retrieve(timestamp)
 	})
 	
 	</script>
-
-}  
+}
+}

@@ -13,29 +13,30 @@ import play.api.Play.current
 import play.api.mvc.Result
 import play.api.libs.json._
 import play.api.libs.json.DefaultWrites
+import java.util.Date
 
-case class Talk(val message: String)
+case class Talk(by: String, val message: String, time: Date)
 
 case class Join(email: String)
 case class Quit(email: String)
 
 case class Ask(email: String, timestamp: Int)
 
-case class Hold(promise: Promise[List[String]])
-case class PrevMessages(messages: Promise[List[String]])
+case class Hold(promise: Promise[List[Talk]])
+case class PrevMessages(messages: Promise[List[Talk]])
 
-case class Connected(enumerator: Enumerator[String])
+case class Connected(enumerator: Enumerator[Talk])
 
 class ChatRoom extends Actor {
 
-	var messages: List[String] = List()
-	var websockets = Map.empty[String, PushEnumerator[String]]
-	var waiters: List[RedeemablePromise[List[String]]] = List()
+	var messages: List[Talk] = List()
+	var websockets = Map.empty[String, PushEnumerator[Talk]]
+	var waiters: List[RedeemablePromise[List[Talk]]] = List()
 
 	def receive = {
 		// websocket
 		case Join(email) =>
-			val enumerator = Enumerator.imperative[String]()
+			val enumerator = Enumerator.imperative[Talk]()
 			websockets = websockets + (email -> enumerator)
 			sender ! Connected(enumerator)
 		case Quit(email) =>
@@ -45,25 +46,27 @@ class ChatRoom extends Actor {
 		case Ask(email, timestamp) =>
 			val prevMessages = messages.drop(timestamp)
 			if (prevMessages.isEmpty) {
-				val promise = Promise[List[String]]()
+				val promise = Promise[List[Talk]]()
 				waiters = waiters :+ promise
 				sender ! Hold(promise)
-			} else {
+			}
+			else {
 				val promise = Promise.pure(prevMessages)
 				sender ! PrevMessages(promise)
 			}
 
-		case Talk(msg) =>
-			messages = messages :+ msg
-			notifyAll(msg)
+		case Talk(by, msg, time) =>
+			val talk = Talk(by, msg, time)
+			messages = messages :+ talk
+			notifyAll(talk)
 	}
 
-	def notifyAll(msg: String) = {
+	def notifyAll(talk: Talk) = {
 		websockets.foreach {
-			case (_, producer) => producer.push(msg)
+			case (_, producer) => producer.push(talk)
 		}
 		waiters.foreach { promise =>
-			promise.redeem(List(msg))
+			promise.redeem(List(talk))
 		}
 		waiters = List.empty
 	}
@@ -83,12 +86,12 @@ object Chat extends Controller with Login {
 	//	}
 
 	def send(message: String) = AuthenticatedAction { implicit request =>
-		defaultRoom ! Talk(message)
+		defaultRoom ! Talk(currentUser, message, new Date())
 		Ok("")
 	}
 
 	def retrieve(timestamp: Int) = AuthenticatedAction { implicit request =>
-		val answer = (defaultRoom ? Ask(request.session.get("current_user").getOrElse(""), timestamp)).asPromise.map {
+		val answer = (defaultRoom ? Ask(currentUser, timestamp)).asPromise.map {
 			case Hold(promise) => promise
 			case PrevMessages(redeemedMsgs) => redeemedMsgs
 		}
@@ -98,9 +101,13 @@ object Chat extends Controller with Login {
 				error => Promise.pure(InternalServerError(error.toString)),
 				promiseOfMessages => promiseOfMessages.orTimeout("No new messages, try again", 30000).map { messagesOrTimeout =>
 					messagesOrTimeout.fold(
-						messages => Ok(Json.toJson(messages)),
+						messages => Ok(Json.toJson(messages.map { message => message.by + ": " + message.message })),
 						timeout => Ok(""))
 				})
 		}
+	}
+
+	private def toJson() = {
+
 	}
 }
