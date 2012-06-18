@@ -4,17 +4,35 @@
 
 
 	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
-	<div id="">
+	<div id="log">
 	</div>
 	
 	<script type="text/javascript">
+	
+	var timestamp = 0;
+
+	function retrieve(timestamp) {
+		$.get("/chat/retrieve/"+timestamp, function(data) {
+			console.log(data)
+			if(data.length > 0)  {
+				for(var i = 0; i < data.length ; i++)
+					$("#log").prepend("<p>" + data[i] + "</p>")
+				timestamp ++;
+			}			
+			retrieve(timestamp)
+		})
+	}
+
 	$(function() {
-		$('#sendBtn').click(function() {
+		$('#sendBtn').click(function() {			
 			$('#sendBtn').attr('disabled', true)
 			$.post('/chat/send/'+ $('#talk').val(), function()  {
 				$('#sendBtn').removeAttr('disabled')
 			})
+			$('#talk').val("")
 		})
+		
+		retrieve(timestamp)
 	})
 	
 	</script>
