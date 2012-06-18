@@ -27,7 +27,7 @@ object Mailer {
 		email.setSubject(subject);
 		email.setMsg(content);
 		email.addTo(recipient);
-		email.send();
+//		email.send();
 
 	}
 
