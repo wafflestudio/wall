@@ -14,6 +14,8 @@ import play.api.mvc.Result
 import play.api.libs.json._
 import play.api.libs.json.DefaultWrites
 import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 case class Talk(by: String, val message: String, time: Date)
 
@@ -49,8 +51,7 @@ class ChatRoom extends Actor {
 				val promise = Promise[List[Talk]]()
 				waiters = waiters :+ promise
 				sender ! Hold(promise)
-			}
-			else {
+			} else {
 				val promise = Promise.pure(prevMessages)
 				sender ! PrevMessages(promise)
 			}
@@ -71,6 +72,23 @@ class ChatRoom extends Actor {
 		waiters = List.empty
 	}
 }
+
+
+case class AskForRoom(id:Long)
+
+class RoomFactory extends Actor {
+		
+	var rooms = Map[Long,ActorRef]()
+	
+	def receive = {
+		case AskForRoom(id) =>			
+			//if(rooms.contains(id))
+				
+			sender ! Promise[ActorRef]()
+			
+	}
+}
+
 
 object Chat extends Controller with Login {
 
@@ -101,13 +119,14 @@ object Chat extends Controller with Login {
 				error => Promise.pure(InternalServerError(error.toString)),
 				promiseOfMessages => promiseOfMessages.orTimeout("No new messages, try again", 30000).map { messagesOrTimeout =>
 					messagesOrTimeout.fold(
-						messages => Ok(Json.toJson(messages.map { message => message.by + ": " + message.message })),
-						timeout => Ok(""))
+						messages => Ok(Json.toJson(messages.map { message =>
+							Map("by" -> message.by,
+								"message" -> message.message,
+								"time" -> new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z",Locale.US).format(message.time))
+						})),
+						timeout => Ok(Json.toJson(List[String]())))
 				})
 		}
 	}
 
-	private def toJson() = {
-
-	}
 }

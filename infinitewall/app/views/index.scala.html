@@ -16,8 +16,10 @@
 		$.get("/chat/retrieve/"+timestamp, function(data) {
 			console.log(data)
 			if(data.length > 0)  {
-				for(var i = 0; i < data.length ; i++)
-					$("#log").prepend("<p>" + data[i] + "</p>")
+				for(var i = 0; i < data.length ; i++)  {
+					var talk = data[i]
+					$("#log").prepend("<p>" + "<span>" + talk.by + "</span>" + "<span> " + talk.message + "</span>" + "</p>")
+				}
 				timestamp ++;
 			}			
 			retrieve(timestamp)
