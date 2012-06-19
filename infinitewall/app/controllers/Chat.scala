@@ -17,13 +17,10 @@ import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-case class Talk(by: String, val message: String, time: Date)
-
+case class Talk(email: String, message: String, time: Date)
 case class Join(email: String)
 case class Quit(email: String)
-
 case class Ask(email: String, timestamp: Int)
-
 case class Hold(promise: Promise[List[Talk]])
 case class PrevMessages(messages: Promise[List[Talk]])
 
@@ -51,7 +48,8 @@ class ChatRoom extends Actor {
 				val promise = Promise[List[Talk]]()
 				waiters = waiters :+ promise
 				sender ! Hold(promise)
-			} else {
+			}
+			else {
 				val promise = Promise.pure(prevMessages)
 				sender ! PrevMessages(promise)
 			}
@@ -73,22 +71,43 @@ class ChatRoom extends Actor {
 	}
 }
 
+case class TalkAt(roomId: Long, email: String, message: String, time: Date)
+case class AskAt(roomId: Long, email: String, timestamp: Int)
+//case class RoomState(actorRef:ActorRef, lastTime:)
 
-case class AskForRoom(id:Long)
+class ChatActor extends Actor {
 
-class RoomFactory extends Actor {
-		
-	var rooms = Map[Long,ActorRef]()
-	
+	implicit val actorTimeout = Timeout(2 second)
+	var rooms = Map[Long, ActorRef]()
+
+	def getOrCreateRoom(roomId: Long) = {
+		rooms.get(roomId) match {
+			case Some(room) =>
+				room
+			case None =>
+				val room = context.actorOf(Props[ChatRoom])
+				rooms = rooms + (roomId -> room)
+				room
+		}
+	}
+
 	def receive = {
-		case AskForRoom(id) =>			
-			//if(rooms.contains(id))
-				
-			sender ! Promise[ActorRef]()
+		case TalkAt(roomId, by, message, time) =>
+			val room = getOrCreateRoom(roomId)
+			room ! Talk(by, message, time)
+
+		case AskAt(roomId, email, timestamp) =>
+			val room = getOrCreateRoom(roomId)
+			val answer = room ? Ask(email, timestamp)
+			answer.map { response =>
+				response match {
+					case Hold(_) | PrevMessages(_) => sender ! response
+				}
+			}
+		case Terminated(actorRef) =>
 			
 	}
 }
-
 
 object Chat extends Controller with Login {
 
@@ -120,9 +139,9 @@ object Chat extends Controller with Login {
 				promiseOfMessages => promiseOfMessages.orTimeout("No new messages, try again", 30000).map { messagesOrTimeout =>
 					messagesOrTimeout.fold(
 						messages => Ok(Json.toJson(messages.map { message =>
-							Map("by" -> message.by,
+							Map("by" -> message.email,
 								"message" -> message.message,
-								"time" -> new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z",Locale.US).format(message.time))
+								"time" -> new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US).format(message.time))
 						})),
 						timeout => Ok(Json.toJson(List[String]())))
 				})
