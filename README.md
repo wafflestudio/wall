@@ -12,3 +12,8 @@ Infinite Wall
     scala> Environment.createSchema()  # schema 만들때
     scala> Environment.dropSchema()   # schema 지울때
     ^D
+
+#### 자동 컴파일 및 실행
+    $ play 
+    [Infinite Wall] $ compile 
+    [Infinite Wall] $ ~run
