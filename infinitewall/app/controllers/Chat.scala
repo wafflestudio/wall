@@ -31,6 +31,7 @@ class ChatRoom extends Actor {
 	var messages: List[Talk] = List()
 	var websockets = Map.empty[String, PushEnumerator[Talk]]
 	var waiters: List[RedeemablePromise[List[Talk]]] = List()
+	var currentUsers = Map.empty[String, Date]
 
 	def receive = {
 		// websocket
@@ -43,19 +44,18 @@ class ChatRoom extends Actor {
 
 		// long-polling
 		case Ask(email, timestamp) =>
+			currentUsers += (email -> new Date())
 			val prevMessages = messages.drop(timestamp)
 			if (prevMessages.isEmpty) {
 				val promise = Promise[List[Talk]]()
 				waiters = waiters :+ promise
 				sender ! Hold(promise)
-			}
-			else {
+			} else {
 				val promise = Promise.pure(prevMessages)
 				sender ! PrevMessages(promise)
 			}
 
-		case Talk(by, msg, time) =>
-			val talk = Talk(by, msg, time)
+		case talk @ Talk(by, msg, time) =>			
 			messages = messages :+ talk
 			notifyAll(talk)
 	}
@@ -73,7 +73,8 @@ class ChatRoom extends Actor {
 
 case class TalkAt(roomId: Long, email: String, message: String, time: Date)
 case class AskAt(roomId: Long, email: String, timestamp: Int)
-//case class RoomState(actorRef:ActorRef, lastTime:)
+
+case class RoomState(actorRef: ActorRef, sweepSchedule: Cancellable)
 
 class ChatActor extends Actor {
 
@@ -105,7 +106,7 @@ class ChatActor extends Actor {
 				}
 			}
 		case Terminated(actorRef) =>
-			
+
 	}
 }
 
@@ -134,9 +135,8 @@ object Chat extends Controller with Login {
 		}
 
 		Async {
-			answer.await(1000).fold(
-				error => Promise.pure(InternalServerError(error.toString)),
-				promiseOfMessages => promiseOfMessages.orTimeout("No new messages, try again", 30000).map { messagesOrTimeout =>
+			answer.flatMap( promiseOfMessages => 
+				promiseOfMessages.orTimeout("No new messages, try again", 30000).map { messagesOrTimeout =>
 					messagesOrTimeout.fold(
 						messages => Ok(Json.toJson(messages.map { message =>
 							Map("by" -> message.email,
