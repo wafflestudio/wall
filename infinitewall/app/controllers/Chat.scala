@@ -24,9 +24,7 @@ object Chat extends Controller with Login {
 
 	implicit val actorTimeout = Timeout(2 second)
 
-	lazy val chatActor = {
-		Akka.system.actorOf(Props[ChatSystem])
-	}
+	lazy val chatActor = Akka.system.actorOf(Props[ChatSystem])
 
 	//	def index = WebSocket.async[String] { implicit request =>
 	//		val enumerator = defaultRoom ? Join(request.session.get("current_user").getOrElse(""))
