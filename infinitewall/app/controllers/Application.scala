@@ -12,7 +12,6 @@ import play.api.libs.json.Json
 import models._
 import views._
 import helpers._
-import org.squeryl.PrimitiveTypeMode._
 
 case class LoginData(val email: String, val password: String)
 case class SignUpData(val email: String, val password: String)

@@ -1,12 +1,46 @@
 package models
 
-import org.squeryl.dsl.OneToMany
-import org.squeryl.PrimitiveTypeMode._
+import play.api.db.DB
+import anorm._
+import anorm.SqlParser._
+import play.api.Play.current
+import java.util.Date
+
+case class ChatRoom(id:Pk[Long], title: String)
+
 
 object ChatRoom {
-	def find(id: Long) = InfiniteWallSchema.chatRooms.lookup(id)
-}
+	val simple = {
+		get[Pk[Long]]("ChatRoom.id") ~
+		get[String]("ChatRoom.title") map {
+			case id ~ title => ChatRoom(id, title)
+		}
+	}
 
-case class ChatRoom(title: String) extends InfiniteWallObject {
-	lazy val logs: OneToMany[ChatLog] = InfiniteWallSchema.roomToChatLog.left(this)
+	def findById(id: Long): Option[ChatRoom] = {
+		DB.withConnection { implicit c =>
+			SQL("select * from ChatRoom where id = {id}").on('id -> id).as(ChatRoom.simple.singleOpt)
+		}
+	}
+	
+	def create(chatRoom:ChatRoom) = {
+		DB.withConnection { implicit c =>
+			SQL(""" 
+				insert into ChatRoom values (
+					(select next value for chatroom_seq),
+					{title}	
+				)
+			""").on(
+				'title -> chatRoom.title
+			).executeUpdate()
+		}
+	}
+	
+	def delete(id: Long) = {
+		DB.withConnection { implicit c =>
+			SQL("delete from ChatRoom where id = {id}").on(
+				'id -> id
+			).executeUpdate()
+		}
+	}
 }
