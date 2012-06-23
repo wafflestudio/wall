@@ -48,8 +48,7 @@ object User {
 
 }
 
-class User(val email: String, val hashedPW: String, val permission: Permission) extends KeyedEntity[Long] {
-	val id: Long = 0
+class User(val email: String, val hashedPW: String, val permission: Permission) extends InfiniteWallObject {
 	def this() = this("", "", Permission.NormalUser) // Required for enumeration field
 
 	//	lazy val pictures: OneToMany[PictureRef] = OchazukeSchema.userToPicture.left(this)
