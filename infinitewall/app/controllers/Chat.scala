@@ -32,12 +32,12 @@ object Chat extends Controller with Login {
 	//	}
 
 	def send(message: String) = AuthenticatedAction { implicit request =>
-		chatActor ! TalkAt(0, currentUser, message, new Date())
+		chatActor ! TalkAt(1000, currentUserId, message, new Date())
 		Ok("")
 	}
 
 	def retrieve(timestamp: Int) = AuthenticatedAction { implicit request =>
-		val answer = (chatActor ? AskAt(0, currentUser, timestamp)).asPromise.map {
+		val answer = (chatActor ? AskAt(1000, currentUserId, timestamp)).asPromise.map {
 			case Hold(promise) => promise
 			case PrevMessages(redeemedMsgs) => redeemedMsgs
 		}
@@ -47,7 +47,7 @@ object Chat extends Controller with Login {
 				promiseOfMessages.orTimeout("No new messages, try again", 30000).map { messagesOrTimeout =>
 					messagesOrTimeout.fold(
 						messages => Ok(Json.toJson(messages.map { message =>
-							Map("by" -> message.email,
+							Map("by" -> models.User.findById(message.userId).get.email,
 								"message" -> message.message,
 								"time" -> new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US).format(message.time))
 						})),

@@ -15,7 +15,7 @@ import helpers._
 
 case class LoginData(val email: String, val password: String)
 case class SignUpData(val email: String, val password: String)
-case class CurrentUser(val email: String)
+case class CurrentUser(val userId: Long, val email: String)
 
 trait Login {
 	self: Controller =>
@@ -23,7 +23,11 @@ trait Login {
 	def currentUser(implicit request:play.api.mvc.Request[play.api.mvc.AnyContent]) :String = { 
 		request.session.get("current_user").getOrElse("default")
 	}
-
+	
+	def currentUserId(implicit request:play.api.mvc.Request[play.api.mvc.AnyContent]) :Long = { 
+		request.session.get("current_user_id").getOrElse("-1").toLong
+	}
+	
 	def AuthenticatedAction(f: Request[AnyContent] => Result): Action[AnyContent] = {
 		Action { request =>
 			if (request.session.get("current_user").isDefined)
@@ -90,7 +94,10 @@ object Application extends Controller with Login with SignUp {
 				//Redirect(routes.MainController.index).flashing("error" -> "Bad login") 
 				BadRequest(views.html.index()(formWithErrors, request))
 			},
-			user => Redirect(routes.Application.index).withSession("current_user" -> user.email)
+			loginData => {
+				val user = User.findByEmail(loginData.email).get				
+				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
+			}
 		)
 
 	}

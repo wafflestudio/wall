@@ -2,6 +2,7 @@
 # case class User(id: Pk[Long], val email: String, val hashedPW: String, val permission: Permission)
 # case class ChatLog(id:Pk[Long], message:String, time:Date, roomId: Long, userId:Long) 
 # case class ChatRoom(id:Pk[Long], title: String)
+# Chat room user presence
 
  
 # --- !Ups
@@ -40,14 +41,33 @@ alter table ChatLog add constraint fk_chatlog_chatroom_1 foreign key (chatroom_i
   
 create index idx_chatlog_user_1 on chatlog (user_id);
 create index idx_chatlog_chatroom_1 on chatlog (chatroom_id);
+
+CREATE TABLE UserInChatRoom (
+    user_id bigint(20) NOT NULL,
+    chatroom_id bigint(20) NOT NULL,
+    time timestamp NOT NULL,
+    PRIMARY KEY(user_id, chatroom_id)
+);
+
+alter table UserInChatRoom add constraint fk_userinchatroom_user_1 foreign key (user_id) references User (id) 
+  on delete cascade on update restrict;
+alter table UserInChatRoom add constraint fk_userinchatroom_chatroom_1 foreign key (chatroom_id) references ChatRoom (id) 
+  on delete cascade on update restrict;
+  
+create index idx_userinchatroom_user_1 on UserInChatRoom (user_id);
+create index idx_userinchatroom_chatroom_1 on UserInChatRoom (chatroom_id);
+
+
  
 # --- !Downs
+
 
 
 DROP SEQEUNCE user_seq;
 DROP SEQEUNCE chatroom_seq;
 DROP SEQEUNCE chatlog_seq;
  
-DROP TABLE User;
-DROP TABLE ChatLog;
-DROP TABLE ChatRoom;
+DROP TABLE UserInChatRoom IF NOT EXIST; 
+DROP TABLE User IF NOT EXIST;
+DROP TABLE ChatLog IF NOT EXIST;
+DROP TABLE ChatRoom IF NOT EXIST;

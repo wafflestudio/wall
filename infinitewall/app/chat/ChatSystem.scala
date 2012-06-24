@@ -14,11 +14,12 @@ import java.util.Locale
 import play.api.Logger
 
 /** ChatRoom messages **/ 
-case class Talk(email: String, message: String, time: Date)
-case class Join(email: String)
-case class Quit(email: String)
-case class Ask(email: String, timestamp: Int)
+case class Talk(userId: Long, message: String, time: Date)
+case class Join(userId: Long)
+case class Quit(userId: Long)
+case class Ask(userId: Long, timestamp: Int)
 /** ChatRoom answers **/
+case class ChatLog(email: String, message: String, time: Date)
 case class Hold(promise: Promise[List[Talk]])
 case class PrevMessages(messages: Promise[List[Talk]])
 case class Connected(enumerator: Enumerator[Talk])
@@ -26,22 +27,30 @@ case class Connected(enumerator: Enumerator[Talk])
 class ChatRoom(val roomId: Long) extends Actor {
 
 	var messages: List[Talk] = List()
-	var websockets = Map.empty[String, PushEnumerator[Talk]]
+	
+	var websockets = Map.empty[Long, PushEnumerator[Talk]]
 	var waiters: List[RedeemablePromise[List[Talk]]] = List()
-	var currentUsers = Map.empty[String, Date]
+	
+	def currentUsers = models.ChatRoom.listUsers(roomId)
+	def ensureJoined(userId:Long) = models.ChatRoom.addUser(roomId, userId)
+	def removeUser(userId:Long) = models.ChatRoom.removeUser(roomId, userId)
 
 	def receive = {
 		// websocket
-		case Join(email) =>
+		case Join(userId) =>
 			val enumerator = Enumerator.imperative[Talk]()
-			websockets = websockets + (email -> enumerator)
+			websockets = websockets + (userId -> enumerator)
+			ensureJoined(userId)
+			
 			sender ! Connected(enumerator)
-		case Quit(email) =>
-			websockets = websockets - email
+		case Quit(userId) =>
+			removeUser(userId)
+			websockets = websockets - userId
 
 		// long-polling
-		case Ask(email, timestamp) =>
-			currentUsers += (email -> new Date())
+		case Ask(userId, timestamp) =>
+			ensureJoined(userId)
+			
 			val prevMessages = messages.drop(timestamp)
 			if (prevMessages.isEmpty) {
 				val promise = Promise[List[Talk]]()
@@ -71,8 +80,8 @@ class ChatRoom(val roomId: Long) extends Actor {
 
 
 /** ChatSystem messages **/
-case class TalkAt(roomId: Long, email: String, message: String, time: Date)
-case class AskAt(roomId: Long, email: String, timestamp: Int)
+case class TalkAt(roomId: Long, userId: Long, message: String, time: Date)
+case class AskAt(roomId: Long, userId: Long, timestamp: Int)
 
 /** ChatSystem answers **/
 case class RoomState(actorRef: ActorRef, sweepSchedule: Cancellable)
