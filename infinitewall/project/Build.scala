@@ -16,6 +16,7 @@ object ApplicationBuild extends Build {
 		"org.mindrot" % "jbcrypt" % "0.3m")
 
 	val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
+		coffeescriptOptions := Seq("native", "browserify")
 		// Add your own project settings here
 		)
 
