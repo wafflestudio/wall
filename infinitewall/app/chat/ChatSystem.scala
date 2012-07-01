@@ -12,119 +12,109 @@ import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
 import play.api.Logger
+import play.api.libs.json._
 
-/** ChatRoom messages **/ 
-case class Talk(userId: Long, message: String, time: Date)
 case class Join(userId: Long)
 case class Quit(userId: Long)
-case class Ask(userId: Long, timestamp: Int)
-/** ChatRoom answers **/
-case class ChatLog(email: String, message: String, time: Date)
-case class Hold(promise: Promise[List[Talk]])
-case class PrevMessages(messages: Promise[List[Talk]])
-case class Connected(enumerator: Enumerator[Talk])
+case class Talk(userId: Long, text: String)
+case class NotifyJoin(userId: Long)
 
-class ChatRoom(val roomId: Long) extends Actor {
+case class Connected(enumerator: Enumerator[JsValue])
+case class CannotConnect(msg: String)
 
-	var messages: List[Talk] = List()
-	
-	var websockets = Map.empty[Long, PushEnumerator[Talk]]
-	var waiters: List[RedeemablePromise[List[Talk]]] = List()
-	
-	def currentUsers = models.ChatRoom.listUsers(roomId)
-	def ensureJoined(userId:Long) = models.ChatRoom.addUser(roomId, userId)
-	def removeUser(userId:Long) = models.ChatRoom.removeUser(roomId, userId)
+object ChatSystem {
 
-	def receive = {
-		// websocket
-		case Join(userId) =>
-			val enumerator = Enumerator.imperative[Talk]()
-			websockets = websockets + (userId -> enumerator)
-			ensureJoined(userId)
-			
-			sender ! Connected(enumerator)
-		case Quit(userId) =>
-			removeUser(userId)
-			websockets = websockets - userId
+	implicit val timeout = Timeout(1 second)
 
-		// long-polling
-		case Ask(userId, timestamp) =>
-			ensureJoined(userId)
-			
-			val prevMessages = messages.drop(timestamp)
-			if (prevMessages.isEmpty) {
-				val promise = Promise[List[Talk]]()
-				waiters = waiters :+ promise
-				sender ! Hold(promise)
-			}
-			else {
-				val promise = Promise.pure(prevMessages)
-				sender ! PrevMessages(promise)
-			}
-
-		case talk @ Talk(by, msg, time) =>
-			messages = messages :+ talk
-			notifyAll(talk)
+	lazy val defaultRoom = {
+		val roomActor = Akka.system.actorOf(Props[ChatSystem])
+		roomActor
 	}
 
-	def notifyAll(talk: Talk) = {
-		websockets.foreach {
-			case (_, producer) => producer.push(talk)
-		}
-		waiters.foreach { promise =>
-			promise.redeem(List(talk))
-		}
-		waiters = List.empty
+	def talk(message: String, userId: Long) = {
+		defaultRoom ? Talk(userId, message)
 	}
+
+	def establish(userId: Long): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+
+		val joinResult = defaultRoom ? Join(userId)
+
+		joinResult.asPromise.map {
+			case Connected(producer) =>
+				// Create an Iteratee to consume the feed
+				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
+					defaultRoom ! Talk(userId, (event \ "text").as[String])
+				}.mapDone { _ =>
+					defaultRoom ! Quit(userId)
+				}
+
+				(consumer, producer)
+
+			case CannotConnect(error) =>
+
+				// Connection error
+
+				// A finished Iteratee sending EOF
+				val consumer = Done[JsValue, Unit]((), Input.EOF)
+
+				// Send an error and close the socket
+				val producer = Enumerator[JsValue](JsObject(Seq("error" -> JsString(error)))).andThen(Enumerator.enumInput(Input.EOF))
+
+				(consumer, producer)
+
+		}
+
+	}
+
 }
-
-
-/** ChatSystem messages **/
-case class TalkAt(roomId: Long, userId: Long, message: String, time: Date)
-case class AskAt(roomId: Long, userId: Long, timestamp: Int)
-
-/** ChatSystem answers **/
-case class RoomState(actorRef: ActorRef, sweepSchedule: Cancellable)
-case class Closing(roomId: Long)
-
 
 class ChatSystem extends Actor {
 
-	implicit val actorTimeout = Timeout(2 second)
-	var rooms = Map[Long, ActorRef]()
+	var members = Map.empty[Long, PushEnumerator[JsValue]]
 
-	def getOrOpenRoom(roomId: Long) = {
-		rooms.get(roomId) match {
-			case Some(room) =>
-				room
-			case None =>
-				val room = context.actorOf(Props(new ChatRoom(roomId)))
-				rooms = rooms + (roomId -> room)
-				room
+	def receive = {
+
+		case Join(userId) => {
+			// Create an Enumerator to write to this socket
+			val producer = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin(userId))
+			if (members.contains(userId)) {
+				sender ! CannotConnect("This username is already used")
+			}
+			else {
+				members = members + (userId -> producer)
+				sender ! Connected(producer)
+			}
+		}
+
+		case NotifyJoin(userId) => {
+			notifyAll("join", userId, "has entered the room")
+		}
+
+		case Talk(userId, text) => {
+			notifyAll("talk", userId, text)
+		}
+
+		case Quit(userId) => {
+			members = members - userId
+			notifyAll("quit", userId, "has left the room")
+		}
+
+	}
+
+	def notifyAll(kind: String, userId: Long, text: String) {
+		val msg = JsObject(
+			Seq(
+				"kind" -> JsString(kind),
+				"user" -> JsNumber(userId),
+				"message" -> JsString(text),
+				"members" -> JsArray(
+					members.keySet.toList.map(m => JsNumber(m))
+				)
+			)
+		)
+		members.foreach {
+			case (_, producer) => producer.push(msg)
 		}
 	}
 
-	def closeRoom(roomId: Long) = {
-		rooms = rooms - roomId
-	}
-
-	def receive = {
-		case TalkAt(roomId, by, message, time) =>
-			val room = getOrOpenRoom(roomId)
-			room ! Talk(by, message, time)
-
-		case AskAt(roomId, email, timestamp) =>
-			val room = getOrOpenRoom(roomId)
-			val answer = room ? Ask(email, timestamp)
-			val savedSender = sender
-			answer.map { response =>
-				response match {
-					case Hold(_) | PrevMessages(_) => savedSender ! response
-							Logger.debug("message")
-					case _ => Logger.debug("!message")
-				}
-			}
-		case Closing(roomId) =>
-			closeRoom(roomId)
-	}
 }

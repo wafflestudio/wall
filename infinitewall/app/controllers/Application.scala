@@ -24,7 +24,7 @@ trait Login {
 		request.session.get("current_user").getOrElse("default")
 	}
 	
-	def currentUserId(implicit request:play.api.mvc.Request[play.api.mvc.AnyContent]) :Long = { 
+	def currentUserId(implicit request:play.api.mvc.Request[play.api.mvc.AnyContent]): Long = { 
 		request.session.get("current_user_id").getOrElse("-1").toLong
 	}
 	
