@@ -1,8 +1,10 @@
+bin
 logs
 project/project
 project/target
 target
 tmp
+.target
 .history
 .cache
 infinitewall.h2.db

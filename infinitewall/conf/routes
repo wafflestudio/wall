@@ -12,6 +12,7 @@ POST    /authenticate   						controllers.Application.authenticate
 GET     /signup        							controllers.Application.signup
 POST    /users/create   						controllers.Application.createNewUser
 GET     /logout         						controllers.Application.logout
+GET     /chat/establish          controllers.Chat.establish
 
 
 # Map static resources from the /public folder to the /assets URL path

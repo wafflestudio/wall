@@ -9,6 +9,9 @@
 	</div>
 	
 	<script type="text/javascript">
+
+	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
+	var chatSocket = new WS("@routes.Chat.establish().webSocketURL()")
 	
 	var timestamp = 0;
 

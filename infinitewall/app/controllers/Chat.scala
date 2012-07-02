@@ -15,7 +15,7 @@ import play.api.libs.concurrent.Promise
 
 object Chat extends Controller with Login {
 
-	def chat() = 
+	def establish() = 
 		WebSocket.async[JsValue] { request =>
 			
 			request.session.get("current_user_id") match {
