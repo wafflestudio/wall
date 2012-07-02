@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import play.api.Logger
 import play.api.libs.json._
+import models.User
 
 case class Join(userId: Long)
 case class Quit(userId: Long)
@@ -102,18 +103,26 @@ class ChatSystem extends Actor {
 	}
 
 	def notifyAll(kind: String, userId: Long, text: String) {
-		val msg = JsObject(
-			Seq(
-				"kind" -> JsString(kind),
-				"user" -> JsNumber(userId),
-				"message" -> JsString(text),
-				"members" -> JsArray(
-					members.keySet.toList.map(m => JsNumber(m))
+		try {
+			val username = User.findById(userId).get.email
+			
+			val msg = JsObject(
+				Seq(
+					"kind" -> JsString(kind),
+					"username" -> JsString(username),
+					"message" -> JsString(text),
+					"members" -> JsArray(
+						members.keySet.toList.map(m => JsNumber(m))
+					)
 				)
 			)
-		)
-		members.foreach {
-			case (_, producer) => producer.push(msg)
+			members.foreach {
+				case (_, producer) => producer.push(msg)
+			}
+		}
+		catch {
+			case _ =>
+				// do nothing
 		}
 	}
 

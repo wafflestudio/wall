@@ -12,22 +12,19 @@
 
 	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
 	var chatSocket = new WS("@routes.Chat.establish().webSocketURL()")
-	
-	var timestamp = 0;
 
-	function retrieve(timestamp) {
-		$.get("/chat/retrieve/"+timestamp, function(data) {
-			console.log(data)
-			if(data.length > 0)  {
-				for(var i = 0; i < data.length ; i++)  {
-					var talk = data[i]
-					$("#log").prepend("<p>" + "<span>" + talk.by + "</span>" + "<span> " + talk.message + "</span>" + "</p>")
-				}
-				timestamp ++;
-			}			
-			retrieve(timestamp)
-		})
+	function onReceive(e) {
+		var data = JSON.parse(e.data);
+		if(data.error) {
+			chatSocket.close();
+			return;
+		}
+
+		$("#log").prepend("<p>" + "<span>" + data.username + "</span>" + "<span> " + data.message + "</span>" + "</p>")
+	
 	}
+
+	chatSocket.onmessage = onReceive
 
 	$(function() {
 		$('#talk').keyup(function(event) {
@@ -49,17 +46,11 @@
 				$('#talk').val("")
 				return
 			}
-			
-			
-			$('#sendBtn').attr('disabled', true)
-			$.post('/chat/send/'+ msg, function()  {
-				$('#sendBtn').removeAttr('disabled')
-				$('#talk').val("")
-			})
-			
+				
+			chatSocket.send(JSON.stringify({text: msg}))
+			$('#talk').val("")
 		})
 		
-		retrieve(timestamp)
 	})
 	
 	</script>
