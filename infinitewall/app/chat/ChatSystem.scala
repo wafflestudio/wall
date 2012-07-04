@@ -16,7 +16,7 @@ import play.api.libs.json._
 import models.User
 
 case class Join(userId: Long)
-case class Quit(userId: Long)
+case class Quit(userId: Long, producer: Enumerator[JsValue])
 case class Talk(userId: Long, text: String)
 case class NotifyJoin(userId: Long)
 
@@ -46,7 +46,7 @@ object ChatSystem {
 				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
 					defaultRoom ! Talk(userId, (event \ "text").as[String])
 				}.mapDone { _ =>
-					defaultRoom ! Quit(userId)
+					defaultRoom ! Quit(userId, producer)
 				}
 
 				(consumer, producer)
@@ -71,18 +71,18 @@ object ChatSystem {
 
 class ChatSystem extends Actor {
 
-	var members = Map.empty[Long, PushEnumerator[JsValue]]
+	var connections = List.empty[(Long, PushEnumerator[JsValue])]
 
 	def receive = {
 
 		case Join(userId) => {
 			// Create an Enumerator to write to this socket
 			val producer = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin(userId))
-			if (members.contains(userId)) {
-				sender ! CannotConnect("This username is already used")
+			if (false /* maximum connection per user constraint here*/) {
+				sender ! CannotConnect("You have reached your maximum number of connections.")
 			}
 			else {
-				members = members + (userId -> producer)
+				connections = connections :+ (userId, producer)
 				sender ! Connected(producer)
 			}
 		}
@@ -95,8 +95,13 @@ class ChatSystem extends Actor {
 			notifyAll("talk", userId, text)
 		}
 
-		case Quit(userId) => {
-			members = members - userId
+		case Quit(userId, producer) => {
+			connections = connections.flatMap { p =>
+				if(p eq producer)
+					None
+				else
+					Some(p)
+			}
 			notifyAll("quit", userId, "has left the room")
 		}
 
@@ -112,11 +117,11 @@ class ChatSystem extends Actor {
 					"username" -> JsString(username),
 					"message" -> JsString(text),
 					"members" -> JsArray(
-						members.keySet.toList.map(m => JsNumber(m))
+						connections.map(ws => JsNumber(ws._1))
 					)
 				)
 			)
-			members.foreach {
+			connections.foreach {
 				case (_, producer) => producer.push(msg)
 			}
 		}

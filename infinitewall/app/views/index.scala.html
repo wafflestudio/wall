@@ -16,6 +16,7 @@
 	function onReceive(e) {
 		var data = JSON.parse(e.data);
 		if(data.error) {
+			console.log('disconnected: ' + data.error)
 			chatSocket.close();
 			return;
 		}
