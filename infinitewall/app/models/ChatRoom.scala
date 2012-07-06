@@ -4,10 +4,11 @@ import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
 import play.api.Play.current
+import java.sql.Timestamp
 import java.util.Date
 
 case class ChatRoom(id:Pk[Long], title: String)
-case class UserInChatRoom(userId:Long, roomId: Long, time:Date)
+case class UserInChatRoom(userId:Long, roomId: Long, time:Long)
 
 
 object ChatRoom extends ActiveRecord[ChatRoom] {
@@ -23,7 +24,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 	val users = {
 		get[Long]("UserInChatRoom.user_id") ~
 		get[Long]("UserInChatRoom.chatroom_id") ~
-		get[Date]("UserInChatRoom.time") map {
+		get[Long]("UserInChatRoom.time") map {
 			case user_id ~ chatroom_id ~ time => UserInChatRoom(user_id, chatroom_id, time)
 		}
 	}
@@ -32,7 +33,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 	
 	def create(title:String) = {
 		DB.withConnection { implicit c =>
-			val id = SQL("select next value for wall_seq").as(scalar[Long].single)
+			val id = SQL("select next value for chatroom_seq").as(scalar[Long].single)
 			SQL(""" 
 				insert into ChatRoom values (
 					{id},
@@ -46,18 +47,23 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 		}
 	}
 	
+	def listRooms() = {
+		DB.withConnection { implicit c =>
+			SQL("select * from ChatRoom").as(ChatRoom.simple*)
+		}	
+	}
+	
 	def addUser(id: Long, user_id: Long) = {
 		DB.withConnection { implicit c =>
 			SQL(""" 
 				merge into UserInChatRoom values (					
 					{user_id},
 					{id},
-					{time}
+					(select next value from userinchatroom_timestamp)
 				)
 			""").on(
 				'user_id -> user_id,
-				'id -> id,
-				'time -> new Date()
+				'id -> id
 			).executeUpdate()
 		}
 	}

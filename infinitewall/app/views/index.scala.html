@@ -3,57 +3,5 @@
 @layouts.default("Infinite Wall") {
 
 @if(request.session.get("current_user").isDefined)  {
-
-	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
-	<div id="log">
-	</div>
-	
-	<script type="text/javascript">
-
-	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-	var chatSocket = new WS("@routes.Chat.establish().webSocketURL()")
-
-	function onReceive(e) {
-		var data = JSON.parse(e.data);
-		if(data.error) {
-			console.log('disconnected: ' + data.error)
-			chatSocket.close();
-			return;
-		}
-
-		$("#log").prepend("<p>" + "<span>" + data.username + "</span>" + "<span> " + data.message + "</span>" + "</p>")
-	
-	}
-
-	chatSocket.onmessage = onReceive
-
-	$(function() {
-		$('#talk').keyup(function(event) {
-			
-			if(event.keyCode == 13)
-			{
-				$('#sendBtn').click()
-			}
-		})
-		
-		$('#sendBtn').click(function() {
-			var msg = $('#talk').val()
-			
-			if(msg.charAt(msg.length-1) == '\n')
-				msg = msg.substr(0,msg.length-1)
-				
-			
-			if(msg.length == 0 || /^(\s)+$/.test(msg))  {
-				$('#talk').val("")
-				return
-			}
-				
-			chatSocket.send(JSON.stringify({text: msg}))
-			$('#talk').val("")
-		})
-		
-	})
-	
-	</script>
 }
 }

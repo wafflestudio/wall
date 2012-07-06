@@ -1,0 +1,17 @@
+@(rooms:List[ChatRoom])(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+
+@layouts.default("Chat Rooms ::: Infinite Wall") {
+
+	@if(rooms.length == 0)  {
+		<p> No rooms available </p>
+	}
+	<form method="POST" action="/chat/create" class="form-inline">
+		<input name="title" type="text" placeholder="Room title"><button class="btn">Create</button/>
+	</form>
+	<ul>
+	@for(room <- rooms) {
+		<li><a href="/chat/@room.id.get">@room.title</a></li>
+	}
+	</ul>
+
+}

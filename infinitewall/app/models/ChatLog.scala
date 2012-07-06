@@ -4,9 +4,11 @@ import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
 import play.api.Play.current
-import java.util.Date
+import java.sql.Timestamp
+import play.api.libs.json._
 
-case class ChatLog(id: Pk[Long], message: String, time: Date, roomId: Long, userId: Long)
+case class ChatLog(id: Pk[Long], kind: String, message: String, time: Long, roomId: Long, userId: Long)
+case class ChatLogWithEmail(id: Pk[Long], kind: String, message: String, time: Long, roomId: Long, email: String)
 
 object ChatLog extends ActiveRecord[ChatLog] {
 
@@ -14,17 +16,33 @@ object ChatLog extends ActiveRecord[ChatLog] {
 	
 	val simple = {
 		get[Pk[Long]]("ChatLog.id") ~
-		get[String]("ChatLog.message") ~
-		get[Date]("ChatLog.time") ~
-		get[Long]("ChatLog.chatroom_id") ~
-		get[Long]("ChatLog.user_id") map {
-			case id ~ message ~ time ~ roomId ~ userId => ChatLog(id, message, time, roomId, userId)
-		}
+			get[String]("ChatLog.message") ~
+			get[Long]("ChatLog.time") ~
+			get[Long]("ChatLog.chatroom_id") ~
+			get[Long]("ChatLog.user_id") ~
+			get[String]("ChatLog.kind") map {
+				case id ~ message ~ time ~ roomId ~ userId ~ kind => ChatLog(id, kind, message, time, roomId, userId)
+			}
 	}
 
-	def create(l:ChatLog) = create(l.message, l.time, l.roomId, l.userId)
+	implicit def chatlog2Json(chatlog: ChatLogWithEmail): JsValue = {
 
-	def create(message: String, time: Date, roomId: Long, userId: Long) = {
+		JsObject(
+			Seq(
+				"kind" -> JsString(chatlog.kind),
+				"username" -> JsString(chatlog.email),
+				"message" -> JsString(chatlog.message)
+			//					
+			//					,"members" -> JsArray(
+			//						connections.map(ws => JsNumber(ws._1))
+			//					)
+			)
+		)
+	}
+
+	def create(l: ChatLog) = create(l.kind, l.roomId, l.userId, l.message)
+
+	def create(kind: String, roomId: Long, userId: Long, message: String) = {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for wall_seq").as(scalar[Long].single)
 			SQL(""" 
@@ -35,9 +53,9 @@ object ChatLog extends ActiveRecord[ChatLog] {
 			""").on(
 				'id -> id,
 				'message -> message,
-				'time -> time,
-				'room_id -> roomId,
-				'user_id -> roomId
+				'roomId -> roomId,
+				'userId -> userId,
+				'kind -> kind
 			).executeUpdate()
 			id
 		}

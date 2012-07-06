@@ -13,8 +13,11 @@ POST    /authenticate   						controllers.Application.authenticate
 GET     /signup        							controllers.Application.signup
 POST    /users/create   						controllers.Application.createNewUser
 GET     /logout         						controllers.Application.logout
-GET     /chat/establish          controllers.Chat.establish
 
+GET     /chat                       controllers.Chat.index
+GET     /chat/:roomId               controllers.Chat.room(roomId:Long)
+POST    /chat/create                controllers.Chat.create
+GET     /chat/establish/:roomId/:timestamp     controllers.Chat.establish(roomId:Long, timestamp:Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

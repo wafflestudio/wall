@@ -14,6 +14,8 @@ import java.util.Locale
 import play.api.Logger
 import play.api.libs.json._
 import models.User
+import models.ChatLog
+import java.sql.Timestamp
 
 case class Join(userId: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
@@ -23,32 +25,38 @@ case class NotifyJoin(userId: Long)
 case class Connected(enumerator: Enumerator[JsValue])
 case class CannotConnect(msg: String)
 
+case class Message(kind: String, username:String, text:String)
+
+
 object ChatSystem {
 
 	var actors = List[ActorRef]()
 	
 	implicit val timeout = Timeout(1 second)
 
-	lazy val defaultRoom = {
-		val roomActor = Akka.system.actorOf(Props[ChatSystem])
-		roomActor
+	var rooms:Map[Long, ActorRef] = Map()
+	
+	def room(roomId:Long):ActorRef = {
+		rooms.get(roomId) match { 
+			case Some(room) => room
+			case None => 
+				val newRoom = Akka.system.actorOf(Props(new ChatSystem(roomId)))
+				rooms = rooms + (roomId -> newRoom)
+				newRoom
+		}
 	}
 
-	def talk(message: String, userId: Long) = {
-		defaultRoom ? Talk(userId, message)
-	}
+	def establish(roomId: Long, userId: Long, timestamp: Long): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
-	def establish(userId: Long): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
-
-		val joinResult = defaultRoom ? Join(userId)
+		val joinResult = room(roomId) ? Join(userId)
 
 		joinResult.asPromise.map {
 			case Connected(producer) =>
 				// Create an Iteratee to consume the feed
 				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
-					defaultRoom ! Talk(userId, (event \ "text").as[String])
+					room(roomId) ! Talk(userId, (event \ "text").as[String])
 				}.mapDone { _ =>
-					defaultRoom ! Quit(userId, producer)
+					room(roomId) ! Quit(userId, producer)
 				}
 
 				(consumer, producer)
@@ -71,21 +79,31 @@ object ChatSystem {
 
 }
 
-class ChatSystem extends Actor {
+class ChatSystem(roomId:Long) extends Actor {
 
 	var connections = List.empty[(Long, PushEnumerator[JsValue])]
+	
+	def prevMessages(timestamp:Long) = {
+		ChatLog.list(roomId, timestamp)
+	}
+		
+	def logMessage(kind:String, userId:Long, message:String) = {
+		ChatLog.create(kind, roomId, userId, message)
+	}
 
 	def receive = {
 
 		case Join(userId) => {
 			// Create an Enumerator to write to this socket
 			val producer = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin(userId))
-			if (false /* maximum connection per user constraint here*/) {
+			val prev = Enumerator(prevMessages(0).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
+			
+			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
 			}
 			else {
 				connections = connections :+ (userId, producer)
-				sender ! Connected(producer)
+				sender ! Connected(prev >>> producer)
 			}
 		}
 
@@ -99,7 +117,7 @@ class ChatSystem extends Actor {
 
 		case Quit(userId, producer) => {
 			connections = connections.flatMap { p =>
-				if(p eq producer)
+				if (p eq producer)
 					None
 				else
 					Some(p)
@@ -109,28 +127,24 @@ class ChatSystem extends Actor {
 
 	}
 
-	def notifyAll(kind: String, userId: Long, text: String) {
-		try {
+	def notifyAll(kind: String, userId: Long, message: String) {
+
 			val username = User.findById(userId).get.email
-			
+
 			val msg = JsObject(
 				Seq(
 					"kind" -> JsString(kind),
 					"username" -> JsString(username),
-					"message" -> JsString(text),
-					"members" -> JsArray(
-						connections.map(ws => JsNumber(ws._1))
-					)
+					"message" -> JsString(message)
 				)
 			)
+			
+			logMessage(kind, userId, message)
+			
 			connections.foreach {
 				case (_, producer) => producer.push(msg)
 			}
-		}
-		catch {
-			case _ =>
-				// do nothing
-		}
+	
 	}
 
 }
