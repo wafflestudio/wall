@@ -1,2 +1,3 @@
 # place anything ignored here (see also infinitewall/.gitignore)
 *.swp
+.DS_Store

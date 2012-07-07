@@ -1,1 +1,29 @@
-@()
+@()(implicit loginForm:Form[LoginData], request:play.api.mvc.Request[play.api.mvc.AnyContent])
+
+@layouts.stage("Stage Test") {
+
+<div id="wall">
+	<div id="scaleLayer">
+		<div id ="moveLayer"> 
+			<div class="sheetBox" id = "one"> 
+				<div class="sheet" contenteditable = true>
+					<p>Box 1</p>
+					<div class="resizeHandle"></div>
+				</div>
+				<a class = "boxClose">x</a>
+			</div>
+			<div class="sheetBox" id = "two"> 
+				<div class="sheet" contenteditable = true>
+					<p>Box 2</p>
+					<div class="resizeHandle"></div>
+				</div>
+				<a class = "boxClose">x</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="menuBar">
+	<div id= "newSheet" class="menuItem"><p>New Sheet</p></div>
+</div>
+
+}

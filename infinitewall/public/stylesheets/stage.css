@@ -1,0 +1,97 @@
+#wall {
+	position:absolute;
+	top:40px;
+	left:0px;
+	/*background-color:purple;*/
+	width:90%;
+	height:90%;
+	overflow:none;
+}
+
+#menuBar {
+	position:absolute;
+	right:0px;
+	width:10%;
+}
+
+.menuItem {
+	height:50px;
+	background-color:gray;
+	color:white;
+}
+
+.menuItem p {
+	font-size:20px;
+	text-align:center;
+}
+
+#scaleLayer {
+	position:absolute;
+	top:0;
+	left:0;
+	width:10px;
+	height:10px;
+	/*background-color:gray;*/
+}
+
+#moveLayer {
+	position:absolute;
+	/*background-color:gray;*/
+	top:0;
+	left:0;
+	width:30px;
+	height:30px;
+}
+
+.sheetBox {
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:auto;
+	height:auto;
+}
+
+.sheet {
+	width:150px;
+	height:150px;
+	background-color:#EEFFAD;
+	padding:12px;
+	border-radius:7px;
+}
+
+.boxClose {
+	position:absolute;
+	top:0;
+	right:0;
+	width:26px;
+	height:26px;
+	background-color:black;
+	text-align:center;
+	border-radius:13px;
+	margin-top:-12px;
+	margin-right:-12px;
+	opacity:0.5;
+	cursor:pointer;
+	display:none;
+	color:white;
+	font-weight:bold;
+	font-size:20px;
+	padding-top:2px;
+}
+
+.resizeHandle {
+	position:absolute;
+	bottom:0;
+	right:0;
+	width:20px;
+	height:20px;
+	/*background-color:black;*/
+	border-radius:10px;
+	opacity:0.5;
+	cursor:se-resize;
+
+}
+
+.sheet:hover {
+	box-shadow: 0px 0px 5px 3px #bbb;
+}
