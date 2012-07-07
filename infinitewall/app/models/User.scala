@@ -10,10 +10,7 @@ import anorm.SqlParser._
 import play.api.Play.current
 import java.util.Date
 
-
 case class User(id: Pk[Long], val email: String, val hashedPW: String, val permission: Permission)
-
-
 
 object User {
 
