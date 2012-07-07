@@ -1,10 +1,6 @@
 var glob = new function() {
 	this.currentSheet = null;
 	this.zoomLevel = 1;
-	this.xImage = 0;
-	this.yImage = 0;
-	this.xLast = 0;
-	this.yLast = 0;
 }
 
 function sheetHandler(element)  {
@@ -32,7 +28,6 @@ function sheetHandler(element)  {
 		if (hasMoved == false)
 			$(element).children('.sheet').focus();
 
-		//$(element).trigger('stop')
 	}
 
 	function onMouseDown(e) {
@@ -50,8 +45,12 @@ function sheetHandler(element)  {
 		glob.currentSheet = $(element);
 		glob.currentSheet.find(".boxClose").show();
 
-		startx = parseInt($(element).css('x'));
-		starty = parseInt($(element).css('y'));
+		startx = parseInt($(element).css('x')) * glob.zoomLevel;
+		starty = parseInt($(element).css('y')) * glob.zoomLevel;
+
+		// 이걸 onZoomLevelChange로 묶어서 하나로 해야될듯
+		// 휠 사용 도중 마우스를 클릭 안하라는법이 없음
+
 		deltax = e.pageX;
 		deltay = e.pageY;
 
@@ -79,8 +78,8 @@ function sheetHandler(element)  {
 	function onResizeMouseDown(e) {
 		$(document).on('mousemove', onResizeMouseMove);
 		$(document).on('mouseup', onResizeMouseUp);
-		startWidth = parseInt($(element).children('.sheet').css('width'));
-		startHeight = parseInt($(element).children('.sheet').css('height'));
+		startWidth = parseInt($(element).children('.sheet').css('width')) * glob.zoomLevel;
+		startHeight = parseInt($(element).children('.sheet').css('height')) * glob.zoomLevel;
 		deltax = e.pageX;
 		deltay = e.pageY;
 		return false;
@@ -89,9 +88,7 @@ function sheetHandler(element)  {
 	function onResizeMouseMove(e) {
 		$(element).children('.sheet').css('width', (startWidth + e.pageX - deltax)/glob.zoomLevel);
 		$(element).children('.sheet').css('height', (startHeight + e.pageY - deltay)/glob.zoomLevel);
-		console.log($(element).find('.sheet').css('width'), startWidth);
 	}
-
 
 	function onResizeMouseUp(e) {
 		$(document).off('mousemove', onResizeMouseMove);
@@ -112,7 +109,6 @@ function wallHandler(element) {
 	var movelayer = $("#moveLayer");
 	var xImage = 0;
 	var yImage = 0;
-	var scale = 1;
 	var xLast = 0;
 	var yLast = 0;
 	
@@ -131,8 +127,8 @@ function wallHandler(element) {
 
 	function onMouseDown(e) {
 		
-		startx = parseInt(movelayer.css('x'));
-		starty = parseInt(movelayer.css('y'));
+		startx = parseInt(movelayer.css('x')) * glob.zoomLevel;
+		starty = parseInt(movelayer.css('y')) * glob.zoomLevel;
 		deltax = e.pageX;
 		deltay = e.pageY;
 		
@@ -151,12 +147,13 @@ function wallHandler(element) {
 	function onMouseWheel(e, delta, deltaX, deltaY) {
 
 		var xScreen = e.pageX - $(this).offset().left;
-		var yScreen = e.pageY - $(this).offset().top;
+		var yScreen = e.pageY - $(this).offset().top - 40;
+		// -40은 #wall이 위에 네비게이션 바 밑으로 들어간 40픽셀에 대한 compensation
 
 		xImage = xImage + ((xScreen - xLast) / glob.zoomLevel);
 		yImage = yImage + ((yScreen - yLast) / glob.zoomLevel);
 
-		glob.zoomLevel += delta;
+		glob.zoomLevel += delta / 2.5;
 		glob.zoomLevel = glob.zoomLevel < 0.3 ? 0.3 : (glob.zoomLevel > 10 ? 10 : glob.zoomLevel);
 
 		var xNew = (xScreen - xImage) / glob.zoomLevel;
