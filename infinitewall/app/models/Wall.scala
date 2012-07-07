@@ -7,7 +7,9 @@ import play.api.db.DB
 
 case class Wall(id: Pk[Long], val name:String, val panX:Double, val panY:Double, val zoom:Double)
 
-object Wall {
+object Wall extends ActiveRecord[Wall] {
+	val tableName = "wall"
+		
 	val simple = {
 		get[Pk[Long]]("wall.id") ~
 		get[String]("wall.name") ~ 
@@ -18,11 +20,7 @@ object Wall {
 		}
 	}
 	
-	def findById(id: Long): Option[Wall] = {
-		DB.withConnection { implicit c =>
-			SQL("select * from Wall where id = {id}").on('id -> id).as(Wall.simple.singleOpt)
-		}
-	}
+	def create(w:Wall) = create(w.name, w.panX, w.panY, w.zoom)
 	
 	def create(name:String, panX:Double, panY:Double, zoom:Double) = {
 		DB.withConnection { implicit c =>
@@ -40,12 +38,5 @@ object Wall {
 		}
 	}
 	
-	def delete(id: Long) = {
-		DB.withConnection { implicit c =>
-			SQL("delete from Wall where id = {id}").on(
-				'id -> id
-			).executeUpdate()
-		}
-	}
 	
 }

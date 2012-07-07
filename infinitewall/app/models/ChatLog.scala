@@ -8,8 +8,10 @@ import java.util.Date
 
 case class ChatLog(id: Pk[Long], message: String, time: Date, roomId: Long, userId: Long)
 
-object ChatLog {
+object ChatLog extends ActiveRecord[ChatLog] {
 
+	val tableName = "ChatLog"
+	
 	val simple = {
 		get[Pk[Long]]("ChatLog.id") ~
 		get[String]("ChatLog.message") ~
@@ -20,11 +22,7 @@ object ChatLog {
 		}
 	}
 
-	def findById(id: Long): Option[ChatLog] = {
-		DB.withConnection { implicit c =>
-			SQL("select * from ChatLog where id = {id}").on('id -> id).as(ChatLog.simple.singleOpt)
-		}
-	}
+	def create(l:ChatLog) = create(l.message, l.time, l.roomId, l.userId)
 
 	def create(message: String, time: Date, roomId: Long, userId: Long) = {
 		DB.withConnection { implicit c =>
@@ -42,11 +40,4 @@ object ChatLog {
 		}
 	}
 
-	def delete(id: Long) = {
-		DB.withConnection { implicit c =>
-			SQL("delete from ChatLog where id = {id}").on(
-				'id -> id
-			).executeUpdate()
-		}
-	}
 }

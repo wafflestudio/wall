@@ -89,6 +89,7 @@ object Application extends Controller with Login with SignUp {
 	}
 
 	def signup = Action { implicit request =>
+		Sheet.create(0.0, 0.0, 0.0 ,0.0, 0L)
 		Ok(views.html.signup(signupForm))
 	}
 

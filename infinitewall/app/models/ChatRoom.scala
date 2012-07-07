@@ -10,7 +10,9 @@ case class ChatRoom(id:Pk[Long], title: String)
 case class UserInChatRoom(userId:Long, roomId: Long, time:Date)
 
 
-object ChatRoom {
+object ChatRoom extends ActiveRecord[ChatRoom] {
+	val tableName = "ChatRoom"
+		
 	val simple = {
 		get[Pk[Long]]("ChatRoom.id") ~
 		get[String]("ChatRoom.title") map {
@@ -25,12 +27,8 @@ object ChatRoom {
 			case user_id ~ chatroom_id ~ time => UserInChatRoom(user_id, chatroom_id, time)
 		}
 	}
-
-	def findById(id: Long): Option[ChatRoom] = {
-		DB.withConnection { implicit c =>
-			SQL("select * from ChatRoom where id = {id}").on('id -> id).as(ChatRoom.simple.singleOpt)
-		}
-	}
+	
+	def create(r:ChatRoom) = create(r.title)
 	
 	def create(title:String) = {
 		DB.withConnection { implicit c =>
@@ -41,14 +39,6 @@ object ChatRoom {
 				)
 			""").on(
 				'title -> title
-			).executeUpdate()
-		}
-	}
-	
-	def delete(id: Long) = {
-		DB.withConnection { implicit c =>
-			SQL("delete from ChatRoom where id = {id}").on(
-				'id -> id
 			).executeUpdate()
 		}
 	}

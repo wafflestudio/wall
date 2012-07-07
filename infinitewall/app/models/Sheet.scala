@@ -5,9 +5,19 @@ import anorm.SqlParser._
 import play.api.Play.current
 import play.api.db.DB
 
-case class Sheet(id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double, wallId:Long)
+case class Sheet(id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double, wallId:Long)  {
+	lazy val wall = {
+		Wall.findById(wallId)
+	}
+	
+	lazy val contents = {
+		Content.findBySheetId(id.get)
+	}
+}
 
-object Sheet {
+object Sheet extends ActiveRecord[Sheet] {
+	val tableName = "sheet"
+		
 	val simple = {
 		get[Pk[Long]]("sheet.id") ~
 		get[Double]("sheet.x") ~
@@ -19,17 +29,13 @@ object Sheet {
 		}
 	}
 	
-	def findById(id: Long): Option[Sheet] = {
-		DB.withConnection { implicit c =>
-			SQL("select * from Sheet where id = {id}").on('id -> id).as(Sheet.simple.singleOpt)
-		}
-	}
+	def create(s:Sheet) = create(s.x, s.y, s.width, s.height, s.wallId)
 	
 	def create(x:Double, y:Double, width:Double, height: Double, wallId:Long) = {
 		DB.withConnection { implicit c =>
 			SQL(""" 
-				insert into Sheet values (
-					(select next value for wall_seq),
+				insert into sheet values (
+					(select next value for sheet_seq),
 					{x}, {y}, {width}, {height}, {wallId}
 				)
 			""").on(
@@ -38,14 +44,6 @@ object Sheet {
 				'width -> width,
 				'height -> height,
 				'wallId -> wallId
-			).executeUpdate()
-		}
-	}
-	
-	def delete(id: Long) = {
-		DB.withConnection { implicit c =>
-			SQL("delete from Sheet where id = {id}").on(
-				'id -> id
 			).executeUpdate()
 		}
 	}
