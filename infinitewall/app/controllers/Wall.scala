@@ -10,6 +10,7 @@ import akka.util.duration._
 import akka.pattern.ask
 import akka.util.Timeout
 import play.api.Play.current
+import models.User
 
 case class Join(userId: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
@@ -23,8 +24,12 @@ object WallConnectionManager {
 	implicit val timeout = Timeout(1 second)
 
 	lazy val defaultRoom = {
-		val roomActor = Akka.system.actorOf(Props[WallSystem])
+		val roomActor = Akka.system.actorOf(Props[WallActor])
 		roomActor
+	}
+	
+	def talk(message: String, userId: Long) = {
+		defaultRoom ? Talk(userId, message)
 	}
 
 	def establish(wallId: Long, userId: Long): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
@@ -59,11 +64,71 @@ object WallConnectionManager {
 	}
 }
 
-class WallSystem extends Actor {
+class WallActor extends Actor {
+
+	var connections = List.empty[(Long, PushEnumerator[JsValue])]
+
 	def receive = {
-		case _ =>
+
+		case Join(userId) => {
+			// Create an Enumerator to write to this socket
+			val producer = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin(userId))
+			if (false /* maximum connection per user constraint here*/) {
+				sender ! CannotConnect("You have reached your maximum number of connections.")
+			}
+			else {
+				connections = connections :+ (userId, producer)
+				sender ! Connected(producer)
+			}
+		}
+
+		case NotifyJoin(userId) => {
+			notifyAll("join", userId, "has entered the room")
+		}
+
+		case Talk(userId, text) => {
+			notifyAll("talk", userId, text)
+		}
+
+		case Quit(userId, producer) => {
+			connections = connections.flatMap { p =>
+				if(p eq producer)
+					None
+				else
+					Some(p)
+			}
+			notifyAll("quit", userId, "has left the room")
+		}
+
 	}
+
+	def notifyAll(kind: String, userId: Long, text: String) {
+		try {
+			val username = User.findById(userId).get.email
+			
+			val msg = JsObject(
+				Seq(
+					"kind" -> JsString(kind),
+					"username" -> JsString(username),
+					"message" -> JsString(text),
+					"members" -> JsArray(
+						connections.map(ws => JsNumber(ws._1))
+					)
+				)
+			)
+			connections.foreach {
+				case (_, producer) => producer.push(msg)
+			}
+		}
+		catch {
+			case _ =>
+				// do nothing
+		}
+	}
+
 }
+
+
 
 object Wall extends Controller with Auth {
 	def create(name: String) = Action { implicit request =>
