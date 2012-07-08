@@ -22,19 +22,24 @@ object Wall extends ActiveRecord[Wall] {
 	
 	def create(w:Wall) = create(w.name, w.panX, w.panY, w.zoom)
 	
-	def create(name:String, panX:Double, panY:Double, zoom:Double) = {
+	def create(name:String, panX:Double = 0.0, panY:Double = 0.0, zoom:Double = 1.0) = {
 		DB.withConnection { implicit c =>
+			val id = SQL("select next value for wall_seq").as(scalar[Long].single)
+			
 			SQL(""" 
 				insert into Wall values (
-					(select next value for wall_seq),
+					{id},
 					{name}, {panX}, {panY}, {zoom}
 				)
 			""").on(
+				'id -> id,	
 				'name -> name,
 				'panX -> panX,
 				'panY -> panY,
 				'zoom -> zoom
 			).executeUpdate()
+			
+			id
 		}
 	}
 	

@@ -57,11 +57,7 @@ alter table UserInChatRoom add constraint fk_userinchatroom_chatroom_1 foreign k
 create index idx_userinchatroom_user_1 on UserInChatRoom (user_id);
 create index idx_userinchatroom_chatroom_1 on UserInChatRoom (chatroom_id);
 
-
- 
 # --- !Downs
-
-
 
 DROP SEQEUNCE user_seq;
 DROP SEQEUNCE chatroom_seq;

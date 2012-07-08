@@ -25,6 +25,8 @@ case class CannotConnect(msg: String)
 
 object ChatSystem {
 
+	var actors = List[ActorRef]()
+	
 	implicit val timeout = Timeout(1 second)
 
 	lazy val defaultRoom = {

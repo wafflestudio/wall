@@ -17,7 +17,7 @@ abstract class ActiveRecord[T] {
 		}
 	}
 	
-	def create(instance:T):Int
+	def create(instance:T):Long
 	
 	def delete(id: Long) = {
 		DB.withConnection { implicit c =>

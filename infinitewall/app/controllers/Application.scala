@@ -17,7 +17,8 @@ case class LoginData(val email: String, val password: String)
 case class SignUpData(val email: String, val password: String)
 case class CurrentUser(val userId: Long, val email: String)
 
-trait Login {
+
+trait Auth {
 	self: Controller =>
 		
 	def currentUser(implicit request:play.api.mvc.Request[play.api.mvc.AnyContent]) :String = { 
@@ -35,8 +36,12 @@ trait Login {
 			else
 				Forbidden
 		}
-	}
+	}	
+}
 
+trait Login extends Auth {
+	self : Controller =>
+		
 	implicit val loginForm = Form {
 		mapping("email" -> nonEmptyText, "password" -> text)(LoginData.apply)(LoginData.unapply)
 			.verifying("Invalid username or password",
@@ -85,11 +90,10 @@ object Application extends Controller with Login with SignUp {
 	}
 
 	def logout = AuthenticatedAction { implicit request =>
-		Redirect(routes.Application.index).withNewSession
+		Redirect(routes.Application.index).withNewSession		
 	}
 
 	def signup = Action { implicit request =>
-		Sheet.create(0.0, 0.0, 0.0 ,0.0, 0L)
 		Ok(views.html.signup(signupForm))
 	}
 

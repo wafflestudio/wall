@@ -32,14 +32,17 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 	
 	def create(title:String) = {
 		DB.withConnection { implicit c =>
+			val id = SQL("select next value for wall_seq").as(scalar[Long].single)
 			SQL(""" 
 				insert into ChatRoom values (
-					(select next value for chatroom_seq),
+					{id},
 					{title}	
 				)
 			""").on(
+				'id -> id,
 				'title -> title
 			).executeUpdate()
+			id
 		}
 	}
 	
