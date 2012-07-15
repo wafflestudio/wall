@@ -1,4 +1,4 @@
-package chat
+package wall
 
 import play.api.libs.iteratee._
 import akka.actor._
@@ -14,7 +14,7 @@ import java.util.Locale
 import play.api.Logger
 import play.api.libs.json._
 import models.User
-import models.ChatLog
+import models.WallLog
 import java.sql.Timestamp
 
 case class Join(userId: Long)
@@ -28,33 +28,33 @@ case class CannotConnect(msg: String)
 case class Message(kind: String, username:String, text:String)
 
 
-object ChatSystem {
-	
+object WallSystem {
+
 	implicit val timeout = Timeout(1 second)
 
-	var rooms:Map[Long, ActorRef] = Map()
+	var walls:Map[Long, ActorRef] = Map()
 	
-	def room(roomId:Long):ActorRef = {
-		rooms.get(roomId) match { 
-			case Some(room) => room
+	def wall(wallId:Long):ActorRef = {
+		walls.get(wallId) match { 
+			case Some(wall) => wall
 			case None => 
-				val newRoom = Akka.system.actorOf(Props(new ChatRoomActor(roomId)))
-				rooms = rooms + (roomId -> newRoom)
-				newRoom
+				val newActor = Akka.system.actorOf(Props(new WallActor(wallId)))
+				walls = walls + (wallId -> newActor)
+				newActor
 		}
 	}
 
-	def establish(roomId: Long, userId: Long, timestamp: Long): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+	def establish(wallId: Long, userId: Long, timestamp: Long): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
-		val joinResult = room(roomId) ? Join(userId)
+		val joinResult = wall(wallId) ? Join(userId)
 
 		joinResult.asPromise.map {
 			case Connected(producer) =>
 				// Create an Iteratee to consume the feed
 				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
-					room(roomId) ! Talk(userId, (event \ "text").as[String])
+					wall(wallId) ! Talk(userId, (event \ "text").as[String])
 				}.mapDone { _ =>
-					room(roomId) ! Quit(userId, producer)
+					wall(wallId) ! Quit(userId, producer)
 				}
 
 				(consumer, producer)
@@ -77,16 +77,16 @@ object ChatSystem {
 
 }
 
-class ChatRoomActor(roomId:Long) extends Actor {
+class WallActor(wallId:Long) extends Actor {
 
 	var connections = List.empty[(Long, PushEnumerator[JsValue])]
 	
-	def prevMessages(timestamp:Long) = {
-		ChatLog.list(roomId, timestamp)
+	def prevLogs(timestamp:Long) = {
+		WallLog.list(wallId, timestamp)
 	}
 		
 	def logMessage(kind:String, userId:Long, message:String) = {
-		ChatLog.create(kind, roomId, userId, message)
+		WallLog.create(kind, wallId, userId, message)
 	}
 
 	def receive = {
@@ -94,7 +94,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 		case Join(userId) => {
 			// Create an Enumerator to write to this socket
 			val producer = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin(userId))
-			val prev = Enumerator(prevMessages(0).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
+			val prev = Enumerator(prevLogs(0).map { chatlog => WallLog.walllog2Json(chatlog) }: _*)
 			
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("You have reached your maximum number of connections.")

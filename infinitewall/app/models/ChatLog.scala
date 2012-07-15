@@ -25,6 +25,27 @@ object ChatLog extends ActiveRecord[ChatLog] {
 			}
 	}
 
+	val withEmail = {
+		get[Pk[Long]]("ChatLog.id") ~
+			get[String]("ChatLog.message") ~
+			get[Long]("ChatLog.time") ~
+			get[Long]("ChatLog.wallroom_id") ~
+			get[String]("User.email") ~
+			get[String]("ChatLog.kind") map {
+				case id ~ message ~ time ~ roomId ~ email ~ kind => ChatLogWithEmail(id, kind, message, time, roomId, email)
+			}
+	}
+
+	def list(roomId: Long, timestamp: Long) = {
+		DB.withConnection { implicit c =>
+			SQL("select Chatlog.*,User.email from ChatLog,User where ChatLog.user_id=User.id and ChatLog.chatroom_id = {roomId} and Chatlog.time > {timestamp}").on(
+				'roomId -> roomId,
+				'timestamp -> timestamp
+			).as(withEmail *)
+		}
+	}
+
+
 	implicit def chatlog2Json(chatlog: ChatLogWithEmail): JsValue = {
 
 		JsObject(
@@ -44,11 +65,11 @@ object ChatLog extends ActiveRecord[ChatLog] {
 
 	def create(kind: String, roomId: Long, userId: Long, message: String) = {
 		DB.withConnection { implicit c =>
-			val id = SQL("select next value for wall_seq").as(scalar[Long].single)
+			val id = SQL("select next value for chatlog_seq").as(scalar[Long].single)
 			SQL(""" 
 				insert into ChatLog values (
 					{id},
-					{message}, {time}, {room_id}, {user_id}	
+					{message}, (select next value for chatlog_timestamp), {roomId}, {userId}, {kind}	
 				)
 			""").on(
 				'id -> id,
