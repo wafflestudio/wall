@@ -47,7 +47,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 		}
 	}
 	
-	def listRooms() = {
+	def list() = {
 		DB.withConnection { implicit c =>
 			SQL("select * from ChatRoom").as(ChatRoom.simple*)
 		}	

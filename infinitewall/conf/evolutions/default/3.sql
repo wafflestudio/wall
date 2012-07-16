@@ -16,6 +16,7 @@ CREATE TABLE WallLog (
     user_id bigint(20) NOT NULL,
     PRIMARY KEY (id)
 );
+CREATE SEQUENCE walllog_seq start with 1000;
 
 alter table WallLog add constraint fk_walllog_wall_1 foreign key (wall_id) references Wall (id) 
   on delete restrict on update restrict;

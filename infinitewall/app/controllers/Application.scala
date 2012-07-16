@@ -74,15 +74,16 @@ object Application extends Controller with Login with SignUp {
 	def index = Action { implicit request =>
 		Ok(views.html.index())
 	}
+	
+	def walls = AuthenticatedAction { implicit request =>
+		Ok(views.html.index())
+	}
 
 	def about = Action { implicit request =>
 		Ok(views.html.about())
 	}
 	def contact = Action { implicit request =>
 		Ok(views.html.contact())
-	}
-	def hello(name: String) = Action { implicit request =>
-		Ok("Hello " + name)
 	}
 
 	def stage = Action { implicit request =>

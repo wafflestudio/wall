@@ -6,7 +6,6 @@
 GET     /                           controllers.Application.index
 GET     /about                      controllers.Application.about
 GET     /contact                    controllers.Application.contact
-GET     /hello/:name                controllers.Application.hello(name)
 GET			/stage											controllers.Application.stage
 
 POST    /authenticate   						controllers.Application.authenticate
@@ -18,6 +17,11 @@ GET     /chat                       controllers.Chat.index
 GET     /chat/:roomId               controllers.Chat.room(roomId:Long)
 POST    /chat/create                controllers.Chat.create
 GET     /chat/establish/:roomId/:timestamp     controllers.Chat.establish(roomId:Long, timestamp:Long)
+
+GET     /wall                       controllers.Wall.index
+GET     /wall/:wallId               controllers.Wall.wall(wallId:Long)
+POST    /wall/create                controllers.Wall.create
+GET     /wall/sync/:wallId/:timestamp     controllers.Wall.sync(wallId:Long, timestamp:Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

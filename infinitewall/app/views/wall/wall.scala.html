@@ -1,0 +1,55 @@
+@(wallId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+
+@layouts.stage("Wall ::: Infinite Wall") {
+
+<div id="wall">
+	<div id="scaleLayer">
+		<div id ="moveLayer"> 
+			<div class="sheetBox" id = "one"> 
+				<div class="sheet" contenteditable = true>
+					<p>Box 1</p>
+					<div class="resizeHandle"></div>
+				</div>
+				<a class = "boxClose">x</a>
+			</div>
+			<div class="sheetBox" id = "two"> 
+				<div class="sheet" contenteditable = true>
+					<p>Box 2</p>
+					<div class="resizeHandle"></div>
+				</div>
+				<a class = "boxClose">x</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+	
+	<script type="text/javascript">
+
+	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
+	var chatSocket = new WS("@routes.Wall.sync(wallId, 999).webSocketURL()")
+
+	function onReceive(e) {
+		var data = JSON.parse(e.data);
+		if(data.error) {
+			console.log('disconnected: ' + data.error)
+			chatSocket.close();
+			return;
+		}
+
+		$("#log").prepend("<p>" + "<span>" + data.username + "</span>" + "<span> " + data.message + "</span>" + "</p>")
+	
+	}
+
+	function onError(e) {
+		console.log(e);
+	}
+
+	chatSocket.onmessage = onReceive
+	chatSocket.onerror = onError
+	chatSocket.onclose = onError
+
+	
+	</script>
+
+}

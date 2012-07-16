@@ -23,7 +23,7 @@ object Chat extends Controller with Login {
 //	)
 
 	def index = AuthenticatedAction { implicit request =>
-		val rooms = ChatRoom.listRooms()
+		val rooms = ChatRoom.list()
 		Ok(views.html.chat.index(rooms))
 	}
 

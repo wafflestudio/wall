@@ -16,23 +16,23 @@ object WallLog extends ActiveRecord[WallLog] {
 
 	val simple = {
 		get[Pk[Long]]("WallLog.id") ~
+			get[String]("WallLog.kind") ~
 			get[String]("WallLog.message") ~
 			get[Long]("WallLog.time") ~
 			get[Long]("WallLog.wallroom_id") ~
-			get[Long]("WallLog.user_id") ~
-			get[String]("WallLog.kind") map {
-				case id ~ message ~ time ~ roomId ~ userId ~ kind => WallLog(id, kind, message, time, roomId, userId)
+			get[Long]("WallLog.user_id") map {
+				case id ~ kind ~ message ~ time ~ roomId ~ userId  => WallLog(id, kind, message, time, roomId, userId)
 			}
 	}
 
 	val withEmail = {
 		get[Pk[Long]]("WallLog.id") ~
+			get[String]("WallLog.kind") ~
 			get[String]("WallLog.message") ~
 			get[Long]("WallLog.time") ~
 			get[Long]("WallLog.wallroom_id") ~
-			get[String]("User.email") ~
-			get[String]("WallLog.kind") map {
-				case id ~ message ~ time ~ roomId ~ email ~ kind => WallLogWithEmail(id, kind, message, time, roomId, email)
+			get[String]("User.email") map {
+				case id ~ kind ~ message ~ time ~ roomId ~ email => WallLogWithEmail(id, kind, message, time, roomId, email)
 			}
 	}
 
@@ -63,8 +63,8 @@ object WallLog extends ActiveRecord[WallLog] {
 			val id = SQL("select next value for walllog_seq").as(scalar[Long].single)
 			SQL(""" 
 				insert into WallLog values (
-					{id},
-					{message}, (select next value for walllog_timestamp), {wallId}, {userId}, {kind}	
+					{id}, {kind}, 
+					{message}, (select next value for walllog_timestamp), {wallId}, {userId}
 				)
 			""").on(
 				'id -> id,

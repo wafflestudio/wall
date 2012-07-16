@@ -1,0 +1,17 @@
+@(walls:List[Wall])(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+
+@layouts.default("Walls ::: Infinite Wall") {
+
+	@if(walls.length == 0)  {
+		<p> No walls available </p>
+	}
+	<form method="POST" action="/wall/create" class="form-inline">
+		<input name="title" type="text" placeholder="Wall name"><button class="btn">Create</button/>
+	</form>
+	<ul>
+	@for(wall <- walls) {
+		<li><a href="/wall/@wall.id.get">@wall.name</a></li>
+	}
+	</ul>
+
+}

@@ -1,7 +1,10 @@
 @()(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
-@layouts.default("Infinite Wall") {
+@layouts.default("Walls ::: Infinite Wall") {
 
-@if(request.session.get("current_user").isDefined)  {
-}
+	@if(request.session.get("current_user").isDefined)  {
+		<p><a href="/wall">Wall test</a></p>
+		<p><a href="/chat">Chat test</a></p>
+		<p><a href="/stage">Stage test</a></p>
+	}
 }
