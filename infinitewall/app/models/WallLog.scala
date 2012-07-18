@@ -19,7 +19,7 @@ object WallLog extends ActiveRecord[WallLog] {
 			get[String]("WallLog.kind") ~
 			get[String]("WallLog.message") ~
 			get[Long]("WallLog.time") ~
-			get[Long]("WallLog.wallroom_id") ~
+			get[Long]("WallLog.wall_id") ~
 			get[Long]("WallLog.user_id") map {
 				case id ~ kind ~ message ~ time ~ roomId ~ userId  => WallLog(id, kind, message, time, roomId, userId)
 			}
@@ -30,7 +30,7 @@ object WallLog extends ActiveRecord[WallLog] {
 			get[String]("WallLog.kind") ~
 			get[String]("WallLog.message") ~
 			get[Long]("WallLog.time") ~
-			get[Long]("WallLog.wallroom_id") ~
+			get[Long]("WallLog.wall_id") ~
 			get[String]("User.email") map {
 				case id ~ kind ~ message ~ time ~ roomId ~ email => WallLogWithEmail(id, kind, message, time, roomId, email)
 			}
