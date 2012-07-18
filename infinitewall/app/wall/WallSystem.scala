@@ -19,7 +19,7 @@ import java.sql.Timestamp
 
 case class Join(userId: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
-case class Talk(userId: Long, text: String)
+case class Action(userId: Long, detail: String)
 case class NotifyJoin(userId: Long)
 
 case class Connected(enumerator: Enumerator[JsValue])
@@ -52,7 +52,7 @@ object WallSystem {
 			case Connected(producer) =>
 				// Create an Iteratee to consume the feed
 				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
-					wall(wallId) ! Talk(userId, (event \ "text").as[String])
+					wall(wallId) ! Action(userId, (event \ "detail").as[String])
 				}.mapDone { _ =>
 					wall(wallId) ! Quit(userId, producer)
 				}
@@ -106,11 +106,11 @@ class WallActor(wallId:Long) extends Actor {
 		}
 
 		case NotifyJoin(userId) => {
-			notifyAll("join", userId, "has entered the room")
+			//notifyAll("join", userId, "has entered the room")
 		}
 
-		case Talk(userId, text) => {
-			notifyAll("talk", userId, text)
+		case Action(userId, detail) => {
+			notifyAll("action", userId, detail)
 		}
 
 		case Quit(userId, producer) => {
@@ -120,7 +120,7 @@ class WallActor(wallId:Long) extends Actor {
 				else
 					Some(p)
 			}
-			notifyAll("quit", userId, "has left the room")
+			//notifyAll("quit", userId, "has left the room")
 		}
 
 	}
@@ -133,7 +133,7 @@ class WallActor(wallId:Long) extends Actor {
 				Seq(
 					"kind" -> JsString(kind),
 					"username" -> JsString(username),
-					"message" -> JsString(message)
+					"detail" -> JsString(message)
 				)
 			)
 			

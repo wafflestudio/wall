@@ -13,6 +13,10 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).css("width", w + "px")
 	$(sheet).css("height", h + "px")
 	$(sheet).find(".text").html(text)
+	sheetHandler($(sheet));
+	sheetHandler($(sheet));
+	$(sheet).on("move", function(e) { console.log("move", e)})
+	$(sheet).on("resize", function(e) { console.log("resize", e)})
 	return sheet
 }
 
@@ -43,11 +47,17 @@ function sheetHandler(element)  {
 		hasMoved = true;
 	}
 
-	function onMouseUp() {
+	function onMouseUp(e) {
+		console.log("mouseup")
 		$(document).off('mousemove', onMouseMove);
 		$(document).off('mouseup', onMouseUp);
 		
-		if (hasMoved == false)
+		if(hasMoved)  {
+			$(element).trigger('move', 
+				{ id: $(element).attr('id'), x: (startx + e.pageX - deltax)/glob.zoomLevel,
+			 	y: (starty + e.pageY - deltay)/glob.zoomLevel })
+		}
+		else
 			$(element).children('.sheet').focus();
 
 	}
@@ -113,8 +123,12 @@ function sheetHandler(element)  {
 	}
 
 	function onResizeMouseUp(e) {
+		var w = 
 		$(document).off('mousemove', onResizeMouseMove);
 		$(document).off('mouseup', onResizeMouseUp);
+		$(element).trigger('resize', 
+			{id:$(element).attr('id'), width: (startWidth + e.pageX - deltax)/glob.zoomLevel,
+			 height: (startHeight + e.pageY - deltay)/glob.zoomLevel })
 	}
 
 	$(element).on('mousedown', '.boxClose', onButtonMouseDown);
@@ -199,9 +213,6 @@ function wallHandler(element) {
 
 
 $(window).load(function(){
-
-	sheetHandler("#one");
-	sheetHandler("#two");
 	wallHandler("#wall");
-	$('createBtn').click(createRandomSheet)
+	$('#createBtn').click(createRandomSheet)
 });
