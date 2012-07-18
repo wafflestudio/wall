@@ -3,6 +3,28 @@ var glob = new function() {
 	this.zoomLevel = 1;
 }
 
+var template = "<div class='sheetBox'> <div class='sheet' contenteditable = true><p class='text'>Box 1</p><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
+
+function createNewSheet(id, x, y, w, h, text) {
+	var sheet = $(template).appendTo("#moveLayer")
+	$(sheet).attr("id", id)
+	$(sheet).css("left", x + "px")
+	$(sheet).css("top", y + "px")
+	$(sheet).css("width", w + "px")
+	$(sheet).css("height", h + "px")
+	$(sheet).find(".text").html(text)
+	return sheet
+}
+
+var id = 1
+
+function createRandomSheet()
+{
+	console.log("sheet create")
+	createNewSheet("sheet" + (id++), Math.random()*1000, Math.random()*800, 200, 200, "text")
+}
+
+
 function sheetHandler(element)  {
 	
 	var deltax = 0;
@@ -181,4 +203,5 @@ $(window).load(function(){
 	sheetHandler("#one");
 	sheetHandler("#two");
 	wallHandler("#wall");
+	$('createBtn').click(createRandomSheet)
 });
