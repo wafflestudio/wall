@@ -3,7 +3,29 @@ var glob = new function() {
 	this.zoomLevel = 1;
 }
 
+var id = 1
+
 var template = "<div class='sheetBox'> <div class='sheet' contenteditable = true><p class='text'>Box 1</p><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
+
+function createSheet(id, params)  {
+	return createNewSheet(id, params.x, params.y, params.width, params.height, params.text)
+}
+
+function moveSheet(params)  {
+	var element = $("#" + params.id)
+	$(element).css('x', params.x);
+	$(element).css('y', params.y);
+}
+
+function resizeSheet(params)  {
+	var element = $("#" + params.id)
+	$(element).css('width', params.width);
+	$(element).css('height', params.height);
+}
+
+function removeSheet(params)  {
+	$(params.id).remove();
+}
 
 function createNewSheet(id, x, y, w, h, text) {
 	var sheet = $(template).appendTo("#moveLayer")
@@ -13,19 +35,27 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).css("width", w + "px")
 	$(sheet).css("height", h + "px")
 	$(sheet).find(".text").html(text)
+	
 	sheetHandler($(sheet));
-	sheetHandler($(sheet));
-	$(sheet).on("move", function(e) { console.log("move", e)})
-	$(sheet).on("resize", function(e) { console.log("resize", e)})
+	$(sheet).on("move", function(e, params) { send({action: "move", params: $.extend(params,{id:id})}) })
+	$(sheet).on("resize", function(e, params) { send({action: "resize", params: $.extend(params, {id:id})}) })
+	$(sheet).on("remove", function(e) { send({action:"remove", params:{id:id}}) })
 	return sheet
 }
 
-var id = 1
+
 
 function createRandomSheet()
 {
 	console.log("sheet create")
-	createNewSheet("sheet" + (id++), Math.random()*1000, Math.random()*800, 200, 200, "text")
+	
+	var x = Math.random()*500
+	var y = Math.random()*400
+	var w = 200
+	var h = 200
+	var text = "text"
+	send({action:"create", params:{x:x, y:y, w:w, h:h, text:text}})
+	//createNewSheet(newId, x, y, w, h, text)
 }
 
 
@@ -48,7 +78,7 @@ function sheetHandler(element)  {
 	}
 
 	function onMouseUp(e) {
-		console.log("mouseup")
+		
 		$(document).off('mousemove', onMouseMove);
 		$(document).off('mouseup', onMouseUp);
 		
@@ -104,7 +134,7 @@ function sheetHandler(element)  {
 	function onButtonMouseUp(e) {
 		$(document).off('mousemove', onMouseMove);
 		$(document).off('mouseup', onMouseUp);
-		$(element).remove();
+		$(element).trigger("remove", {id:$(element).attr('id')});
 	}
 
 	function onResizeMouseDown(e) {
@@ -123,7 +153,7 @@ function sheetHandler(element)  {
 	}
 
 	function onResizeMouseUp(e) {
-		var w = 
+
 		$(document).off('mousemove', onResizeMouseMove);
 		$(document).off('mouseup', onResizeMouseUp);
 		$(element).trigger('resize', 

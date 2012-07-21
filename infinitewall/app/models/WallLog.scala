@@ -38,7 +38,7 @@ object WallLog extends ActiveRecord[WallLog] {
 
 	def list(wallId: Long, timestamp: Long) = {
 		DB.withConnection { implicit c =>
-			SQL("select Walllog.*,User.email from WallLog,User where WallLog.user_id=User.id and WallLog.wall_id = {wallId} and Walllog.time > {timestamp}").on(
+			SQL("select Walllog.*,User.email from WallLog,User where WallLog.user_id=User.id and WallLog.wall_id = {wallId} and Walllog.time > {timestamp} order by Walllog.time").on(
 				'wallId -> wallId,
 				'timestamp -> timestamp
 			).as(withEmail *)
@@ -51,7 +51,8 @@ object WallLog extends ActiveRecord[WallLog] {
 			Seq(
 				"kind" -> JsString(walllog.kind),
 				"username" -> JsString(walllog.email),
-				"message" -> JsString(walllog.message)
+				"detail" -> JsString(walllog.message),
+				"timestamp" -> JsNumber(walllog.time)
 			)
 		)
 	}

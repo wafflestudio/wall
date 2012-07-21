@@ -52,4 +52,5 @@ object Wall extends ActiveRecord[Wall] {
 	}
 	
 	
+	
 }

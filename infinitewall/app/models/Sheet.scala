@@ -64,4 +64,12 @@ object Sheet extends ActiveRecord[Sheet] {
 		}
 	} 
 	
+	def nextId(wallId: Long) = {
+		DB.withConnection { implicit c =>
+			val id = SQL("select next value for sheet_seq").as(scalar[Long].single)
+			
+			id
+		}
+	}
+	
 }

@@ -16,10 +16,11 @@ import play.api.libs.json._
 import models.User
 import models.WallLog
 import java.sql.Timestamp
+import models.Sheet
 
 case class Join(userId: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
-case class Action(userId: Long, detail: String)
+case class Action(userId: Long, detail: JsValue)
 case class NotifyJoin(userId: Long)
 
 case class Connected(enumerator: Enumerator[JsValue])
@@ -51,8 +52,8 @@ object WallSystem {
 		joinResult.asPromise.map {
 			case Connected(producer) =>
 				// Create an Iteratee to consume the feed
-				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
-					wall(wallId) ! Action(userId, (event \ "detail").as[String])
+				val consumer = Iteratee.foreach[JsValue] { detail: JsValue =>
+					wall(wallId) ! Action(userId, detail)
 				}.mapDone { _ =>
 					wall(wallId) ! Quit(userId, producer)
 				}
@@ -94,7 +95,7 @@ class WallActor(wallId:Long) extends Actor {
 		case Join(userId) => {
 			// Create an Enumerator to write to this socket
 			val producer = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin(userId))
-			val prev = Enumerator(prevLogs(0).map { chatlog => WallLog.walllog2Json(chatlog) }: _*)
+			val prev = Enumerator(prevLogs(0).map { walllog => WallLog.walllog2Json(walllog) }: _*)
 			
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
@@ -110,7 +111,15 @@ class WallActor(wallId:Long) extends Actor {
 		}
 
 		case Action(userId, detail) => {
-			notifyAll("action", userId, detail)
+			(detail \ "action").as[String] match {
+				case "create" => 
+					val sheetId = Sheet.nextId(wallId)
+					notifyAll("action", userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsString("sheet" + sheetId)))).toString )
+				
+				case _ =>
+					notifyAll("action", userId, detail.toString)
+			}
+			
 		}
 
 		case Quit(userId, producer) => {
@@ -125,19 +134,20 @@ class WallActor(wallId:Long) extends Actor {
 
 	}
 
-	def notifyAll(kind: String, userId: Long, message: String) {
+	def notifyAll(kind: String, userId: Long, detail: String) {
 
 			val username = User.findById(userId).get.email
 
+			val logId = logMessage(kind, userId, detail)
+			
 			val msg = JsObject(
 				Seq(
 					"kind" -> JsString(kind),
 					"username" -> JsString(username),
-					"detail" -> JsString(message)
+					"detail" -> JsString(detail),
+					"timestamp" -> JsNumber(logId)
 				)
-			)
-			
-			logMessage(kind, userId, message)
+			)			
 			
 			connections.foreach {
 				case (_, producer) => producer.push(msg)
