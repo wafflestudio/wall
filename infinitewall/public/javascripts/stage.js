@@ -255,6 +255,7 @@ function wallHandler(element) {
 
 
 $(window).load(function(){
+
 	wallHandler("#wall");
 	$('#createBtn').click(createRandomSheet)
 
