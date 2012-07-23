@@ -3,8 +3,6 @@ var glob = new function() {
 	this.zoomLevel = 1;
 }
 
-var id = 1
-
 var template = "<div class='sheetBox'> <div class='sheet' contenteditable = true><p class='text'>Box 1</p><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
 
 function createSheet(id, params)  {
@@ -37,9 +35,9 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).find(".text").html(text)
 	
 	sheetHandler($(sheet));
-	$(sheet).on("move", function(e, params) { send({action: "move", params: $.extend(params,{id:id})}) })
-	$(sheet).on("resize", function(e, params) { send({action: "resize", params: $.extend(params, {id:id})}) })
-	$(sheet).on("remove", function(e) { send({action:"remove", params:{id:id}}) })
+	$(sheet).on("move", function(e, params) { wallSocket.send({action: "move", params: $.extend(params,{id:id})}) })
+	$(sheet).on("resize", function(e, params) { wallSocket.send({action: "resize", params: $.extend(params, {id:id})}) })
+	$(sheet).on("remove", function(e) { wallSocket.send({action:"remove", params:{id:id}}) })
 	return sheet
 }
 
@@ -54,7 +52,7 @@ function createRandomSheet()
 	var w = 200
 	var h = 200
 	var text = "text"
-	send({action:"create", params:{x:x, y:y, w:w, h:h, text:text}})
+	wallSocket.send({action:"create", params:{x:x, y:y, w:w, h:h, text:text}})
 	//createNewSheet(newId, x, y, w, h, text)
 }
 

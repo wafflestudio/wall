@@ -21,11 +21,11 @@ case class CurrentUser(val userId: Long, val email: String)
 trait Auth {
 	self: Controller =>
 		
-	def currentUser(implicit request:play.api.mvc.Request[play.api.mvc.AnyContent]) :String = { 
+	def currentUser(implicit request:Request[AnyContent]) :String = { 
 		request.session.get("current_user").getOrElse("default")
 	}
 	
-	def currentUserId(implicit request:play.api.mvc.Request[play.api.mvc.AnyContent]): Long = { 
+	def currentUserId(implicit request:Request[AnyContent]): Long = { 
 		request.session.get("current_user_id").getOrElse("-1").toLong
 	}
 	

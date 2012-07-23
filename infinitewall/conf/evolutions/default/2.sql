@@ -11,9 +11,6 @@ insert into User values (
 CREATE TABLE Wall (
     id bigint(20) NOT NULL,
     name varchar(255) NOT NULL,
-    pan_x double NOT NULL,
-    pan_y double NOT NULL,
-    zoom double NOT NULL,
     user_id bigint(20) NOT NULL,
     PRIMARY KEY (id)
 );
