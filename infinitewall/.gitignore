@@ -15,3 +15,4 @@ dist
 .classpath
 .settings/
 .scala_dependencies
+.ensime

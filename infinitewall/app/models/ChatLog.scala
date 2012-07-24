@@ -29,7 +29,7 @@ object ChatLog extends ActiveRecord[ChatLog] {
 		get[Pk[Long]]("ChatLog.id") ~
 			get[String]("ChatLog.message") ~
 			get[Long]("ChatLog.time") ~
-			get[Long]("ChatLog.wallroom_id") ~
+			get[Long]("ChatLog.chatroom_id") ~
 			get[String]("User.email") ~
 			get[String]("ChatLog.kind") map {
 				case id ~ message ~ time ~ roomId ~ email ~ kind => ChatLogWithEmail(id, kind, message, time, roomId, email)

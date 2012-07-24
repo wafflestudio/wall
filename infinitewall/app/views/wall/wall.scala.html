@@ -1,4 +1,4 @@
-@(wallId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(wallId:Long, chatId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.stage("Wall ::: Infinite Wall") {
 
@@ -9,11 +9,18 @@
 	</div>
 </div>
 
+<div id="chat">
+	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
+	<div id="log">
+	</div>
+</div>
+
 <div id="buttonbar">
 	<button id="createBtn" class="btn-small" style="z-index:2">Create sheet</button>
 </div>
 <script type="text/javascript">
 	var wallSocket = new WallSocket("@routes.Wall.sync(wallId, 999).webSocketURL()")
+	var chatSocket = new ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
 </script>
 
 }

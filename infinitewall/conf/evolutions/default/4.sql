@@ -14,29 +14,29 @@ CREATE TABLE WallPreference (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE ChatForWall (
+CREATE TABLE ChatRoomForWall (
 		id bigint(20) NOT NULL,
 		wall_id bigint(20) NOT NULL,
 		chatroom_id bigint(20) NOT NULL,
 		PRIMARY KEY (id)
 );
 
-CREATE SEQUENCE wall_preference_seq start with 1000;
-CREATE SEQUENCE chat_for_wall_seq start with 1000;
+CREATE SEQUENCE wallpreference_seq start with 1000;
+CREATE SEQUENCE chatroomforwall_seq start with 1000;
 
 alter table WallPreference add constraint fk_wallpreference_user_1 foreign key (user_id) references User (id) 
   on delete restrict on update restrict;
 alter table WallPreference add constraint fk_wallpreference_wall_1 foreign key (wall_id) references Wall (id) 
   on delete restrict on update restrict;
   
-alter table ChatForWall add constraint fk_chatforwall_chatroom_1 foreign key (chatroom_id) references ChatRoom (id) 
+alter table ChatRoomForWall add constraint fk_chatroomforwall_chatroom_1 foreign key (chatroom_id) references ChatRoom (id) 
   on delete restrict on update restrict;
-alter table ChatForWall add constraint fk_chatforwall_wall_1 foreign key (wall_id) references Wall (id) 
+alter table ChatRoomForWall add constraint fk_chatroomforwall_wall_1 foreign key (wall_id) references Wall (id) 
   on delete restrict on update restrict;
 
 # --- !Downs
 
-DROP SEQUENCE chat_for_wall_seq;
-DROP SEQUENCE wall_preference_seq;
-DROP TABLE ChatForWall;
+DROP SEQUENCE chatroomforwall_seq;
+DROP SEQUENCE wallpreference_seq;
+DROP TABLE ChatRoomForWall;
 DROP TABLE WallPreference;

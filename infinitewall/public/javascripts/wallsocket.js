@@ -32,8 +32,6 @@ function WallSocket(url) {
 				timestamp = data.timestamp;
 			
 		}
-		$("#log").prepend("<p>" + "<span>" + data.username + "</span>" + "<span> " + data.message + "</span>" + "</p>")
-
 	}
 
 	function onError(e) {

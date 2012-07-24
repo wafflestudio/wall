@@ -12,6 +12,7 @@ import akka.util.Timeout
 import play.api.Play.current
 import models.User
 import wall.WallSystem
+import models.ChatRoom
 
 
 object Wall extends Controller with Auth with Login{
@@ -22,7 +23,8 @@ object Wall extends Controller with Auth with Login{
 	}
 	
 	def wall(wallId: Long) = AuthenticatedAction { implicit request =>
-		Ok(views.html.wall.wall(wallId))
+		val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
+		Ok(views.html.wall.wall(wallId, chatRoomId))
 	}
 	
 	def create = Action { implicit request =>

@@ -9,6 +9,7 @@ import java.util.Date
 
 case class ChatRoom(id:Pk[Long], title: String)
 case class UserInChatRoom(userId:Long, roomId: Long, time:Long)
+case class ChatRoomForWall(id:Pk[Long])
 
 
 object ChatRoom extends ActiveRecord[ChatRoom] {
@@ -53,6 +54,44 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 		}	
 	}
 	
+	def findOrCreateForWall(wallId: Long) = {
+		DB.withTransaction { implicit c =>
+			val maybeChatRoom = SQL("select ChatRoom.* from ChatRoomForWall as crfw, ChatRoom where crfw.chatroom_id = ChatRoom.id and crfw.wall_id = {wallId}").on('wallId -> wallId).
+				as(ChatRoom.simple.singleOpt)
+				
+			maybeChatRoom match {
+				case Some(chatroom) =>
+					chatroom.id.get
+				case None =>
+					val chatRoomId = SQL("select next value for chatroom_seq").as(scalar[Long].single)
+					SQL(""" 
+						insert into ChatRoom values (
+							{id},
+							{title}	
+						)
+					""").on(
+						'id -> chatRoomId,
+						'title -> "<ChatRoom for Wall>"
+					).executeUpdate()
+					
+					val chatRoomForWallId = SQL("select next value for chatroomforwall_seq").as(scalar[Long].single)
+					SQL(""" 
+						insert into ChatRoomForWall values (					
+							{id},
+							{wallId},
+							{chatRoomId}
+						)
+					""").on(
+						'id -> chatRoomForWallId,
+						'wallId -> wallId,
+						'chatRoomId -> chatRoomId
+					).executeUpdate()
+										
+					chatRoomId
+			}
+		}
+	}
+	
 	def addUser(id: Long, user_id: Long) = {
 		DB.withConnection { implicit c =>
 			SQL(""" 
@@ -85,4 +124,8 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 				as(User.simple*)
 		}
 	}
+	
+	
+
+
 }
