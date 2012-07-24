@@ -7,7 +7,7 @@ import play.api.Play.current
 import play.api.db.DB
 import ContentType._
 
-class Sheet(id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
+class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
 		val title:String, val contentType:ContentType, val wallId:Long)  {
 	
 	lazy val wall = {
@@ -31,7 +31,14 @@ object Sheet extends ActiveRecord[Sheet] {
 				new Sheet(id, x, y, width, height, title, ContentType(contentType), wallId)
 		}
 	}
-	
+
+    def createBlankText(x: Double, y:Double, width:Double, height:Double, wallId:Long) = {
+        DB.withTransaction { implicit c =>
+            create(x, y, width, height, "untitled", ContentType.TextType, wallId)
+            // TODO: create text content
+        }
+    }
+
 	def create(s:Sheet) = create(s.x, s.y, s.width, s.height, s.title, s.contentType, s.wallId)
 	
 	def create(x:Double, y:Double, width:Double, height: Double, title: String, contentType: ContentType, wallId:Long) = {
@@ -70,6 +77,14 @@ object Sheet extends ActiveRecord[Sheet] {
 			
 			id
 		}
+	}
+	
+	def move(id:Long, x:Double, y:Double) = {
+		
+	}
+	
+	def resize(id:Long, width:Double, height:Double) = {
+		
 	}
 	
 }

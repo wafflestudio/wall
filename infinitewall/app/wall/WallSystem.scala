@@ -21,7 +21,6 @@ import models.Sheet
 case class Join(userId: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
 case class Action(userId: Long, detail: JsValue)
-//case class NotifyJoin(userId: Long)
 
 case class Connected(enumerator: Enumerator[JsValue])
 case class CannotConnect(msg: String)
@@ -95,7 +94,6 @@ class WallActor(wallId:Long) extends Actor {
 		case Join(userId) => {
 			// Create an Enumerator to write to this socket
 			val producer = Enumerator.imperative[JsValue]()
-			//val producer = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin(userId))
 			val prev = Enumerator(prevLogs(0).map { walllog => WallLog.walllog2Json(walllog) }: _*)
 			
 			if (false /* maximum connection per user constraint here*/ ) {
@@ -106,20 +104,31 @@ class WallActor(wallId:Long) extends Actor {
 				sender ! Connected(prev >>> producer)
 			}
 		}
-/*
-		case NotifyJoin(userId) => {
-			//notifyAll("join", userId, "has entered the room")
-		}
-*/
 
 		case Action(userId, detail) => {
 			(detail \ "action").as[String] match {
 				case "create" => 
 					val sheetId = Sheet.nextId(wallId)
+					val params = (detail \ "params").as[JsObject]
+//					Sheet.create(params \ "x", params \ "y", params \ "width", params \ "height", title, contentType, wallId)
 					notifyAll("action", userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsString("sheet" + sheetId)))).toString )
-				
-				case _ =>
+				case action@_ =>
+					val params = (detail \ "params").as[JsObject]
+					val id = (params \ "id").as[Long]
+					Sheet.findById(id) map { sheet =>
+						action match {
+							case "move" => 
+								Sheet.move(sheet.id.get, (params \ "x").as[Double], (params \ "y").as[Double])
+							case "resize" =>
+								Sheet.resize(sheet.id.get, (params \ "width").as[Long], (params \ "height").as[Long])
+							case "remove" =>
+//								Sheet.delete(sheet.id.get)
+						}
+					}
+							
+					
 					notifyAll("action", userId, detail.toString)
+				
 			}
 			
 		}
