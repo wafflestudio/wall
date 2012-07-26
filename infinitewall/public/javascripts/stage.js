@@ -10,13 +10,13 @@ function createSheet(id, params)  {
 }
 
 function moveSheet(params)  {
-	var element = $("#" + params.id)
+	var element = $("#sheet" + params.id)
 	$(element).css('x', params.x);
 	$(element).css('y', params.y);
 }
 
 function resizeSheet(params)  {
-	var element = $("#" + params.id)
+	var element = $("#sheet" + params.id)
 	$(element).css('width', params.width);
 	$(element).css('height', params.height);
 }
@@ -27,7 +27,7 @@ function removeSheet(params)  {
 
 function createNewSheet(id, x, y, w, h, text) {
 	var sheet = $(template).appendTo("#moveLayer")
-	$(sheet).attr("id", id)
+	$(sheet).attr("id", "sheet" + id)
 	$(sheet).css("left", x + "px")
 	$(sheet).css("top", y + "px")
 	$(sheet).css("width", w + "px")
@@ -52,7 +52,7 @@ function createRandomSheet()
 	var w = 200
 	var h = 200
 	var text = "text"
-	wallSocket.send({action:"create", params:{x:x, y:y, w:w, h:h, text:text}})
+	wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, text:text}})
 	//createNewSheet(newId, x, y, w, h, text)
 }
 
@@ -82,7 +82,7 @@ function sheetHandler(element)  {
 		
 		if(hasMoved)  {
 			$(element).trigger('move', 
-				{ id: $(element).attr('id'), x: (startx + e.pageX - deltax)/glob.zoomLevel,
+				{ id: $(element).attr('id').substr(5), x: (startx + e.pageX - deltax)/glob.zoomLevel,
 			 	y: (starty + e.pageY - deltay)/glob.zoomLevel })
 		}
 		else
@@ -132,7 +132,7 @@ function sheetHandler(element)  {
 	function onButtonMouseUp(e) {
 		$(document).off('mousemove', onMouseMove);
 		$(document).off('mouseup', onMouseUp);
-		$(element).trigger("remove", {id:$(element).attr('id')});
+		$(element).trigger("remove", {id:$(element).attr('id').substr(5)});
 	}
 
 	function onResizeMouseDown(e) {
@@ -155,7 +155,7 @@ function sheetHandler(element)  {
 		$(document).off('mousemove', onResizeMouseMove);
 		$(document).off('mouseup', onResizeMouseUp);
 		$(element).trigger('resize', 
-			{id:$(element).attr('id'), width: (startWidth + e.pageX - deltax)/glob.zoomLevel,
+			{id:$(element).attr('id').substr(5), width: (startWidth + e.pageX - deltax)/glob.zoomLevel,
 			 height: (startHeight + e.pageY - deltay)/glob.zoomLevel })
 	}
 

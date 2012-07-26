@@ -34,8 +34,9 @@ object Sheet extends ActiveRecord[Sheet] {
 
     def createBlankText(x: Double, y:Double, width:Double, height:Double, wallId:Long) = {
         DB.withTransaction { implicit c =>
-            create(x, y, width, height, "untitled", ContentType.TextType, wallId)
-            // TODO: create text content
+            val id = create(x, y, width, height, "untitled", ContentType.TextType, wallId)
+            val contentId = TextContent.create("", 0, 0, id)
+            id
         }
     }
 
@@ -70,14 +71,7 @@ object Sheet extends ActiveRecord[Sheet] {
 			SQL("select * from " + tableName + " where wallId = {wallId}").on('wallId -> wallId).as(simple *)
 		}
 	} 
-	
-	def nextId(wallId: Long) = {
-		DB.withConnection { implicit c =>
-			val id = SQL("select next value for sheet_seq").as(scalar[Long].single)
-			
-			id
-		}
-	}
+
 	
 	def move(id:Long, x:Double, y:Double) = {
 		

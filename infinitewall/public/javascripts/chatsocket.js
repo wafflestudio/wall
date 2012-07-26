@@ -4,7 +4,7 @@ function ChatSocket(url) {
 	var socket = new WS(url)
 
 	function onReceive(e) {
-		console.log(e)
+		
 		var data = JSON.parse(e.data);
 		if(data.error) {
 			console.log('disconnected: ' + data.error)

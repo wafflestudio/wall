@@ -107,12 +107,15 @@ class WallActor(wallId:Long) extends Actor {
 
 		case Action(userId, detail) => {
 			(detail \ "action").as[String] match {
-				case "create" => 
-					val sheetId = Sheet.nextId(wallId)
+				case "create" =>					
 					val params = (detail \ "params").as[JsObject]
-//					Sheet.create(params \ "x", params \ "y", params \ "width", params \ "height", title, contentType, wallId)
-					notifyAll("action", userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsString("sheet" + sheetId)))).toString )
+					Logger.info(detail.toString) 
+					Logger.info(params.toString)
+					val sheetId = Sheet.createBlankText((params \ "x").as[Double], (params \ "y").as[Double], (params \ "width").as[Double], (params \ "height").as[Double], 
+							wallId)
+					notifyAll("action", userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString )
 				case action@_ =>
+					Logger.info(detail.toString)
 					val params = (detail \ "params").as[JsObject]
 					val id = (params \ "id").as[Long]
 					Sheet.findById(id) map { sheet =>
@@ -122,7 +125,7 @@ class WallActor(wallId:Long) extends Actor {
 							case "resize" =>
 								Sheet.resize(sheet.id.get, (params \ "width").as[Long], (params \ "height").as[Long])
 							case "remove" =>
-//								Sheet.delete(sheet.id.get)
+								Sheet.delete(sheet.id.get)
 						}
 					}
 							

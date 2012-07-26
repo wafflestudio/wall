@@ -17,7 +17,7 @@ function WallSocket(url) {
 			socket.close();
 			return;
 		}
-		console.log(data)
+		
 		if(data.kind == "action" && timestamp < data.timestamp)  {
 				var detail = JSON.parse(data.detail)
 				if(detail.action == "create")
