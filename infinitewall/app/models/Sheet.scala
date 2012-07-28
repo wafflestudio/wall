@@ -1,11 +1,12 @@
 package models
 
 import anorm._
-
 import anorm.SqlParser._
 import play.api.Play.current
 import play.api.db.DB
 import ContentType._
+import play.api.libs.json._
+import play.api.Logger
 
 class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
 		val title:String, val contentType:ContentType, val wallId:Long)  {
@@ -13,6 +14,35 @@ class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val 
 	lazy val wall = {
 		Wall.findById(wallId)
 	}
+	
+	lazy val content:Either[TextContent,ImageContent] = {
+		contentType match {
+			case ContentType.TextType => Left(TextContent.findBySheetId(id.get))
+			case ContentType.ImageType => Right(ImageContent.findBySheetId(id.get))
+		}
+	}
+	
+	def toJson() = {
+		JsObject(
+			Seq(
+				"id" -> JsNumber(id.get),
+				"x" -> JsNumber(x),
+				"y" -> JsNumber(y),
+				"width" -> JsNumber(width),
+				"height" -> JsNumber(height),
+				"title" -> JsString(title),
+				"content" -> JsString(content match {
+					case Left(text) => text.content
+					case Right(image) => image.url
+				}),
+				"contentType" -> JsString(content match {
+					case Left(_) => "text"
+					case Right(_) => "image"
+				})
+			)
+		).toString()
+	}
+	
 }
 
 object Sheet extends ActiveRecord[Sheet] {
@@ -68,17 +98,28 @@ object Sheet extends ActiveRecord[Sheet] {
 	
 	def findByWallId(wallId:Long) =  {
 		DB.withConnection { implicit c =>
-			SQL("select * from " + tableName + " where wallId = {wallId}").on('wallId -> wallId).as(simple *)
+			SQL("select * from " + tableName + " where wall_id = {wallId}").on('wallId -> wallId).as(simple *)
 		}
 	} 
 
 	
 	def move(id:Long, x:Double, y:Double) = {
-		
+		Logger.info(x + "," +  y)
+		DB.withConnection { implicit c =>
+			SQL("update " + tableName + " SET x = {x}, y = {y} where id = {id}").on(
+					'id -> id,
+					'x -> x,
+					'y -> y).executeUpdate()
+		}
 	}
 	
 	def resize(id:Long, width:Double, height:Double) = {
-		
+		DB.withConnection { implicit c =>
+			SQL("update " + tableName + " SET width = {width}, height = {height} where id = {id}").on(
+					'id -> id,
+					'width -> width,
+					'height -> height).executeUpdate()
+		}
 	}
 	
 }

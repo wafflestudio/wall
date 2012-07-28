@@ -11,6 +11,7 @@ function createSheet(id, params)  {
 
 function moveSheet(params)  {
 	var element = $("#sheet" + params.id)
+	console.log(params.x, params.y)
 	$(element).css('x', params.x);
 	$(element).css('y', params.y);
 }
@@ -28,8 +29,8 @@ function removeSheet(params)  {
 function createNewSheet(id, x, y, w, h, text) {
 	var sheet = $(template).appendTo("#moveLayer")
 	$(sheet).attr("id", "sheet" + id)
-	$(sheet).css("left", x + "px")
-	$(sheet).css("top", y + "px")
+	$(sheet).css("x", x + "px")
+	$(sheet).css("y", y + "px")
 	$(sheet).css("width", w + "px")
 	$(sheet).css("height", h + "px")
 	$(sheet).find(".text").html(text)

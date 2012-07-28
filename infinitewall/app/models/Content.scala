@@ -14,6 +14,7 @@ object ContentType extends Enumeration {
 
 
 case class TextContent(id:Pk[Long], content:String, scrollX:Int, scrollY:Int, sheetId:Long)
+case class ImageContent(id:Pk[Long], url:String, width:Double, height:Double, sheetId:Long)
 
 object TextContent extends ActiveRecord[TextContent] {
 	val tableName = "TextContent"
@@ -50,6 +51,54 @@ object TextContent extends ActiveRecord[TextContent] {
 			id
 		}
 	}
+	
+	def findBySheetId(sheetId:Long) = {
+		DB.withConnection { implicit c =>
+			SQL("select * from " + tableName + " where sheet_id = {sheetId}").on('sheetId -> sheetId).as(simple.single)
+		}
+	}
 }
 
-//case class ImageContent(binary:Array[Byte]) extends Content
+object ImageContent extends ActiveRecord[ImageContent] {
+	val tableName = "ImageContent"
+		
+	val simple = {
+		get[Pk[Long]]("ImageContent.id") ~
+		get[String]("ImageContent.url") ~ 
+		get[Int]("ImageContent.width") ~ 
+		get[Int]("ImageContent.height") ~ 
+		get[Long]("ImageContent.sheet_id") map {
+			case id ~ url ~ width ~ height ~ sheetId => ImageContent(id, url, width, height, sheetId)
+		}
+	}
+	
+	def create(c:ImageContent) = create(c.url, c.width, c.height, c.sheetId)
+	
+	def create(url:String, width:Double, height:Double, sheetId:Long) = {
+		DB.withConnection { implicit c =>
+			val id = SQL("select next value for textcontent_seq").as(scalar[Long].single)
+			
+			SQL(""" 
+				insert into textcontent values (
+					{id},
+					{url}, {width}, {height}, {sheetId}
+				)
+			""").on(
+				'id -> id,
+				'url -> url,
+				'width -> width,
+				'height -> height,
+				'sheetId -> sheetId
+			).executeUpdate()
+			
+			id
+		}
+	}
+	
+	def findBySheetId(sheetId:Long) = {
+		DB.withConnection { implicit c =>
+			SQL("select * from " + tableName + " where sheet_id = {sheetId}").on('sheetId -> sheetId).as(simple.single)
+		}
+	}
+	
+}

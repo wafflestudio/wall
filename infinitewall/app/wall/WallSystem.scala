@@ -18,7 +18,7 @@ import models.WallLog
 import java.sql.Timestamp
 import models.Sheet
 
-case class Join(userId: Long)
+case class Join(userId: Long, timestamp:Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
 case class Action(userId: Long, detail: JsValue)
 
@@ -46,7 +46,7 @@ object WallSystem {
 
 	def establish(wallId: Long, userId: Long, timestamp: Long): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
-		val joinResult = wall(wallId) ? Join(userId)
+		val joinResult = wall(wallId) ? Join(userId, timestamp)
 
 		joinResult.asPromise.map {
 			case Connected(producer) =>
@@ -91,10 +91,10 @@ class WallActor(wallId:Long) extends Actor {
 
 	def receive = {
 
-		case Join(userId) => {
+		case Join(userId, timestamp) => {
 			// Create an Enumerator to write to this socket
 			val producer = Enumerator.imperative[JsValue]()
-			val prev = Enumerator(prevLogs(0).map { walllog => WallLog.walllog2Json(walllog) }: _*)
+			val prev = Enumerator(prevLogs(timestamp).map { walllog => WallLog.walllog2Json(walllog) }: _*)
 			
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("You have reached your maximum number of connections.")

@@ -35,6 +35,7 @@ object WallLog extends ActiveRecord[WallLog] {
 				case id ~ kind ~ message ~ time ~ roomId ~ email => WallLogWithEmail(id, kind, message, time, roomId, email)
 			}
 	}
+	
 
 	def list(wallId: Long, timestamp: Long) = {
 		DB.withConnection { implicit c =>
@@ -77,5 +78,18 @@ object WallLog extends ActiveRecord[WallLog] {
 			id
 		}
 	}
+	
+	def timestamp(wallId:Long) = {
+		DB.withConnection { implicit c =>
+			SQL("select MAX(time) from WallLog where wall_id = {wallId}").on(
+				'wallId -> wallId
+			).as(scalar[Option[Long]].single) match {
+				case Some(time) => time
+				case None => 999
+			}
+		}
+	}
+	
+	
 
 }

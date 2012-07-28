@@ -13,6 +13,9 @@ import play.api.Play.current
 import models.User
 import wall.WallSystem
 import models.ChatRoom
+import models.WallLog
+import models.Sheet
+import play.api.db.DB
 
 
 object Wall extends Controller with Auth with Login{
@@ -24,7 +27,11 @@ object Wall extends Controller with Auth with Login{
 	
 	def wall(wallId: Long) = AuthenticatedAction { implicit request =>
 		val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
-		Ok(views.html.wall.wall(wallId, chatRoomId))
+		val (timestamp, sheets) = DB.withTransaction { implicit c => 
+			(WallLog.timestamp(wallId), Sheet.findByWallId(wallId))
+		}
+		
+		Ok(views.html.wall.wall(wallId, sheets, timestamp, chatRoomId))
 	}
 	
 	def create = Action { implicit request =>

@@ -1,10 +1,10 @@
-@(wallId:Long, chatId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(wallId:Long, sheets:List[Sheet], timestamp:Long, chatId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.stage("Wall ::: Infinite Wall") {
 
 <div id="wall">
 	<div id="scaleLayer">
-		<div id ="moveLayer"> 			
+		<div id ="moveLayer">
 		</div>
 	</div>
 </div>
@@ -19,8 +19,24 @@
 	<button id="createBtn" class="btn-small" style="z-index:2">Create sheet</button>
 </div>
 <script type="text/javascript">
-	var wallSocket = new WallSocket("@routes.Wall.sync(wallId, 999).webSocketURL()")
-	var chatSocket = new ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
+	
+		var wallSocket = new WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
+		var chatSocket = new ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
+	
+	$(function() {	
+		var sheets = []
+		
+	@sheets.map { sheet => 
+		sheets.push(@Html(sheet.toJson()))
+	}
+
+		for(var i = 0; i < sheets.length; i++)  {	
+			var sheet = sheets[i]
+			
+			createNewSheet(sheet.id, sheet.x, sheet.y, sheet.width, sheet.height, sheet.content)
+		}
+
+	})
 </script>
 
 }

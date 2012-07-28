@@ -31,8 +31,8 @@ CREATE TABLE Sheet (
 CREATE TABLE TextContent (
 		id bigint(20) NOT NULL,
     content text NOT NULL,
-    scroll_x tinyint NOT NULL,
-    scroll_y tinyint NOT NULL,
+    scroll_x int NOT NULL,
+    scroll_y int NOT NULL,
     sheet_id bigint(20) NOT NULL,
     PRIMARY KEY (id)
 );
