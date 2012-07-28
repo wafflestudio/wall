@@ -104,7 +104,7 @@ object Sheet extends ActiveRecord[Sheet] {
 
 	
 	def move(id:Long, x:Double, y:Double) = {
-		Logger.info(x + "," +  y)
+		
 		DB.withConnection { implicit c =>
 			SQL("update " + tableName + " SET x = {x}, y = {y} where id = {id}").on(
 					'id -> id,

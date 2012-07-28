@@ -2,23 +2,46 @@
 
 @layouts.stage("Stage Test") {
 
+<script type="text/javascript">
+   var cnt = 0;
+   function createSheet() {
+      var html = '\
+         <div class="sheetBox" id = "sheet-' + cnt + '">\
+         <div class="sheet" contenteditable = true>\
+         <h3 style="display: inline;">Sheet No. ' + cnt + '\
+         <textarea id="textarea-' + cnt + '">Write down</textarea>\
+         <div class="resizeHandle"></div>\
+         </div>\
+         <a class = "boxClose">x</a>\
+         </div>\
+         ';
+      $('#moveLayer').append(html);
+      sheetHandler('#sheet-'+cnt);
+      $('#textarea-'+cnt).redactor({autoresize: true});
+      cnt += 1;
+   };
+</script>
+
 <div id="wall">
+   <a href="javascript:createSheet();" style="position: fixed; top: 50px; left: 10px;" class="btn btn-primary">New Sheet</a>
 	<div id="scaleLayer">
 		<div id ="moveLayer"> 
+			<!--
 			<div class="sheetBox" id = "one"> 
 				<div class="sheet" contenteditable = true>
-					<p>Box 1</p>
-					<div class="resizeHandle"></div>
+                    <textarea id="box1">Box1</textarea>
+                    <div class="resizeHandle"></div>
 				</div>
 				<a class = "boxClose">x</a>
 			</div>
 			<div class="sheetBox" id = "two"> 
 				<div class="sheet" contenteditable = true>
-					<p>Box 2</p>
-					<div class="resizeHandle"></div>
+                   <textarea id="box2">Box2</textarea>
+                    <div class="resizeHandle"></div>
 				</div>
 				<a class = "boxClose">x</a>
 			</div>
+            -->
 		</div>
 	</div>
 </div>

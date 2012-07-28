@@ -94,7 +94,7 @@ function sheetHandler(element)  {
 	function onMouseDown(e) {
 		
 		hasMoved = false;
-		$("#moveLayer").append($(element));
+		//$("#moveLayer").append($(element));
 		// 따로 remove할 필요 없이 걍 append하면 맨 뒤로 감..
 		
 		if (glob.currentSheet)
