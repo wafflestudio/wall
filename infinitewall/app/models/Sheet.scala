@@ -14,13 +14,13 @@ class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val 
 	lazy val wall = {
 		Wall.findById(wallId)
 	}
-	
-	lazy val content:Either[TextContent,ImageContent] = {
-		contentType match {
-			case ContentType.TextType => Left(TextContent.findBySheetId(id.get))
-			case ContentType.ImageType => Right(ImageContent.findBySheetId(id.get))
-		}
-	}
+
+	def toJson():String
+}
+
+
+class TextSheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
+		val title:String, val wallId:Long) extends Sheet(id, x, y, width, height, title, ContentType.TextType, wallId) {
 	
 	def toJson() = {
 		JsObject(
@@ -31,19 +31,33 @@ class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val 
 				"width" -> JsNumber(width),
 				"height" -> JsNumber(height),
 				"title" -> JsString(title),
-				"content" -> JsString(content match {
-					case Left(text) => text.content
-					case Right(image) => image.url
-				}),
-				"contentType" -> JsString(content match {
-					case Left(_) => "text"
-					case Right(_) => "image"
-				})
+				"content" -> JsString(TextContent.findBySheetId(id.get).content),
+				"contentType" -> JsString("text")
 			)
 		).toString()
 	}
-	
 }
+
+class ImageSheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
+		val title:String, val wallId:Long) extends Sheet(id, x, y, width, height, title, ContentType.ImageType, wallId) {
+	
+	def toJson() = {
+		JsObject(
+			Seq(
+				"id" -> JsNumber(id.get),
+				"x" -> JsNumber(x),
+				"y" -> JsNumber(y),
+				"width" -> JsNumber(width),
+				"height" -> JsNumber(height),
+				"title" -> JsString(title),
+				"content" -> JsString(ImageContent.findBySheetId(id.get).url),
+				"contentType" -> JsString("image")
+			)
+		).toString()
+	}
+}
+
+
 
 object Sheet extends ActiveRecord[Sheet] {
 	val tableName = "sheet"
@@ -57,12 +71,19 @@ object Sheet extends ActiveRecord[Sheet] {
 		get[String]("sheet.title") ~
 		get[Int]("sheet.content_type") ~
 		get[Long]("sheet.wall_id") map {
-			case id ~ x ~ y ~ width ~ height ~ title ~ contentType ~ wallId => 
-				new Sheet(id, x, y, width, height, title, ContentType(contentType), wallId)
+			case id ~ x ~ y ~ width ~ height ~ title ~ contentType ~ wallId =>  {
+				ContentType(contentType) match {
+					case ContentType.TextType =>
+						new TextSheet(id, x, y, width, height, title, wallId)
+					case ContentType.ImageType => 
+						new ImageSheet(id, x, y, width, height, title, wallId)
+				}
+				
+			}
 		}
 	}
 
-    def createBlankText(x: Double, y:Double, width:Double, height:Double, wallId:Long) = {
+    def createBlank(x: Double, y:Double, width:Double, height:Double, wallId:Long) = {
         DB.withTransaction { implicit c =>
             val id = create(x, y, width, height, "untitled", ContentType.TextType, wallId)
             val contentId = TextContent.create("", 0, 0, id)
@@ -71,8 +92,9 @@ object Sheet extends ActiveRecord[Sheet] {
     }
 
 	def create(s:Sheet) = create(s.x, s.y, s.width, s.height, s.title, s.contentType, s.wallId)
+	// TODO: create per type
 	
-	def create(x:Double, y:Double, width:Double, height: Double, title: String, contentType: ContentType, wallId:Long) = {
+	private def create(x:Double, y:Double, width:Double, height: Double, title: String, contentType: ContentType, wallId:Long) = {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for sheet_seq").as(scalar[Long].single)
 			
@@ -100,9 +122,8 @@ object Sheet extends ActiveRecord[Sheet] {
 		DB.withConnection { implicit c =>
 			SQL("select * from " + tableName + " where wall_id = {wallId}").on('wallId -> wallId).as(simple *)
 		}
-	} 
+	}
 
-	
 	def move(id:Long, x:Double, y:Double) = {
 		
 		DB.withConnection { implicit c =>

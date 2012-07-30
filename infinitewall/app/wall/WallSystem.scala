@@ -111,7 +111,7 @@ class WallActor(wallId:Long) extends Actor {
 					val params = (detail \ "params").as[JsObject]
 					Logger.info(detail.toString) 
 					Logger.info(params.toString)
-					val sheetId = Sheet.createBlankText((params \ "x").as[Double], (params \ "y").as[Double], (params \ "width").as[Double], (params \ "height").as[Double], 
+					val sheetId = Sheet.createBlank((params \ "x").as[Double], (params \ "y").as[Double], (params \ "width").as[Double], (params \ "height").as[Double], 
 							wallId)
 					notifyAll("action", userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString )
 				case action@_ =>
