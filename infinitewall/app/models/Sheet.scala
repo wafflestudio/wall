@@ -8,7 +8,7 @@ import ContentType._
 import play.api.libs.json._
 import play.api.Logger
 
-class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
+abstract class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
 		val title:String, val contentType:ContentType, val wallId:Long)  {
 	
 	lazy val wall = {
@@ -19,8 +19,8 @@ class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val 
 }
 
 
-class TextSheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
-		val title:String, val wallId:Long) extends Sheet(id, x, y, width, height, title, ContentType.TextType, wallId) {
+class TextSheet(id: Pk[Long], x:Double, y:Double, width:Double, height: Double,  
+		title:String, wallId:Long) extends Sheet(id, x, y, width, height, title, ContentType.TextType, wallId) {
 	
 	def toJson() = {
 		JsObject(
@@ -38,8 +38,8 @@ class TextSheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, 
 	}
 }
 
-class ImageSheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
-		val title:String, val wallId:Long) extends Sheet(id, x, y, width, height, title, ContentType.ImageType, wallId) {
+class ImageSheet(id: Pk[Long], x:Double, y:Double, width:Double, height: Double,  
+		title:String, wallId:Long) extends Sheet(id, x, y, width, height, title, ContentType.ImageType, wallId) {
 	
 	def toJson() = {
 		JsObject(

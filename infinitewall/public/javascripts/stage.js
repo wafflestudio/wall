@@ -18,8 +18,8 @@ function moveSheet(params)  {
 
 function resizeSheet(params)  {
 	var element = $("#sheet" + params.id)
-	$(element).css('width', params.width);
-	$(element).css('height', params.height);
+	$(element).children('.sheet').css('width', params.width);
+	$(element).children('.sheet').css('height', params.height);
 }
 
 function removeSheet(params)  {
@@ -31,8 +31,8 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).attr("id", "sheet" + id)
 	$(sheet).css("x", x + "px")
 	$(sheet).css("y", y + "px")
-	$(sheet).css("width", w + "px")
-	$(sheet).css("height", h + "px")
+	$(sheet).children('.sheet').css("width", w + "px")
+	$(sheet).children('.sheet').css("height", h + "px")
 	$(sheet).find(".text").html(text)
 	
 	sheetHandler($(sheet));

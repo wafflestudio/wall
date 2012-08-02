@@ -105,6 +105,7 @@
 
 #chat {
 	position:fixed;
+	top:50px;
 	right:0px;
 	width:200px;
 	height:100%;
