@@ -18,26 +18,25 @@ import models.WallLog
 import java.sql.Timestamp
 import models.Sheet
 
-case class Join(userId: Long, timestamp:Long)
+case class Join(userId: Long, timestamp: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
 case class Action(userId: Long, detail: JsValue)
 
 case class Connected(enumerator: Enumerator[JsValue])
 case class CannotConnect(msg: String)
 
-case class Message(kind: String, username:String, text:String)
-
+case class Message(kind: String, username: String, text: String)
 
 object WallSystem {
 
 	implicit val timeout = Timeout(1 second)
 
-	var walls:Map[Long, ActorRef] = Map()
-	
-	def wall(wallId:Long):ActorRef = {
-		walls.get(wallId) match { 
+	var walls: Map[Long, ActorRef] = Map()
+
+	def wall(wallId: Long): ActorRef = {
+		walls.get(wallId) match {
 			case Some(wall) => wall
-			case None => 
+			case None =>
 				val newActor = Akka.system.actorOf(Props(new WallActor(wallId)))
 				walls = walls + (wallId -> newActor)
 				newActor
@@ -77,15 +76,15 @@ object WallSystem {
 
 }
 
-class WallActor(wallId:Long) extends Actor {
+class WallActor(wallId: Long) extends Actor {
 
 	var connections = List.empty[(Long, PushEnumerator[JsValue])]
-	
-	def prevLogs(timestamp:Long) = {
+
+	def prevLogs(timestamp: Long) = {
 		WallLog.list(wallId, timestamp)
 	}
-		
-	def logMessage(kind:String, userId:Long, message:String) = {
+
+	def logMessage(kind: String, userId: Long, message: String) = {
 		WallLog.create(kind, wallId, userId, message)
 	}
 
@@ -95,7 +94,7 @@ class WallActor(wallId:Long) extends Actor {
 			// Create an Enumerator to write to this socket
 			val producer = Enumerator.imperative[JsValue]()
 			val prev = Enumerator(prevLogs(timestamp).map { walllog => WallLog.walllog2Json(walllog) }: _*)
-			
+
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
 			}
@@ -107,33 +106,34 @@ class WallActor(wallId:Long) extends Actor {
 
 		case Action(userId, detail) => {
 			(detail \ "action").as[String] match {
-				case "create" =>					
+				case "create" =>
 					val params = (detail \ "params").as[JsObject]
-					Logger.info(detail.toString) 
+					Logger.info(detail.toString)
 					Logger.info(params.toString)
-					val sheetId = Sheet.createBlank((params \ "x").as[Double], (params \ "y").as[Double], (params \ "width").as[Double], (params \ "height").as[Double], 
-							wallId)
-					notifyAll("action", userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString )
-				case action@_ =>
+					val sheetId = Sheet.createBlank((params \ "x").as[Double], (params \ "y").as[Double], (params \ "width").as[Double], (params \ "height").as[Double],
+						wallId)
+					notifyAll("action", userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString)
+				case action @ _ =>
 					Logger.info(detail.toString)
 					val params = (detail \ "params").as[JsObject]
 					val id = (params \ "id").as[Long]
 					Sheet.findById(id) map { sheet =>
 						action match {
-							case "move" => 
+							case "move" =>
 								Sheet.move(sheet.id.get, (params \ "x").as[Double], (params \ "y").as[Double])
 							case "resize" =>
 								Sheet.resize(sheet.id.get, (params \ "width").as[Long], (params \ "height").as[Long])
 							case "remove" =>
 								Sheet.delete(sheet.id.get)
+							case "setText" =>
+								Sheet.setText(sheet.id.get, (params \ "text").as[String])
 						}
 					}
-							
-					
+
 					notifyAll("action", userId, detail.toString)
-				
+
 			}
-			
+
 		}
 
 		case Quit(userId, producer) => {
@@ -150,23 +150,23 @@ class WallActor(wallId:Long) extends Actor {
 
 	def notifyAll(kind: String, userId: Long, detail: String) {
 
-			val username = User.findById(userId).get.email
+		val username = User.findById(userId).get.email
 
-			val logId = logMessage(kind, userId, detail)
-			
-			val msg = JsObject(
-				Seq(
-					"kind" -> JsString(kind),
-					"username" -> JsString(username),
-					"detail" -> JsString(detail),
-					"timestamp" -> JsNumber(logId)
-				)
-			)			
-			
-			connections.foreach {
-				case (_, producer) => producer.push(msg)
-			}
-	
+		val logId = logMessage(kind, userId, detail)
+
+		val msg = JsObject(
+			Seq(
+				"kind" -> JsString(kind),
+				"username" -> JsString(username),
+				"detail" -> JsString(detail),
+				"timestamp" -> JsNumber(logId)
+			)
+		)
+
+		connections.foreach {
+			case (_, producer) => producer.push(msg)
+		}
+
 	}
 
 }

@@ -14,6 +14,21 @@ abstract class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Dou
 	lazy val wall = {
 		Wall.findById(wallId)
 	}
+	
+	lazy val content:Content = {
+		contentType match {
+			case ContentType.TextType => TextContent.findBySheetId(id.get)
+			case ContentType.ImageType => ImageContent.findBySheetId(id.get)
+		}
+	}
+	
+	lazy val contentId = {
+		contentType match {
+			// TODO: can be optimized
+			case ContentType.TextType => TextContent.findBySheetId(id.get).id.get
+			case ContentType.ImageType => ImageContent.findBySheetId(id.get).id.get	
+		}
+	}
 
 	def toJson():String
 }
@@ -132,6 +147,10 @@ object Sheet extends ActiveRecord[Sheet] {
 					'x -> x,
 					'y -> y).executeUpdate()
 		}
+	}
+	
+	def setText(id: Long, text:String) = {
+		TextContent.setText(id, text)
 	}
 	
 	def resize(id:Long, width:Double, height:Double) = {

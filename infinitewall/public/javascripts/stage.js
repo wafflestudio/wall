@@ -11,7 +11,7 @@ function createSheet(id, params)  {
 
 function moveSheet(params)  {
 	var element = $("#sheet" + params.id)
-	console.log(params.x, params.y)
+	console.log(params.x, params.y);
 	$(element).css('x', params.x);
 	$(element).css('y', params.y);
 }
@@ -23,7 +23,14 @@ function resizeSheet(params)  {
 }
 
 function removeSheet(params)  {
-	$(params.id).remove();
+	var element = $("#sheet" + params.id)
+	$(element).remove();
+}
+
+function setText(params)  {
+	// set Text
+	var element = $("#sheet" + params.id)
+	$(element).children('.sheet').html(params.text)
 }
 
 function createNewSheet(id, x, y, w, h, text) {
@@ -39,6 +46,8 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).on("move", function(e, params) { wallSocket.send({action: "move", params: $.extend(params,{id:id})}) })
 	$(sheet).on("resize", function(e, params) { wallSocket.send({action: "resize", params: $.extend(params, {id:id})}) })
 	$(sheet).on("remove", function(e) { wallSocket.send({action:"remove", params:{id:id}}) })
+	$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).children('.sheet').html()}}) })
+	
 	return sheet
 }
 
@@ -163,6 +172,10 @@ function sheetHandler(element)  {
 	$(element).on('mousedown', '.boxClose', onButtonMouseDown);
 	$(element).on('mousedown', '.resizeHandle', onResizeMouseDown);
 	$(element).on('mousedown', onMouseDown);
+
+	$(element).children('.sheet').on('change', function(e) { 
+		$(element).trigger('setText', e)
+	})
 }
 
 function wallHandler(element) {
@@ -244,4 +257,18 @@ function wallHandler(element) {
 $(window).load(function(){
 	wallHandler("#wall");
 	$('#createBtn').click(createRandomSheet)
+
+	$('[contenteditable]').live('focus', function() {
+	    var $this = $(this);
+	    $this.data('before', $this.html());
+	    return $this;
+	}).live('blur keyup paste', function() {
+	    var $this = $(this);
+	    if ($this.data('before') !== $this.html()) {
+	        $this.data('before', $this.html());
+	        $this.trigger('change');
+	    }
+	    return $this;
+	});
+
 });

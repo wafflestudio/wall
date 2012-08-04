@@ -12,9 +12,10 @@ object ContentType extends Enumeration {
 	val ImageType    = Value(2)
 }
 
+sealed trait Content
 
-case class TextContent(id:Pk[Long], content:String, scrollX:Int, scrollY:Int, sheetId:Long)
-case class ImageContent(id:Pk[Long], url:String, width:Double, height:Double, sheetId:Long)
+case class TextContent(id:Pk[Long], content:String, scrollX:Int, scrollY:Int, sheetId:Long) extends Content
+case class ImageContent(id:Pk[Long], url:String, width:Double, height:Double, sheetId:Long) extends Content
 
 object TextContent extends ActiveRecord[TextContent] {
 	val tableName = "TextContent"
@@ -49,6 +50,15 @@ object TextContent extends ActiveRecord[TextContent] {
 			).executeUpdate()
 			
 			id
+		}
+	}
+	
+	def setText(sheetId: Long, content:String) = {
+		
+		DB.withConnection { implicit c =>
+			SQL("update " + tableName + " SET content = {content} where sheet_id = {sheetId}").on(
+					'sheetId -> sheetId,
+					'content -> content).executeUpdate()
 		}
 	}
 	

@@ -19,17 +19,19 @@ function WallSocket(url) {
 		}
 		
 		if(data.kind == "action" && timestamp < data.timestamp)  {
-				var detail = JSON.parse(data.detail)
-				if(detail.action == "create")
-					createSheet(detail.id, detail.params);
-				else if(detail.action == "move")
-					moveSheet(detail.params);
-				else if(detail.action == "resize")
-					resizeSheet(detail.params);
-				else if(detail.action == "remove")
-					removeSheet(detail.params);
+			var detail = JSON.parse(data.detail)
+			if(detail.action == "create")
+				createSheet(detail.id, detail.params);
+			else if(detail.action == "move")
+				moveSheet(detail.params);
+			else if(detail.action == "resize")
+				resizeSheet(detail.params);
+			else if(detail.action == "remove")
+				removeSheet(detail.params);
+			else if(detail.action == "setText")
+				setText(detail.params);
 
-				timestamp = data.timestamp;
+			timestamp = data.timestamp;
 			
 		}
 	}
