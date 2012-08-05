@@ -1,4 +1,4 @@
-@(title: String)(header: Html)(content: Html, footer: Html = Html(""))
+@(title: String)(header: Html)(content: Html, footer: Html = Html(""))(implicit request:play.api.mvc.Request[play.api.mvc.AnyContent])
 
 <!DOCTYPE html>
 
@@ -23,7 +23,16 @@
           </div>
         </div>
       </div>
+    
       <div class="main container">
+      @request.flash.get("error").map { errorMessage =>   
+        <div class="alert-message error">
+            <p>
+                <strong>Oops!</strong> @errorMessage
+            </p>
+        </div>
+        
+      }
         @content
       </div>
       @footer

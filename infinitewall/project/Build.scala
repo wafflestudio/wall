@@ -5,7 +5,7 @@ import PlayProject._
 object ApplicationBuild extends Build {
 
 	val appName = "Infinite Wall"
-	val appVersion = "1.0-SNAPSHOT"
+	val appVersion = "1.0-M1"
 
 	val appDependencies = Seq(
 		// Add your project dependencies here,
