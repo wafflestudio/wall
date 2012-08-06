@@ -8,6 +8,8 @@ import java.sql.Timestamp
 
 abstract class ActiveRecord[T] {
 	val tableName: String
+	
+	def field[Type](fieldName:String)(implicit extractor: anorm.Column[Type]) = get[Type](tableName + "." + fieldName)(extractor)
 
 	def simple: anorm.RowParser[T]
 
@@ -26,8 +28,6 @@ abstract class ActiveRecord[T] {
 			SQL("select * from " + tableName + " where id = {id}").on('id -> id).as(simple.singleOpt)
 		}
 	}
-
-	def create(instance: T): Long
 
 	def delete(id: Long) = {
 		DB.withConnection { implicit c =>

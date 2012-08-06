@@ -30,8 +30,6 @@ object TextContent extends ActiveRecord[TextContent] {
 		}
 	}
 	
-	def create(t:TextContent) = create(t.content, t.scrollX, t.scrollY, t.sheetId)
-	
 	def create(content:String, scrollX:Int, scrollY:Int, sheetId:Long) = {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for textcontent_seq").as(scalar[Long].single)
@@ -73,16 +71,14 @@ object ImageContent extends ActiveRecord[ImageContent] {
 	val tableName = "ImageContent"
 		
 	val simple = {
-		get[Pk[Long]]("ImageContent.id") ~
-		get[String]("ImageContent.url") ~ 
-		get[Int]("ImageContent.width") ~ 
-		get[Int]("ImageContent.height") ~ 
-		get[Long]("ImageContent.sheet_id") map {
+		field[Pk[Long]]("id") ~
+		field[String]("url") ~ 
+		field[Int]("width") ~ 
+		field[Int]("height") ~ 
+		field[Long]("sheet_id") map {
 			case id ~ url ~ width ~ height ~ sheetId => ImageContent(id, url, width, height, sheetId)
 		}
 	}
-	
-	def create(c:ImageContent) = create(c.url, c.width, c.height, c.sheetId)
 	
 	def create(url:String, width:Double, height:Double, sheetId:Long) = {
 		DB.withConnection { implicit c =>

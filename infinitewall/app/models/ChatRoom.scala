@@ -16,8 +16,8 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 	val tableName = "ChatRoom"
 		
 	val simple = {
-		get[Pk[Long]]("ChatRoom.id") ~
-		get[String]("ChatRoom.title") map {
+		field[Pk[Long]]("id") ~
+		field[String]("title") map {
 			case id ~ title => ChatRoom(id, title)
 		}
 	}
@@ -29,9 +29,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 			case user_id ~ chatroom_id ~ time => UserInChatRoom(user_id, chatroom_id, time)
 		}
 	}
-	
-	def create(r:ChatRoom) = create(r.title)
-	
+
 	def create(title:String) = {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for chatroom_seq").as(scalar[Long].single)

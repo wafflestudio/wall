@@ -78,14 +78,14 @@ object Sheet extends ActiveRecord[Sheet] {
 	val tableName = "sheet"
 		
 	val simple = {
-		get[Pk[Long]]("sheet.id") ~
-		get[Double]("sheet.x") ~
-		get[Double]("sheet.y") ~
-		get[Double]("sheet.width") ~
-		get[Double]("sheet.height") ~
-		get[String]("sheet.title") ~
-		get[Int]("sheet.content_type") ~
-		get[Long]("sheet.wall_id") map {
+		field[Pk[Long]]("id") ~
+		field[Double]("x") ~
+		field[Double]("y") ~
+		field[Double]("width") ~
+		field[Double]("height") ~
+		field[String]("title") ~
+		field[Int]("content_type") ~
+		field[Long]("wall_id") map {
 			case id ~ x ~ y ~ width ~ height ~ title ~ contentType ~ wallId =>  {
 				ContentType(contentType) match {
 					case ContentType.TextType =>
@@ -106,9 +106,6 @@ object Sheet extends ActiveRecord[Sheet] {
         }
     }
 
-	def create(s:Sheet) = create(s.x, s.y, s.width, s.height, s.title, s.contentType, s.wallId)
-	// TODO: create per type
-	
 	private def create(x:Double, y:Double, width:Double, height: Double, title: String, contentType: ContentType, wallId:Long) = {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for sheet_seq").as(scalar[Long].single)

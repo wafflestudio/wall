@@ -11,14 +11,12 @@ object Wall extends ActiveRecord[Wall] {
 	val tableName = "wall"
 		
 	val simple = {
-		get[Pk[Long]]("wall.id") ~
-		get[String]("wall.name") ~ 
-		get[Long]("wall.user_id") map {
+		field[Pk[Long]]("id") ~
+		field[String]("name") ~ 
+		field[Long]("user_id") map {
 			case id ~ name ~ userId=> Wall(id, name, userId)
 		}
 	}
-	
-	def create(w:Wall) = create(w.userId, w.name)
 	
 	def create(userId:Long, name:String) = {
 		DB.withConnection { implicit c =>

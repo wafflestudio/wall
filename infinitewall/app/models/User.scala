@@ -12,26 +12,22 @@ import java.util.Date
 
 case class User(id: Pk[Long], val email: String, val hashedPW: String, val permission: Permission)
 
-object User {
+object User extends ActiveRecord[User] {
+	
+	val tableName = "User"
 
 	val simple = {
-		get[Pk[Long]]("user.id") ~
-		get[String]("user.email") ~
-		get[String]("user.hashedPW") ~
-		get[Int]("user.permission") map {
+		field[Pk[Long]]("id") ~
+		field[String]("email") ~
+		field[String]("hashedPW") ~
+		field[Int]("permission") map {
 			case id ~ email ~ hashedPW ~ permission => User(id, email, hashedPW, Permission(permission))
-		}
-	}
-
-	def findById(id: Long): Option[User] = {
-		DB.withConnection { implicit c =>
-			SQL("select * from USER where id = {id}").on('id -> id).as(User.simple.singleOpt)
 		}
 	}
 	
 	def findByEmail(email:String): Option[User] = {
 		DB.withConnection { implicit c =>
-			SQL("select * from USER where email = {email}").on('email -> email).as(User.simple.singleOpt)
+			SQL("select * from " + tableName + " where email = {email}").on('email -> email).as(User.simple.singleOpt)
 		}
 	}
 
@@ -49,11 +45,12 @@ object User {
 		
 		DB.withConnection { implicit c =>
 			SQL(""" 
-				insert into USER values (
+				insert into {tableName} values (
 					(select next value for user_seq),
 					{email}, {hashedPW}, {permission}	
 				)
 			""").on(
+				'tableName -> tableName,	
 				'email -> email,
 				'hashedPW -> hashedPW(password),
 				'permission -> Permission.NormalUser.id

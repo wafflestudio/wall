@@ -12,18 +12,16 @@ object WallPreference extends ActiveRecord[WallPreference] {
 	val tableName = "WallPreference"
 		
 	val simple = {
-		get[Pk[Long]]("wallPreference.id") ~
-		get[Option[String]]("wallPreference.alias") ~ 
-		get[Double]("wallPreference.pan_x") ~
-		get[Double]("wallPreference.pan_y") ~
-		get[Double]("wallPreference.zoom") ~
-		get[Long]("wallPreference.user_id") ~
-		get[Long]("wallPreference.wall_id") map {
+		field[Pk[Long]]("id") ~
+		field[Option[String]]("alias") ~ 
+		field[Double]("pan_x") ~
+		field[Double]("pan_y") ~
+		field[Double]("zoom") ~
+		field[Long]("user_id") ~
+		field[Long]("wall_id") map {
 			case id ~ name ~ panX ~ panY ~ zoom ~ userId ~ wallId => WallPreference(id, name, panX, panY, zoom, userId, wallId)
 		}
 	}
-	
-	def create(w:WallPreference) = create(w.userId, w.wallId, w.alias, w.panX, w.panY, w.zoom)
 	
 	def create(userId:Long, wallId:Long, alias:Option[String] = None, panX:Double = 0.0, panY:Double = 0.0, zoom:Double = 1.0) = {
 		DB.withConnection { implicit c =>

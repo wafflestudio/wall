@@ -15,23 +15,23 @@ object ChatLog extends ActiveRecord[ChatLog] {
 	val tableName = "ChatLog"
 	
 	val simple = {
-		get[Pk[Long]]("ChatLog.id") ~
-			get[String]("ChatLog.message") ~
-			get[Long]("ChatLog.time") ~
-			get[Long]("ChatLog.chatroom_id") ~
-			get[Long]("ChatLog.user_id") ~
-			get[String]("ChatLog.kind") map {
+		field[Pk[Long]]("id") ~
+			field[String]("message") ~
+			field[Long]("time") ~
+			field[Long]("chatroom_id") ~
+			field[Long]("user_id") ~
+			field[String]("kind") map {
 				case id ~ message ~ time ~ roomId ~ userId ~ kind => ChatLog(id, kind, message, time, roomId, userId)
 			}
 	}
 
 	val withEmail = {
-		get[Pk[Long]]("ChatLog.id") ~
-			get[String]("ChatLog.message") ~
-			get[Long]("ChatLog.time") ~
-			get[Long]("ChatLog.chatroom_id") ~
+		field[Pk[Long]]("id") ~
+			field[String]("message") ~
+			field[Long]("time") ~
+			field[Long]("chatroom_id") ~
 			get[String]("User.email") ~
-			get[String]("ChatLog.kind") map {
+			field[String]("kind") map {
 				case id ~ message ~ time ~ roomId ~ email ~ kind => ChatLogWithEmail(id, kind, message, time, roomId, email)
 			}
 	}
@@ -60,8 +60,6 @@ object ChatLog extends ActiveRecord[ChatLog] {
 			)
 		)
 	}
-
-	def create(l: ChatLog) = create(l.kind, l.roomId, l.userId, l.message)
 
 	def create(kind: String, roomId: Long, userId: Long, message: String) = {
 		DB.withConnection { implicit c =>
