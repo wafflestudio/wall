@@ -115,7 +115,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 
 		case Quit(userId, producer) => {
 			connections = connections.flatMap { p =>
-				if (p eq producer)
+				if (p._1 == userId)
 					None
 				else
 					Some(p)
@@ -133,7 +133,10 @@ class ChatRoomActor(roomId:Long) extends Actor {
 				Seq(
 					"kind" -> JsString(kind),
 					"username" -> JsString(username),
-					"message" -> JsString(message)
+					"message" -> JsString(message),
+          "users" -> JsArray(
+            connections.map(_._1).map(i => User.findById(i).get.email ).map(JsString)
+          )
 				)
 			)
 			
