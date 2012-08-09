@@ -71,7 +71,6 @@ trait SignUp {
 object Application extends Controller with Login with SignUp {
 
 	def index = Action { implicit request =>
-		Logger.info(request.flash.data.toString)
 		Ok(views.html.index())
 	}
 
