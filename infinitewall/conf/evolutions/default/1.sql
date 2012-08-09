@@ -12,7 +12,8 @@ CREATE TABLE User (
     email varchar(255) NOT NULL,
     hashedpw varchar(255) NOT NULL,
     permission int NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE (email)
 );
 
 CREATE TABLE ChatLog (

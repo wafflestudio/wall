@@ -28,12 +28,11 @@ object WallPreference extends ActiveRecord[WallPreference] {
 			val id = SQL("select next value for wallpreference_seq").as(scalar[Long].single)
 			
 			SQL(""" 
-				insert into {tableName} values (
+				insert into WallPreference values (
 					{id},
 					{alias}, {panX}, {panY}, {zoom}, {userId}, {wallId}
 				)
 			""").on(
-				'tableName -> tableName,
 				'id -> id,	
 				'alias -> alias,
 				'panX -> panX,
