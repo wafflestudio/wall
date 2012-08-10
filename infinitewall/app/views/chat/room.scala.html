@@ -5,6 +5,11 @@
 	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
 	<div id="log">
 	</div>
+<div id="list_box" style="position: absolute; right: 100px; top: 100px;">
+User List
+  <ul id="user_list" style="width: 200px;height: 600px;">
+  </ul>
+</div>
 	
 	<script type="text/javascript">
 
@@ -13,6 +18,7 @@
 
 	function onReceive(e) {
 		var data = JSON.parse(e.data);
+console.log(data);
 		if(data.error) {
 			console.log('disconnected: ' + data.error)
 			chatSocket.close();
@@ -21,6 +27,11 @@
 
 		$("#log").prepend("<p>" + "<span>" + data.username + "</span>" + "<span> " + data.message + "</span>" + "</p>")
 	
+    //update user list
+    $('#user_list').html('');
+    $(data.users).each(function() {
+      $('#user_list').append('<li>'+this+'</li>');
+    });
 	}
 
 	function onError(e) {
