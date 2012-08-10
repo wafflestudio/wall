@@ -46,9 +46,9 @@ CREATE SEQUENCE chatlog_timestamp start with 1000;
 CREATE SEQUENCE userinchatroom_timestamp start with 1000;
 
 alter table ChatLog add constraint fk_chatlog_user_1 foreign key (user_id) references User (id) 
-  on delete restrict on update restrict;
+  on delete cascade on update restrict;
 alter table ChatLog add constraint fk_chatlog_chatroom_1 foreign key (chatroom_id) references ChatRoom (id) 
-  on delete restrict on update restrict;
+  on delete cascade on update restrict;
   
 alter table UserInChatRoom add constraint fk_userinchatroom_user_1 foreign key (user_id) references User (id) 
   on delete cascade on update restrict;

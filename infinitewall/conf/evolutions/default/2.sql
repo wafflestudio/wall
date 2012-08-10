@@ -43,11 +43,11 @@ CREATE SEQUENCE sheet_seq start with 1000;
 CREATE SEQUENCE textcontent_seq start with 1000;
 
 alter table Wall add constraint fk_wall_user_1 foreign key (user_id) references User (id) 
-  on delete restrict on update restrict;
+  on delete cascade on update restrict;
 alter table Sheet add constraint fk_sheet_wall_1 foreign key (wall_id) references Wall (id) 
-  on delete restrict on update restrict;
+  on delete cascade on update restrict;
 alter table TextContent add constraint fk_textcontent_sheet_1 foreign key (sheet_id) references Sheet (id) 
-  on delete restrict on update restrict;
+  on delete cascade on update restrict;
   
 create index idx_wall_user_1 on Wall (user_id);
 create index idx_sheet_wall_1 on Sheet (wall_id);

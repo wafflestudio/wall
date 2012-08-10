@@ -14,9 +14,9 @@ CREATE TABLE WallLog (
 CREATE SEQUENCE walllog_seq start with 1000;
 
 alter table WallLog add constraint fk_walllog_wall_1 foreign key (wall_id) references Wall (id) 
-  on delete restrict on update restrict;
+  on delete cascade on update restrict;
 alter table WallLog add constraint fk_walllog_user_1 foreign key (user_id) references User (id) 
-  on delete restrict on update restrict;
+  on delete cascade on update restrict;
 
 CREATE SEQUENCE walllog_timestamp start with 1000;
   
