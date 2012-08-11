@@ -140,7 +140,8 @@ function sheetHandler(element)  {
 	}
 
 	function onButtonMouseUp(e) {
-		
+		$(document).off('mousemove', onMouseMove);
+		$(document).off('mouseup', onMouseUp);
 		$(element).trigger("remove", {id:$(element).attr('id').substr(5)});
 	}
 

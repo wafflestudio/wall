@@ -105,10 +105,12 @@
 
 #chat {
 	position:fixed;
-	top:50px;
+	padding:8px;
+	top:40px;
 	right:0px;
-	width:200px;
+	width:446px;
 	height:100%;
+	background-color:#ddd;
 }
 
 #talk {
