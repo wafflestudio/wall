@@ -114,5 +114,13 @@
 }
 
 #talk {
-	width:180px;
+	width:390px;
+}
+
+#chat-userlist {
+	position:fixed;
+	right:462px;
+	height:100%;
+	top:40px;
+	background-color:#f0f0f0;
 }
