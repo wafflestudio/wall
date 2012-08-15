@@ -1,7 +1,6 @@
 
 function WallSocket(url) {
 	$.extend(this, new this.$super());
-	console.log(this)
 
 	var timestamp = 999
 	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
@@ -13,7 +12,9 @@ function WallSocket(url) {
 	}
 
 	function onReceive(e) {
+
 		var data = JSON.parse(e.data);
+		
 		if(data.error) {
 			console.log('disconnected: ' + data.error)
 			socket.close();
@@ -38,11 +39,13 @@ function WallSocket(url) {
 		self.trigger('close', e)
 	}
 
+
 	socket.onmessage = onReceive
 	socket.onerror = onError
 	socket.onclose = onClose
 	this.send = send
-
+	this.socket = socket
+	this.close = socket.close
 }
 
 WallSocket.prototype.$super = EventDispatcher;

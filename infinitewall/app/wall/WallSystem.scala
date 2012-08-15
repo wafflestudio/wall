@@ -53,6 +53,7 @@ object WallSystem {
 				val consumer = Iteratee.foreach[JsValue] { detail: JsValue =>
 					wall(wallId) ! Action(userId, detail)
 				}.mapDone { _ =>
+					Logger.error("quit")
 					wall(wallId) ! Quit(userId, producer)
 				}
 
