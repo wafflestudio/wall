@@ -16,6 +16,7 @@ import models.ChatRoom
 import models.WallLog
 import models.Sheet
 import play.api.db.DB
+import models.WallPreference
 
 
 object Wall extends Controller with Auth with Login{
@@ -25,20 +26,20 @@ object Wall extends Controller with Auth with Login{
 		Ok(views.html.wall.index(walls))
 	}
 	
-	def wall(wallId: Long) = AuthenticatedAction { implicit request =>
+	def stage(wallId: Long) = AuthenticatedAction { implicit request =>
 		val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
 		val (timestamp, sheets) = DB.withTransaction { implicit c => 
 			(WallLog.timestamp(wallId), Sheet.findByWallId(wallId))
 		}
-		
-		Ok(views.html.wall.wall(wallId, sheets, timestamp, chatRoomId))
+		val pref = WallPreference.findOrCreate(currentUserId, wallId)
+		Ok(views.html.wall.stage(wallId, pref, sheets, timestamp, chatRoomId))
 	}
 	
-	def create = Action { implicit request =>
+	def create = AuthenticatedAction { implicit request =>
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
 		val title = params.get("title").getOrElse(Seq("unnamed"))
 		val wallId = models.Wall.create(currentUserId, title(0))
-		Redirect(routes.Wall.wall(wallId))
+		Redirect(routes.Wall.stage(wallId))
 	}
 
 	def sync(wallId: Long, timestamp:Long = 0) = WebSocket.async[JsValue] { request =>
@@ -54,6 +55,11 @@ object Wall extends Controller with Auth with Login{
 
 	def delete(id: Long) = AuthenticatedAction { implicit request => 
 		models.Wall.delete(id)
+		Ok(Json.toJson("OK"))
+	}
+	
+	def setView(wallId: Long, panX: Double, panY: Double, zoom: Double) = AuthenticatedAction { implicit request =>
+		models.WallPreference.setView(currentUserId, wallId, panX, panY, zoom)
 		Ok(Json.toJson("OK"))
 	}
 }

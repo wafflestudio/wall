@@ -15,9 +15,9 @@ function ChatSocket(url) {
 		$("#log").prepend("<p>" + "<span>" + data.username + "</span>" + "<span> " + data.message + "</span>" + "</p>")
 		
 		//update user list
-		$('#user_list').html('');
+		$('#users').html('');
 		$(data.users).each(function() {
-			$('#user_list').append('<li>'+this+'</li>');
+			$('#users').append('<li>'+this+'</li>');
 		});
 	
 	}

@@ -108,19 +108,20 @@
 	padding:8px;
 	top:40px;
 	right:0px;
-	width:446px;
+	width:400px;
 	height:100%;
 	background-color:#ddd;
 }
 
 #talk {
-	width:390px;
+	width:334px;
 }
 
 #chat-userlist {
 	position:fixed;
-	right:462px;
+	right:416px;
 	height:100%;
 	top:40px;
 	background-color:#f0f0f0;
 }
+
