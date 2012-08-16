@@ -100,8 +100,9 @@ class ChatRoomActor(roomId:Long) extends Actor {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
 			}
 			else {
+				prev.map { jsval => producer.push(jsval) }
 				connections = connections :+ (userId, producer)
-				sender ! Connected(prev >>> producer)
+				sender ! Connected(producer)
 			}
 		}
 
@@ -115,7 +116,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 
 		case Quit(userId, producer) => {
 			connections = connections.flatMap { p =>
-				if (p._1 == userId)
+				if (p._1 == userId && p._2 == producer)
 					None
 				else
 					Some(p)
