@@ -13,8 +13,9 @@ object Wall extends ActiveRecord[Wall] {
 	val simple = {
 		field[Pk[Long]]("id") ~
 		field[String]("name") ~ 
-		field[Long]("user_id") map {
-			case id ~ name ~ userId=> Wall(id, name, userId)
+		field[Long]("user_id") ~
+		field[Int]("is_reference") map {
+			case id ~ name ~ userId ~ isReference => Wall(id, name, userId)
 		}
 	}
 	
@@ -25,12 +26,13 @@ object Wall extends ActiveRecord[Wall] {
 			SQL(""" 
 				insert into Wall values (
 					{id},
-					{name}, {userId}
+					{name}, {userId}, {isReference}
 				)
 			""").on(
 				'id -> id,	
 				'name -> name,
-				'userId -> userId
+				'userId -> userId,
+				'isReference -> 0
 			).executeUpdate()
 			
 			id
