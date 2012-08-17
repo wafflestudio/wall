@@ -28,14 +28,14 @@ trait Auth {
 		request.session.get("current_user_id").getOrElse("-1").toLong
 	}
 
-	def AuthenticatedAction(f: Request[AnyContent] => Result): Action[AnyContent] = {
-		Action { request =>
+	def AuthenticatedAction(f: Request[AnyContent] => Result): Action[AnyContent] = 
+		Action { implicit request =>
 			if (request.session.get("current_user").isDefined)
 				f(request)
 			else
 				Forbidden
 		}
-	}
+	
 }
 
 trait Login extends Auth {

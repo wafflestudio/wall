@@ -16,24 +16,24 @@ object ChatLog extends ActiveRecord[ChatLog] {
 	
 	val simple = {
 		field[Pk[Long]]("id") ~
-			field[String]("message") ~
-			field[Long]("time") ~
-			field[Long]("chatroom_id") ~
-			field[Long]("user_id") ~
-			field[String]("kind") map {
-				case id ~ message ~ time ~ roomId ~ userId ~ kind => ChatLog(id, kind, message, time, roomId, userId)
-			}
+		field[String]("message") ~
+		field[Long]("time") ~
+		field[Long]("chatroom_id") ~
+		field[Long]("user_id") ~
+		field[String]("kind") map {
+			case id ~ message ~ time ~ roomId ~ userId ~ kind => ChatLog(id, kind, message, time, roomId, userId)
+		}
 	}
 
 	val withEmail = {
 		field[Pk[Long]]("id") ~
-			field[String]("message") ~
-			field[Long]("time") ~
-			field[Long]("chatroom_id") ~
-			get[String]("User.email") ~
-			field[String]("kind") map {
-				case id ~ message ~ time ~ roomId ~ email ~ kind => ChatLogWithEmail(id, kind, message, time, roomId, email)
-			}
+		field[String]("message") ~
+		field[Long]("time") ~
+		field[Long]("chatroom_id") ~
+		get[String]("User.email") ~
+		field[String]("kind") map {
+			case id ~ message ~ time ~ roomId ~ email ~ kind => ChatLogWithEmail(id, kind, message, time, roomId, email)
+		}
 	}
 
 	def list(roomId: Long, timestamp: Long) = {
@@ -47,16 +47,11 @@ object ChatLog extends ActiveRecord[ChatLog] {
 
 
 	implicit def chatlog2Json(chatlog: ChatLogWithEmail): JsValue = {
-
 		JsObject(
 			Seq(
 				"kind" -> JsString(chatlog.kind),
 				"username" -> JsString(chatlog.email),
 				"message" -> JsString(chatlog.message)
-			//					
-			//					,"members" -> JsArray(
-			//						connections.map(ws => JsNumber(ws._1))
-			//					)
 			)
 		)
 	}
@@ -65,14 +60,15 @@ object ChatLog extends ActiveRecord[ChatLog] {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for chatlog_seq").as(scalar[Long].single)
 			SQL(""" 
-				insert into ChatLog values (
+				insert into ChatLog (id, message, time, chatroom_id, user_id, kind)
+					values (
 					{id},
-					{message}, (select next value for chatlog_timestamp), {roomId}, {userId}, {kind}	
+					{message}, (select next value for chatlog_timestamp), {chatroomId}, {userId}, {kind}	
 				)
 			""").on(
 				'id -> id,
 				'message -> message,
-				'roomId -> roomId,
+				'chatroomId -> roomId,
 				'userId -> userId,
 				'kind -> kind
 			).executeUpdate()

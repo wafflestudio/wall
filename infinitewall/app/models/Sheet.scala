@@ -112,7 +112,7 @@ object Sheet extends ActiveRecord[Sheet] {
 			val id = SQL("select next value for sheet_seq").as(scalar[Long].single)
 			
 			SQL(""" 
-				insert into sheet values (
+				insert into sheet (id, x, y, width, height, title, content_type, wall_id, is_reference) values (
 					{id},
 					{x}, {y}, {width}, {height}, {title}, {contentType}, {wallId}, {isReference}
 				)

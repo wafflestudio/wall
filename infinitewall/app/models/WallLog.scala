@@ -61,7 +61,7 @@ object WallLog extends ActiveRecord[WallLog] {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for walllog_seq").as(scalar[Long].single)
 			SQL(""" 
-				insert into WallLog values (
+				insert into WallLog (id, kind, message, time, wall_id, user_id) values (
 					{id}, {kind}, 
 					{message}, (select next value for walllog_timestamp), {wallId}, {userId}
 				)

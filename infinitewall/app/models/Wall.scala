@@ -24,7 +24,7 @@ object Wall extends ActiveRecord[Wall] {
 			val id = SQL("select next value for wall_seq").as(scalar[Long].single)
 			
 			SQL(""" 
-				insert into Wall values (
+				insert into Wall (id, name, user_id, is_reference) values (
 					{id},
 					{name}, {userId}, {isReference}
 				)
@@ -42,6 +42,15 @@ object Wall extends ActiveRecord[Wall] {
 	def list() = {
 		DB.withConnection { implicit c =>
 			SQL("select * from Wall").as(Wall.simple*)
+		}	
+	}
+	
+	def tree(userId:Long) = {
+		DB.withConnection {  implicit c =>
+			val folders = Folder.findByUserId(userId)
+			val walls = SQL("select * from Wall where user_id={userId}").on('userId -> userId).as(Wall.simple*)
+			
+			
 		}	
 	}
 	

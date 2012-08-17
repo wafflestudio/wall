@@ -45,7 +45,7 @@ object User extends ActiveRecord[User] {
 		
 		DB.withConnection { implicit c =>
 			SQL(""" 
-				insert into User values (
+				insert into User (id, email, hashedpw, permission) values (
 					(select next value for user_seq),
 					{email}, {hashedPW}, {permission}	
 				)

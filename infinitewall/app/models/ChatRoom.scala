@@ -34,7 +34,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for chatroom_seq").as(scalar[Long].single)
 			SQL(""" 
-				insert into ChatRoom values (
+				insert into ChatRoom (id, title) values (
 					{id},
 					{title}	
 				)
@@ -63,7 +63,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 				case None =>
 					val chatRoomId = SQL("select next value for chatroom_seq").as(scalar[Long].single)
 					SQL(""" 
-						insert into ChatRoom values (
+						insert into ChatRoom (id, title) values (
 							{id},
 							{title}	
 						)
@@ -74,7 +74,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 					
 					val chatRoomForWallId = SQL("select next value for chatroomforwall_seq").as(scalar[Long].single)
 					SQL(""" 
-						insert into ChatRoomForWall values (					
+						insert into ChatRoomForWall (id, wall_id, chatroom_id) values (					
 							{id},
 							{wallId},
 							{chatRoomId}
@@ -90,17 +90,17 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 		}
 	}
 	
-	def addUser(id: Long, user_id: Long) = {
+	def addUser(id: Long, userId: Long) = {
 		DB.withConnection { implicit c =>
 			SQL(""" 
-				merge into UserInChatRoom values (					
-					{user_id},
-					{id},
+				merge into UserInChatRoom (user_id, chatroom_id, time) values (					
+					{userId},
+					{chatroomId},
 					(select next value for userinchatroom_timestamp)
 				)
 			""").on(
-				'user_id -> user_id,
-				'id -> id
+				'userId -> userId,
+				'chatroomId -> id
 			).executeUpdate()
 		}
 	}
