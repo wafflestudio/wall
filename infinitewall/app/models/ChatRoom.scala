@@ -96,7 +96,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 				merge into UserInChatRoom values (					
 					{user_id},
 					{id},
-					(select next value from userinchatroom_timestamp)
+					(select next value for userinchatroom_timestamp)
 				)
 			""").on(
 				'user_id -> user_id,

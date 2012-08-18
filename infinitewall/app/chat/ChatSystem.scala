@@ -15,6 +15,7 @@ import play.api.Logger
 import play.api.libs.json._
 import models.User
 import models.ChatLog
+import models.ChatRoom
 import java.sql.Timestamp
 
 case class Join(userId: Long)
@@ -102,6 +103,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 			else {
 				prev.map { jsval => producer.push(jsval) }
 				connections = connections :+ (userId, producer)
+        ChatRoom.addUser(roomId, userId)
 				sender ! Connected(producer)
 			}
 		}
@@ -121,6 +123,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 				else
 					Some(p)
 			}
+      ChatRoom.removeUser(roomId, userId)
 			notifyAll("quit", userId, "has left the room")
 		}
 
