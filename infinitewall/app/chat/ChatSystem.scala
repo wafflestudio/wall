@@ -132,6 +132,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 	def notifyAll(kind: String, userId: Long, message: String) {
 
 			val username = User.findById(userId).get.email
+      val users = ChatRoom.listUsers(roomId)
 
 			val msg = JsObject(
 				Seq(
@@ -139,7 +140,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 					"username" -> JsString(username),
 					"message" -> JsString(message),
           "users" -> JsArray(
-            connections.map(_._1).map(i => User.findById(i).get.email ).map(JsString)
+            connections.map(i => JsString(User.findById(i._1).get.email) )
           )
 				)
 			)
