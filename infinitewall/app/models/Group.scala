@@ -4,21 +4,21 @@ import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
 import play.api.Play.current
-import java.sql.Timestamp
-import java.util.Date
 
-case class Group(id: Pk[Long], val name: String)
+
+case class Group(id: Pk[Long], name: String)
+case class UserInGroup(userId:Long, groupId:Long)
 
 object Group extends ActiveRecord[Group] {
-  val tableName = "Group"
+	val tableName = "Group"
 
-  val simple = {
-    field[Pk[Long]]("id") ~
-    field[String]("name") map {
-      case id ~ name => Group(id, name)
-    }
-  }
-/* for run (table is not updated yet)
+	val simple = {
+		field[Pk[Long]]("id") ~
+		field[String]("name") map {
+			case id ~ name => Group(id, name)
+		}
+	}
+
 	val users = {
 		get[Long]("UserInGroup.user_id") ~
 		get[Long]("UserInGroup.group_id") map {
@@ -26,21 +26,21 @@ object Group extends ActiveRecord[Group] {
 		}
 	}
 
-  def create(name:String) = {
-    DB.withConnection { implicit c =>
-      val id = SQL("select next value for group_seq").as(scalar[Long].single)
-      SQL("""
-        insert into Group values (
-          {id},
-          {name}
-        )
-      """).on(
-        'id -> id,
-        'title -> title
-      ).executeUpdate()
-      id
-    }
-  }
+	def create(name: String) = {
+		DB.withConnection { implicit c =>
+			val id = SQL("select next value for group_seq").as(scalar[Long].single)
+			SQL("""
+		        insert into Group values (
+		          {id},
+		          {name}
+		        )
+		    """).on(
+		    	'id -> id,
+		    	'name -> name
+			).executeUpdate()
+			id
+		}
+	}
 	def addUser(id: Long, user_id: Long) = {
 		DB.withConnection { implicit c =>
 			SQL(""" 
@@ -54,7 +54,7 @@ object Group extends ActiveRecord[Group] {
 			).executeUpdate()
 		}
 	}
-	
+
 	def removeUser(id: Long, user_id: Long) = {
 		DB.withConnection { implicit c =>
 			SQL(""" 
@@ -65,13 +65,12 @@ object Group extends ActiveRecord[Group] {
 			).executeUpdate()
 		}
 	}
-	
+
 	def listUsers(id: Long) = {
 		DB.withConnection { implicit c =>
 			SQL("select user.* from UserInGroup as uig, User where uig.group_id = {id} and uig.user_id = user.id").on('id -> id).
 				as(User.simple*)
 		}
 	}
-  */
 
 }
