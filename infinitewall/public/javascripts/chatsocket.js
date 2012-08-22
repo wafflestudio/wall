@@ -31,8 +31,7 @@ function ChatSocket(url) {
 	socket.onclose = onError
 
 	$(function() {
-		$('#talk').keyup(function(event) {
-			
+		$('#talk').keyup(function(event) {			
 			if(event.keyCode == 13)
 			{
 				$('#sendBtn').click()
