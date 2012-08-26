@@ -5,6 +5,7 @@
 
 create table UserGroup (
 	id bigint(20) not null,
+	name varchar(255) not null,
 	primary key (id)
 );
 

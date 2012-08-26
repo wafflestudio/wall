@@ -5,7 +5,11 @@ import anorm.SqlParser._
 import play.api.db.DB
 import play.api.Play.current
 
-case class Folder(id:Pk[Long], name:String, parentId:Long, userId:Long)
+
+trait TreeNode
+
+case class RootFolder() extends TreeNode
+case class Folder(id:Pk[Long], name:String, parentId:Option[Long], userId:Long) extends TreeNode
 
 object Folder extends ActiveRecord[Folder] {
 	val tableName = "Folder"
@@ -13,7 +17,7 @@ object Folder extends ActiveRecord[Folder] {
 	val simple = {
 		field[Pk[Long]]("id") ~
 		field[String]("name") ~ 
-		field[Long]("parent_id") ~ 
+		field[Option[Long]]("parent_id") ~ 
 		field[Long]("user_id") map {
 			case id ~ name ~ parentId ~ userId => Folder(id, name, parentId, userId)
 		}

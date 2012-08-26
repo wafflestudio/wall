@@ -102,14 +102,14 @@
 	box-shadow: 0px 0px 5px 3px #bbb;
 }
 
-#chat {
+#sidebar {
 	position:fixed;
 	padding:8px;
 	top:40px;
 	right:0px;
 	width:400px;
 	height:100%;
-	background-color:#ddd;
+	background-color:#fff;
 }
 
 #talk {
@@ -123,4 +123,3 @@
 	top:40px;
 	background-color:#f0f0f0;
 }
-

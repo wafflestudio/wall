@@ -21,4 +21,9 @@ object Folder extends Controller with Auth {
 		models.Folder.delete(id)
 		Ok("")
 	}
+	
+	def moveTo(id:Long, parentId:Long) = AuthenticatedAction { implicit request => 
+		models.Folder.moveTo(id, parentId)
+		Ok("")
+	}
 }

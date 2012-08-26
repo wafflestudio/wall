@@ -17,6 +17,9 @@ import models.WallLog
 import models.Sheet
 import play.api.db.DB
 import models.WallPreference
+import models.ResourceTree
+import models.RootFolder
+import models.RootFolder
 
 
 object Wall extends Controller with Auth with Login{
@@ -26,12 +29,31 @@ object Wall extends Controller with Auth with Login{
 		Ok(views.html.wall.index(walls))
 	}
 	
+	implicit def resourceTree2Json(implicit tree:ResourceTree):JsValue = {
+		tree.node match {
+			case root:models.RootFolder => 
+				JsArray(tree.children.map(resourceTree2Json(_)))
+			case folder:models.Folder =>
+				JsObject(Seq("type" -> JsString("folder"), "id" -> JsNumber(folder.id.get), "name" -> JsString(folder.name), 
+					"children" -> JsArray(tree.children.map(resourceTree2Json(_)))))
+			case wall:models.Wall =>
+				JsObject(Seq("type" -> JsString("wall"), "id" -> JsNumber(wall.id.get), "name" -> JsString(wall.name)))
+		}
+	}
+	
+	
+	def tree = AuthenticatedAction { implicit request =>
+		val tree = models.Wall.tree(currentUserId)
+		Ok(resourceTree2Json(tree))
+	}
+	
 	def stage(wallId: Long) = AuthenticatedAction { implicit request =>
 		val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
 		val (timestamp, sheets) = DB.withTransaction { implicit c => 
 			(WallLog.timestamp(wallId), Sheet.findByWallId(wallId))
 		}
 		val pref = WallPreference.findOrCreate(currentUserId, wallId)
+		val walls = 1
 		Ok(views.html.wall.stage(wallId, pref, sheets, timestamp, chatRoomId))
 	}
 	
@@ -61,5 +83,10 @@ object Wall extends Controller with Auth with Login{
 	def setView(wallId: Long, panX: Double, panY: Double, zoom: Double) = AuthenticatedAction { implicit request =>
 		models.WallPreference.setView(currentUserId, wallId, panX, panY, zoom)
 		Ok(Json.toJson("OK"))
+	}
+	
+	def moveTo(wallId:Long, folderId:Long) = AuthenticatedAction { implicit request => 
+		
+		Ok("")
 	}
 }

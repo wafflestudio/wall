@@ -218,8 +218,8 @@ function wallHandler(element) {
 
 		$(document).on('mousemove', onMouseMove);
 		$(document).on('mouseup', onMouseUp);
-
-		return false; // same as e.stopPropation + e.preventDefault
+		e.preventDefault();
+		//return false; // same as e.stopPropation + e.preventDefault
 	}
 
 	function onMouseWheel(e, delta, deltaX, deltaY) {

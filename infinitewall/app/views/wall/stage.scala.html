@@ -9,16 +9,35 @@
 	</div>
 </div>
 
-<div id="chat">
-	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
-	<div id="log">
-	</div>
-	<div id="chat-userlist">
-		User List
-		<ul id="users" class="unstyled">
-		</ul>
-	</div>
+<div id="sidebar">
+    <div class="tabbable"> 
+	    <ul class="nav nav-tabs">
+		    <li class="active"><a href="#walls" data-toggle="tab">Walls</a></li>
+		    <li><a href="#chat" data-toggle="tab">Chat</a></li>
+	    </ul>
+	    <div class="tab-content">
+		    <div class="tab-pane active" id="walls">
+		    	<div id="folder-test">
+				</div>
+		    </div>
+		    <div class="tab-pane" id="chat">
+		    	<div id="chat">
+					<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
+					<div id="log">
+					</div>
+					<div id="chat-userlist">
+						User List
+						<ul id="users" class="unstyled">
+						</ul>
+					</div>
+					
+				</div>
+		    </div>
+	    </div>
+    </div>
 </div>
+
+
 
 <div id="buttonbar">
 	<button id="createBtn" class="btn-small" style="z-index:2">Create sheet</button>
