@@ -3,7 +3,7 @@ var glob = new function() {
 	this.zoomLevel = 1;
 }
 
-var template = "<div class='sheetBox'> <div class='sheet' contenteditable = true><p class='text'>Box 1</p><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
+var template = "<div class='sheetBox'> <div class='sheet'><textarea></textarea><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
 
 function createSheet(id, params)  {
 	return createNewSheet(id, params.x, params.y, params.width, params.height, params.text)
@@ -27,14 +27,97 @@ function removeSheet(params)  {
 	$(element).remove();
 }
 
+/*
+ * google diff patch
+ */
+var dmp = new diff_match_patch();
+
+var patch_text = '';
+
+function diff_launch(text1, text2) {
+   var diff = dmp.diff_main(text1, text2, true);
+
+   if (diff.length > 2) {
+      dmp.diff_cleanupSemantic(diff);
+   }
+
+   var patch_list = dmp.patch_make(text1, text2, diff);
+   patch_text = dmp.patch_toText(patch_list);
+   return patch_text;
+}
+
+
+function patch_launch(text1, patch_text) {
+   var patches = dmp.patch_fromText(patch_text);
+   var results = dmp.patch_apply(patches, text1);
+
+   patch = results[0];
+   results = results[1];
+   
+   for (var x = 0; x < results.length; x++) {
+      if (results[x]) { // OK
+      } else {
+      }
+   }
+   return patch;
+}
+
+(function ($, undefined) {
+   $.fn.getCursorPosition = function() {
+      var el = $(this).get(0);
+      var pos = 0;
+      if('selectionStart' in el) {
+         pos = el.selectionStart;
+      } else if('selection' in document) {
+         el.focus();
+         var Sel = document.selection.createRange();
+         var SelLength = document.selection.createRange().text.length;
+         Sel.moveStart('character', -el.value.length);
+         pos = Sel.text.length - SelLength;
+      }
+      return pos;
+   }
+})(jQuery);
+
+(function ($) {
+   $.fn.setCursorPosition = function(pos) {
+      if ($(this).get(0).setSelectionRange) {
+         $(this).get(0).setSelectionRange(pos, pos);
+      } else if ($(this).get(0).createTextRange) {
+         var range = $(this).get(0).createTextRange();
+         range.collapse(true);
+         range.moveEnd('character', pos);
+         range.moveStart('character', pos);
+         range.select();
+      }
+   }
+})(jQuery);
+
 function setText(params)  {
 	// set Text
 	var element = $("#sheet" + params.id)
-	$(element).children('.sheet').html(params.text)
+	//$(element).children('.sheet').html(params.text)
+	//var text1 = $(element).children('.sheet').html();
+	var text1 = $(element).find('textarea').val();
+	console.log("a: " + text1);
+	var text2 = params.text;
+	console.log("b: " + text2);
+	//var text2 = params.text;
+	var patch_text = diff_launch(text1, text2);
+	console.log("c: " + patch_text);
+	var patch = patch_launch(text1, patch_text);
+	console.log("d: " + patch);
+	//var cursor = $(element).children('textarea').getCursorPosition();
+	//$(element).children('textarea').html(patch);
+	//$(element).children('textarea').setCursorPosition(cursor);
+	var cursor = $(element).find('textarea').getCursorPosition();
+	$(element).find('textarea').val(patch);
+	$(element).find('textarea').setCursorPosition(cursor);
 }
 
 function createNewSheet(id, x, y, w, h, text) {
 	var sheet = $(template).appendTo("#moveLayer")
+	//var range = rangy.createRange();
 	$(sheet).attr("id", "sheet" + id)
 	$(sheet).css("x", x + "px")
 	$(sheet).css("y", y + "px")
@@ -46,7 +129,8 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).on("move", function(e, params) { wallSocket.send({action: "move", params: $.extend(params,{id:id})}) })
 	$(sheet).on("resize", function(e, params) { wallSocket.send({action: "resize", params: $.extend(params, {id:id})}) })
 	$(sheet).on("remove", function(e) { wallSocket.send({action:"remove", params:{id:id}}) })
-	$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).children('.sheet').html()}}) })
+	//$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).children('.sheet').html(), cursor: 1}}) })
+	$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).find('textarea').val(), cursor: 1}}) })
 	
 	return sheet
 }
@@ -173,8 +257,9 @@ function sheetHandler(element)  {
 	$(element).on('mousedown', '.resizeHandle', onResizeMouseDown);
 	$(element).on('mousedown', onMouseDown);
 
-	$(element).children('.sheet').on('change', function(e) { 
-		$(element).trigger('setText', e)
+	//$(element).children('.sheet').on('change', function(e) { 
+	$(element).find('textarea').on('keyup', function(e) { 
+       $(element).trigger('setText', e);
 	})
 }
 
