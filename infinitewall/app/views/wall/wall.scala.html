@@ -19,9 +19,8 @@
 	<button id="createBtn" class="btn-small" style="z-index:2">Create sheet</button>
 </div>
 <script type="text/javascript">
-	
-		var wallSocket = new WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
-		var chatSocket = new ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
+   var wallSocket = new WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
+   var chatSocket = new ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
 	
 	$(function() {	
 		var sheets = []
@@ -34,9 +33,9 @@
 			var sheet = sheets[i]
 			
 			createNewSheet(sheet.id, sheet.x, sheet.y, sheet.width, sheet.height, sheet.content)
+            //$('div#sheet'+sheet.id+'  textarea').redactor({autoresize: true});
 		}
 
 	})
 </script>
-
 }
