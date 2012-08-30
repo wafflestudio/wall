@@ -210,8 +210,8 @@ function sheetHandler(element)  {
 
 		$(document).on('mousemove', onMouseMove);
 		$(document).on('mouseup', onMouseUp);
-
-		return false; // same as e.stopPropation + e.preventDefault
+        e.stopPropagation();
+		//return false; // same as e.stopPropation + e.preventDefault
 	}
 	
 	function onButtonMouseDown(e) {
