@@ -56,6 +56,18 @@
 			createNewSheet(sheet.id, sheet.x, sheet.y, sheet.width, sheet.height, sheet.content)
 		}
 
+		glob.zoomLevel = @pref.zoom;
+		$('#scaleLayer').css('scale', glob.zoomLevel)
+		$('#moveLayer').css('x', @pref.panX)
+		$('#moveLayer').css('y', @pref.panY)
+
+		// folder test
+		var fv = new FolderView({type: "folder", name:"study", 
+			children:[{type:"folder", name:"0201", children:[{type:"item",name:"working with everyone"}]},
+				{type:"item",name:"untitled"}]
+			});
+		fv.appendTo($('#folder-test'))
+
 	})
 </script>
 
