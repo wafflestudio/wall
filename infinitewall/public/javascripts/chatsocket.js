@@ -12,7 +12,7 @@ function ChatSocket(url) {
 			return;
 		}
 
-		$("#log").prepend("<p>" + "<span>" + data.username + "</span>" + "<span> " + data.message + "</span>" + "</p>")
+		$("#log").append("<p>" + data.username + " : " + data.message + "</p>")
 		
 		//update user list
 		$('#users').html('');
@@ -34,11 +34,12 @@ function ChatSocket(url) {
 		$('#talk').keyup(function(event) {			
 			if(event.keyCode == 13)
 			{
-				$('#sendBtn').click()
+				sendMessage();
 			}
 		})
-		
-		$('#sendBtn').click(function() {
+
+		function sendMessage()
+		{
 			var msg = $('#talk').val()
 			
 			if(msg.charAt(msg.length-1) == '\n')
@@ -52,7 +53,7 @@ function ChatSocket(url) {
 				
 			socket.send(JSON.stringify({text: msg}))
 			$('#talk').val("")
-		})
+		}
 		
 	})
 	

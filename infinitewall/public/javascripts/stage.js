@@ -1,9 +1,11 @@
 var glob = new function() {
 	this.currentSheet = null;
 	this.zoomLevel = 1;
+	this.minimapToggled = 1;
+	this.rightBarOffset = 267;
 }
 
-var template = "<div class='sheetBox'> <div class='sheet'><textarea></textarea><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
+var template = "<div class='sheetBox'><div class='sheet'><div class='sheetTopBar'><h1> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
 
 function createSheet(id, params)  {
 	return createNewSheet(id, params.x, params.y, params.width, params.height, params.text)
@@ -144,8 +146,8 @@ function createRandomSheet()
 	
 	var x = Math.random()*500
 	var y = Math.random()*400
-	var w = 200
-	var h = 200
+	var w = 300
+	var h = 300
 	var text = "text"
 	wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, text:text}})
 	//createNewSheet(newId, x, y, w, h, text)
@@ -181,24 +183,28 @@ function sheetHandler(element)  {
 			 	y: (starty + e.pageY - deltay)/glob.zoomLevel })
 		}
 		else
-			$(element).children('.sheet').focus();
+			$(element).find('.sheetTextField').focus();
 
 	}
 
 	function onMouseDown(e) {
 		
 		hasMoved = false;
-		//$("#moveLayer").append($(element));
+		$("#moveLayer").append($(element));
 		// 따로 remove할 필요 없이 걍 append하면 맨 뒤로 감..
 		
 		if (glob.currentSheet)
 		{
 			glob.currentSheet.find(".boxClose").hide();
-			glob.currentSheet.children('.sheet').blur();
+			glob.currentSheet.find('.sheetTextField').blur();
+			glob.currentSheet.children('.sheet').css("border-top", "");
+			glob.currentSheet.children('.sheet').css("margin-top", "");
 		}
 
 		glob.currentSheet = $(element);
 		glob.currentSheet.find(".boxClose").show();
+		glob.currentSheet.children(".sheet").css("border-top", "2px solid #FF4E58");
+		glob.currentSheet.children(".sheet").css("margin-top", "-2px");
 
 		startx = parseInt($(element).css('x')) * glob.zoomLevel;
 		starty = parseInt($(element).css('y')) * glob.zoomLevel;
@@ -286,7 +292,11 @@ function wallHandler(element) {
 		$(document).off('mousemove', onMouseMove);
 		$(document).off('mouseup', onMouseUp);
 		if (glob.currentSheet)
+		{
 			glob.currentSheet.find('.boxClose').hide();
+			glob.currentSheet.children(".sheet").css("border-top", "");
+			glob.currentSheet.children(".sheet").css("margin-top", "");
+		}
 	}
 
 	function onMouseDown(e) {
@@ -299,7 +309,7 @@ function wallHandler(element) {
 		if (glob.currentSheet)
 		{
 			glob.currentSheet.find(".boxClose").hide();
-			glob.currentSheet.children('.sheet').blur();
+			glob.currentSheet.find('.sheetTextField').blur();
 		}
 
 		$(document).on('mousemove', onMouseMove);
@@ -331,6 +341,7 @@ function wallHandler(element) {
 		$("#scaleLayer").css('y', yNew);
 		$("#scaleLayer").css({transformOrigin:xImage + 'px ' + yImage + 'px'});
 		$(".boxClose").css({scale : 1 / glob.zoomLevel});
+		$("#zoomLevelText").text(parseInt(glob.zoomLevel * 100) + "%");
 
 		return false;
 	}
@@ -339,23 +350,64 @@ function wallHandler(element) {
 	$(element).on('mousewheel', onMouseWheel);
 }
 
+function toggleMinimap() {
+	
+	if (glob.minimapToggled == 1)
+	{
+		glob.minimapToggled = 0;
+		$("#miniMap").animate({right: '-220'}, 200, toggleMinimapFinished);
+	}
+	else
+	{
+		glob.minimapToggled = 1;
+		$("#chatWindow").animate({height: '-=190'}, 200, toggleMinimapFinished);
+	}
+
+}
+
+function toggleMinimapFinished() {
+	
+	if (glob.minimapToggled == 1)
+	{
+		$("#miniMap").animate({right: '0'}, 200);
+		glob.rightBarOffset += 190;
+		console.log(glob.rightBarOffset);
+	}
+	else 
+	{
+		$("#chatWindow").animate({height: '+=190'}, 200);
+		glob.rightBarOffset -= 190;
+		console.log(glob.rightBarOffset);
+	}
+
+}
+
+
+
+$(window).resize(function(){
+	$("#chatWindow").height($(window).height() - glob.rightBarOffset);
+});
 
 $(window).load(function(){
 
 	wallHandler("#wall");
-	$('#createBtn').click(createRandomSheet)
+	$('#createBtn').click(createRandomSheet);
+	$('#minimapBtn').click(toggleMinimap);
+
+	$("#chatWindow").height($(window).height() - glob.rightBarOffset);
+	$("#zoomLevelText").text(parseInt(glob.zoomLevel * 100) + "%");
 
 	$('[contenteditable]').live('focus', function() {
-	    var $this = $(this);
-	    $this.data('before', $this.html());
-	    return $this;
+		var $this = $(this);
+		$this.data('before', $this.html());
+		return $this;
 	}).live('blur keyup paste', function() {
-	    var $this = $(this);
-	    if ($this.data('before') !== $this.html()) {
-	        $this.data('before', $this.html());
-	        $this.trigger('change');
-	    }
-	    return $this;
+		var $this = $(this);
+		if ($this.data('before') !== $this.html()) {
+			$this.data('before', $this.html());
+			$this.trigger('change');
+		}
+		return $this;
 	});
 
 });

@@ -5,3 +5,13 @@
 form .actions {
 	text-align:center
 }
+
+.navbar .container {
+	width:auto;
+	height:38px;
+}
+
+.navbar .brand {
+	margin-left:-6px;
+	padding:6px 20px 12px;
+}

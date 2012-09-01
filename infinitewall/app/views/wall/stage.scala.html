@@ -9,41 +9,46 @@
 	</div>
 </div>
 
-<div id="sidebar">
-    <div class="tabbable"> 
-	    <ul class="nav nav-tabs">
-		    <li class="active"><a href="#walls" data-toggle="tab">Walls</a></li>
-		    <li><a href="#chat" data-toggle="tab">Chat</a></li>
-	    </ul>
-	    <div class="tab-content">
-		    <div class="tab-pane active" id="walls">
-		    	<div id="folder-test">
-				</div>
-		    </div>
-		    <div class="tab-pane" id="chat">
-		    	<div id="chat">
-					<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
-					<div id="log">
-					</div>
-					<div id="chat-userlist">
-						User List
-						<ul id="users" class="unstyled">
-						</ul>
-					</div>
-					
-				</div>
-		    </div>
-	    </div>
-    </div>
-</div>
 
-
-
-<div id="buttonbar">
-	<button id="createBtn" class="btn-small" style="z-index:2">Create sheet</button>
-</div>
-<script type="text/javascript">
+<div id = "rightBar">
 	
+	<div id = "miniMap">
+	</div>
+	
+	<div id = "chatWindow">
+		<div id="chat-userlist">
+			<ul id="users" class="unstyled">
+			</ul>
+		</div>
+		<div id="log">
+		</div>
+		<div id = "chatInput">
+			<textarea id="talk"></textarea>
+		</div>
+	</div>
+
+</div>
+
+<div id="toolBar">
+	
+	<div id="zoomToolBar">
+		<img id="zoomIcon" src="@routes.Assets.at("images/zoomIcon.png")"></img>
+		<p id="zoomLevelText"></p>
+	</div>
+
+	<div id="middleToolBar">
+		<img id="createBtn" src="@routes.Assets.at("images/createSheet.png")"></img>
+	</div>
+
+	<div id="rightToolBar">
+		<img id="minimapBtn" src="@routes.Assets.at("images/minimap.png")"></img>
+	</div>
+
+</div>
+
+
+<script type="text/javascript">
+
 	// initialize wall socket/events
 	var wallSocket = new WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
 	wallSocket.on('receive', function(detail) {
@@ -61,14 +66,14 @@
 
 	// initialize chat socket
 	var chatSocket = new ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
-	
+
 	// initialize current stage
 	$(function() {	
 		var sheets = []
-		
-	@sheets.map { sheet => 
-		sheets.push(@Html(sheet.toJson()))
-	}
+
+		@sheets.map { sheet => 
+			sheets.push(@Html(sheet.toJson()))
+		}
 
 		for(var i = 0; i < sheets.length; i++)  {	
 			var sheet = sheets[i]
@@ -83,8 +88,8 @@
 		// folder test
 		var fv = new FolderView({type: "folder", name:"study", 
 			children:[{type:"folder", name:"0201", children:[{type:"item",name:"working with everyone"}]},
-				{type:"item",name:"untitled"}]
-			});
+			{type:"item",name:"untitled"}]
+		});
 		fv.appendTo($('#folder-test'))
 
 	})
