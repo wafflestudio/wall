@@ -87,6 +87,9 @@ class WallActor(wallId: Long) extends Actor {
 	def logMessage(kind: String, userId: Long, message: String) = {
 		WallLog.create(kind, wallId, userId, message)
 	}
+	
+	implicit def toDouble(value:JsValue) = { value.as[Double] }
+	implicit def toLong(value:JsValue) = { value.as[Long] }
 
 	def receive = {
 
@@ -110,8 +113,7 @@ class WallActor(wallId: Long) extends Actor {
 					val params = (detail \ "params").as[JsObject]
 					Logger.info(detail.toString)
 					Logger.info(params.toString)
-					val sheetId = Sheet.createBlank((params \ "x").as[Double], (params \ "y").as[Double], (params \ "width").as[Double], (params \ "height").as[Double],
-						wallId)
+					val sheetId = Sheet.createBlank(params \ "x", params \ "y", params \ "width", params \ "height", wallId)
 					notifyAll("action", userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString)
 				case action @ _ =>
 					Logger.info(detail.toString)
@@ -120,9 +122,9 @@ class WallActor(wallId: Long) extends Actor {
 					Sheet.findById(id) map { sheet =>
 						action match {
 							case "move" =>
-								Sheet.move(sheet.id.get, (params \ "x").as[Double], (params \ "y").as[Double])
+								Sheet.move(sheet.id.get, params \ "x", params \ "y")
 							case "resize" =>
-								Sheet.resize(sheet.id.get, (params \ "width").as[Long], (params \ "height").as[Long])
+								Sheet.resize(sheet.id.get, params \ "width", params \ "height")
 							case "remove" =>
 								Sheet.delete(sheet.id.get)
 							case "setText" =>
@@ -143,7 +145,6 @@ class WallActor(wallId: Long) extends Actor {
 				else
 					Some(p)
 			}
-			//notifyAll("quit", userId, "has left the room")
 		}
 
 	}

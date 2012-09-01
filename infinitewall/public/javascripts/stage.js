@@ -123,7 +123,8 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).css("y", y + "px")
 	$(sheet).children('.sheet').css("width", w + "px")
 	$(sheet).children('.sheet').css("height", h + "px")
-	$(sheet).find(".text").html(text)
+	//$(sheet).find(".text").html(text)
+	$(sheet).find("textarea").html(text)
 	
 	sheetHandler($(sheet));
 	$(sheet).on("move", function(e, params) { wallSocket.send({action: "move", params: $.extend(params,{id:id})}) })
@@ -210,8 +211,8 @@ function sheetHandler(element)  {
 
 		$(document).on('mousemove', onMouseMove);
 		$(document).on('mouseup', onMouseUp);
-
-		return false; // same as e.stopPropation + e.preventDefault
+        e.stopPropagation();
+		//return false; // same as e.stopPropation + e.preventDefault
 	}
 	
 	function onButtonMouseDown(e) {
@@ -224,7 +225,8 @@ function sheetHandler(element)  {
 	}
 
 	function onButtonMouseUp(e) {
-		
+		$(document).off('mousemove', onMouseMove);
+		$(document).off('mouseup', onMouseUp);
 		$(element).trigger("remove", {id:$(element).attr('id').substr(5)});
 	}
 
@@ -302,8 +304,8 @@ function wallHandler(element) {
 
 		$(document).on('mousemove', onMouseMove);
 		$(document).on('mouseup', onMouseUp);
-
-		return false; // same as e.stopPropation + e.preventDefault
+		e.preventDefault();
+		//return false; // same as e.stopPropation + e.preventDefault
 	}
 
 	function onMouseWheel(e, delta, deltaX, deltaY) {
@@ -339,6 +341,7 @@ function wallHandler(element) {
 
 
 $(window).load(function(){
+
 	wallHandler("#wall");
 	$('#createBtn').click(createRandomSheet)
 

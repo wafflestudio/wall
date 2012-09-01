@@ -85,8 +85,9 @@ object Sheet extends ActiveRecord[Sheet] {
 		field[Double]("height") ~
 		field[String]("title") ~
 		field[Int]("content_type") ~
-		field[Long]("wall_id") map {
-			case id ~ x ~ y ~ width ~ height ~ title ~ contentType ~ wallId =>  {
+		field[Long]("wall_id") ~
+		field[Int]("is_reference") map {
+			case id ~ x ~ y ~ width ~ height ~ title ~ contentType ~ wallId ~ isReference =>  {
 				ContentType(contentType) match {
 					case ContentType.TextType =>
 						new TextSheet(id, x, y, width, height, title, wallId)
@@ -111,9 +112,9 @@ object Sheet extends ActiveRecord[Sheet] {
 			val id = SQL("select next value for sheet_seq").as(scalar[Long].single)
 			
 			SQL(""" 
-				insert into sheet values (
+				insert into sheet (id, x, y, width, height, title, content_type, wall_id, is_reference) values (
 					{id},
-					{x}, {y}, {width}, {height}, {title}, {contentType}, {wallId}
+					{x}, {y}, {width}, {height}, {title}, {contentType}, {wallId}, {isReference}
 				)
 			""").on(
 				'id -> id,
@@ -123,7 +124,8 @@ object Sheet extends ActiveRecord[Sheet] {
 				'height -> height,
 				'title -> title,
 				'contentType -> contentType.id,
-				'wallId -> wallId
+				'wallId -> wallId,
+				'isReference -> 0
 			).executeUpdate()
 			
 			id

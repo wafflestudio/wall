@@ -4,7 +4,7 @@
 
 insert into User values (
 	(select next value for user_seq),
-	'admin@infinitewall.com', '$2a$12$mfsXZmFLWCbh4fotGDNsVOhojQ9MH0Imjmsf53NOeGRS19/1fMZcq', 2
+	'admin@infinitewall.com', '$2a$12$mfsXZmFLWCbh4fotGDNsVOhojQ9MH0Imjmsf53NOeGRS19/1fMZcq', 1
 );
 
 

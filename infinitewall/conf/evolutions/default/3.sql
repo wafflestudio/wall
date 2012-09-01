@@ -5,8 +5,8 @@
 CREATE TABLE WallLog (
     id bigint(20) NOT NULL,
     kind varchar(255) NOT NULL,
-    message varchar(255) NOT NULL,
-    time bigint(20) NOT NULL,
+    message text NOT NULL,
+    time bigint(20) NOT NULL, 
     wall_id bigint(20) NOT NULL,
     user_id bigint(20) NOT NULL,
     PRIMARY KEY (id)

@@ -13,6 +13,12 @@ function ChatSocket(url) {
 		}
 
 		$("#log").prepend("<p>" + "<span>" + data.username + "</span>" + "<span> " + data.message + "</span>" + "</p>")
+		
+		//update user list
+		$('#users').html('');
+		$(data.users).each(function() {
+			$('#users').append('<li>'+this+'</li>');
+		});
 	
 	}
 
@@ -25,8 +31,7 @@ function ChatSocket(url) {
 	socket.onclose = onError
 
 	$(function() {
-		$('#talk').keyup(function(event) {
-			
+		$('#talk').keyup(function(event) {			
 			if(event.keyCode == 13)
 			{
 				$('#sendBtn').click()

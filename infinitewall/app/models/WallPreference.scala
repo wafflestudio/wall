@@ -28,7 +28,7 @@ object WallPreference extends ActiveRecord[WallPreference] {
 			val id = SQL("select next value for wallpreference_seq").as(scalar[Long].single)
 			
 			SQL(""" 
-				insert into WallPreference values (
+				insert into WallPreference (id, alias, pan_x, pan_y, zoom, user_id, wall_id) values (
 					{id},
 					{alias}, {panX}, {panY}, {zoom}, {userId}, {wallId}
 				)
@@ -52,6 +52,45 @@ object WallPreference extends ActiveRecord[WallPreference] {
 			'userId -> userId, 'wallId -> wallId).as(WallPreference.simple.singleOpt)
 		}
 	}
+	
+	def findOrCreate(userId: Long, wallId: Long) = {
+		DB.withTransaction { implicit c =>
+			val maybePref = SQL("select * from WallPreference where user_id = {userId} and wall_id = {wallId}").on(
+			'userId -> userId, 'wallId -> wallId).as(WallPreference.simple.singleOpt)
+				
+			val id = maybePref match {
+				case Some(pref) =>
+					pref.id.get
+				case None =>
+					create(userId, wallId)
+			}
+			
+			SQL("select * from WallPreference where id = {id}").on(
+			'id -> id).as(WallPreference.simple.single)
+			
+		}
+	}
+	
+	def setView(userId:Long, wallId:Long, panX:Double, panY:Double, zoom:Double) = {
+		DB.withConnection { implicit c =>
+			val id = SQL("select next value for wallpreference_seq").as(scalar[Long].single)
+			
+			SQL(""" 
+				update WallPreference set panX = {panX}, panY = {panY}, zoom = {zoom}
+					where user_id = {userId} and wall_id = {wallId}
+				)
+			""").on(
+				'panX -> panX,
+				'panY -> panY,
+				'zoom -> zoom,
+				'userId -> userId,
+				'wallId -> wallId
+			).executeUpdate()
+			
+			id
+		}
+	}
+	
 
 }
 

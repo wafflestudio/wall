@@ -13,15 +13,37 @@
 	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
 	<div id="log">
 	</div>
+	<div id="chat-userlist">
+		User List
+		<ul id="users" class="unstyled">
+		</ul>
+	</div>
 </div>
 
 <div id="buttonbar">
 	<button id="createBtn" class="btn-small" style="z-index:2">Create sheet</button>
 </div>
 <script type="text/javascript">
-   var wallSocket = new WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
-   var chatSocket = new ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
 	
+	// initialize wall socket/events
+	var wallSocket = new WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
+	wallSocket.on('receive', function(detail) {
+		if(detail.action == "create")
+			createSheet(detail.id, detail.params);
+		else if(detail.action == "move")
+			moveSheet(detail.params);
+		else if(detail.action == "resize")
+			resizeSheet(detail.params);
+		else if(detail.action == "remove")
+			removeSheet(detail.params);
+		else if(detail.action == "setText")
+			setText(detail.params);
+	})
+
+	// initialize chat socket
+	var chatSocket = new ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
+	
+	// initialize current stage
 	$(function() {	
 		var sheets = []
 		

@@ -10,13 +10,32 @@ import java.util.Date
 import java.sql.Timestamp
 
 class Anorm extends Specification {
-	"Chatlog model" should {
+	"Model" should {
+		"has Chat room" in {
+			running(FakeApplication()) {
+
+				val Some(admin) = User.findByEmail("admin@infinitewall.com")
+				val roomId = ChatRoom.create("Test Room")
+				val chatlogId = ChatLog.create("test", roomId, admin.id.get, "test message")
+				
+				ChatLog.findById(chatlogId).map { chatLog =>
+					println(chatLog.message)
+					println(chatLog.time)
+				}
+				
+				ChatLog.delete(chatlogId)
+				ChatRoom.delete(roomId)
+				
+				true
+			}
+		}
+		
 		"work as expected" in {
 			running(FakeApplication()) {
 
 				val Some(admin) = User.findByEmail("admin@infinitewall.com")
 				val roomId = ChatRoom.create("Test Room")
-				val chatlogId = ChatLog.create(roomId, admin.id.get, "test message")
+				val chatlogId = ChatLog.create("test", roomId, admin.id.get, "test message")
 				
 				ChatLog.findById(chatlogId).map { chatLog =>
 					println(chatLog.message)

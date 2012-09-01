@@ -35,7 +35,7 @@ object TextContent extends ActiveRecord[TextContent] {
 			val id = SQL("select next value for textcontent_seq").as(scalar[Long].single)
 			
 			SQL(""" 
-				insert into textcontent values (
+				insert into textcontent (id, content, scroll_x, scroll_y, sheet_id) values (
 					{id},
 					{content}, {scrollX}, {scrollY}, {sheetId}
 				)
@@ -67,6 +67,7 @@ object TextContent extends ActiveRecord[TextContent] {
 	}
 }
 
+// TODO
 object ImageContent extends ActiveRecord[ImageContent] {
 	val tableName = "ImageContent"
 		
@@ -80,12 +81,13 @@ object ImageContent extends ActiveRecord[ImageContent] {
 		}
 	}
 	
+
 	def create(url:String, width:Double, height:Double, sheetId:Long) = {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for textcontent_seq").as(scalar[Long].single)
 			
 			SQL(""" 
-				insert into textcontent values (
+				insert into imagecontent (id, url, width, height, sheet_id) values (
 					{id},
 					{url}, {width}, {height}, {sheetId}
 				)

@@ -15,6 +15,7 @@ import play.api.Logger
 import play.api.libs.json._
 import models.User
 import models.ChatLog
+import models.ChatRoom
 import java.sql.Timestamp
 
 case class Join(userId: Long)
@@ -100,8 +101,10 @@ class ChatRoomActor(roomId:Long) extends Actor {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
 			}
 			else {
+				prev.map { jsval => producer.push(jsval) }
 				connections = connections :+ (userId, producer)
-				sender ! Connected(prev >>> producer)
+        ChatRoom.addUser(roomId, userId)
+				sender ! Connected(producer)
 			}
 		}
 
@@ -115,11 +118,12 @@ class ChatRoomActor(roomId:Long) extends Actor {
 
 		case Quit(userId, producer) => {
 			connections = connections.flatMap { p =>
-				if (p._1 == userId)
+				if (p._1 == userId && p._2 == producer)
 					None
 				else
 					Some(p)
 			}
+      ChatRoom.removeUser(roomId, userId)
 			notifyAll("quit", userId, "has left the room")
 		}
 
@@ -128,6 +132,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 	def notifyAll(kind: String, userId: Long, message: String) {
 
 			val username = User.findById(userId).get.email
+      val users = ChatRoom.listUsers(roomId)
 
 			val msg = JsObject(
 				Seq(
@@ -135,7 +140,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 					"username" -> JsString(username),
 					"message" -> JsString(message),
           "users" -> JsArray(
-            connections.map(_._1).map(i => User.findById(i).get.email ).map(JsString)
+            connections.map(i => JsString(User.findById(i._1).get.email) )
           )
 				)
 			)

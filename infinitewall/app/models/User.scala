@@ -3,7 +3,7 @@ import com.sun.crypto.provider.BlowfishCipher
 import org.mindrot.jbcrypt.BCrypt
 import play.api.Logger
 import utils.Mailer
-import Permission._
+import GlobalPermission._
 import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
@@ -21,7 +21,7 @@ object User extends ActiveRecord[User] {
 		field[String]("email") ~
 		field[String]("hashedPW") ~
 		field[Int]("permission") map {
-			case id ~ email ~ hashedPW ~ permission => User(id, email, hashedPW, Permission(permission))
+			case id ~ email ~ hashedPW ~ permission => User(id, email, hashedPW, GlobalPermission(permission))
 		}
 	}
 	
@@ -45,14 +45,14 @@ object User extends ActiveRecord[User] {
 		
 		DB.withConnection { implicit c =>
 			SQL(""" 
-				insert into User values (
+				insert into User (id, email, hashedpw, permission) values (
 					(select next value for user_seq),
 					{email}, {hashedPW}, {permission}	
 				)
 			""").on(	
 				'email -> email,
 				'hashedPW -> hashedPW(password),
-				'permission -> Permission.NormalUser.id
+				'permission -> GlobalPermission.NormalUser.id
 			).executeUpdate()
 		}
 		
