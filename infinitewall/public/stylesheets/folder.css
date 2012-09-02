@@ -4,6 +4,11 @@
 	margin-left:10px;
 }
 
+.selected {
+	border:1px solid black;
+	/*background-color:#efefef;*/
+}
+
 .folder-item
 {
 
