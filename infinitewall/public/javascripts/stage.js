@@ -2,7 +2,7 @@ var glob = new function() {
 	this.currentSheet = null;
 	this.zoomLevel = 1;
 	this.minimapToggled = 1;
-	this.rightBarOffset = 267;
+	this.rightBarOffset = 267 + 80 + 30; // 80은 위에 userList, 30은 밑에 input 
 }
 
 var template = "<div class='sheetBox'><div class='sheet'><div class='sheetTopBar'><h1> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
