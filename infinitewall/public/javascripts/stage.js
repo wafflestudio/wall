@@ -97,24 +97,21 @@ function patch_launch(text1, patch_text) {
 
 function setText(params)  {
 	// set Text
-	var element = $("#sheet" + params.id)
-	//$(element).children('.sheet').html(params.text)
-	//var text1 = $(element).children('.sheet').html();
-	var text1 = $(element).find('textarea').val();
+	var element = $("#sheet" + params.id).find('textarea.sheetTextField');
+	var text1 = $(element).getCode();
 	console.log("a: " + text1);
 	var text2 = params.text;
 	console.log("b: " + text2);
-	//var text2 = params.text;
 	var patch_text = diff_launch(text1, text2);
 	console.log("c: " + patch_text);
 	var patch = patch_launch(text1, patch_text);
 	console.log("d: " + patch);
-	//var cursor = $(element).children('textarea').getCursorPosition();
-	//$(element).children('textarea').html(patch);
-	//$(element).children('textarea').setCursorPosition(cursor);
-	var cursor = $(element).find('textarea').getCursorPosition();
-	$(element).find('textarea').val(patch);
-	$(element).find('textarea').setCursorPosition(cursor);
+	var cursor = $(element).getCursorPosition();
+//	var temp = $("#sheet + params.id").find('.redactor_editor');
+//	var temp_cursor = $(temp).getCursorPosition();
+//	console.log(temp_cursor);
+	$(element).setCode(patch);
+	$(element).setCursorPosition(cursor);
 }
 
 function createNewSheet(id, x, y, w, h, text) {
@@ -264,10 +261,22 @@ function sheetHandler(element)  {
 	$(element).on('mousedown', '.resizeHandle', onResizeMouseDown);
 	$(element).on('mousedown', onMouseDown);
 
-	//$(element).children('.sheet').on('change', function(e) { 
-	$(element).find('textarea').on('keyup', function(e) { 
+	$(element).children('.sheet').on('change', function(e) { 
+	//$(element).find('textarea').on('keyup', function(e) { 
        $(element).trigger('setText', e);
 	})
+	$(element).find('textarea').on('focusin', function(e) { 
+	})
+    $(element).find('textarea').on('focusout', function(e) { 
+       //if(true) { have editor?
+       /*
+       if(true) {
+          var html = $(element).find('textarea').getCode();
+          console.log(html);
+          $(element).find('textarea').destroyEditor();
+       }
+       */
+    })
 }
 
 function wallHandler(element) {
