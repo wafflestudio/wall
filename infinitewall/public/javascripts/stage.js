@@ -382,8 +382,6 @@ function toggleMinimapFinished() {
 
 }
 
-
-
 $(window).resize(function(){
 	$("#chatWindow").height($(window).height() - glob.rightBarOffset);
 });
