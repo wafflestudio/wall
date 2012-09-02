@@ -397,7 +397,7 @@ $(window).resize(function(){
 
 $(window).load(function(){
 
-	wallHandler("#wall");
+  wallHandler("#wall");
 	$('#createBtn').click(createRandomSheet);
 	$('#minimapBtn').click(toggleMinimap);
 
