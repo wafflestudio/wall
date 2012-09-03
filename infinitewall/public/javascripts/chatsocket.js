@@ -12,7 +12,13 @@ function ChatSocket(url) {
 			return;
 		}
 
-		$("#log").append("<p>" + data.username + " : " + data.message + "</p>")
+		var newMessage = $("<div class = 'chatMessage'><p>" + data.username + " : " + data.message + "</p></div>");
+		var log = $("#log");
+
+		log.append(newMessage);
+		log.animate({scrollTop : log.prop('scrollHeight') - log.height()}, 200);
+
+		//$("#log").append("<p>" + data.username + " : " + data.message + "</p>")
 		
 		//update user list
 		$('#users').html('');
