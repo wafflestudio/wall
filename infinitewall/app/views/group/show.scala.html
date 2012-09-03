@@ -1,0 +1,17 @@
+@(users:List[User], groupId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+
+@layouts.default("Walls ::: Infinite Wall") {
+
+	@if(users.length == 0)  {
+		<p> No User </p>
+	}
+	<form method="POST" action="@{Group.addUser(groupId)}" class="form-inline">
+		<input name="title" type="text" placeholder="Group name"><button class="btn">Create</button/>
+	</form>
+	<ul>
+	@for(user <- users) {
+		<li><a href="/user/@user.id.get">@user.email</a></li>
+	}
+	</ul>
+
+}

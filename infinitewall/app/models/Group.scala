@@ -6,16 +6,17 @@ import anorm.SqlParser._
 import play.api.Play.current
 
 
-case class Group(id: Pk[Long], name: String)
+case class Group(id: Pk[Long], name: String, userId:Long)
 case class UserInGroup(userId:Long, groupId:Long)
 
 object Group extends ActiveRecord[Group] {
-	val tableName = "Group"
+	val tableName = "UserGroup"
 
 	val simple = {
 		field[Pk[Long]]("id") ~
-		field[String]("name") map {
-			case id ~ name => Group(id, name)
+		field[String]("name") ~
+    field[Long]("user_id") map {
+			case id ~ name ~ userId => Group(id, name, userId)
 		}
 	}
 
@@ -26,17 +27,24 @@ object Group extends ActiveRecord[Group] {
 		}
 	}
 
-	def create(name: String) = {
+  def list(userId:Long) = {
+    DB.withConnection { implicit c =>
+			SQL("select * from "+tableName+" where user_id={userId}").on('userId -> userId).as(Group.simple*)
+    }
+  }
+
+	def create(name: String, userId:Long) = {
 		DB.withConnection { implicit c =>
-			val id = SQL("select next value for group_seq").as(scalar[Long].single)
+			val id = SQL("select next value for usergroup_seq").as(scalar[Long].single)
 			SQL("""
-		        insert into Group values (
+		        insert into """+tableName+""" values (
 		          {id},
-		          {name}
+		          {name}, {userId}
 		        )
 		    """).on(
 		    	'id -> id,
-		    	'name -> name
+		    	'name -> name,
+          'userId -> userId
 			).executeUpdate()
 			id
 		}
@@ -70,6 +78,12 @@ object Group extends ActiveRecord[Group] {
 		DB.withConnection { implicit c =>
 			SQL("select user.* from UserInGroup as uig, User where uig.group_id = {id} and uig.user_id = user.id").on('id -> id).
 				as(User.simple*)
+		}
+	}
+	def rename(id:Long, name:String) = {
+		DB.withConnection { implicit c =>
+			SQL("update "+tableName+" set name = {name} where id = {id}").
+				on('id -> id, 'name -> name).executeUpdate()
 		}
 	}
 
