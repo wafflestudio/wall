@@ -131,6 +131,12 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).on("remove", function(e) { wallSocket.send({action:"remove", params:{id:id}}) })
 	//$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).children('.sheet').html(), cursor: 1}}) })
 	$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).find('textarea').val(), cursor: 1}}) })
+
+    $('#sheet'+id+' textarea.sheetTextField').redactor({
+       autoresize: true,
+       air: true,
+       airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
+    });	
 	
 	return sheet
 }
@@ -268,14 +274,6 @@ function sheetHandler(element)  {
 	$(element).find('textarea').on('focusin', function(e) { 
 	})
     $(element).find('textarea').on('focusout', function(e) { 
-       //if(true) { have editor?
-       /*
-       if(true) {
-          var html = $(element).find('textarea').getCode();
-          console.log(html);
-          $(element).find('textarea').destroyEditor();
-       }
-       */
     })
 }
 

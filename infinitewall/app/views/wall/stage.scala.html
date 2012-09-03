@@ -79,12 +79,13 @@
 			var sheet = sheets[i]
 			createNewSheet(sheet.id, sheet.x, sheet.y, sheet.width, sheet.height, sheet.content)
 		}
+		/*
         $('.sheetTextField').redactor({
            autoresize: true,
-           focus: true,
            air: true,
            airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
         });	
+        */
 
 		glob.zoomLevel = @pref.zoom;
 		$('#scaleLayer').css('scale', glob.zoomLevel)
