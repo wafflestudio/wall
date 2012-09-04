@@ -10,7 +10,11 @@ function copyHandler(element) {
   function onCutAndCopy(e) {
     console.log('on copy/cut');
 
-    sheet = $(this).parent(".sheetBox");
+    if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".redactor_editor"))
+      return;
+
+    //sheet = $(this).parent(".sheetBox");
+    sheet = $(element);
 
     //현재는 text sheet 경우만 고려
     sheet_title = $(sheet).find(".sheetTopBar h1");
@@ -32,7 +36,7 @@ function copyHandler(element) {
 
   }
 
-  $(element).children().on('copy cut', onCutAndCopy);
+  $(element).on('copy cut', onCutAndCopy);
 }
 
 //singletone?
@@ -83,9 +87,11 @@ function pasteHandler(element) {
       var y = Math.random()*400
       var w = 300
       var h = 300
+
+      var title = clipboard.data.title
       var text = clipboard.data.content
-      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, text:text}})
-    
+      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, text:text}});
+
       //state to false
       clipboard.state = false;
 
@@ -141,10 +147,6 @@ function pasteHandler(element) {
 
 //attach event on wall ready
 $(document).on('wallready', function() {
-    $.each($(".sheetBox"), function(key, val) {
-      copyHandler(val);
-    });
-
     pasteHandler($("#wall"));
 });
 

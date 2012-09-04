@@ -8,7 +8,7 @@ var glob = new function() {
 var template = "<div class='sheetBox'><div class='sheet'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
 
 function createSheet(id, params)  {
-	return createNewSheet(id, params.x, params.y, params.width, params.height, params.text)
+	return createNewSheet(id, params.x, params.y, params.width, params.height, params.title, params.text)
 }
 
 function moveSheet(params)  {
@@ -146,7 +146,8 @@ function createNewSheet(id, x, y, w, h, title, text) {
 	}).html(title)
 
 	$(sheet).find("textarea").html(text)
-	
+
+  //sheet handler
 	sheetHandler($(sheet));
 	$(sheet).on("move", function(e, params) { wallSocket.send({action: "move", params: $.extend(params,{id:id})}) })
 	$(sheet).on("resize", function(e, params) { wallSocket.send({action: "resize", params: $.extend(params, {id:id})}) })
@@ -159,7 +160,10 @@ function createNewSheet(id, x, y, w, h, title, text) {
        air: true,
        airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
     });	
-	
+
+  //copy handler
+  copyHandler($(sheet));
+
 	return sheet
 }
 
@@ -173,8 +177,9 @@ function createRandomSheet()
 	var y = Math.random()*400
 	var w = 300
 	var h = 300
+	var title = "untitled"
 	var text = "text"
-	wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, text:text}})
+	wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, text:text}})
 	//createNewSheet(newId, x, y, w, h, text)
 }
 
