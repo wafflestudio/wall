@@ -5,12 +5,12 @@
 	@if(users.length == 0)  {
 		<p> No User </p>
 	}
-	<form method="POST" action="@{Group.addUser(groupId)}" class="form-inline">
-		<input name="title" type="text" placeholder="Group name"><button class="btn">Create</button/>
+	<form method="POST" action="@{routes.Group.addUser(groupId)}" class="form-inline">
+		<input name="email" type="text" placeholder="User email"><button class="btn">Add</button/>
 	</form>
 	<ul>
 	@for(user <- users) {
-		<li><a href="/user/@user.id.get">@user.email</a></li>
+		<li>@user.email<a href="@{routes.Group.removeUser(groupId, user.id.get)}">remove</a></li>
 	}
 	</ul>
 

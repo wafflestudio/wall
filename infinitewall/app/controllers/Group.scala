@@ -24,8 +24,17 @@ object Group extends Controller with Auth with Login {
   def addUser(groupId:Long) = AuthenticatedAction { implicit request =>
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
     val userEmail = params.get("email").getOrElse(Seq("unnamed"))
+    Logger.info(userEmail(0))
     val user = models.User.findByEmail(userEmail(0))
-    models.Group.addUser(groupId, user.id)
+    user.map { u =>
+      Logger.info("hi")
+      Logger.info(u.email)
+      models.Group.addUser(groupId, u.id.get)
+    }
+    Redirect(routes.Group.show(groupId))
+  }
+  def removeUser(groupId:Long, userId:Long) = AuthenticatedAction { implicit request =>
+    models.Group.removeUser(groupId, userId)
     Redirect(routes.Group.show(groupId))
   }
 	def rename(id:Long, name:String) = AuthenticatedAction { implicit request => 

@@ -52,13 +52,13 @@ object Group extends ActiveRecord[Group] {
 	def addUser(id: Long, user_id: Long) = {
 		DB.withConnection { implicit c =>
 			SQL(""" 
-				merge into UserInGroup values (					
+				merge into UserInGroup (user_id, group_id) values (					
 					{user_id},
-					{id}
+					{group_id}
 				)
 			""").on(
 				'user_id -> user_id,
-				'id -> id
+				'group_id -> id
 			).executeUpdate()
 		}
 	}

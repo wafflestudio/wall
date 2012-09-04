@@ -11,10 +11,11 @@ create table UserGroup (
 );
 
 create table UserInGroup (
-	group_id bigint(20) not null,  
 	user_id bigint(20) not null,
-  constraint fk_useringroup_user foreign key (user_id) references User (id),
-  constraint fk_useringroup_group foreign key (group_id) references UserGroup (id)
+	group_id bigint(20) not null,  
+  primary key(user_id, group_id),
+  constraint fk_useringroup_user_1 foreign key (user_id) references User (id),
+  constraint fk_useringroup_group_1 foreign key (group_id) references UserGroup (id)
 );
 
 CREATE SEQUENCE usergroup_seq start with 1000;
