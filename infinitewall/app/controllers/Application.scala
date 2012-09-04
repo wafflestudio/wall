@@ -116,7 +116,11 @@ object Application extends Controller with Login with SignUp {
 			formWithErrors => {
 				BadRequest(views.html.signup(formWithErrors)(loginForm, request)) //.flashing(formWithErrors.get.left.get.toSeq:_*)
 			},
-			newUser => Redirect(routes.Application.index)
+			signupData => {
+				val user = User.findByEmail(signupData.email).get
+				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
+			}
+				
 		)
 	}
 
