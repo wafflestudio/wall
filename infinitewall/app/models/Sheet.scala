@@ -152,6 +152,14 @@ object Sheet extends ActiveRecord[Sheet] {
 		TextContent.setText(id, text)
 	}
 	
+	def setTitle(id: Long, title:String) = {
+		DB.withConnection { implicit c =>
+			SQL("update " + tableName + " SET title = {title} where id = {id}").on(
+					'id -> id,
+					'title -> title).executeUpdate()
+		}
+	}
+	
 	def resize(id:Long, width:Double, height:Double) = {
 		DB.withConnection { implicit c =>
 			SQL("update " + tableName + " SET width = {width}, height = {height} where id = {id}").on(

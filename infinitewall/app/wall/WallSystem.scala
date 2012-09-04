@@ -127,6 +127,8 @@ class WallActor(wallId: Long) extends Actor {
 								Sheet.resize(sheet.id.get, params \ "width", params \ "height")
 							case "remove" =>
 								Sheet.delete(sheet.id.get)
+							case "setTitle" =>
+								Sheet.setTitle(sheet.id.get, (params \ "title").as[String])
 							case "setText" =>
 								Sheet.setText(sheet.id.get, (params \ "text").as[String])
 						}

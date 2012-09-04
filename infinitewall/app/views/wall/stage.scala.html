@@ -66,6 +66,8 @@
 			removeSheet(detail.params);
 		else if(detail.action == "setText")
 			setText(detail.params);
+		else if(detail.action == "setTitle")
+			setTitle(detail.params);
 	})
 
 	// initialize chat socket
@@ -81,14 +83,15 @@
 
 		for(var i = 0; i < sheets.length; i++)  {	
 			var sheet = sheets[i]
-			createNewSheet(sheet.id, sheet.x, sheet.y, sheet.width, sheet.height, sheet.content)
+			createNewSheet(sheet.id, sheet.x, sheet.y, sheet.width, sheet.height, sheet.title, sheet.content)
 		}
-		$('.sheetTextField').redactor({
-			autoresize: true,
-			focus: true,
-			air: true,
-			airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
-		});	
+		/*
+        $('.sheetTextField').redactor({
+           autoresize: true,
+           air: true,
+           airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
+        });	
+        */
 
 		glob.zoomLevel = @pref.zoom;
 		$('#scaleLayer').css('scale', glob.zoomLevel)
