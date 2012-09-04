@@ -132,11 +132,16 @@ function createNewSheet(id, x, y, w, h, title, text) {
 	//$(sheet).find(".text").html(text)
 	$(sheet).find(".sheetTitle").keydown(function(e){
 		var curTitle = $(sheet).find(".sheetTitle").html()
-		if(e.keyCode == 13 && prevTitle != curTitle)  {
-			$(sheet).trigger('setTitle');
-			prevTitle = curTitle;
-			$(sheet).find(".sheetTitle").blur()
-			return false;
+		if(e.keyCode == 13)  {
+			if(curTitle.charAt(curTitle.length-1) == '\n')
+				curtitle = msg.substr(0,msg.length-1)
+
+			if(prevTitle != curTitle)  {
+				$(sheet).trigger('setTitle');
+				prevTitle = curTitle;
+				$(sheet).find(".sheetTitle").blur()
+				return false;
+			}
 		}
 	}).focusout(function(e) {
 		var curTitle = $(sheet).find(".sheetTitle").html()
