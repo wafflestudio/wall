@@ -10,10 +10,10 @@ var glob = new function() {
 	this.worldRight = 0;
 }
 
-var template = "<div class='sheetBox'><div class='sheet'><div class='sheetTopBar'><h1> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
+var template = "<div class='sheetBox'><div class='sheet'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
 
 function createSheet(id, params)  {
-	return createNewSheet(id, params.x, params.y, params.width, params.height, params.text)
+	return createNewSheet(id, params.x, params.y, params.width, params.height, params.title, params.text)
 }
 
 function moveSheet(params)  {
@@ -32,6 +32,12 @@ function resizeSheet(params)  {
 function removeSheet(params)  {
 	var element = $("#sheet" + params.id)
 	$(element).remove();
+}
+
+function setTitle(params)  {
+	var element = $("#sheet" + params.id)
+	// TODO: set title
+	$(element).find('sheetTitle').html(params.title)
 }
 
 /*
@@ -119,8 +125,9 @@ function setText(params)  {
 	$(element).setCursorPosition(cursor);
 }
 
-function createNewSheet(id, x, y, w, h, text) {
+function createNewSheet(id, x, y, w, h, title, text) {
 	var sheet = $(template).appendTo("#moveLayer")
+	var prevTitle = title;
 	//var range = rangy.createRange();
 	$(sheet).attr("id", "sheet" + id)
 	$(sheet).css("x", x + "px")
@@ -128,15 +135,45 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).children('.sheet').css("width", w + "px")
 	$(sheet).children('.sheet').css("height", h + "px")
 	//$(sheet).find(".text").html(text)
+	$(sheet).find(".sheetTitle").keydown(function(e){
+		var curTitle = $(sheet).find(".sheetTitle").html()
+		if(e.keyCode == 13)  {
+			if(curTitle.charAt(curTitle.length-1) == '\n')
+				curtitle = msg.substr(0,msg.length-1)
+
+			if(prevTitle != curTitle)  {
+				$(sheet).trigger('setTitle');
+				prevTitle = curTitle;
+				$(sheet).find(".sheetTitle").blur()
+				return false;
+			}
+		}
+	}).focusout(function(e) {
+		var curTitle = $(sheet).find(".sheetTitle").html()
+		if(prevTitle != curTitle)
+			$(sheet).trigger('setTitle');
+		prevTitle = curTitle;
+	}).html(title)
+
 	$(sheet).find("textarea").html(text)
-	
+
+  //sheet handler
 	sheetHandler($(sheet));
 	$(sheet).on("move", function(e, params) { wallSocket.send({action: "move", params: $.extend(params,{id:id})}) })
 	$(sheet).on("resize", function(e, params) { wallSocket.send({action: "resize", params: $.extend(params, {id:id})}) })
 	$(sheet).on("remove", function(e) { wallSocket.send({action:"remove", params:{id:id}}) })
 	//$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).children('.sheet').html(), cursor: 1}}) })
 	$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).find('textarea').val(), cursor: 1}}) })
-	
+	$(sheet).on("setTitle", function(e) { wallSocket.send({action:"setTitle", params:{id:id, title:$(sheet).find('.sheetTitle').html()}}) })
+    $('#sheet'+id+' textarea.sheetTextField').redactor({
+       autoresize: true,
+       air: true,
+       airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
+    });	
+
+  //copy handler
+  copyHandler($(sheet));
+
 	return sheet
 }
 
@@ -150,8 +187,9 @@ function createRandomSheet()
 	var y = Math.random()*400
 	var w = 300
 	var h = 300
+	var title = "untitled"
 	var text = "text"
-	wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, text:text}})
+	wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, text:text}})
 	//createNewSheet(newId, x, y, w, h, text)
 }
 
@@ -273,14 +311,6 @@ function sheetHandler(element)  {
 	$(element).find('textarea').on('focusin', function(e) { 
 	})
     $(element).find('textarea').on('focusout', function(e) { 
-       //if(true) { have editor?
-       /*
-       if(true) {
-          var html = $(element).find('textarea').getCode();
-          console.log(html);
-          $(element).find('textarea').destroyEditor();
-       }
-       */
     })
 }
 
@@ -439,16 +469,13 @@ $(window).resize(function(){
 $(window).load(function(){
 
 	wallHandler("#wall");
-
 	$('#createBtn').click(createRandomSheet);
 	$('#minimapBtn').click(toggleMinimap);
 
 	$("#chatWindow").height($(window).height() - glob.rightBarOffset);
 	$("#zoomLevelText").text(parseInt(glob.zoomLevel * 100) + "%");
 
-	setMinimap();
-
-	$('[contenteditable]').live('focus', function() {
+	$('.sheetText [contenteditable]').live('focus', function() {
 		var $this = $(this);
 		$this.data('before', $this.html());
 		return $this;

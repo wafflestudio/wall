@@ -1,0 +1,17 @@
+@(groups:List[Group])(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+
+@layouts.default("Walls ::: Infinite Wall") {
+
+	@if(groups.length == 0)  {
+		<p> No groups </p>
+	}
+	<form method="POST" action="/group/create" class="form-inline">
+		<input name="name" type="text" placeholder="Group name"><button class="btn">Create</button/>
+	</form>
+	<ul>
+	@for(group <- groups) {
+		<li><a href="/group/@group.id.get">@group.name</a></li>
+	}
+	</ul>
+
+}
