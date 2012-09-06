@@ -3,6 +3,11 @@ var glob = new function() {
 	this.zoomLevel = 1;
 	this.minimapToggled = 1;
 	this.rightBarOffset = 267 + 80 + 30; // 80은 위에 userList, 30은 밑에 input 
+
+	this.worldTop = 0;
+	this.worldBottom = 0;
+	this.worldLeft = 0;
+	this.worldRight = 0;
 }
 
 var template = "<div class='sheetBox'><div class='sheet'><div class='sheetTopBar'><h1> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>";
@@ -330,8 +335,8 @@ function wallHandler(element) {
 	function onMouseWheel(e, delta, deltaX, deltaY) {
 
 		var xScreen = e.pageX - $(this).offset().left;
-		var yScreen = e.pageY - $(this).offset().top - 40;
-		// -40은 #wall이 위에 네비게이션 바 밑으로 들어간 40픽셀에 대한 compensation
+		var yScreen = e.pageY - $(this).offset().top - 38;
+		// -38은 #wall이 위에 네비게이션 바 밑으로 들어간 38픽셀에 대한 compensation
 
 		xImage = xImage + ((xScreen - xLast) / glob.zoomLevel);
 		yImage = yImage + ((yScreen - yLast) / glob.zoomLevel);
@@ -391,6 +396,42 @@ function toggleMinimapFinished() {
 
 }
 
+function setMinimap() {
+	
+	var sB = $(".sheetBox");
+
+	var screenWidth = $(window).width() - 225 / glob.zoomLevel; // screen 의 상대적 크기
+	var screenHeight = $(window).height() - 74 / glob.zoomLevel;
+
+	var screenLeftTopX = parseInt($("#scaleLayer").css("x")) * -1;
+	var screenLeftTopY = parseInt($("#scaleLayer").css("y")) * -1;
+
+	var screenRightBottomX = screenLeftTopX + screenWidth;
+	var screenRightBottomY = screenLeftTopY + screenHeight;
+	
+	console.log(screenLeftTopX + ", " + screenLeftTopY);
+	console.log(screenRightBottomX + ", " + screenRightBottomY);
+
+	for (i = 0; i < sB.length; i++)
+	{
+		var elem = $(sB[i]);
+		console.log(sB[i].id + "(" + elem.css("x") + "," + elem.css("y") + ")" + elem.css("width") + elem.css("height"));
+
+
+		
+		var newMiniSheet = $($("<div class = 'minimapElement'></div>").appendTo("#miniMap"));
+		newMiniSheet.attr("id", "map_" + sB[i].id);
+		newMiniSheet.css("left", parseInt(elem.css("x")) / 10);
+		newMiniSheet.css("top", parseInt(elem.css("y")) / 10);
+
+
+
+	}
+
+
+}
+
+
 $(window).resize(function(){
 	$("#chatWindow").height($(window).height() - glob.rightBarOffset);
 });
@@ -398,11 +439,14 @@ $(window).resize(function(){
 $(window).load(function(){
 
 	wallHandler("#wall");
+
 	$('#createBtn').click(createRandomSheet);
 	$('#minimapBtn').click(toggleMinimap);
 
 	$("#chatWindow").height($(window).height() - glob.rightBarOffset);
 	$("#zoomLevelText").text(parseInt(glob.zoomLevel * 100) + "%");
+
+	setMinimap();
 
 	$('[contenteditable]').live('focus', function() {
 		var $this = $(this);
