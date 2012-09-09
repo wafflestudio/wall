@@ -24,11 +24,20 @@
 	border:1px dotted gray;
 }
 
-.minimapElement {
-
+#minimapWorld {
 	position:absolute;
-	width:30px;
-	height:30px;
+	/*border:1px solid gray;*/
+}
+
+#minimapCurrentScreen {
+	position:absolute;
+	border:1px solid #bbbbbb;
+}
+
+.minimapElement {
+	position:absolute;
+	opacity:0.5;
+	/*background-color:#AB7A7A;*/
 	background-color:black;
 }
 
@@ -183,7 +192,6 @@
 
 #moveLayer {
 	position:absolute;
-	/*background-color:gray;*/
 	top:0;
 	left:0;
 	width:1px;

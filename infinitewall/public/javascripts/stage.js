@@ -3,6 +3,9 @@ var glob = new function() {
 	this.zoomLevel = 1;
 	this.minimapToggled = 1;
 	this.rightBarOffset = 267 + 80 + 30; // 80은 위에 userList, 30은 밑에 input 
+	
+	this.scaleLayerXPos = 0;
+	this.scaleLayerYPos = 0;
 
 	this.worldTop = 0;
 	this.worldBottom = 0;
@@ -32,6 +35,10 @@ function resizeSheet(params)  {
 function removeSheet(params)  {
 	var element = $("#sheet" + params.id)
 	$(element).remove();
+
+	var minimapElement = $("#map_sheet" + params.id);
+	$(minimapElement).remove();
+
 }
 
 function setTitle(params)  {
@@ -172,8 +179,12 @@ function createNewSheet(id, x, y, w, h, title, text) {
     });	
 
   //copy handler
-  copyHandler($(sheet));
+	copyHandler($(sheet));
 
+	var newMiniSheet = $($("<div class = 'minimapElement'></div>").appendTo("#minimapWorld"));
+	newMiniSheet.attr("id", "map_sheet" + id);
+	setMinimap();
+	
 	return sheet
 }
 
@@ -182,7 +193,7 @@ function createNewSheet(id, x, y, w, h, title, text) {
 function createRandomSheet()
 {
 	console.log("sheet create")
-	
+
 	var x = Math.random()*500
 	var y = Math.random()*400
 	var w = 300
@@ -195,7 +206,7 @@ function createRandomSheet()
 
 
 function sheetHandler(element)  {
-	
+
 	var deltax = 0;
 	var deltay = 0;
 	var startx = 0;
@@ -210,17 +221,18 @@ function sheetHandler(element)  {
 		$(element).css('x', (startx + e.pageX - deltax)/glob.zoomLevel);
 		$(element).css('y', (starty + e.pageY - deltay)/glob.zoomLevel);
 		hasMoved = true;
+		setMinimap();
 	}
 
 	function onMouseUp(e) {
-		
+
 		$(document).off('mousemove', onMouseMove);
 		$(document).off('mouseup', onMouseUp);
-		
+
 		if(hasMoved)  {
 			$(element).trigger('move', 
 				{ id: $(element).attr('id').substr(5), x: (startx + e.pageX - deltax)/glob.zoomLevel,
-			 	y: (starty + e.pageY - deltay)/glob.zoomLevel })
+					y: (starty + e.pageY - deltay)/glob.zoomLevel })
 		}
 		else
 			$(element).find('.sheetTextField').focus();
@@ -228,23 +240,25 @@ function sheetHandler(element)  {
 	}
 
 	function onMouseDown(e) {
-		
+
 		hasMoved = false;
 		$("#moveLayer").append($(element));
 		// 따로 remove할 필요 없이 걍 append하면 맨 뒤로 감..
-		
+
 		if (glob.currentSheet)
 		{
 			glob.currentSheet.find(".boxClose").hide();
 			glob.currentSheet.find('.sheetTextField').blur();
 			glob.currentSheet.children('.sheet').css("border-top", "");
 			glob.currentSheet.children('.sheet').css("margin-top", "");
+			$("#map_" + glob.currentSheet.attr("id")).css("background-color", "black");
 		}
 
 		glob.currentSheet = $(element);
 		glob.currentSheet.find(".boxClose").show();
 		glob.currentSheet.children(".sheet").css("border-top", "2px solid #FF4E58");
 		glob.currentSheet.children(".sheet").css("margin-top", "-2px");
+		$("#map_" + glob.currentSheet.attr("id")).css("background-color", "crimson");
 
 		startx = parseInt($(element).css('x')) * glob.zoomLevel;
 		starty = parseInt($(element).css('y')) * glob.zoomLevel;
@@ -257,10 +271,10 @@ function sheetHandler(element)  {
 
 		$(document).on('mousemove', onMouseMove);
 		$(document).on('mouseup', onMouseUp);
-        e.stopPropagation();
+		e.stopPropagation();
 		//return false; // same as e.stopPropation + e.preventDefault
 	}
-	
+
 	function onButtonMouseDown(e) {
 		$(document).on('mousemove', onButtonMouseMove);
 		$(document).on('mouseup', onButtonMouseUp);
@@ -297,7 +311,7 @@ function sheetHandler(element)  {
 		$(document).off('mouseup', onResizeMouseUp);
 		$(element).trigger('resize', 
 			{id:$(element).attr('id').substr(5), width: (startWidth + e.pageX - deltax)/glob.zoomLevel,
-			 height: (startHeight + e.pageY - deltay)/glob.zoomLevel })
+				height: (startHeight + e.pageY - deltay)/glob.zoomLevel })
 	}
 
 	$(element).on('mousedown', '.boxClose', onButtonMouseDown);
@@ -305,56 +319,57 @@ function sheetHandler(element)  {
 	$(element).on('mousedown', onMouseDown);
 
 	$(element).children('.sheet').on('change', function(e) { 
-	//$(element).find('textarea').on('keyup', function(e) { 
-       $(element).trigger('setText', e);
+		//$(element).find('textarea').on('keyup', function(e) { 
+			$(element).trigger('setText', e);
 	})
 	$(element).find('textarea').on('focusin', function(e) { 
 	})
-    $(element).find('textarea').on('focusout', function(e) { 
-    })
+	$(element).find('textarea').on('focusout', function(e) { 
+	})
 }
 
 function wallHandler(element) {
-	
+
 	var deltax = 0;
 	var deltay = 0;
 	var startx = 0;
 	var starty = 0;
 	var movelayer = $("#moveLayer");
-	var xImage = 0;
-	var yImage = 0;
-	var xLast = 0;
-	var yLast = 0;
-	
+	var xScaleLayer = 0;
+	var yScaleLayer = 0;
+	var xWallLast = 0;
+	var yWallLast = 0;
+	var hasMoved = false;
+
 	function onMouseMove(e) {
 		movelayer.css('x', (startx + e.pageX - deltax)/glob.zoomLevel);
 		movelayer.css('y', (starty + e.pageY - deltay)/glob.zoomLevel);
 		console.log(e.pageX + " " + e.pageY);
+		setMinimap();
+		hasMoved = true;
 	}
 
 	function onMouseUp() {
 		$(document).off('mousemove', onMouseMove);
 		$(document).off('mouseup', onMouseUp);
-		if (glob.currentSheet)
+		
+		if (glob.currentSheet && !hasMoved)
 		{
 			glob.currentSheet.find('.boxClose').hide();
+			glob.currentSheet.find('.sheetTextField').blur();
 			glob.currentSheet.children(".sheet").css("border-top", "");
 			glob.currentSheet.children(".sheet").css("margin-top", "");
+			$("#map_" + glob.currentSheet.attr("id")).css("background-color", "black");
 		}
 	}
 
 	function onMouseDown(e) {
-		
+
+		hasMoved = false;
 		startx = parseInt(movelayer.css('x')) * glob.zoomLevel;
 		starty = parseInt(movelayer.css('y')) * glob.zoomLevel;
 		deltax = e.pageX;
 		deltay = e.pageY;
-		
-		if (glob.currentSheet)
-		{
-			glob.currentSheet.find(".boxClose").hide();
-			glob.currentSheet.find('.sheetTextField').blur();
-		}
 
 		$(document).on('mousemove', onMouseMove);
 		$(document).on('mouseup', onMouseUp);
@@ -364,28 +379,43 @@ function wallHandler(element) {
 
 	function onMouseWheel(e, delta, deltaX, deltaY) {
 
-		var xScreen = e.pageX - $(this).offset().left;
-		var yScreen = e.pageY - $(this).offset().top - 38;
+		var xWall = e.pageX - $(this).offset().left;
+		var yWall = e.pageY - $(this).offset().top - 38;
 		// -38은 #wall이 위에 네비게이션 바 밑으로 들어간 38픽셀에 대한 compensation
+		// xWall, yWall 은 wall의 (0,0)을 origin 으로 본 마우스 커서 위치
 
-		xImage = xImage + ((xScreen - xLast) / glob.zoomLevel);
-		yImage = yImage + ((yScreen - yLast) / glob.zoomLevel);
+		xScaleLayer = xScaleLayer + ((xWall - xWallLast) / glob.zoomLevel);
+		yScaleLayer = yScaleLayer + ((yWall - yWallLast) / glob.zoomLevel);
+
+		// xWall - xWallLast는 저번과 현재의 마우스 좌표 차이 
+		// xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
 
 		glob.zoomLevel += delta / 2.5;
 		glob.zoomLevel = glob.zoomLevel < 0.3 ? 0.3 : (glob.zoomLevel > 10 ? 10 : glob.zoomLevel);
+		glob.zoomLevel = parseInt(glob.zoomLevel * 100) / 100;
 
-		var xNew = (xScreen - xImage) / glob.zoomLevel;
-		var yNew = (yScreen - yImage) / glob.zoomLevel;
+		// 새로운 scale값을 지정해 주고 
 
-		xLast = xScreen;
-		yLast = yScreen;
+		var xNew = (xWall - xScaleLayer) / glob.zoomLevel;
+		var yNew = (yWall - yScaleLayer) / glob.zoomLevel;
+
+		// xNew, yNew는 wall기준 mouse위치와 scaleLayer기준 mouseLayer 의 차..
+
+		xWallLast = xWall;
+		yWallLast = yWall;
+
+		glob.scaleLayerXPos = xWall - xScaleLayer * glob.zoomLevel;
+		glob.scaleLayerYPos = yWall - yScaleLayer * glob.zoomLevel;
+
+		// scaleLayer의 좌표를 wall의 기준으로 저장함
 
 		$("#scaleLayer").css({scale : glob.zoomLevel});
 		$("#scaleLayer").css('x', xNew);
 		$("#scaleLayer").css('y', yNew);
-		$("#scaleLayer").css({transformOrigin:xImage + 'px ' + yImage + 'px'});
+		$("#scaleLayer").css({transformOrigin:xScaleLayer + 'px ' + yScaleLayer + 'px'});
 		$(".boxClose").css({scale : 1 / glob.zoomLevel});
 		$("#zoomLevelText").text(parseInt(glob.zoomLevel * 100) + "%");
+		setMinimap();
 
 		return false;
 	}
@@ -395,7 +425,7 @@ function wallHandler(element) {
 }
 
 function toggleMinimap() {
-	
+
 	if (glob.minimapToggled == 1)
 	{
 		glob.minimapToggled = 0;
@@ -410,7 +440,7 @@ function toggleMinimap() {
 }
 
 function toggleMinimapFinished() {
-	
+
 	if (glob.minimapToggled == 1)
 	{
 		$("#miniMap").animate({right: '0'}, 200);
@@ -427,51 +457,111 @@ function toggleMinimapFinished() {
 }
 
 function setMinimap() {
-	
+
 	var sB = $(".sheetBox");
 
-	var screenWidth = $(window).width() - 225 / glob.zoomLevel; // screen 의 상대적 크기
-	var screenHeight = $(window).height() - 74 / glob.zoomLevel;
+	// 좌표는 moveLayer의 기준에서 본 wall의 좌표!
 
-	var screenLeftTopX = parseInt($("#scaleLayer").css("x")) * -1;
-	var screenLeftTopY = parseInt($("#scaleLayer").css("y")) * -1;
+	var screenWidth = ($(window).width() - 225) / glob.zoomLevel; // screen 의 상대적 크기
+	var screenHeight = ($(window).height() - 74) / glob.zoomLevel;
 
-	var screenRightBottomX = screenLeftTopX + screenWidth;
-	var screenRightBottomY = screenLeftTopY + screenHeight;
-	
-	console.log(screenLeftTopX + ", " + screenLeftTopY);
-	console.log(screenRightBottomX + ", " + screenRightBottomY);
+	var screenTop = -(glob.scaleLayerYPos + parseInt($("#moveLayer").css("y")) * glob.zoomLevel) / glob.zoomLevel;
+	var screenBottom = screenTop + screenHeight;
+	var screenLeft = -(glob.scaleLayerXPos + parseInt($("#moveLayer").css("x")) * glob.zoomLevel) / glob.zoomLevel;
+	var screenRight = screenLeft + screenWidth;
+
+
+	// scaleLayer 의 좌표에서 moveLayer 의 좌표를 더한 것의 마이너스 취한것
+
+	glob.worldTop = screenTop;
+	glob.worldBottom = screenBottom;
+	glob.worldLeft = screenLeft;
+	glob.worldRight = screenRight;
+
+	// 일단 이렇게 넣어 두고..
 
 	for (i = 0; i < sB.length; i++)
 	{
 		var elem = $(sB[i]);
-		console.log(sB[i].id + "(" + elem.css("x") + "," + elem.css("y") + ")" + elem.css("width") + elem.css("height"));
+		var elemX = parseInt(elem.css("x"));
+		var elemY = parseInt(elem.css("y"));
+		var elemWidth = parseInt(elem.css("width"));
+		var elemHeight = parseInt(elem.css("height"));
 
+		// moveLayer의 기준에서 봤을때 elem.css("x")가 이 element의 좌표이다..!
 
-		
-		var newMiniSheet = $($("<div class = 'minimapElement'></div>").appendTo("#miniMap"));
-		newMiniSheet.attr("id", "map_" + sB[i].id);
-		newMiniSheet.css("left", parseInt(elem.css("x")) / 10);
-		newMiniSheet.css("top", parseInt(elem.css("y")) / 10);
+		if (elemX < glob.worldLeft)
+			glob.worldLeft = elemX;
 
+		if (elemX + elemWidth > glob.worldRight)
+			glob.worldRight = elemX + elemWidth;
 
+		if (elemY < glob.worldTop)
+			glob.worldTop = elemY;
+
+		if (elemY + elemHeight > glob.worldBottom)
+			glob.worldBottom = elemY + elemHeight;
+	}
+
+	// worldSize를 구하기 위한 노력들.. 왼쪽 오른쪽 위 아래의 boundaries를 구해야한다
+
+	var worldWidth = glob.worldRight - glob.worldLeft;
+	var worldHeight = glob.worldBottom - glob.worldTop;
+	var ratio = 1;
+
+	if ((worldWidth / worldHeight) > (224 / 185)) // 만약 가로 비율이 더 길다면
+	{
+		ratio = 224 / worldWidth; 
+		$("#minimapWorld").css("width", 224);
+		$("#minimapWorld").css("height", worldHeight * ratio);
+		$("#minimapWorld").css("top", (185 - worldHeight * ratio) / 2);
+		$("#minimapWorld").css("left", 0);
+	}
+
+	else
+	{
+		ratio = 185 / worldHeight;
+		$("#minimapWorld").css("width", worldWidth * ratio);
+		$("#minimapWorld").css("height", 185);
+		$("#minimapWorld").css("top", 0);
+		$("#minimapWorld").css("left", (224 - worldWidth * ratio) / 2);
 
 	}
 
+	$("#minimapCurrentScreen").css("width", screenWidth * ratio);
+	$("#minimapCurrentScreen").css("height", screenHeight * ratio);
+	$("#minimapCurrentScreen").css("top", (screenTop - glob.worldTop) * ratio);
+	$("#minimapCurrentScreen").css("left", (screenLeft - glob.worldLeft) * ratio);
+
+	// 각각의 mini element들을 줄일 ratio를 찾음
+
+	for (i = 0; i < sB.length; i++)
+	{
+		var elem = $(sB[i]);
+		var newWidth = parseInt(parseInt(elem.css("width")) * ratio);
+		var newHeight = parseInt(parseInt(elem.css("height")) * ratio);
+
+		var newMiniSheet = $("#map_" + sB[i].id);
+
+		newMiniSheet.css("left", (parseInt(elem.css("x")) - glob.worldLeft) * ratio);
+		newMiniSheet.css("top", (parseInt(elem.css("y")) - glob.worldTop) * ratio);
+		newMiniSheet.css('width', newWidth);
+		newMiniSheet.css("height", newHeight);
+	}
 
 }
 
-
 $(window).resize(function(){
 	$("#chatWindow").height($(window).height() - glob.rightBarOffset);
+	setMinimap();
 });
 
 $(window).load(function(){
 
 	wallHandler("#wall");
+
 	$('#createBtn').click(createRandomSheet);
 	$('#minimapBtn').click(toggleMinimap);
-
 	$("#chatWindow").height($(window).height() - glob.rightBarOffset);
 	$("#zoomLevelText").text(parseInt(glob.zoomLevel * 100) + "%");
 
