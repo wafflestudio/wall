@@ -242,6 +242,10 @@
 	resize:none;
 }
 
+.redactor_box {
+
+}
+
 .boxClose {
 	position:absolute;
 	top:0;

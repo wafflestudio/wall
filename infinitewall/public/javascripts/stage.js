@@ -35,6 +35,9 @@ function resizeSheet(params)  {
 function removeSheet(params)  {
 	var element = $("#sheet" + params.id)
 	$(element).remove();
+	$(element).off('mousemove');
+	$(element).off('mouseup');
+	$(element).off('mousedown');
 
 	var minimapElement = $("#map_sheet" + params.id);
 	$(minimapElement).remove();
@@ -276,7 +279,6 @@ function sheetHandler(element)  {
 	}
 
 	function onButtonMouseDown(e) {
-		$(document).on('mousemove', onButtonMouseMove);
 		$(document).on('mouseup', onButtonMouseUp);
 	}
 
@@ -308,7 +310,7 @@ function sheetHandler(element)  {
 	function onResizeMouseUp(e) {
 
 		$(document).off('mousemove', onResizeMouseMove);
-		$(document).off('mouseup', onResizeMouseUp);
+		$(document).off('mouseup', onResizeMouseUp);	
 		$(element).trigger('resize', 
 			{id:$(element).attr('id').substr(5), width: (startWidth + e.pageX - deltax)/glob.zoomLevel,
 				height: (startHeight + e.pageY - deltay)/glob.zoomLevel })
