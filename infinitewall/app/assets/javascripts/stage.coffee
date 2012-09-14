@@ -92,6 +92,8 @@ createNewSheet = (id, x, y, w, h, title, text) ->
 		prevTitle = curTitle
 	.html(title)
 
+	sheet.find('textarea').html(text)
+
 	sheetHandler(sheet)
 	
 	sheet.on 'move', (e, params) ->
