@@ -289,3 +289,15 @@
 	background-color:#fff;
 }
 
+#currentWallName {
+	float:left;
+	margin-left:-10px;
+	padding-top:4px;
+	line-height:38px;
+	font-family:avantgarde;
+	font-size:20px;
+}
+
+#currentWallNameText {
+	margin-left:1px;
+}

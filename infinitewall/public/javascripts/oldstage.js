@@ -78,3 +78,14 @@ function patch_launch(text1, patch_text) {
       }
    }
 })(jQuery);
+
+function toOriginal() {
+	$('#moveLayer').css('x', 0);
+	$('#moveLayer').css('y', 0);
+	$('#scaleLayer').css('x', 0);
+	$('#scaleLayer').css('y', 0);
+	$('#scaleLayer').css({transformOrigin : '0px 0px'});
+	glob.scaleLayerXPos = 0;
+	glob.scaleLayerYPos = 0;
+	setMinimap();
+}
