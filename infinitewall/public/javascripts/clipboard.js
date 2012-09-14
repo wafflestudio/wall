@@ -7,6 +7,14 @@ var clipboard = {
 
 //handlers
 function copyHandler(element) {
+  function onKeyDown(e) {
+    if (($.client.os === "Mac" && e.which == 67 && e.metaKey) || ($.client.os !== "Mac" && e.which == 67 && e.ctrlKey)) {
+      $(element).trigger('copy');
+    } else if (($.client.os === "Mac" && e.which == 88 && e.metaKey) || ($.client.os !== "Mac" && e.which == 88 && e.ctrlKey)) {
+      $(element).trigger('cut');
+    }
+  }
+
   function onCutAndCopy(e) {
     console.log('on copy/cut');
 
@@ -17,11 +25,14 @@ function copyHandler(element) {
     sheet = $(element);
 
     //현재는 text sheet 경우만 고려
+    sheet_inner = $(sheet).find(".sheet");
     sheet_title = $(sheet).find(".sheetTopBar h1");
     sheet_content = $($(sheet).find(".sheetText div.redactor_editor")[0]);
     data = {
       'type': 'text',
       'title': sheet_title.html(),
+      'width': sheet_inner.width(),
+      'height': sheet_inner.height(),
       'content': sheet_content.html()
     }
 
@@ -36,7 +47,7 @@ function copyHandler(element) {
 
   }
 
-  $(element).on('copy cut', onCutAndCopy);
+  $(element).on('keydown', onKeyDown).on('copy cut', onCutAndCopy);
 }
 
 //singletone?
@@ -81,13 +92,20 @@ function pasteHandler(element) {
 
   function onPaste(e) {
     //check if inner copy object exist
+    console.log("on paste");    
+
+    if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".redactor_editor"))
+      return;
+
     if(clipboard.state) {
       //random creation for text sheet
       var x = Math.random()*500
       var y = Math.random()*400
-      var w = 300
-      var h = 300
+      //var w = 300
+      //var h = 300
 
+      var w = clipboard.data.width
+      var h = clipboard.data.height
       var title = clipboard.data.title
       var text = clipboard.data.content
       wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, text:text}});
