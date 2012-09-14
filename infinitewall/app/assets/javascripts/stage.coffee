@@ -16,8 +16,10 @@
 template = "<div class='sheetBox' tabindex='0'><div class='sheet' tabindex='0'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
 
 createRandomSheet = ->
-	x = Math.random() * 500
-	y = Math.random() * 400
+	x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+	y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+	screenWidth = ($(window).width() - 225) / glob.zoomLevel
+	screenHeight = ($(window).height() - 74) / glob.zoomLevel
 	w = 300
 	h = 300
 	title = "Untitled"
@@ -400,6 +402,7 @@ $(window).load ->
 	$('#minimapBtn').click toggleMinimap
 	$('#chatWindow').height ($(window).height() - glob.rightBarOffset)
 	$('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
+	$('#currentWallNameText').text "First wall"
 
 	$('.sheetText [contenteditable]').live 'focus', ->
 		$this = $(this)
