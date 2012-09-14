@@ -79,7 +79,7 @@ createNewSheet = (id, x, y, w, h, title, text) ->
 		if e.keyCode is 13
 			curTitle = msg.substr(0, msg.length - 1) if curTitle.charAt(curTitle.length - 1) is '\n'
 
-			if (prevTitle isnt curTitle)
+			if prevTitle isnt curTitle
 				sheet.trigger 'setTitle'
 				prevTitle = curTitle
 				sheet.find('.sheetTitle').blur()
