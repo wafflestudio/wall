@@ -13,7 +13,7 @@
 	#this.worldRight = 0
 
 
-template = "<div class='sheetBox'><div class='sheet'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
+template = "<div class='sheetBox' tabindex='0'><div class='sheet' tabindex='0'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
 
 createRandomSheet = ->
 	x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
@@ -109,7 +109,7 @@ createNewSheet = (id, x, y, w, h, title, text) ->
 		wallSocket.send {action : 'setText', params : {id : id, text : sheet.find('textarea').val(), cursor : 1}}
 
 	sheet.on 'setTitle', (e) ->
-		wallSocket.send {action : 'setTitle', params : {id : id, title : sheet.find('sheetTitle').html()}}
+		wallSocket.send {action : 'setTitle', params : {id : id, title : sheet.find('.sheetTitle').html()}}
 
 	$('#sheet' + id + ' textarea.sheetTextField').redactor {
 		autoresize : true,
@@ -117,7 +117,7 @@ createNewSheet = (id, x, y, w, h, title, text) ->
 		airButtons : ['formatting', '|', 'bold', 'italic', 'deleted']
 	}
 
-	copyHandler sheet
+	copyHandler(sheet)
 
 	newMiniSheet = $($('<div class = "minimapElement"></div>').appendTo('#minimapWorld'))
 	newMiniSheet.attr('id', 'map_sheet' + id)
