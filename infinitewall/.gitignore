@@ -16,3 +16,4 @@ dist
 .settings/
 .scala_dependencies
 .ensime
+public/files
