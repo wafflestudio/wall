@@ -97,21 +97,31 @@ function patch_launch(text1, patch_text) {
 
 function setText(params)  {
 	// set Text
+	
+    /*
+    var start = savedSel.rangeInfos[0].startMarkerId;
+    var end = savedSel.rangeInfos[0].startMarkerId;
+
+
+    console.log("start  : " + start);
+    console.log("end    : " + end);
+    */
+	var who = params.name;
+
 	var element = $("#sheet" + params.id).find('textarea.sheetTextField');
-	var text1 = $(element).getCode();
-	console.log("a: " + text1);
-	var text2 = params.text;
-	console.log("b: " + text2);
+	var text1 = $(element).getCode(); // 내 에디터 내용
+	var text2 = params.text;          // 서버에서 받은 내용
 	var patch_text = diff_launch(text1, text2);
-	console.log("c: " + patch_text);
 	var patch = patch_launch(text1, patch_text);
-	console.log("d: " + patch);
-	var cursor = $(element).getCursorPosition();
-//	var temp = $("#sheet + params.id").find('.redactor_editor');
-//	var temp_cursor = $(temp).getCursorPosition();
-//	console.log(temp_cursor);
+
 	$(element).setCode(patch);
-	$(element).setCursorPosition(cursor);
+    restoreSelection();
+
+	console.log("who             : " + who);
+	console.log("my content      : " + text1);
+	console.log("server content  : " + text2);
+	console.log("patch content   : " + patch_text);
+	console.log("result          : " + patch);
 }
 
 function createNewSheet(id, x, y, w, h, text) {
@@ -130,13 +140,15 @@ function createNewSheet(id, x, y, w, h, text) {
 	$(sheet).on("resize", function(e, params) { wallSocket.send({action: "resize", params: $.extend(params, {id:id})}) })
 	$(sheet).on("remove", function(e) { wallSocket.send({action:"remove", params:{id:id}}) })
 	//$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).children('.sheet').html(), cursor: 1}}) })
-	$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).find('textarea').val(), cursor: 1}}) })
 
     $('#sheet'+id+' textarea.sheetTextField').redactor({
        autoresize: true,
        air: true,
        airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
     });	
+
+	//$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).find('textarea').val()}})})
+	$(sheet).on("setText", function(e) { wallSocket.send({action:"setText", params:{id:id, text:$(sheet).find('textarea').getCode(), name: "tantara"}})})
 	
 	return sheet
 }
@@ -155,7 +167,6 @@ function createRandomSheet()
 	wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, text:text}})
 	//createNewSheet(newId, x, y, w, h, text)
 }
-
 
 function sheetHandler(element)  {
 	
@@ -269,11 +280,25 @@ function sheetHandler(element)  {
 
 	$(element).children('.sheet').on('change', function(e) { 
 	//$(element).find('textarea').on('keyup', function(e) { 
+       saveSelection("tantara");
        $(element).trigger('setText', e);
 	})
 	$(element).find('textarea').on('focusin', function(e) { 
+       $('span.rangySelectionBoundary[name!=tantara]').remove();
+       saveSelection("tantara");
+       $(element).trigger('setText', e);
 	})
+	/*
+	$(element).find('div.redactor_editor').on('click', function(e) { 
+       $('span.rangySelectionBoundary[name!=tantara]').remove();
+       saveSelection("tantara");
+       $(element).trigger('setText', e);
+	})
+	*/
     $(element).find('textarea').on('focusout', function(e) { 
+       $('span.rangySelectionBoundary').remove();
+       //$('span.rangySelectionBoundary[name=tantara]').remove();
+       $(element).trigger('setText', e);
     })
 }
 
