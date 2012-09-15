@@ -30,5 +30,10 @@ POST    /group/create                controllers.Group.create
 POST    /group/adduser/:groupId      controllers.Group.addUser(groupId:Long)
 GET  /group/rmuser/:groupId/:userId       controllers.Group.removeUser(groupId:Long, userId:Long)
 
+POST    /file                 controllers.File.upload
+GET     /file                 controllers.File.info
+PUT     /file                 controllers.File.replace
+DELETE  /file                 controllers.File.delete
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

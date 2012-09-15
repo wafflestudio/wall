@@ -14,7 +14,7 @@ import views._
 import helpers._
 
 case class LoginData(val email: String, val password: String)
-case class SignUpData(val email: String, val password: String)
+case class SignUpData(val email: String, val password: String, val nickname:String)
 case class CurrentUser(val userId: Long, val email: String)
 
 trait Auth {
@@ -58,12 +58,13 @@ trait SignUp {
 			"Password" -> tuple(
 				"main" -> text(minLength = 8),
 				"confirm" -> text
-			).verifying("password fields must be identical", t => t._1 == t._2)
+			).verifying("password fields must be identical", t => t._1 == t._2),
+			"Nickname" -> text
 		) {
-				(email, passwords) =>
-					SignUpData(email, passwords._1)
+				(email, passwords, nickname) =>
+					SignUpData(email, passwords._1, nickname)
 			} {
-				signupData => Some(signupData.email, ("", ""))
+				signupData => Some(signupData.email, ("", ""), "")
 			}.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password).isDefined)
 	}
 }
