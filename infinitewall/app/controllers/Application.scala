@@ -86,10 +86,6 @@ object Application extends Controller with Login with SignUp {
 		Ok(views.html.contact())
 	}
 
-	def stage = Action { implicit request =>
-		Ok(views.html.stage())
-	}
-
 	def logout = AuthenticatedAction { implicit request =>
 		Redirect(routes.Application.index).withNewSession
 	}
