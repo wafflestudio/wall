@@ -338,6 +338,7 @@ imageSheetHandler = (elem) ->
 		$(document).on 'mousemove', onMouseMove
 		$(document).on 'mouseup', onMouseUp
 		e.stopPropagation()
+		return false
 
 	onButtonMouseDown = (e) ->
 		$(document).on 'mouseup', onButtonMouseUp
