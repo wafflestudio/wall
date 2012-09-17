@@ -11,6 +11,8 @@ var glob = new function() {
 	this.worldBottom = 0;
 	this.worldLeft = 0;
 	this.worldRight = 0;
+
+	this.tempImageID = 20000;
 }
 
 
@@ -78,6 +80,7 @@ function patch_launch(text1, patch_text) {
       }
    }
 })(jQuery);
+
 
 function toOriginal() {
 	$('#moveLayer').css('x', 0);

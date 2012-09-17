@@ -205,8 +205,6 @@
 }
 
 .sheet {
-	width:830px;
-	height:auto;
 	background-color:white;
 	padding:1px 15px 52px 15px;
 	box-shadow: 3px 3px 4px 2px #888;
@@ -240,6 +238,20 @@
 	padding:0;
 	border:none;
 	resize:none;
+}
+
+.imageSheet {
+	width:400px;
+	height:400px;
+	background-color:white;
+	box-shadow: 3px 3px 4px 2px #888;
+}
+
+.sheetImage {
+	background-size:100%;
+	padding-top:7px;
+	width:100%;
+	height:100%;
 }
 
 .redactor_box {

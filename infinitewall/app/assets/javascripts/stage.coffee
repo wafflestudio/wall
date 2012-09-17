@@ -13,13 +13,14 @@
 	#this.worldRight = 0
 
 
-template = "<div class='sheetBox' tabindex='0'><div class='sheet' tabindex='0'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
+#template = "<div class='sheetBox' tabindex='0'><div class='sheet' tabindex='0'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
+template = "<div class='sheetBox'><div class='sheet'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
+
+imageTemplate = "<div class='sheetBox'><div class='imageSheet'><div class='sheetImage'></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
 
 createRandomSheet = ->
 	x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
 	y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
-	screenWidth = ($(window).width() - 225) / glob.zoomLevel
-	screenHeight = ($(window).height() - 74) / glob.zoomLevel
 	w = 300
 	h = 300
 	title = "Untitled"
@@ -123,6 +124,61 @@ createNewSheet = (id, x, y, w, h, title, text) ->
 	newMiniSheet.attr('id', 'map_sheet' + id)
 	setMinimap()
 	
+createImageSheet = (id, x, y, w, h, title, text, url) ->
+	#위에 타이틀과 밑에 텍스트도 있는 이미지 시트를 일단 생각하고..
+	#하지만 구현에선 일단 타이틀과 텍스트는 차치함..
+	
+	sheet = $($(imageTemplate).appendTo('#moveLayer'))
+	prevTitle = title
+
+	sheet.attr 'id', 'sheet' + id
+	sheet.css 'x', x + 'px'
+	sheet.css 'y', y + 'px'
+	sheet.children('.imageSheet').css 'width', w + 'px'
+	sheet.children('.imageSheet').css 'height', h + 'px'
+	sheet.children('.imageSheet').children('.sheetImage').css 'background', "url('#{url}') no-repeat"
+	sheet.children('.imageSheet').children('.sheetImage').css 'background-size', '100%'
+	imageSheetHandler(sheet)
+	
+	#copyHandler(sheet)
+
+	newMiniSheet = $($('<div class = "minimapElement"></div>').appendTo('#minimapWorld'))
+	newMiniSheet.attr('id', 'map_sheet' + id)
+	setMinimap()
+
+createImageSheetInTheMiddle = (url) ->
+	
+	w = 0
+	h = 0
+	img = new Image()
+	img.onload = ->
+		w = this.width
+		h = this.height
+
+		ratio = w / h
+		
+		if w > 400
+			w = 400
+			h = 400 / ratio
+
+		if h > 400
+			h = 400
+			w = 400 * ratio
+	
+		x = (-w + ($(window).width() - 225) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+		y = (-h + ($(window).height() - 74) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+
+		createImageSheet(glob.tempImageID++, x, y, w, h, title, text, url)
+	img.src = url
+	
+	#이렇게 쓰면 여기서 한번, 시트에서 로드할 때 한번, 총 두번 이미지를 로드하는건가?
+	#어싱크로너스로 어떻게 해야하지? 이렇게 그냥 해두면 비동기?
+	#만약 두 번 로드해야한다면.. 서버에 업로드하고 파일 정보가 db로 들어갈때 서버에서 이미지 크기를 db내에 넣어두는것도 방법이 될수도
+	#
+	
+	title = "Untitled"
+	text = "Text"
+
 
 sheetHandler = (elem) ->
 
@@ -151,8 +207,6 @@ sheetHandler = (elem) ->
 				x : (startx + e.pageX - deltax) / glob.zoomLevel,
 				y : (starty + e.pageY - deltay) / glob.zoomLevel
 			}
-		else
-			element.find('.sheetTextField').focus()
 
 	onMouseDown = (e) ->
 		hasMoved = false
@@ -220,7 +274,116 @@ sheetHandler = (elem) ->
 
 	element.children('.sheet').on 'change', (e) ->
 		element.trigger 'setText', e
+
+
+
+imageSheetHandler = (elem) ->
+
+	element = $(elem)
+	deltax = 0
+	deltay = 0
+	startx = 0
+	starty = 0
+	startWidth = 0
+	startHeight = 0
+	imgWidth = parseInt(element.css('width'))
+	imgHeight= parseInt(element.css('height'))
+	hasMoved = false
+
+	onMouseMove = (e) ->
+		element.css 'x', (startx + e.pageX - deltax) / glob.zoomLevel
+		element.css 'y', (starty + e.pageY - deltay) / glob.zoomLevel
+		hasMoved = true
+		setMinimap()
 	
+	onMouseUp = (e) ->
+		$(document).off 'mousemove', onMouseMove
+		$(document).off 'mouseup', onMouseUp
+
+		if hasMoved
+			element.trigger 'move', {
+				id : element.attr('id').substr(5),
+				x : (startx + e.pageX - deltax) / glob.zoomLevel,
+				y : (starty + e.pageY - deltay) / glob.zoomLevel
+			}
+
+	onMouseDown = (e) ->
+		hasMoved = false
+		$('#moveLayer').append element
+
+		if glob.currentSheet
+			glob.currentSheet.find('.boxClose').hide()
+			glob.currentSheet.find('.sheetTextField').blur()
+			$(glob.currentSheet.children('.sheet')).css 'border-top', ''
+			$(glob.currentSheet.children('.sheet')).css 'margin-top', ''
+			$('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'black'
+
+		glob.currentSheet = element
+		glob.currentSheet.find('.boxClose').show()
+		glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
+		glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
+		$('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'crimson'
+
+		startx = parseInt(element.css('x')) * glob.zoomLevel
+		starty = parseInt(element.css('y')) * glob.zoomLevel
+
+		deltax = e.pageX
+		deltay = e.pageY
+
+		$(document).on 'mousemove', onMouseMove
+		$(document).on 'mouseup', onMouseUp
+		e.stopPropagation()
+
+	onButtonMouseDown = (e) ->
+		$(document).on 'mouseup', onButtonMouseUp
+	
+	onButtonMouseMove = (e) ->
+		console.log e.pageX, e.pageY
+	
+	onButtonMouseUp = (e) ->
+		$(document).off 'mousemove', onMouseMove
+		$(document).off 'mouseup', onMouseUp
+		element.trigger 'remove', {id : element.attr('id').substr(5)}
+	
+	onResizeMouseDown = (e) ->
+		$(document).on 'mousemove', onResizeMouseMove
+		$(document).on 'mouseup', onResizeMouseUp
+		startWidth = parseInt(element.children('.imageSheet').css('width')) * glob.zoomLevel
+		startHeight = parseInt(element.children('.imageSheet').css('height')) * glob.zoomLevel
+		deltax = e.pageX
+		deltay = e.pageY
+		return false
+
+	onResizeMouseMove = (e) ->
+		dX = e.pageX - deltax
+		dY = e.pageY - deltay
+		ratio = imgWidth / imgHeight
+
+		if Math.abs(dX / dY) > ratio
+			element.children('.imageSheet').css 'width', (startWidth + dX) / glob.zoomLevel
+			element.children('.imageSheet').css 'height', (startHeight + dX / ratio) / glob.zoomLevel
+		else
+			element.children('.imageSheet').css 'width', (startWidth + dY * ratio) / glob.zoomLevel
+			element.children('.imageSheet').css 'height', (startHeight + dY) / glob.zoomLevel
+
+
+	onResizeMouseUp = (e) ->
+		$(document).off 'mousemove', onResizeMouseMove
+		$(document).off 'mouseup', onResizeMouseUp
+		element.trigger 'resize', {
+			id : element.attr('id').substr(5),
+			width : (startWidth + e.pageX - deltax) / glob.zoomLevel,
+			height : (startHeight + e.pageY - deltay) / glob.zoomLevel
+		}
+	
+	element.on 'mousedown', '.boxClose', onButtonMouseDown
+	element.on 'mousedown', '.resizeHandle', onResizeMouseDown
+	element.on 'mousedown', onMouseDown
+
+	element.children('.imageSheet').on 'change', (e) ->
+		element.trigger 'setText', e
+
+
 
 wallHandler = (element) ->
 	deltax = 0
@@ -392,6 +555,8 @@ window.setTitle = setTitle
 window.createNewSheet = createNewSheet
 window.setMinimap = setMinimap
 window.setText = setText
+window.sheetHandler = sheetHandler
+window.createImageSheetInTheMiddle = createImageSheetInTheMiddle
 
 $(window).resize ->
 	$('#chatWindow').height ($(window).height() - glob.rightBarOffset)
@@ -399,6 +564,14 @@ $(window).resize ->
 
 $(window).load ->
 	wallHandler('#wall')
+	
+	$('#fileupload').fileupload	{
+		dataType : 'json',
+		done : (e, data) ->
+			#console.log(e)
+			$.each data.result, (index, file) ->
+				createImageSheetInTheMiddle ("/assets/files/#{file.name}")
+	}
 
 	$('#createBtn').click createRandomSheet
 	$('#minimapBtn').click toggleMinimap
@@ -416,3 +589,4 @@ $(window).load ->
 			$this.data('before', $this.html())
 			$this.trigger('change')
 		$this
+

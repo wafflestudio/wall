@@ -86,10 +86,6 @@ object Application extends Controller with Login with SignUp {
 		Ok(views.html.contact())
 	}
 
-	def stage = Action { implicit request =>
-		Ok(views.html.stage())
-	}
-
 	def logout = AuthenticatedAction { implicit request =>
 		Redirect(routes.Application.index).withNewSession
 	}
@@ -105,7 +101,7 @@ object Application extends Controller with Login with SignUp {
 			},
 			loginData => {
 				val user = User.findByEmail(loginData.email).get
-				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
+				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> "newNickname")
 			}
 		)
 
@@ -119,7 +115,7 @@ object Application extends Controller with Login with SignUp {
 			},
 			signupData => {
 				val user = User.findByEmail(signupData.email).get
-				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
+				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> "newNickname")
 			}
 				
 		)

@@ -6,7 +6,6 @@
 GET     /                           controllers.Application.index
 GET     /about                      controllers.Application.about
 GET     /contact                    controllers.Application.contact
-GET			/stage											controllers.Application.stage
 
 POST    /authenticate   						controllers.Application.authenticate
 GET     /signup        							controllers.Application.signup

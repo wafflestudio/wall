@@ -2,6 +2,8 @@
 
 @layouts.stage("Wall ::: Infinite Wall") {
 
+<input id="fileupload" type="file" name="files[]" data-url="/file" multiple>
+
 <div id="wall">
 	<div id="scaleLayer">
 		<div id ="moveLayer">
@@ -9,16 +11,15 @@
 	</div>
 </div>
 
-
 <div id = "rightBar">
-	
+
 	<div id = "miniMap">
 		<div id = "minimapWorld">
 			<div id = "minimapCurrentScreen">
 			</div>
 		</div>
 	</div>
-	
+
 	<div id = "chatWindow">
 
 		<div id="chat-userlist">
@@ -90,12 +91,12 @@
 			createNewSheet(sheet.id, sheet.x, sheet.y, sheet.width, sheet.height, sheet.title, sheet.content)
 		}
 		/*
-        $('.sheetTextField').redactor({
-           autoresize: true,
-           air: true,
-           airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
-        });	
-        */
+		$('.sheetTextField').redactor({
+			autoresize: true,
+			air: true,
+			airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
+		});	
+		*/
 
 		glob.zoomLevel = @pref.zoom;
 		$('#scaleLayer').css('scale', glob.zoomLevel)
@@ -109,8 +110,8 @@
 		});
 		fv.appendTo($('#folder-test'))
 
-    // wall ready
-    $(document).trigger("wallready")
+		// wall ready
+		$(document).trigger("wallready")
 	})
 </script>
 

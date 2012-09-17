@@ -1,0 +1,25 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>jQuery File Upload Example</title>
+	</head>
+	<body>
+		<input id="fileupload" type="file" name="files[]" data-url="/file" multiple>
+		<script src="javascripts/jquery-1.7.1.min.js"></script>
+		<script src="javascripts/jquery-ui-1.8.23.custom.min.js"></script>
+		<script src="javascripts/jquery.iframe-transport.js"></script>
+		<script src="javascripts/jquery.fileupload.js"></script>
+		<script>
+			$(function () {
+				$('#fileupload').fileupload({
+					dataType: 'json',
+					done: function (e, data) {
+						$.each(data.result, function (index, file) {
+							$('<p/>').text(file.name).appendTo(document.body);
+						});
+					}
+				});
+			});
+		</script>
+	</body> 
+</html>
