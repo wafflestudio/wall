@@ -13,8 +13,7 @@
 	#this.worldRight = 0
 
 
-#template = "<div class='sheetBox' tabindex='0'><div class='sheet' tabindex='0'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
-template = "<div class='sheetBox'><div class='sheet'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
+template = "<div class='sheetBox' tabindex='-1'><div class='sheet'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
 
 imageTemplate = "<div class='sheetBox'><div class='imageSheet'><div class='sheetImage'></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
 
@@ -75,6 +74,8 @@ createNewSheet = (id, x, y, w, h, title, text) ->
 	sheet.attr 'id', 'sheet' + id
 	sheet.css 'x', x + 'px'
 	sheet.css 'y', y + 'px'
+	sheet.css 'outline', 'none'
+
 	sheet.children('.sheet').css 'width', w + 'px'
 	sheet.children('.sheet').css 'height', h + 'px'
 	sheet.find('.sheetTitle').keydown (e) ->
@@ -192,6 +193,10 @@ sheetHandler = (elem) ->
 	element = $(elem)
 
 	onMouseMove = (e) ->
+		#if focus then no move
+		if $("*:focus").is(".sheetTitle") or $("*:focus").is(".redactor_editor")
+			return
+
 		element.css 'x', (startx + e.pageX - deltax) / glob.zoomLevel
 		element.css 'y', (starty + e.pageY - deltay) / glob.zoomLevel
 		hasMoved = true
