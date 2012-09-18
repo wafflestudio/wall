@@ -99,11 +99,18 @@ object Sheet extends ActiveRecord[Sheet] {
 		}
 	}
 
-    def createBlank(x: Double, y:Double, width:Double, height:Double, wallId:Long) = {
+    def createInit(x: Double, y:Double, width:Double, height:Double, title: String, contentType: String, wallId:Long) = {
         DB.withTransaction { implicit c =>
-            val id = create(x, y, width, height, "untitled", ContentType.TextType, wallId)
-            val contentId = TextContent.create("", 0, 0, id)
-            id
+          contentType match {
+            case "text" =>
+              val id = create(x, y, width, height, title, ContentType.TextType, wallId)
+              val contentId = TextContent.create("", 0, 0, id)
+              id
+            case "image" => 
+              val id = create(x, y, width, height, title, ContentType.ImageType, wallId)
+              val contentId = ImageContent.create("", 0, 0, id)
+              id
+          }
         }
     }
 

@@ -12,22 +12,23 @@
 	#this.worldLeft = 0
 	#this.worldRight = 0
 
+contentTypeEnum = {
+  text: "text",
+  image: "image"
+}
 
-template = "<div class='sheetBox' tabindex='-1'><div class='sheet'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
+
+textTemplate = "<div class='sheetBox' tabindex='-1'><div class='sheet'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
 
 imageTemplate = "<div class='sheetBox'><div class='imageSheet'><div class='sheetImage'></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
 
-createRandomSheet = ->
-	x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
-	y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
-	w = 300
-	h = 300
-	title = "Untitled"
-	text = "Text"
-	wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, text:text}})
 
 createSheet = (id, params) ->
-	createNewSheet id, params.x, params.y, params.width, params.height, params.title, params.text
+  if params.contentType == contentTypeEnum.text
+    createTextSheet id, params.x, params.y, params.width, params.height, params.title, params.content
+  else if params.contentType == contentTypeEnum.image
+    createImageSheet id, params.x, params.y, params.width, params.height, params.title, params.text, params.content
+
 
 moveSheet = (params) ->
 	element = $('#sheet' + params.id)
@@ -67,8 +68,42 @@ setText = (params) ->
 	element.setCursorPosition(cursor)
 
 
-createNewSheet = (id, x, y, w, h, title, text) ->
-	sheet = $($(template).appendTo('#moveLayer'))
+createSheetOnRandom = (contentType, content) ->
+  title = "Untitled"
+  console.log(contentType + " " + content)
+  if contentType == contentTypeEnum.text
+    x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+    y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+    w = 300
+    h = 300
+
+    wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:contentType, text:content}})
+  else if contentType == contentTypeEnum.image
+    w = 0
+    h = 0
+    img = new Image()
+    img.onload = ->
+      w = this.width
+      h = this.height
+      ratio = w / h
+      
+      if w > 400
+        w = 400
+        h = 400 / ratio
+
+      if h > 400
+        h = 400
+        w = 400 * ratio
+    
+      x = (-w + ($(window).width() - 225) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+      y = (-h + ($(window).height() - 74) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, content:content, contentType:"image"}})
+
+    img.src = content
+
+
+createTextSheet = (id, x, y, w, h, title, text) ->
+	sheet = $($(textTemplate).appendTo('#moveLayer'))
 	prevTitle = title
 
 	sheet.attr 'id', 'sheet' + id
@@ -124,7 +159,8 @@ createNewSheet = (id, x, y, w, h, title, text) ->
 	newMiniSheet = $($('<div class = "minimapElement"></div>').appendTo('#minimapWorld'))
 	newMiniSheet.attr('id', 'map_sheet' + id)
 	setMinimap()
-	
+
+
 createImageSheet = (id, x, y, w, h, title, text, url) ->
 	#위에 타이틀과 밑에 텍스트도 있는 이미지 시트를 일단 생각하고..
 	#하지만 구현에선 일단 타이틀과 텍스트는 차치함..
@@ -147,42 +183,8 @@ createImageSheet = (id, x, y, w, h, title, text, url) ->
 	newMiniSheet.attr('id', 'map_sheet' + id)
 	setMinimap()
 
-createImageSheetInTheMiddle = (url) ->
-	
-	w = 0
-	h = 0
-	img = new Image()
-	img.onload = ->
-		w = this.width
-		h = this.height
-
-		ratio = w / h
-		
-		if w > 400
-			w = 400
-			h = 400 / ratio
-
-		if h > 400
-			h = 400
-			w = 400 * ratio
-	
-		x = (-w + ($(window).width() - 225) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
-		y = (-h + ($(window).height() - 74) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
-
-		createImageSheet(glob.tempImageID++, x, y, w, h, title, text, url)
-	img.src = url
-	
-	#이렇게 쓰면 여기서 한번, 시트에서 로드할 때 한번, 총 두번 이미지를 로드하는건가?
-	#어싱크로너스로 어떻게 해야하지? 이렇게 그냥 해두면 비동기?
-	#만약 두 번 로드해야한다면.. 서버에 업로드하고 파일 정보가 db로 들어갈때 서버에서 이미지 크기를 db내에 넣어두는것도 방법이 될수도
-	#
-	
-	title = "Untitled"
-	text = "Text"
-
 
 sheetHandler = (elem) ->
-
 	deltax = 0
 	deltay = 0
 	startx = 0
@@ -558,11 +560,13 @@ window.moveSheet = moveSheet
 window.removeSheet = removeSheet
 window.resizeSheet = resizeSheet
 window.setTitle = setTitle
-window.createNewSheet = createNewSheet
 window.setMinimap = setMinimap
 window.setText = setText
 window.sheetHandler = sheetHandler
-window.createImageSheetInTheMiddle = createImageSheetInTheMiddle
+
+window.createSheetOnRandom = createSheetOnRandom
+window.createTextSheet = createTextSheet
+window.createImageSheet = createImageSheet
 
 $(window).resize ->
 	$('#chatWindow').height ($(window).height() - glob.rightBarOffset)
@@ -574,12 +578,16 @@ $(window).load ->
 	$('#fileupload').fileupload	{
 		dataType : 'json',
 		done : (e, data) ->
-			#console.log(e)
-			$.each data.result, (index, file) ->
-				createImageSheetInTheMiddle ("/assets/files/#{file.name}")
+			$.each(data.result, (index, file) ->
+        createSheetOnRandom(contentTypeEnum.image, "/assets/files/#{file.name}")
+      )
 	}
 
-	$('#createBtn').click createRandomSheet
+	$('.createBtn').live('click', () ->
+	  if $(this).attr('rel') == 'text'
+      createSheetOnRandom(contentTypeEnum.text, "text")
+	)
+
 	$('#minimapBtn').click toggleMinimap
 	$('#chatWindow').height ($(window).height() - glob.rightBarOffset)
 	$('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
