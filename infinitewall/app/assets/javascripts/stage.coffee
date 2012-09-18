@@ -18,17 +18,18 @@ contentTypeEnum = {
 }
 
 
+#templates
 textTemplate = "<div class='sheetBox' tabindex='-1'><div class='sheet'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
 
-imageTemplate = "<div class='sheetBox'><div class='imageSheet'><div class='sheetImage'></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
+imageTemplate = "<div class='sheetBox' tabindex='-1'><div class='imageSheet'><div class='sheetImage'></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
 
 
+#default functions
 createSheet = (id, params) ->
   if params.contentType == contentTypeEnum.text
     createTextSheet id, params.x, params.y, params.width, params.height, params.title, params.content
   else if params.contentType == contentTypeEnum.image
     createImageSheet id, params.x, params.y, params.width, params.height, params.title, params.text, params.content
-
 
 moveSheet = (params) ->
 	element = $('#sheet' + params.id)
@@ -66,40 +67,6 @@ setText = (params) ->
 
 	element.setCode(patch)
 	element.setCursorPosition(cursor)
-
-
-createSheetOnRandom = (contentType, content) ->
-  title = "Untitled"
-  console.log(contentType + " " + content)
-  if contentType == contentTypeEnum.text
-    x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
-    y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
-    w = 300
-    h = 300
-
-    wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:contentType, text:content}})
-  else if contentType == contentTypeEnum.image
-    w = 0
-    h = 0
-    img = new Image()
-    img.onload = ->
-      w = this.width
-      h = this.height
-      ratio = w / h
-      
-      if w > 400
-        w = 400
-        h = 400 / ratio
-
-      if h > 400
-        h = 400
-        w = 400 * ratio
-    
-      x = (-w + ($(window).width() - 225) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
-      y = (-h + ($(window).height() - 74) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
-      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, content:content, contentType:"image"}})
-
-    img.src = content
 
 
 createTextSheet = (id, x, y, w, h, title, text) ->
@@ -176,12 +143,57 @@ createImageSheet = (id, x, y, w, h, title, text, url) ->
 	sheet.children('.imageSheet').children('.sheetImage').css 'background', "url('#{url}') no-repeat"
 	sheet.children('.imageSheet').children('.sheetImage').css 'background-size', '100%'
 	imageSheetHandler(sheet)
-	
-	#copyHandler(sheet)
+		
+	sheet.on 'move', (e, params) ->
+		wallSocket.send {action : 'move', params : $.extend(params, {id : id})}
+  
+  #currently not working: width와 height도 저장해야함..
+	sheet.on 'resize', (e, params) ->
+		wallSocket.send {action : 'resize', params : $.extend(params, {id : id})}
+
+	sheet.on 'remove', (e) ->
+		wallSocket.send {action : 'remove', params : {id : id}}
+
+	copyHandler(sheet)
 
 	newMiniSheet = $($('<div class = "minimapElement"></div>').appendTo('#minimapWorld'))
 	newMiniSheet.attr('id', 'map_sheet' + id)
 	setMinimap()
+
+
+
+createSheetOnRandom = (contentType, content) ->
+  title = "Untitled"
+  console.log(contentType + " " + content)
+  if contentType == contentTypeEnum.text
+    x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+    y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+    w = 300
+    h = 300
+  else if contentType == contentTypeEnum.image
+    w = 0
+    h = 0
+    img = new Image()
+    img.onload = ->
+      w = this.width
+      h = this.height
+      ratio = w / h
+      
+      if w > 400
+        w = 400
+        h = 400 / ratio
+
+      if h > 400
+        h = 400
+        w = 400 * ratio
+    
+      x = (-w + ($(window).width() - 225) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+      y = (-h + ($(window).height() - 74) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+
+    img.src = content
+
+  wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:contentType, content:content}})
+
 
 
 sheetHandler = (elem) ->
