@@ -170,6 +170,8 @@ createSheetOnRandom = (contentType, content) ->
     y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
     w = 300
     h = 300
+
+    wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:contentType, content:content}})
   else if contentType == contentTypeEnum.image
     w = 0
     h = 0
@@ -189,11 +191,11 @@ createSheetOnRandom = (contentType, content) ->
     
       x = (-w + ($(window).width() - 225) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
       y = (-h + ($(window).height() - 74) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:contentType, content:content}})
 
     img.src = content
 
-  wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:contentType, content:content}})
-
+  
 
 
 sheetHandler = (elem) ->
