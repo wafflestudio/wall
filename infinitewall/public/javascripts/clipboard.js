@@ -8,6 +8,7 @@ var clipboard = {
 //handlers
 function copyHandler(element) {
   function onKeyDown(e) {
+    console.log(e);
     if (($.client.os === "Mac" && e.which == 67 && e.metaKey) || ($.client.os !== "Mac" && e.which == 67 && e.ctrlKey)) {
       $(element).trigger('copy');
     } else if (($.client.os === "Mac" && e.which == 88 && e.metaKey) || ($.client.os !== "Mac" && e.which == 88 && e.ctrlKey)) {
@@ -21,18 +22,20 @@ function copyHandler(element) {
     if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".redactor_editor"))
       return;
 
-    //sheet = $(this).parent(".sheetBox");
     sheet = $(element);
-
+    console.log(sheet);
     //현재는 text sheet 경우만 고려
     sheet_inner = $(sheet).find(".sheet");
     sheet_title = $(sheet).find(".sheetTopBar h1");
+
     sheet_content = $($(sheet).find(".sheetText div.redactor_editor")[0]);
+
     data = {
       'type': 'text',
       'title': sheet_title.html(),
       'width': sheet_inner.width(),
       'height': sheet_inner.height(),
+      'contentType': sheet_inner.attr('contentType'),
       'content': sheet_content.html()
     }
 
@@ -107,8 +110,10 @@ function pasteHandler(element) {
       var w = clipboard.data.width
       var h = clipboard.data.height
       var title = clipboard.data.title
-      var text = clipboard.data.content
-      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, text:text}});
+      var contentType = clipboard.data.contentType
+      var content = clipboard.data.content
+
+      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title,contentType:contentType, content:content}});
 
       //state to false
       clipboard.state = false;

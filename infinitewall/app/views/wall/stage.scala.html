@@ -91,10 +91,7 @@
 		for(var i = 0; i < sheets.length; i++)  {	
 			var sheet = sheets[i]
 			console.log(sheet)
-			if(sheet.contentType == "text")
-			  createTextSheet(sheet.id, sheet.x, sheet.y, sheet.width, sheet.height, sheet.title, sheet.content)
-			else if(sheet.contentType == "image")
-			  createImageSheet(sheet.id, sheet.x, sheet.y, sheet.width, sheet.height, sheet.title, null, sheet.content)
+			createSheet(sheet.id, sheet)
 		}
 		/*
 		$('.sheetTextField').redactor({
