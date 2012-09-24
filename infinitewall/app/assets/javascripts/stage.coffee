@@ -18,207 +18,7 @@ window.contentTypeEnum = {
   image: "image"
 }
 
-window.sheets = []
-findSheetById = (id) ->
-  res = null
-  $.each(window.sheets, (key, val) ->
-    if val.id == id
-      res = val
-  )
-  res
-
-#templates  
-textTemplate = "<div class='sheetBox' tabindex='-1'><div class='sheet' contentType='text'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><textarea class='sheetTextField'></textarea></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
-
-imageTemplate = "<div class='sheetBox' tabindex='-1'><div class='sheet' contentType='image'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetImage'></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
-
-#class
-class Sheet
-  sheet_id: null
-  element: null
-  handler: null
-
-  @create: (content) ->
-    #interface for random creation
-
-  setElement: () ->
-    #interface for element creation
-
-  constructor: (params) ->
-    self = this
-
-    @id = params.id
-    @setElement()
-
-    prevTitle = params.title
-
-    @element.attr 'id', 'sheet' + params.id
-    @element.css 'x', params.x + 'px'
-    @element.css 'y', params.y + 'px'
-    @element.css 'outline', 'none'
-
-    @element.children('.sheet').css 'width', params.width + 'px'
-    @element.children('.sheet').css 'height', params.height + 'px'
-    @element.find('.sheetTitle').keydown (e) ->
-      curTitle = self.element.find('.sheetTitle').html()
-      if e.keyCode is 13
-        curTitle = msg.substr(0, msg.length - 1) if curTitle.charAt(curTitle.length - 1) is '\n'
-
-        if prevTitle isnt curTitle
-          self.element.trigger 'setTitle'
-          prevTitle = curTitle
-          self.element.find('.sheetTitle').blur()
-          return false
-    .focusout (e) ->
-      curTitle = self.element.find('.sheetTitle').html()
-      $(self.element).trigger ('setTitle') if prevTitle isnt curTitle
-      prevTitle = curTitle
-    .html(params.title)
-   
-    @attachSocketAction()
-    @attachHandler()
-
-    newMiniSheet = $($('<div class = "minimapElement"></div>').appendTo('#minimapWorld'))
-    newMiniSheet.attr('id', 'map_sheet' + @id)
-    setMinimap()
-
-    window.sheets.push this
-
-  attachSocketAction: () ->
-    self = this
-    @element.on 'move', (e, params) ->
-      wallSocket.send {action : 'move', params : $.extend(params, {id : self.id})}
-
-    @element.on 'resize', (e, params) ->
-      wallSocket.send {action : 'resize', params : $.extend(params, {id : self.id})}
-
-    @element.on 'remove', (e) ->
-      wallSocket.send {action : 'remove', params : {id : self.id}}
-
-    @element.on 'setTitle', (e) ->
-      wallSocket.send {action : 'setTitle', params : {id : self.id, title : self.element.find('.sheetTitle').html()}}
-
-  attachHandler: () ->
-    #@handler = new SheetHandler(this)
-
-  move: (params) ->
-    #move sheet
-    @element.css 'x', params.x
-    @element.css 'y', params.y
-
-  resize: (params) ->
-    #resize sheet
-    @element.children('.sheet').css('width', params.width)
-    @element.children('.sheet').css('height', params.height)
-
-  remove: (params) ->
-    #remove sheet 
-    @element.remove()
-    @element.off 'mousemove'
-    @element.off 'mouseup'
-    @element.off 'mousedown'
-    $('#map_sheet' + params.id).remove()
-
-  setTitle: (params) ->
-    #set title of sheet
-    @element.find('.sheetTitle').html(params.title)
-
-class TextSheet extends Sheet
-  @create: (content) ->
-    x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
-    y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
-    w = 300
-    h = 300
-
-    title = "Untitled Text"
-
-    wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}})
-
-  setElement: () ->
-    @element = $($(textTemplate).appendTo('#moveLayer'))
-
-  constructor: (params) ->
-    super(params)
-    
-    @element.find('textarea').html(params.content)
-    $('#sheet' + @id + ' textarea.sheetTextField').redactor {
-      autoresize : true,
-      air : true,
-      airButtons : ['formatting', '|', 'bold', 'italic', 'deleted']
-    }
-
-  attachSocketAction: () ->
-    super()
-
-    self = this
-    @element.on 'setText', (e) ->
-      wallSocket.send {action : 'setText', params : {id : self.id, text : self.element.find('textarea').val(), cursor : 1}}
-
-  attachHandler: () ->
-    #@handler = new TextSheetHandler(this)
-    textSheetHandler(@element)
-
-  setText: (params) ->
-    #set text
-    elem = $(@element.find('textarea.sheetTextField'))
-    text1 = elem.getCode()
-    text2 = params.text
-    patch_text = diff_launch text1, text2
-    patch = patch_launch text1, patch_text
-    cursor = elem.getCursorPosition()
-
-    console.log "a: #{text1}"
-    console.log "b: #{text2}"
-    console.log "c: #{patch_text}"
-    console.log "d: #{patch}"
-
-    elem.setCode(patch)
-    elem.setCursorPosition(cursor)
-
-class ImageSheet extends Sheet
-  @create: (content) ->
-    w = 0
-    h = 0
-    img = new Image()
-    img.onload = ->
-      w = this.width
-      h = this.height
-      ratio = w / h
-      
-      if w > 400
-        w = 400
-        h = 400 / ratio
-
-      if h > 400
-        h = 400
-        w = 400 * ratio
-    
-      x = (-w + ($(window).width() - 225) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
-      y = (-h + ($(window).height() - 74) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
-
-      title = "Untitled Image"
-
-      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:contentType, content:content}})
-
-    img.src = content
-
-  setElement: () ->
-    @element = $($(imageTemplate).appendTo('#moveLayer'))
-
-  constructor: (params) ->
-    super(params)
-
-    @element.children('.sheet').css 'width', params.width + 'px'
-    @element.children('.sheet').css 'height', params.height + 'px'
-    @element.children('.sheet').children('.sheetImage').css 'background', "url('#{params.content}') no-repeat"
-    @element.children('.sheet').children('.sheetImage').css 'background-size', '100%'
-
-  attachSocketAction: () ->
-    super()
-
-  attachHandler: () ->
-    #@handler = new ImageSheetHandler(this)
-    imageSheetHandler(@element)
+window.sheets = {}
 
 
 ###
@@ -354,29 +154,8 @@ createSheet = (id, params) ->
   else if params.contentType == window.contentTypeEnum.image
     new ImageSheet($.extend(params, {id : id}))
 
-moveSheet = (params) ->
-  sheet = findSheetById(params.id)
-  sheet.move(params)
-
-resizeSheet = (params) ->
-  sheet = findSheetById(params.id)
-  sheet.resize(params)
-
-removeSheet = (params) ->
-  sheet = findSheetById(params.id)
-  sheet.remove(params)
-
-setTitle = (params) ->
-  sheet = findSheetById(params.id)
-  sheet.setTitle(params)
-
-setText = (params) ->
-  sheet = findSheetById(params.id)
-  sheet.setText(params)
-
-
 #handler
-textSheetHandler = (elem) ->
+window.textSheetHandler = (elem) ->
   deltax = 0
   deltay = 0
   startx = 0
@@ -472,7 +251,7 @@ textSheetHandler = (elem) ->
   element.on 'mousedown', onMouseDown
 
 
-imageSheetHandler = (elem) ->
+window.imageSheetHandler = (elem) ->
   element = $(elem)
   deltax = 0
   deltay = 0
@@ -538,7 +317,7 @@ imageSheetHandler = (elem) ->
   onButtonMouseUp = (e) ->
     $(document).off 'mousemove', onMouseMove
     $(document).off 'mouseup', onMouseUp
-    element.trigger 'remove', {id : element.attr('id').substr(5)}
+    element.trigger 'remove', 
   
   onResizeMouseDown = (e) ->
     $(document).on 'mousemove', onResizeMouseMove
@@ -565,11 +344,11 @@ imageSheetHandler = (elem) ->
   onResizeMouseUp = (e) ->
     $(document).off 'mousemove', onResizeMouseMove
     $(document).off 'mouseup', onResizeMouseUp
-    element.trigger 'resize', {
+    element.trigger 'resize', 
       id : element.attr('id').substr(5),
       width : (startWidth + e.pageX - deltax) / glob.zoomLevel,
       height : (startHeight + e.pageY - deltay) / glob.zoomLevel
-    }
+    
   
   element.on 'mousedown', '.boxClose', onButtonMouseDown
   element.on 'mousedown', '.resizeHandle', onResizeMouseDown
@@ -743,12 +522,7 @@ setMinimap = ->
   shrinkMiniSheet $(elem) for elem in sB
 
 window.createSheet = createSheet
-window.moveSheet = moveSheet
-window.removeSheet = removeSheet
-window.resizeSheet = resizeSheet
-window.setTitle = setTitle
 window.setMinimap = setMinimap
-window.setText = setText
 
 
 $(window).resize ->

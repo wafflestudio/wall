@@ -62,19 +62,21 @@
 
 	// initialize wall socket/events
 	var wallSocket = new WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
-	wallSocket.on('receive', function(detail) {
+  wallSocket.on('receive', function(detail) {
+    var sheet = sheets[detail.params.id];
+
 		if(detail.action == "create")
       createSheet(detail.id, detail.params);
-		else if(detail.action == "move")
-			moveSheet(detail.params);
-		else if(detail.action == "resize")
-			resizeSheet(detail.params);
-		else if(detail.action == "remove")
-			removeSheet(detail.params);
-		else if(detail.action == "setText")
-			setText(detail.params);
-		else if(detail.action == "setTitle")
-			setTitle(detail.params);
+    else if(detail.action == "move")
+      sheet.move(detail.params);
+    else if(detail.action == "resize")
+      sheet.resize(detail.params);
+    else if(detail.action == "remove")
+      sheet.remove(detail.params);
+    else if(detail.action == "setText")
+      sheet.setText(detail.params);
+    else if(detail.action == "setTitle")
+      sheet.setTitle(detail.params);
 	})
 
 	// initialize chat socket
@@ -85,7 +87,7 @@
 		var sheets = []
 
 		@sheets.map { sheet => 
-			sheets.push(@Html(sheet.toJson()))
+      sheets.push(@Html(sheet.toJson()))
 		}
 
 		for(var i = 0; i < sheets.length; i++)  {	
