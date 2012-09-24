@@ -23,7 +23,7 @@ class window.ImageSheet extends Sheet
 
       title = "Untitled Image"
 
-      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:contentType, content:content}})
+      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
 
     img.src = content
 

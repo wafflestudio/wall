@@ -37,6 +37,7 @@ class window.TextSheet extends Sheet
 
   setText: (params) ->
     #set text
+    console.log("asdfasdfasdf")
     elem = $(@element.find('textarea.sheetTextField'))
     text1 = elem.getCode()
     text2 = params.text

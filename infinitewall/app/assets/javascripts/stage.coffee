@@ -193,6 +193,7 @@ window.textSheetHandler = (elem) ->
     if glob.currentSheet
       glob.currentSheet.find('.boxClose').hide()
       glob.currentSheet.find('.sheetTextField').blur()
+      glob.currentSheet.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
       $(glob.currentSheet.children('.sheet')).css 'border-top', ''
       $(glob.currentSheet.children('.sheet')).css 'margin-top', ''
       $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'black'
@@ -249,6 +250,9 @@ window.textSheetHandler = (elem) ->
   element.on 'mousedown', '.boxClose', onButtonMouseDown
   element.on 'mousedown', '.resizeHandle', onResizeMouseDown
   element.on 'mousedown', onMouseDown
+  
+  element.children('.sheet').on 'change', (e) ->
+    element.trigger 'setText', e
 
 
 window.imageSheetHandler = (elem) ->
@@ -286,7 +290,8 @@ window.imageSheetHandler = (elem) ->
 
     if glob.currentSheet
       glob.currentSheet.find('.boxClose').hide()
-      glob.currentSheet.find('.sheetTextField').blur()
+      glob.currentSheet.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
+      #glob.currentSheet.find('.sheetTextField').blur()
       $(glob.currentSheet.children('.sheet')).css 'border-top', ''
       $(glob.currentSheet.children('.sheet')).css 'margin-top', ''
       $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'black'
@@ -295,6 +300,7 @@ window.imageSheetHandler = (elem) ->
     glob.currentSheet.find('.boxClose').show()
     glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
     glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
+    glob.currentSheet.find('.sheetTopBar').show()
     $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'crimson'
 
     startx = parseInt(element.css('x')) * glob.zoomLevel
@@ -345,17 +351,14 @@ window.imageSheetHandler = (elem) ->
     $(document).off 'mousemove', onResizeMouseMove
     $(document).off 'mouseup', onResizeMouseUp
     element.trigger 'resize', 
-      id : element.attr('id').substr(5),
-      width : (startWidth + e.pageX - deltax) / glob.zoomLevel,
-      height : (startHeight + e.pageY - deltay) / glob.zoomLevel
-    
+      id: element.attr('id').substr(5),
+      width: element.children('.sheet').css('width'),
+      height: element.children('.sheet').css('height')
   
   element.on 'mousedown', '.boxClose', onButtonMouseDown
   element.on 'mousedown', '.resizeHandle', onResizeMouseDown
   element.on 'mousedown', onMouseDown
 
-  element.children('.sheet').on 'change', (e) ->
-    element.trigger 'setText', e
 
 
 
@@ -385,6 +388,7 @@ wallHandler = (element) ->
       glob.currentSheet.find('.sheetTextField').blur()
       glob.currentSheet.children('.sheet').css 'border-top', ''
       glob.currentSheet.children('.sheet').css 'margin-top', ''
+      glob.currentSheet.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
       $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'black'
   
   onMouseDown = (e) ->
