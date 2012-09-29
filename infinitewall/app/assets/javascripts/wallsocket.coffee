@@ -1,7 +1,7 @@
 class WallSocket extends window.EventDispatcher
   constructor: (url) ->
     super
-    @timestamp = 999
+    timestamp = 999
     WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
     socket = new WS(url)
 
@@ -11,7 +11,7 @@ class WallSocket extends window.EventDispatcher
     @close = () =>
       socket.close
 
-    onReceive = (e) ->
+    onReceive = (e) =>
       data = JSON.parse(e.data)
       
       if data.error
@@ -21,7 +21,7 @@ class WallSocket extends window.EventDispatcher
       
       if data.kind == "action" and timestamp < data.timestamp
         detail = JSON.parse(data.detail)
-        self.trigger('receive', detail)
+        @trigger('receive', detail)
         timestamp = data.timestamp;
 
     onError = (e) =>
