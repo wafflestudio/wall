@@ -61,7 +61,7 @@
 <script type="text/javascript">
 
 	// initialize wall socket/events
-	var wallSocket = new WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
+	var wallSocket = new window.WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
   wallSocket.on('receive', function(detail) {
     var sheet = sheets[detail.params.id];
 
