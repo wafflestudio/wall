@@ -12,7 +12,8 @@ function ChatSocket(url) {
 			return;
 		}
 
-		var newMessage = $("<div class = 'chatMessage'><p>" + data.username + " : " + data.message + "</p></div>");
+		var newMessage = $("<div class = 'chatMessage'><p></p></div>");
+		newMessage.children('p').text(data.username + " : " + data.message)
 		var log = $("#log");
 
 		log.append(newMessage);
