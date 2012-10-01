@@ -7,6 +7,7 @@ import play.api.db.DB
 import ContentType._
 import play.api.libs.json._
 import play.api.Logger
+import org.apache.commons.lang.StringEscapeUtils._
 
 abstract class Sheet(val id: Pk[Long], val x:Double, val y:Double, val width:Double, val height: Double,  
 		val title:String, val contentType:ContentType, val wallId:Long)  {
@@ -45,8 +46,8 @@ class TextSheet(id: Pk[Long], x:Double, y:Double, width:Double, height: Double,
 				"y" -> JsNumber(y),
 				"width" -> JsNumber(width),
 				"height" -> JsNumber(height),
-				"title" -> JsString(title),
-				"content" -> JsString(TextContent.findBySheetId(id.get).content),
+				"title" -> JsString(escapeHtml(title)),
+				"content" -> JsString(escapeHtml(TextContent.findBySheetId(id.get).content)),
 				"contentType" -> JsString("text")
 			)
 		).toString()
@@ -64,7 +65,7 @@ class ImageSheet(id: Pk[Long], x:Double, y:Double, width:Double, height: Double,
 				"y" -> JsNumber(y),
 				"width" -> JsNumber(width),
 				"height" -> JsNumber(height),
-				"title" -> JsString(title),
+				"title" -> JsString(escapeHtml(title)),
 				"content" -> JsString(ImageContent.findBySheetId(id.get).url),
 				"contentType" -> JsString("image")
 			)

@@ -442,7 +442,7 @@ $(window).resize ->
   $('#chatWindow').height ($(window).height() - glob.rightBarOffset)
   setMinimap()
 
-$(window).load ->
+$ () ->
   wallHandler('#wall')
   
   $('#fileupload').fileupload  {
