@@ -58,7 +58,25 @@
 </div>
 
 
+
+<div id="wallmanagement">
+  <div id="folder-test">
+  </div>
+</div>
+
 <script type="text/javascript">
+
+
+$(function()
+{
+  $('#logoImage').attr('href', 'javascript:')
+  $('#wallmanagement').appendTo($("#logoMenu"))
+
+  $('#logoImage').click(function() {
+      $('#wallmanagement').toggle()
+  })
+
+})
 
 var glob = new function() {
   this.currentSheet = null;
@@ -126,12 +144,15 @@ var glob = new function() {
 		$('#moveLayer').css('x', @pref.panX)
 		$('#moveLayer').css('y', @pref.panY)
 
-		// folder test
-		var fv = new FolderView({type: "folder", name:"study", 
-			children:[{type:"folder", name:"0201", children:[{type:"item",name:"working with everyone"}]},
-			{type:"item",name:"untitled"}]
-		});
-		fv.appendTo($('#folder-test'))
+
+    $.getJSON('/tree', function(data) {
+      // folder test
+      var fv = new FolderView(data);
+      fv.appendTo($('#folder-test'))
+
+    })
+
+		
 
 		// wall ready
 		$(document).trigger("wallready")

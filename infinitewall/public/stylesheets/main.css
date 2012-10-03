@@ -15,3 +15,15 @@ form .actions {
 	margin-left:-6px;
 	padding:6px 20px 12px;
 }
+
+#logoMenu {
+  width: 300px;
+  margin-left:5px;
+  margin-top:38px;
+  position:absolute;
+  background-color:white;
+  border:1px solid #aaaaaa;
+  -webkit-border-radius: 0 0px 5px 5px;
+  -moz-border-radius: 0 0px 5px 5px;
+  border-radius: 0 0px 5px 5px;
+}

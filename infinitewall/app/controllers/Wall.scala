@@ -60,7 +60,6 @@ object Wall extends Controller with Auth with Login{
 			case None => 
 				Forbidden("Request wall with id " + wallId + " not accessible")
 		}
-		
 	}
 	
 	def create = AuthenticatedAction { implicit request =>
@@ -91,8 +90,13 @@ object Wall extends Controller with Auth with Login{
 		Ok(Json.toJson("OK"))
 	}
 	
+	def rename(wallId:Long, name:String) = AuthenticatedAction { implicit request => 
+		models.Wall.rename(wallId, name)
+		Ok(Json.toJson("OK"))
+	}
+	
 	def moveTo(wallId:Long, folderId:Long) = AuthenticatedAction { implicit request => 
-		
-		Ok("")
+		models.Wall.moveTo(wallId, folderId)
+		Ok(Json.toJson("OK"))
 	}
 }
