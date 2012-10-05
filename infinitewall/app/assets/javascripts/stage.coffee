@@ -1,18 +1,19 @@
-#glob = new ->
-  #this.currentSheet = null
-  #this.zoomLevel = 1
-  #this.minimapToggled = 1
-  #this.rightBarOffset = 267 + 80 + 30 # 80은 위에 userList, 30은 밑에 input
-  
-  #this.scaleLayerXPos = 0
-  #this.scaleLayerYPos = 0
-
-  #this.worldTop = 0
-  #this.worldBottom = 0
-  #this.worldLeft = 0
-  #this.worldRight = 0
-
 #variables
+
+window.glob = new ->
+  this.currentSheet = null
+  this.zoomLevel = 1
+  this.minimapToggled = 1
+  this.rightBarOffset = 267 + 80 + 30 # 80은 위에 userList, 30은 밑에 input
+  
+  this.scaleLayerXPos = 0
+  this.scaleLayerYPos = 0
+
+  this.worldTop = 0
+  this.worldBottom = 0
+  this.worldLeft = 0
+  this.worldRight = 0
+
 window.contentTypeEnum = {
   text: "text",
   image: "image"
@@ -22,98 +23,6 @@ window.sheets = {}
 
 
 ###
-class SheetHandler
-  sheet: null
-  element: null
-
-  deltax: 0
-  deltay: 0
-  startx: 0
-  starty: 0
-  startWidth: 0
-  startHeight: 0
-  hasMoved: false
-
-  constructor: (sheet) ->
-    @sheet = sheet
-    @element = @sheet.element
-
-    @element.on 'mousedown', '.boxClose', @onButtonMouseDown
-    @element.on 'mousedown', '.resizeHandle', @onResizeMouseDown
-    @element.on 'mousedown', @onMouseDown
-    console.log(this)
-
-  onMouseMove: (e) ->
-    @element.css 'x', (@startx + e.pageX - @deltax) / glob.zoomLevel
-    @element.css 'y', (@starty + e.pageY - @deltay) / glob.zoomLevel
-    @hasMoved = true
-
-    setMinimap()
-
-  onMouseDown: (e) ->
-    console.log(this)
-    @hasMoved = false
-    $('#moveLayer').append @element
-
-    if glob.currentSheet
-      glob.currentSheet.find('.boxClose').hide()
-      glob.currentSheet.find('.sheetTextField').blur()
-      $(glob.currentSheet.children('.sheet')).css 'border-top', ''
-      $(glob.currentSheet.children('.sheet')).css 'margin-top', ''
-      $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'black'
-
-    glob.currentSheet = @element
-    glob.currentSheet.find('.boxClose').show()
-    glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
-    glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
-    $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'crimson'
-
-    startx = parseInt(@element.css('x')) * glob.zoomLevel
-    starty = parseInt(@element.css('y')) * glob.zoomLevel
-
-    deltax = e.pageX
-    deltay = e.pageY
-
-    $(document).on 'mousemove', @onMouseMove
-    $(document).on 'mouseup', @onMouseUp
-    e.stopPropagation()
-    return false
-
-  onButtonMouseDown: (e) ->
-    $(document).on 'mouseup', @onButtonMouseUp
-  
-  onButtonMouseMove: (e) ->
-    console.log e.pageX, e.pageY
-  
-  onButtonMouseUp: (e) ->
-    element = @sheet.elemen
-    $(document).off 'mousemove', @onMouseMove
-    $(document).off 'mouseup', @onMouseUp
-    element.trigger 'remove', {id : element.attr('id').substr(5)}
-  
-  onResizeMouseDown: (e) ->
-    $(document).on 'mousemove', @onResizeMouseMove
-    $(document).on 'mouseup', @onResizeMouseUp
-    startWidth = parseInt(element.children('.sheet').css('width')) * glob.zoomLevel
-    startHeight = parseInt(element.children('.sheet').css('height')) * glob.zoomLevel
-    deltax = e.pageX
-    deltay = e.pageY
-    return false
-
-  onResizeMouseMove: (e) ->
-    element = @sheet.element
-    element.children('.sheet').css 'width', (startWidth + e.pageX - deltax) / glob.zoomLevel
-    element.children('.sheet').css 'height', (startHeight + e.pageY - deltay) / glob.zoomLevel
-
-  onResizeMouseUp: (e) ->
-    element = @sheet.element
-    $(document).off 'mousemove', @onResizeMouseMove
-    $(document).off 'mouseup', @onResizeMouseUp
-    element.trigger 'resize', {
-      id : element.attr('id').substr(5),
-      width : (startWidth + e.pageX - deltax) / glob.zoomLevel,
-      height : (startHeight + e.pageY - deltay) / glob.zoomLevel
-    }
  
  
 class TextSheetHandler extends SheetHandler
@@ -418,7 +327,7 @@ wallHandler = (element) ->
     #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
     
     glob.zoomLevel += delta / 2.5
-    glob.zoomLevel = if glob.zoomLevel < 0.3 then 0.3 else (if glob.zoomLevel > 10 then 10 else glob.zoomLevel)
+    glob.zoomLevel = if glob.zoomLevel < 0.25 then 0.25 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
 
     xNew = (xWall - xScaleLayer) / glob.zoomLevel
     yNew = (yWall - yScaleLayer) / glob.zoomLevel
