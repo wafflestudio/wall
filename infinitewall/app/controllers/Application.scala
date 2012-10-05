@@ -14,7 +14,7 @@ import views._
 import helpers._
 
 case class LoginData(val email: String, val password: String)
-case class SignUpData(val email: String, val password: String)
+case class SignUpData(val email: String, val password: String, val nickname:String)
 case class CurrentUser(val userId: Long, val email: String)
 
 trait Auth {
@@ -58,12 +58,13 @@ trait SignUp {
 			"Password" -> tuple(
 				"main" -> text(minLength = 8),
 				"confirm" -> text
-			).verifying("password fields must be identical", t => t._1 == t._2)
+			).verifying("password fields must be identical", t => t._1 == t._2),
+			"Nickname" -> text
 		) {
-				(email, passwords) =>
-					SignUpData(email, passwords._1)
+				(email, passwords, nickname) =>
+					SignUpData(email, passwords._1, nickname)
 			} {
-				signupData => Some(signupData.email, ("", ""))
+				signupData => Some(signupData.email, ("", ""), "")
 			}.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password).isDefined)
 	}
 }
@@ -85,10 +86,6 @@ object Application extends Controller with Login with SignUp {
 		Ok(views.html.contact())
 	}
 
-	def stage = Action { implicit request =>
-		Ok(views.html.stage())
-	}
-
 	def logout = AuthenticatedAction { implicit request =>
 		Redirect(routes.Application.index).withNewSession
 	}
@@ -104,7 +101,7 @@ object Application extends Controller with Login with SignUp {
 			},
 			loginData => {
 				val user = User.findByEmail(loginData.email).get
-				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
+				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> "newNickname")
 			}
 		)
 
@@ -116,7 +113,11 @@ object Application extends Controller with Login with SignUp {
 			formWithErrors => {
 				BadRequest(views.html.signup(formWithErrors)(loginForm, request)) //.flashing(formWithErrors.get.left.get.toSeq:_*)
 			},
-			newUser => Redirect(routes.Application.index)
+			signupData => {
+				val user = User.findByEmail(signupData.email).get
+				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> "newNickname")
+			}
+				
 		)
 	}
 

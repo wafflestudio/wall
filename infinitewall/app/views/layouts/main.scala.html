@@ -7,6 +7,7 @@
         <title>@title</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link type="text/css" rel="stylesheet" href="@routes.Assets.at("stylesheets/jquery.fileupload-ui.css")"/>
         <!--<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/style.css")">-->
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/redactor.css")">
         <link rel="shortcut icon" type="image/p ng" href="@routes.Assets.at("images/wall.ico")">
@@ -19,7 +20,8 @@
       <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
           <div class="container">
-						<img class = "brand" href="/" src ="@routes.Assets.at("images/logo.png")"></img>
+						<a href="/" id = "logoImage"><img class = "brand" src ="@routes.Assets.at("images/logo.png")"></img></a>
+						<!--<div id = "currentWallName">							<span id = "currentWallNameDivider">–</span>							<span id = "currentWallNameText"></span>						</div>-->
             @header
           </div>
         </div>

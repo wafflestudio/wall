@@ -24,6 +24,23 @@
 	border:1px dotted gray;
 }
 
+#minimapWorld {
+	position:absolute;
+	/*border:1px solid gray;*/
+}
+
+#minimapCurrentScreen {
+	position:absolute;
+	border:1px solid #bbbbbb;
+}
+
+.minimapElement {
+	position:absolute;
+	opacity:0.5;
+	/*background-color:#AB7A7A;*/
+	background-color:black;
+}
+
 #chatWindow {
 	position:absolute;
 	bottom:0px;
@@ -49,7 +66,7 @@
 	position:relative;
 	top : -80px;
 	height:100%;
-	overflow-y:scroll;
+	overflow-y:auto;
 }
 
 .chatMessage {
@@ -73,6 +90,7 @@
 	width:100%;
 	height:100%;
 	white-space:normal;
+	resize:none;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -174,7 +192,6 @@
 
 #moveLayer {
 	position:absolute;
-	/*background-color:gray;*/
 	top:0;
 	left:0;
 	width:1px;
@@ -188,18 +205,36 @@
 }
 
 .sheet {
-	width:830px;
-	height:auto;
-	background-color:white;
-	padding:1px 15px 52px 15px;
 	box-shadow: 3px 3px 4px 2px #888;
 }
 
-.sheetTopBar {
+.sheet[contentType='text']{
+	background-color:white;
+	padding:1px 15px 52px 15px;
+}
+
+.sheet[contentType='image']{
+	background-color:none;
+}
+
+.sheet[contentType='text'] > .sheetTopBar {
 	width:100%;
 	height:30px;
 	border-bottom:1px dotted gray;
-	/*background-color:black;*/
+}
+
+.sheet[contentType='image'] > .sheetTopBar {
+	width:100%;
+	height:30px;
+  position:absolute;
+  background-color:black;
+	opacity:0.5;
+	color:white;
+  display:none;
+}
+
+.sheet[contentType='image'] > .sheetTopBar > .sheetTitle {
+  margin:0px 10px;
 }
 
 .sheetTopBar > h1 {
@@ -223,6 +258,16 @@
 	padding:0;
 	border:none;
 	resize:none;
+}
+
+.sheetImage {
+	background-size:100%;
+	width:100%;
+	height:100%;
+}
+
+.redactor_box {
+
 }
 
 .boxClose {
@@ -268,3 +313,15 @@
 	background-color:#fff;
 }
 
+#currentWallName {
+	float:left;
+	margin-left:-10px;
+	padding-top:4px;
+	line-height:38px;
+	font-family:avantgarde;
+	font-size:20px;
+}
+
+#currentWallNameText {
+	margin-left:1px;
+}
