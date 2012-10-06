@@ -25,7 +25,7 @@ import models.RootFolder
 object Wall extends Controller with Auth with Login{
 	
 	def index = AuthenticatedAction { implicit request =>
-		val walls = models.Wall.list
+		val walls = models.Wall.findAllByUserId(currentUserId)
 		Ok(views.html.wall.index(walls))
 	}
 	
@@ -48,13 +48,19 @@ object Wall extends Controller with Auth with Login{
 	}
 	
 	def stage(wallId: Long) = AuthenticatedAction { implicit request =>
-		val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
-		val (timestamp, sheets) = DB.withTransaction { implicit c => 
-			(WallLog.timestamp(wallId), Sheet.findByWallId(wallId))
+		val wall = models.Wall.findByUserId(currentUserId, wallId)
+		wall match {
+			case Some(_) =>
+				val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
+				val (timestamp, sheets) = DB.withTransaction { implicit c => 
+					(WallLog.timestamp(wallId), Sheet.findByWallId(wallId))
+				}
+				val pref = WallPreference.findOrCreate(currentUserId, wallId)
+				Ok(views.html.wall.stage(wallId, pref, sheets, timestamp, chatRoomId))
+			case None => 
+				Forbidden("Request wall with id " + wallId + " not accessible")
 		}
-		val pref = WallPreference.findOrCreate(currentUserId, wallId)
-		val walls = 1
-		Ok(views.html.wall.stage(wallId, pref, sheets, timestamp, chatRoomId))
+		
 	}
 	
 	def create = AuthenticatedAction { implicit request =>
@@ -76,7 +82,7 @@ object Wall extends Controller with Auth with Login{
 	}
 
 	def delete(id: Long) = AuthenticatedAction { implicit request => 
-		models.Wall.delete(id)
+		models.Wall.deleteByUserId(currentUserId, id)
 		Ok(Json.toJson("OK"))
 	}
 	

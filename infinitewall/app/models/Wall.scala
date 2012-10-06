@@ -68,17 +68,34 @@ object Wall extends ActiveRecord[Wall] {
 		}
 	}
 	
-	def list() = {
+	def deleteByUserId(userId: Long, id:Long) = {
+		DB.withConnection { implicit c =>
+			SQL("delete from " + tableName + " where id = {id} and user_id = {userId}").on(
+				'id -> id, 'userId -> userId
+			).executeUpdate()
+		}
+	}
+	
+	/* Requires privilege */
+	def findAll() = {
 		DB.withConnection { implicit c =>
 			SQL("select * from Wall").as(Wall.simple*)
 		}	
 	}
 	
-	def findByUserId(userId:Long) = {
+	def findAllByUserId(userId:Long) = {
 		DB.withConnection {  implicit c =>
 			SQL("select * from Wall where user_id={userId}").on('userId -> userId).as(Wall.simple*)
 		}
 	}
+	
+	def findByUserId(userId:Long, id:Long) = {
+		DB.withConnection {  implicit c =>
+			SQL("select * from Wall where id={id} and user_id={userId}").on('id -> id, 'userId -> userId).as(Wall.simple.singleOpt)
+		}
+	}
+	
+	
 	
     private def buildSubtree(folder:Folder, folders:List[Folder],walls:List[Wall]):ResourceTree = {
         // search in folders and walls for folder.id as parent_id/folder_id
