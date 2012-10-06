@@ -99,7 +99,7 @@ class Sheet
       wallSocket.send {action : 'setTitle', params : {id : self.id, title : self.element.find('.sheetTitle').html()}}
 
   attachHandler: () ->
-    #@handler = new SheetHandler(this)
+    #copyHandler(@element)
 
   move: (params) ->
     #move sheet
@@ -155,6 +155,7 @@ class TextSheet extends Sheet
       wallSocket.send {action : 'setText', params : {id : self.id, text : self.element.find('textarea').val(), cursor : 1}}
 
   attachHandler: () ->
+    super()
     #@handler = new TextSheetHandler(this)
     textSheetHandler(@element)
 
@@ -217,6 +218,7 @@ class ImageSheet extends Sheet
     super()
 
   attachHandler: () ->
+    super()
     #@handler = new ImageSheetHandler(this)
     imageSheetHandler(@element)
 
@@ -466,7 +468,7 @@ textSheetHandler = (elem) ->
       width : (startWidth + e.pageX - deltax) / glob.zoomLevel,
       height : (startHeight + e.pageY - deltay) / glob.zoomLevel
     }
-  
+
   element.on 'mousedown', '.boxClose', onButtonMouseDown
   element.on 'mousedown', '.resizeHandle', onResizeMouseDown
   element.on 'mousedown', onMouseDown
@@ -527,7 +529,6 @@ imageSheetHandler = (elem) ->
     $(document).on 'mousemove', onMouseMove
     $(document).on 'mouseup', onMouseUp
     e.stopPropagation()
-    return false
 
   onButtonMouseDown = (e) ->
     $(document).on 'mouseup', onButtonMouseUp
