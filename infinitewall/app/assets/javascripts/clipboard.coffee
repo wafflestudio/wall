@@ -18,7 +18,7 @@ copyHandler = (wall) ->
   onCutAndCopy = (e) ->
     element = glob.currentSheet
     console.log('on copy/cut')
-    if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".redactor_editor"))
+    if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".sheetTextField"))
       return
 
     sheet = $(element)
@@ -26,15 +26,19 @@ copyHandler = (wall) ->
     #현재는 text sheet 경우만 고려
     sheet_inner = $(sheet).find(".sheet")
     sheet_title = $(sheet).find(".sheetTopBar h1")
-    sheet_content = $($(sheet).find(".sheetText div.redactor_editor")[0])
+
+    sheet_contentType = sheet_inner.attr('contentType')
+    if sheet_contentType == 'text'
+      sheet_content = $(sheet).find(".sheetText").find(".sheetTextField").html()
+    else if sheet_contentType == 'image'
+      sheet_content = $(sheet).find(".sheetImage").css('background-image').split("\"")[1]
 
     data = {
-      'type': 'text',
       'title': sheet_title.html(),
       'width': sheet_inner.width(),
       'height': sheet_inner.height(),
-      'contentType': sheet_inner.attr('contentType'),
-      'content': sheet_content.html()
+      'contentType': sheet_contentType,
+      'content': sheet_content
     }
 
     console.log(data)
@@ -87,7 +91,7 @@ pasteHandler = (element) ->
     #check if inner copy object exist
     console.log("on paste")
 
-    if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".redactor_editor"))
+    if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".sheetTextField"))
       return
 
     if clipboard.state

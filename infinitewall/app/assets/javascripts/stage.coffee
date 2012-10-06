@@ -18,7 +18,7 @@ window.contentTypeEnum = {
   text: "text",
   image: "image"
 }
-window.sheets = {}
+window.sheets = []
 
 
 ###

@@ -39,7 +39,7 @@ class window.TextSheet extends Sheet
 
     console.log 'setText'
 
-    serverContent = serverContent.replace(/\<div\>\<br( |\/)*\>\<\/div\>/g, initContent);
+    serverContent = serverContent.replace(/\<div\>\<br( |\/)*\>\<\/div\>/g, initContent)
 
     if keyCode == 46
     else if keyCode < 16 || keyCode > 18 && keyCode < 37 || keyCode > 40
