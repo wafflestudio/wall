@@ -68,8 +68,7 @@ class window.Sheet
 
   move: (params) ->
     #move sheet
-    @element.css 'x', params.x
-    @element.css 'y', params.y
+    @element.transition {x : params.x, y : params.y}
 
   resize: (params) ->
     #resize sheet
