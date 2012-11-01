@@ -51,18 +51,17 @@ class window.Sheet
     window.sheets[params.id] = this
 
   attachSocketAction: () ->
-    self = this
-    @element.on 'move', (e, params) ->
-      wallSocket.send {action : 'move', params : $.extend(params, {id : self.id})}
+    @element.on 'move', (e, params) =>
+      wallSocket.send {action : 'move', params : $.extend(params, {id : @id})}
 
-    @element.on 'resize', (e, params) ->
-      wallSocket.send {action : 'resize', params : $.extend(params, {id : self.id})}
+    @element.on 'resize', (e, params) =>
+      wallSocket.send {action : 'resize', params : $.extend(params, {id : @id})}
 
-    @element.on 'remove', (e) ->
-      wallSocket.send {action : 'remove', params : {id : self.id}}
+    @element.on 'remove', (e) =>
+      wallSocket.send {action : 'remove', params : {id : @id}}
 
-    @element.on 'setTitle', (e) ->
-      wallSocket.send {action : 'setTitle', params : {id : self.id, title : self.element.find('.sheetTitle').html()}}
+    @element.on 'setTitle', (e) =>
+      wallSocket.send {action : 'setTitle', params : {id : @id, title : @element.find('.sheetTitle').html()}}
 
   attachHandler: () ->
     #@handler = new SheetHandler(this)

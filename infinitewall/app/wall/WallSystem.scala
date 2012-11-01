@@ -29,57 +29,6 @@ case class CannotConnect(msg: String)
 case class Message(kind: String, username: String, text: String)
 
 
-// Action detail
-sealed trait ActionDetail {
-	val userId:Long
-}
-
-sealed trait ActionDetailWithId extends ActionDetail {
-	val id:Long
-}
-
-case class CreateAction(userId:Long, title:String, contentType:String, content:String, x:Double, y:Double, width:Double, height:Double) extends ActionDetail
-case class MoveAction(userId:Long, id:Long, x:Double, y:Double) extends ActionDetailWithId
-case class ResizeAction(userId:Long, id:Long, width:Double, height:Double) extends ActionDetailWithId
-case class RemoveAction(userId:Long, id:Long) extends ActionDetailWithId
-case class SetTitleAction(userId:Long, id:Long, title:String) extends ActionDetailWithId
-case class SetTextAction(userId:Long, id:Long, text:String) extends ActionDetailWithId
-
-// Action detail parser
-object ActionDetail {
-	def apply(userId:Long, json:JsValue):ActionDetail = {
-		val actionType = (json \ "action").as[String]
-		val params = (json \ "params")
-        def id = (params \"id").as[Long]
-		def title = (params \ "title").as[String]
-		def contentType = (params \ "contentType").as[String]
-		def content = (params \ "content").as[String]
-		def text = (params \ "text").as[String]
-		def x = (params \ "x").as[Double]
-		def y = (params \ "y").as[Double]
-		def width = (params \ "width").as[Double]
-		def height = (params \ "height").as[Double]
-		
-		if(actionType == "create")
-			CreateAction(userId, title, contentType, content, x, y, width, height)
-		else {		
-			actionType match {
-				case "move" =>
-					MoveAction(userId, id, x, y)
-				case "resize" =>
-					ResizeAction(userId, id, width, height)
-				case "remove" =>
-					RemoveAction(userId, id)
-				case "setTitle" =>
-					SetTitleAction(userId, id, title)
-				case "setText" =>
-					SetTextAction(userId, id, text)
-			}				
-		}
-	}
-}
-
-
 // Wall System (Delegate + Actor)
 object WallSystem {
 
@@ -139,8 +88,8 @@ class WallActor(wallId: Long) extends Actor {
 		WallLog.list(wallId, timestamp)
 	}
 
-	def logMessage(kind: String, userId: Long, message: String) = {
-		WallLog.create(kind, wallId, userId, message)
+	def logMessage(kind: String, basetimestamp: Long, userId: Long, message: String) = {
+		WallLog.create(kind, wallId, basetimestamp, userId, message)
 	}
 	
 	implicit def toDouble(value:JsValue) = { value.as[Double] }
@@ -162,7 +111,7 @@ class WallActor(wallId: Long) extends Actor {
 		}
 		case Action(detail, c:CreateAction) => 					
 			val sheetId = Sheet.createInit(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId)
-			notifyAll("action", c.userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString)
+			notifyAll("action", c.timestamp, c.userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString)
 		case Action(detail, action:ActionDetailWithId) =>
 			Sheet.findById(action.id) map { sheet =>
 				action match {
@@ -178,7 +127,7 @@ class WallActor(wallId: Long) extends Actor {
 						Sheet.setText(a.id, a.text)
 				}
 			}
-			notifyAll("action", action.userId, detail.toString)
+			notifyAll("action", action.timestamp, action.userId, detail.toString)
 
 		case Quit(userId, producer) => {
 			connections = connections.flatMap { p =>
@@ -191,11 +140,11 @@ class WallActor(wallId: Long) extends Actor {
 
 	}
 
-	def notifyAll(kind: String, userId: Long, detail: String) {
+	def notifyAll(kind: String, basetimestamp:Long, userId: Long, detail: String) {
 
 		val username = User.findById(userId).get.email
 
-		val logId = logMessage(kind, userId, detail)
+		val logId = logMessage(kind, basetimestamp, userId, detail)
 
 		val msg = JsObject(
 			Seq(

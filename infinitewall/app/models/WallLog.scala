@@ -7,8 +7,8 @@ import play.api.Play.current
 import java.sql.Timestamp
 import play.api.libs.json._
 
-case class WallLog(id: Pk[Long], kind: String, message: String, time: Long, roomId: Long, userId: Long)
-case class WallLogWithEmail(id: Pk[Long], kind: String, message: String, time: Long, roomId: Long, email: String)
+case class WallLog(id: Pk[Long], kind: String, message: String, time: Long, basetime:Long, roomId: Long, userId: Long)
+case class WallLogWithEmail(id: Pk[Long], kind: String, message: String, time: Long,  basetime:Long, roomId: Long, email: String)
 
 object WallLog extends ActiveRecord[WallLog] {
 
@@ -19,9 +19,10 @@ object WallLog extends ActiveRecord[WallLog] {
 		field[String]("kind") ~
 		field[String]("message") ~
 		field[Long]("time") ~
+		field[Long]("basetime") ~
 		field[Long]("wall_id") ~
 		field[Long]("user_id") map {
-			case id ~ kind ~ message ~ time ~ roomId ~ userId => WallLog(id, kind, message, time, roomId, userId)
+			case id ~ kind ~ message ~ time ~ basetime ~ roomId ~ userId => WallLog(id, kind, message, time, basetime, roomId, userId)
 		}
 	}
 
@@ -30,9 +31,10 @@ object WallLog extends ActiveRecord[WallLog] {
 		field[String]("kind") ~
 		field[String]("message") ~
 		field[Long]("time") ~
+		field[Long]("basetime") ~
 		field[Long]("wall_id") ~
 		get[String]("User.email") map {
-			case id ~ kind ~ message ~ time ~ roomId ~ email => WallLogWithEmail(id, kind, message, time, roomId, email)
+			case id ~ kind ~ message ~ time ~ basetime ~ roomId ~ email => WallLogWithEmail(id, kind, message, time, basetime, roomId, email)
 		}
 	}
 
@@ -52,22 +54,24 @@ object WallLog extends ActiveRecord[WallLog] {
 				"kind" -> JsString(walllog.kind),
 				"username" -> JsString(walllog.email),
 				"detail" -> JsString(walllog.message),
-				"timestamp" -> JsNumber(walllog.time)
+				"timestamp" -> JsNumber(walllog.time),
+				"basetimestamp" -> JsNumber(walllog.basetime)
 			)
 		)
 	}
 
-	def create(kind: String, wallId: Long, userId: Long, message: String) = {
+	def create(kind: String, wallId: Long, basetime:Long, userId: Long, message: String) = {
 		DB.withConnection { implicit c =>
 			val id = SQL("select next value for walllog_seq").as(scalar[Long].single)
 			SQL(""" 
-				insert into WallLog (id, kind, message, time, wall_id, user_id) values (
+				insert into WallLog (id, kind, message, time, basetime, wall_id, user_id) values (
 					{id}, {kind}, 
-					{message}, (select next value for walllog_timestamp), {wallId}, {userId}
+					{message}, (select next value for walllog_timestamp), {basetime}, {wallId}, {userId}
 				)
 			""").on(
 				'id -> id,
 				'message -> message,
+				'basetime -> basetime,
 				'wallId -> wallId,
 				'userId -> userId,
 				'kind -> kind
