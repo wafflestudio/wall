@@ -13,6 +13,8 @@ window.glob = new ->
   this.worldBottom = 0
   this.worldLeft = 0
   this.worldRight = 0
+  
+  this.lastScrollTime = 0
 
 window.contentTypeEnum = {
   text: "text",
@@ -115,8 +117,6 @@ window.textSheetHandler = (elem) ->
     miniElem = $('#map_' + glob.currentSheet.attr('id'))
     miniElem.css 'background-color', 'crimson'
     $('#minimapWorld').append miniElem
-
-
 
     startx = parseInt(element.css('x')) * glob.zoomLevel
     starty = parseInt(element.css('y')) * glob.zoomLevel
@@ -316,6 +316,9 @@ wallHandler = (element) ->
     e.preventDefault()
 
   onMouseWheel = (e, delta, deltaX, deltaY) ->
+
+    stopScroll = false
+
     xWall = e.pageX - $(this).offset().left
     yWall = e.pageY - $(this).offset().top - 38
 
@@ -328,8 +331,41 @@ wallHandler = (element) ->
     #xWall - xWallLast는 저번과 현재의 마우스 좌표 차이 
     #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
     
+    #currentTime = new Date().getTime()
+
+    #if stopScroll
+      #if delta < 0
+        #stopScroll = false
+        #glob.zoomLevel += delta / 2.5
+        #glob.zoomLevel = if glob.zoomLevel < 0.25 then 0.25 else glob.zoomLevel
+      #else
+        #if glob.oldScrollTime - currentTime > 500
+          #glob.zoomLevel +=
+
+
+   
+
+    #if glob.zoomLevel <= 1
+      #glob.zoomLevel += delta / 2.5
+      
+      #if glob.zoomLevel < 0.25
+        #glob.zoomLevel = 0.25
+      #else if glob.zoomLevel > 1
+        #glob.zoomLevel = 1
+        #stopScroll = true
+      #else
+        #glob.zoomLevel
+
     glob.zoomLevel += delta / 2.5
+
     glob.zoomLevel = if glob.zoomLevel < 0.25 then 0.25 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
+        
+
+    
+    
+    
+    glob.lastScrollTime = currentTime
+
 
     xNew = (xWall - xScaleLayer) / glob.zoomLevel
     yNew = (yWall - yScaleLayer) / glob.zoomLevel
