@@ -50,7 +50,7 @@ object ActionDetail {
 	def apply(userId:Long, json:JsValue):ActionDetail = {
 		val actionType = (json \ "action").as[String]
 		val params = (json \ "params")
-		val id = (params \"id").as[Long]
+        def id = (params \"id").as[Long]
 		def title = (params \ "title").as[String]
 		def contentType = (params \ "contentType").as[String]
 		def content = (params \ "content").as[String]
