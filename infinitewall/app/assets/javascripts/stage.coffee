@@ -112,7 +112,11 @@ window.textSheetHandler = (elem) ->
     glob.currentSheet.find('.boxClose').show()
     glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
     glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
-    $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'crimson'
+    miniElem = $('#map_' + glob.currentSheet.attr('id'))
+    miniElem.css 'background-color', 'crimson'
+    $('#minimapWorld').append miniElem
+
+
 
     startx = parseInt(element.css('x')) * glob.zoomLevel
     starty = parseInt(element.css('y')) * glob.zoomLevel
