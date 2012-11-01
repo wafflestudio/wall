@@ -269,8 +269,8 @@ window.imageSheetHandler = (elem) ->
     $(document).off 'mouseup', onResizeMouseUp
     element.trigger 'resize', 
       id: element.attr('id').substr(5),
-      width: element.children('.sheet').css('width'),
-      height: element.children('.sheet').css('height')
+      width: parseInt(element.children('.sheet').css('width')),
+      height: parseInt(element.children('.sheet').css('height'))
   
   element.on 'mousedown', '.boxClose', onButtonMouseDown
   element.on 'mousedown', '.resizeHandle', onResizeMouseDown
@@ -342,11 +342,6 @@ wallHandler = (element) ->
     glob.zoomLevel = if glob.zoomLevel < 0.25 then 0.25 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
         
 
-    
-    
-    
-
-
     xNew = (xWall - xScaleLayer) / glob.zoomLevel
     yNew = (yWall - yScaleLayer) / glob.zoomLevel
     
@@ -362,6 +357,10 @@ wallHandler = (element) ->
 
     sL = $('#scaleLayer')
     sL.css {scale : glob.zoomLevel}
+
+    #This tweak makes the scaling a bit smoother - at the expense of crispness
+    #sL.css {transform :"scale3d(#{glob.zoomLevel}, #{glob.zoomLevel}, 1)"}
+
     sL.css 'x', xNew
     sL.css 'y', yNew
     sL.css({transformOrigin:xScaleLayer + 'px ' + yScaleLayer + 'px'})
