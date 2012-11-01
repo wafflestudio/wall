@@ -114,9 +114,10 @@ window.textSheetHandler = (elem) ->
     glob.currentSheet.find('.boxClose').show()
     glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
     glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
+
     miniElem = $('#map_' + glob.currentSheet.attr('id'))
     miniElem.css 'background-color', 'crimson'
-    $('#minimapWorld').append miniElem
+    $('#minimapElements').append miniElem
 
     startx = parseInt(element.css('x')) * glob.zoomLevel
     starty = parseInt(element.css('y')) * glob.zoomLevel
@@ -215,7 +216,10 @@ window.imageSheetHandler = (elem) ->
     glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
     glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
     glob.currentSheet.find('.sheetTopBar').show()
-    $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'crimson'
+    
+    miniElem = $('#map_' + glob.currentSheet.attr('id'))
+    miniElem.css 'background-color', 'crimson'
+    $('#minimapElements').append miniElem
 
     startx = parseInt(element.css('x')) * glob.zoomLevel
     starty = parseInt(element.css('y')) * glob.zoomLevel
@@ -331,32 +335,9 @@ wallHandler = (element) ->
     #xWall - xWallLast는 저번과 현재의 마우스 좌표 차이 
     #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
     
-    #currentTime = new Date().getTime()
-
-    #if stopScroll
-      #if delta < 0
-        #stopScroll = false
-        #glob.zoomLevel += delta / 2.5
-        #glob.zoomLevel = if glob.zoomLevel < 0.25 then 0.25 else glob.zoomLevel
-      #else
-        #if glob.oldScrollTime - currentTime > 500
-          #glob.zoomLevel +=
-
-
-   
-
-    #if glob.zoomLevel <= 1
-      #glob.zoomLevel += delta / 2.5
-      
-      #if glob.zoomLevel < 0.25
-        #glob.zoomLevel = 0.25
-      #else if glob.zoomLevel > 1
-        #glob.zoomLevel = 1
-        #stopScroll = true
-      #else
-        #glob.zoomLevel
 
     glob.zoomLevel += delta / 2.5
+
 
     glob.zoomLevel = if glob.zoomLevel < 0.25 then 0.25 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
         
@@ -364,7 +345,6 @@ wallHandler = (element) ->
     
     
     
-    glob.lastScrollTime = currentTime
 
 
     xNew = (xWall - xScaleLayer) / glob.zoomLevel
@@ -443,27 +423,27 @@ setMinimap = ->
   worldWidth = glob.worldRight - glob.worldLeft
   worldHeight = glob.worldBottom - glob.worldTop
   ratio = 1
-  mW = $('#minimapWorld')
-  mWC = $('#minimapCurrentScreen')
+  mE = $('#minimapElements')
+  mCS = $('#minimapCurrentScreen')
 
   if (worldWidth / worldHeight) > (224 / 185)
     ratio = 224 / worldWidth
-    mW.css 'width', 224
-    mW.css 'height', worldHeight * ratio
-    mW.css 'top', (185 - worldHeight * ratio) / 2
-    mW.css 'left', 0
+    mE.css 'width', 224
+    mE.css 'height', worldHeight * ratio
+    mE.css 'top', (185 - worldHeight * ratio) / 2
+    mE.css 'left', 0
   
   else
     ratio = 185 / worldHeight
-    mW.css 'width', worldWidth * ratio
-    mW.css 'height', 185
-    mW.css 'top', 0
-    mW.css 'left', (224 - worldWidth * ratio) / 2
+    mE.css 'width', worldWidth * ratio
+    mE.css 'height', 185
+    mE.css 'top', 0
+    mE.css 'left', (224 - worldWidth * ratio) / 2
   
-  mWC.css 'width', screenWidth * ratio
-  mWC.css 'height', screenHeight * ratio
-  mWC.css 'top', (screenTop - glob.worldTop) * ratio
-  mWC.css 'left', (screenLeft - glob.worldLeft) * ratio
+  mCS.css 'width', screenWidth * ratio
+  mCS.css 'height', screenHeight * ratio
+  mCS.css 'top', (screenTop - glob.worldTop) * ratio
+  mCS.css 'left', (screenLeft - glob.worldLeft) * ratio
   
   shrinkMiniSheet = (elem) ->
     miniSheet = $('#map_' + elem.attr('id'))
