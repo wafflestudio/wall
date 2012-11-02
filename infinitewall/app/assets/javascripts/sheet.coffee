@@ -24,6 +24,7 @@ class window.Sheet
 
     @element.children('.sheet').css 'width', params.width + 'px'
     @element.children('.sheet').css 'height', params.height + 'px'
+    @element.children('.boxClose').css {scale: 1 / glob.zoomLevel}
     @element.find('.sheetTitle').keydown (e) ->
       curTitle = self.element.find('.sheetTitle').html()
       if e.keyCode is 13
@@ -42,7 +43,7 @@ class window.Sheet
    
     @attachSocketAction()
     @attachHandler()
-
+    
     newMiniSheet = $($('<div class = "minimapElement"></div>').appendTo('#minimapElements'))
     newMiniSheet.attr('id', 'map_sheet' + @id)
     setMinimap()

@@ -336,13 +336,9 @@ wallHandler = (element) ->
     #xWall - xWallLast는 저번과 현재의 마우스 좌표 차이 
     #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
     
-
     glob.zoomLevel += delta / 2.5
-
-
     glob.zoomLevel = if glob.zoomLevel < 0.25 then 0.25 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
         
-
     xNew = (xWall - xScaleLayer) / glob.zoomLevel
     yNew = (yWall - yScaleLayer) / glob.zoomLevel
     
@@ -357,19 +353,53 @@ wallHandler = (element) ->
     #scaleLayer의 좌표를 wall의 기준으로 저장
 
     sL = $('#scaleLayer')
-    sL.css {scale : glob.zoomLevel}
+    sL.css {scale: glob.zoomLevel}
 
     #This tweak makes the scaling a bit smoother - at the expense of crispness
     #sL.css {transform :"scale3d(#{glob.zoomLevel}, #{glob.zoomLevel}, 1)"}
 
     sL.css 'x', xNew
     sL.css 'y', yNew
-    sL.css({transformOrigin:xScaleLayer + 'px ' + yScaleLayer + 'px'})
-    $('.boxClose').css {scale : 1 / glob.zoomLevel}
+    sL.css {transformOrigin: xScaleLayer + 'px ' + yScaleLayer + 'px'}
+    $('.boxClose').css {scale: 1 / glob.zoomLevel}
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     setMinimap()
     return false
 
+  onMouseDblClick = (e) ->
+    
+    xWall = e.pageX - $(this).offset().left
+    yWall = e.pageY - $(this).offset().top - 38
+
+    xScaleLayer += (xWall - xWallLast) / glob.zoomLevel
+    yScaleLayer += (yWall - yWallLast) / glob.zoomLevel
+    
+    glob.zoomLevel = if glob.zoomLevel is 1 then 0.25 else 1
+        
+    xNew = (xWall - xScaleLayer) / glob.zoomLevel
+    yNew = (yWall - yScaleLayer) / glob.zoomLevel
+    
+    xWallLast = xWall
+    yWallLast = yWall
+
+    glob.scaleLayerXPos = xWall - xScaleLayer * glob.zoomLevel
+    glob.scaleLayerYPos = yWall - yScaleLayer * glob.zoomLevel
+
+    sL = $('#scaleLayer')
+    
+    sL.transition {scale: glob.zoomLevel}
+    sL.css 'x', xNew
+    sL.css 'y', yNew
+    sL.css {transformOrigin: xScaleLayer + 'px ' + yScaleLayer + 'px'}
+
+    
+    $('.boxClose').css {scale: 1 / glob.zoomLevel}
+    $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
+    setMinimap()
+    return false
+
+
+  $(element).on 'dblclick', onMouseDblClick
   $(element).on 'mousedown', onMouseDown
   $(element).on 'mousewheel', onMouseWheel
   
