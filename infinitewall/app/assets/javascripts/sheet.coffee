@@ -72,12 +72,11 @@ class window.Sheet
 
   resize: (params) ->
     #resize sheet
-    @element.children('.sheet').css('width', params.width)
-    @element.children('.sheet').css('height', params.height)
+    @element.children('.sheet').transition {width : params.width + "px", height : params.height + "px"}
 
   remove: (params) ->
     #remove sheet 
-    @element.remove()
+    @element.transition {opacity: 0, scale : 1.25}, -> $(this).remove()
     @element.off 'mousemove'
     @element.off 'mouseup'
     @element.off 'mousedown'

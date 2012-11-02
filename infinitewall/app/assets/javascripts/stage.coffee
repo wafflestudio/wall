@@ -241,7 +241,8 @@ window.imageSheetHandler = (elem) ->
     $(document).off 'mousemove', onMouseMove
     $(document).off 'mouseup', onMouseUp
     element.trigger 'remove', 
-  
+    #여기는 이렇게 콤마 뒤에 암것도 안놔둬도 괜찮은건가 뭔가 작업하다가 사라진걸까
+
   onResizeMouseDown = (e) ->
     $(document).on 'mousemove', onResizeMouseMove
     $(document).on 'mouseup', onResizeMouseUp
