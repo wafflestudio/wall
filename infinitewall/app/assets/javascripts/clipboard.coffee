@@ -51,9 +51,14 @@ copyHandler = (wall) ->
   $(wall).on('keydown', onKeyDown).on('copy cut', onCutAndCopy)
 
 pasteHandler = (element) ->
+  isTextField = false
   doFakePaste = false
 
   onKeyDown = (e) ->
+    if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".sheetTextField"))
+      isTextField = true
+      return
+
     #These browser work with the real paste event
     if ($.client.browser == "Chrome")
       return
@@ -89,9 +94,9 @@ pasteHandler = (element) ->
     #check if inner copy object exist
     console.log("on paste")
 
-    if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".sheetTextField"))
+    if isTextField
+      isTextField = false
       return
-
 
     if clipboard.state
       x = Math.random()*500
