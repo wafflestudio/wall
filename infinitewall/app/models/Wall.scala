@@ -19,7 +19,7 @@ object Wall extends ActiveRecord[Wall] {
 		
 	val simple = {
 		field[Pk[Long]]("id") ~
-		field[String]("name") ~ 
+		field[String]("name") ~
 		field[Long]("user_id") ~
 		field[Int]("is_reference") ~
 		field[Option[Long]]("folder_id") map {
@@ -161,6 +161,18 @@ object Wall extends ActiveRecord[Wall] {
 		}	
 	}
 	
+	def rename(id:Long, name:String) = {
+		DB.withConnection { implicit c =>
+			SQL("update " + tableName + " set name = {name} where id = {id}").
+				on('id -> id, 'name -> name).executeUpdate()
+		}
+	}
 	
+	def moveTo(id:Long, folderId:Long) = {
+		DB.withConnection { implicit c =>
+			SQL("update " + tableName + " set folder_id = {folderId} where id = {id}").
+				on('id -> id, 'folderId -> folderId).executeUpdate()
+		}
+	}
 	
 }

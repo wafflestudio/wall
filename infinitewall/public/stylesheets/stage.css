@@ -5,6 +5,14 @@
     font-style: normal;
 }
 
+
+
+#wallmanagement {
+	margin:7px;
+	display:none;  
+}
+
+
 #rightBar {
 	position:absolute;
 	top:0px;

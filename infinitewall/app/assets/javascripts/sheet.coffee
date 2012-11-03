@@ -24,6 +24,7 @@ class window.Sheet
 
     @element.children('.sheet').css 'width', params.width + 'px'
     @element.children('.sheet').css 'height', params.height + 'px'
+    @element.children('.boxClose').css {scale: 1 / glob.zoomLevel}
     @element.find('.sheetTitle').keydown (e) ->
       curTitle = self.element.find('.sheetTitle').html()
       if e.keyCode is 13
@@ -42,8 +43,8 @@ class window.Sheet
    
     @attachSocketAction()
     @attachHandler()
-
-    newMiniSheet = $($('<div class = "minimapElement"></div>').appendTo('#minimapWorld'))
+    
+    newMiniSheet = $($('<div class = "minimapElement"></div>').appendTo('#minimapElements'))
     newMiniSheet.attr('id', 'map_sheet' + @id)
     setMinimap()
 
@@ -68,17 +69,15 @@ class window.Sheet
 
   move: (params) ->
     #move sheet
-    @element.css 'x', params.x
-    @element.css 'y', params.y
+    @element.transition {x : params.x, y : params.y}
 
   resize: (params) ->
     #resize sheet
-    @element.children('.sheet').css('width', params.width)
-    @element.children('.sheet').css('height', params.height)
+    @element.children('.sheet').transition {width : params.width + "px", height : params.height + "px"}
 
   remove: (params) ->
     #remove sheet 
-    @element.remove()
+    @element.transition {opacity: 0, scale : 1.25}, -> $(this).remove()
     @element.off 'mousemove'
     @element.off 'mouseup'
     @element.off 'mousedown'

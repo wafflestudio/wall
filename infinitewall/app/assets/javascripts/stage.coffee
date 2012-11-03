@@ -13,6 +13,8 @@ window.glob = new ->
   this.worldBottom = 0
   this.worldLeft = 0
   this.worldRight = 0
+  
+  this.lastScrollTime = 0
 
 window.contentTypeEnum = {
   text: "text",
@@ -112,7 +114,10 @@ window.textSheetHandler = (elem) ->
     glob.currentSheet.find('.boxClose').show()
     glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
     glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
-    $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'crimson'
+
+    miniElem = $('#map_' + glob.currentSheet.attr('id'))
+    miniElem.css 'background-color', 'crimson'
+    $('#minimapElements').append miniElem
 
     startx = parseInt(element.css('x')) * glob.zoomLevel
     starty = parseInt(element.css('y')) * glob.zoomLevel
@@ -211,7 +216,10 @@ window.imageSheetHandler = (elem) ->
     glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
     glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
     glob.currentSheet.find('.sheetTopBar').show()
-    $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'crimson'
+    
+    miniElem = $('#map_' + glob.currentSheet.attr('id'))
+    miniElem.css 'background-color', 'crimson'
+    $('#minimapElements').append miniElem
 
     startx = parseInt(element.css('x')) * glob.zoomLevel
     starty = parseInt(element.css('y')) * glob.zoomLevel
@@ -233,7 +241,8 @@ window.imageSheetHandler = (elem) ->
     $(document).off 'mousemove', onMouseMove
     $(document).off 'mouseup', onMouseUp
     element.trigger 'remove', 
-  
+    #여기는 이렇게 콤마 뒤에 암것도 안놔둬도 괜찮은건가 뭔가 작업하다가 사라진걸까
+
   onResizeMouseDown = (e) ->
     $(document).on 'mousemove', onResizeMouseMove
     $(document).on 'mouseup', onResizeMouseUp
@@ -261,8 +270,8 @@ window.imageSheetHandler = (elem) ->
     $(document).off 'mouseup', onResizeMouseUp
     element.trigger 'resize', 
       id: element.attr('id').substr(5),
-      width: element.children('.sheet').css('width'),
-      height: element.children('.sheet').css('height')
+      width: parseInt(element.children('.sheet').css('width')),
+      height: parseInt(element.children('.sheet').css('height'))
   
   element.on 'mousedown', '.boxClose', onButtonMouseDown
   element.on 'mousedown', '.resizeHandle', onResizeMouseDown
@@ -312,6 +321,9 @@ wallHandler = (element) ->
     e.preventDefault()
 
   onMouseWheel = (e, delta, deltaX, deltaY) ->
+
+    stopScroll = false
+
     xWall = e.pageX - $(this).offset().left
     yWall = e.pageY - $(this).offset().top - 38
 
@@ -326,7 +338,7 @@ wallHandler = (element) ->
     
     glob.zoomLevel += delta / 2.5
     glob.zoomLevel = if glob.zoomLevel < 0.25 then 0.25 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
-
+        
     xNew = (xWall - xScaleLayer) / glob.zoomLevel
     yNew = (yWall - yScaleLayer) / glob.zoomLevel
     
@@ -341,15 +353,53 @@ wallHandler = (element) ->
     #scaleLayer의 좌표를 wall의 기준으로 저장
 
     sL = $('#scaleLayer')
-    sL.css {scale : glob.zoomLevel}
+    sL.css {scale: glob.zoomLevel}
+
+    #This tweak makes the scaling a bit smoother - at the expense of crispness
+    #sL.css {transform :"scale3d(#{glob.zoomLevel}, #{glob.zoomLevel}, 1)"}
+
     sL.css 'x', xNew
     sL.css 'y', yNew
-    sL.css({transformOrigin:xScaleLayer + 'px ' + yScaleLayer + 'px'})
-    $('.boxClose').css {scale : 1 / glob.zoomLevel}
+    sL.css {transformOrigin: xScaleLayer + 'px ' + yScaleLayer + 'px'}
+    $('.boxClose').css {scale: 1 / glob.zoomLevel}
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     setMinimap()
     return false
 
+  onMouseDblClick = (e) ->
+    
+    xWall = e.pageX - $(this).offset().left
+    yWall = e.pageY - $(this).offset().top - 38
+
+    xScaleLayer += (xWall - xWallLast) / glob.zoomLevel
+    yScaleLayer += (yWall - yWallLast) / glob.zoomLevel
+    
+    glob.zoomLevel = if glob.zoomLevel is 1 then 0.25 else 1
+        
+    xNew = (xWall - xScaleLayer) / glob.zoomLevel
+    yNew = (yWall - yScaleLayer) / glob.zoomLevel
+    
+    xWallLast = xWall
+    yWallLast = yWall
+
+    glob.scaleLayerXPos = xWall - xScaleLayer * glob.zoomLevel
+    glob.scaleLayerYPos = yWall - yScaleLayer * glob.zoomLevel
+
+    sL = $('#scaleLayer')
+    
+    sL.transition {scale: glob.zoomLevel}
+    sL.css 'x', xNew
+    sL.css 'y', yNew
+    sL.css {transformOrigin: xScaleLayer + 'px ' + yScaleLayer + 'px'}
+
+    
+    $('.boxClose').css {scale: 1 / glob.zoomLevel}
+    $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
+    setMinimap()
+    return false
+
+
+  $(element).on 'dblclick', onMouseDblClick
   $(element).on 'mousedown', onMouseDown
   $(element).on 'mousewheel', onMouseWheel
   
@@ -403,27 +453,27 @@ setMinimap = ->
   worldWidth = glob.worldRight - glob.worldLeft
   worldHeight = glob.worldBottom - glob.worldTop
   ratio = 1
-  mW = $('#minimapWorld')
-  mWC = $('#minimapCurrentScreen')
+  mE = $('#minimapElements')
+  mCS = $('#minimapCurrentScreen')
 
   if (worldWidth / worldHeight) > (224 / 185)
     ratio = 224 / worldWidth
-    mW.css 'width', 224
-    mW.css 'height', worldHeight * ratio
-    mW.css 'top', (185 - worldHeight * ratio) / 2
-    mW.css 'left', 0
+    mE.css 'width', 224
+    mE.css 'height', worldHeight * ratio
+    mE.css 'top', (185 - worldHeight * ratio) / 2
+    mE.css 'left', 0
   
   else
     ratio = 185 / worldHeight
-    mW.css 'width', worldWidth * ratio
-    mW.css 'height', 185
-    mW.css 'top', 0
-    mW.css 'left', (224 - worldWidth * ratio) / 2
+    mE.css 'width', worldWidth * ratio
+    mE.css 'height', 185
+    mE.css 'top', 0
+    mE.css 'left', (224 - worldWidth * ratio) / 2
   
-  mWC.css 'width', screenWidth * ratio
-  mWC.css 'height', screenHeight * ratio
-  mWC.css 'top', (screenTop - glob.worldTop) * ratio
-  mWC.css 'left', (screenLeft - glob.worldLeft) * ratio
+  mCS.css 'width', screenWidth * ratio
+  mCS.css 'height', screenHeight * ratio
+  mCS.css 'top', (screenTop - glob.worldTop) * ratio
+  mCS.css 'left', (screenLeft - glob.worldLeft) * ratio
   
   shrinkMiniSheet = (elem) ->
     miniSheet = $('#map_' + elem.attr('id'))

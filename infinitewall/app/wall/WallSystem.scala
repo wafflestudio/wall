@@ -18,15 +18,69 @@ import models.WallLog
 import java.sql.Timestamp
 import models.Sheet
 
+// Message
 case class Join(userId: Long, timestamp: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
-case class Action(userId: Long, detail: JsValue)
+case class Action(json:JsValue, detail:ActionDetail)
 
 case class Connected(enumerator: Enumerator[JsValue])
 case class CannotConnect(msg: String)
 
 case class Message(kind: String, username: String, text: String)
 
+
+// Action detail
+sealed trait ActionDetail {
+	val userId:Long
+}
+
+sealed trait ActionDetailWithId extends ActionDetail {
+	val id:Long
+}
+
+case class CreateAction(userId:Long, title:String, contentType:String, content:String, x:Double, y:Double, width:Double, height:Double) extends ActionDetail
+case class MoveAction(userId:Long, id:Long, x:Double, y:Double) extends ActionDetailWithId
+case class ResizeAction(userId:Long, id:Long, width:Double, height:Double) extends ActionDetailWithId
+case class RemoveAction(userId:Long, id:Long) extends ActionDetailWithId
+case class SetTitleAction(userId:Long, id:Long, title:String) extends ActionDetailWithId
+case class SetTextAction(userId:Long, id:Long, text:String) extends ActionDetailWithId
+
+// Action detail parser
+object ActionDetail {
+	def apply(userId:Long, json:JsValue):ActionDetail = {
+		val actionType = (json \ "action").as[String]
+		val params = (json \ "params")
+        def id = (params \"id").as[Long]
+		def title = (params \ "title").as[String]
+		def contentType = (params \ "contentType").as[String]
+		def content = (params \ "content").as[String]
+		def text = (params \ "text").as[String]
+		def x = (params \ "x").as[Double]
+		def y = (params \ "y").as[Double]
+		def width = (params \ "width").as[Double]
+		def height = (params \ "height").as[Double]
+		
+		if(actionType == "create")
+			CreateAction(userId, title, contentType, content, x, y, width, height)
+		else {		
+			actionType match {
+				case "move" =>
+					MoveAction(userId, id, x, y)
+				case "resize" =>
+					ResizeAction(userId, id, width, height)
+				case "remove" =>
+					RemoveAction(userId, id)
+				case "setTitle" =>
+					SetTitleAction(userId, id, title)
+				case "setText" =>
+					SetTextAction(userId, id, text)
+			}				
+		}
+	}
+}
+
+
+// Wall System (Delegate + Actor)
 object WallSystem {
 
 	implicit val timeout = Timeout(1 second)
@@ -50,8 +104,9 @@ object WallSystem {
 		joinResult.asPromise.map {
 			case Connected(producer) =>
 				// Create an Iteratee to consume the feed
-				val consumer = Iteratee.foreach[JsValue] { detail: JsValue =>
-					wall(wallId) ! Action(userId, detail)
+				val consumer = Iteratee.foreach[JsValue] { json: JsValue =>
+					Logger.info(json.toString)
+					wall(wallId) ! Action(json, ActionDetail(userId, json))
 				}.mapDone { _ =>
 					wall(wallId) ! Quit(userId, producer)
 				}
@@ -92,7 +147,6 @@ class WallActor(wallId: Long) extends Actor {
 	implicit def toLong(value:JsValue) = { value.as[Long] }
 
 	def receive = {
-
 		case Join(userId, timestamp) => {
 			// Create an Enumerator to write to this socket
 			val producer = Enumerator.imperative[JsValue]()
@@ -106,39 +160,25 @@ class WallActor(wallId: Long) extends Actor {
 				sender ! Connected(prev >>> producer)
 			}
 		}
-
-		case Action(userId, detail) => {
-			(detail \ "action").as[String] match {
-				case "create" =>
-					val params = (detail \ "params").as[JsObject]
-					Logger.info(detail.toString)
-					Logger.info(params.toString)
-					val sheetId = Sheet.createInit(params \ "x", params \ "y", params \ "width", params \ "height", (params \ "title").as[String], (params \ "contentType").as[String], (params \ "content").as[String], wallId)
-					notifyAll("action", userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString)
-				case action @ _ =>
-					Logger.info(detail.toString)
-					val params = (detail \ "params").as[JsObject]
-					val id = (params \ "id").as[Long]
-					Sheet.findById(id) map { sheet =>
-						action match {
-							case "move" =>
-								Sheet.move(sheet.id.get, params \ "x", params \ "y")
-							case "resize" =>
-								Sheet.resize(sheet.id.get, params \ "width", params \ "height")
-							case "remove" =>
-								Sheet.delete(sheet.id.get)
-							case "setTitle" =>
-								Sheet.setTitle(sheet.id.get, (params \ "title").as[String])
-							case "setText" =>
-								Sheet.setText(sheet.id.get, (params \ "text").as[String])
-						}
-					}
-
-					notifyAll("action", userId, detail.toString)
-
+		case Action(detail, c:CreateAction) => 					
+			val sheetId = Sheet.createInit(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId)
+			notifyAll("action", c.userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString)
+		case Action(detail, action:ActionDetailWithId) =>
+			Sheet.findById(action.id) map { sheet =>
+				action match {
+					case a:MoveAction =>
+						Sheet.move(a.id, a.x, a.y)
+					case a:ResizeAction =>
+						Sheet.resize(a.id, a.width, a.height)
+					case a:RemoveAction =>
+						Sheet.delete(a.id)
+					case a:SetTitleAction =>
+						Sheet.setTitle(a.id, a.title)
+					case a:SetTextAction =>
+						Sheet.setText(a.id, a.text)
+				}
 			}
-
-		}
+			notifyAll("action", action.userId, detail.toString)
 
 		case Quit(userId, producer) => {
 			connections = connections.flatMap { p =>
