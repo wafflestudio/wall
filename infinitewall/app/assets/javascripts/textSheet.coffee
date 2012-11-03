@@ -38,6 +38,7 @@ class window.TextSheet extends Sheet
     beforeAndAfter = params.beforeAndAfter
 
     console.log 'setText'
+    # strip tag
     serverContent = serverContent.replace(/(<([^>]+)>)/ig, "")
     if keyCode == 46
     else if keyCode < 16 || keyCode > 18 && keyCode < 37 || keyCode > 40
