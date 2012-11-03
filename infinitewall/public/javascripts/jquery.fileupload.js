@@ -885,6 +885,7 @@
         },
 
         _onPaste: function (e) {
+            /*
             var that = e.data.fileupload,
                 cbd = e.originalEvent.clipboardData,
                 items = (cbd && cbd.items) || [],
@@ -899,6 +900,7 @@
                     that._onAdd(e, data) === false) {
                 return false;
             }
+            */
         },
 
         _onDrop: function (e) {
