@@ -43,6 +43,7 @@ class WallSocket extends window.EventDispatcher
     socket = new WS(url)
 
     @send = (msg) ->
+      msg.timestamp = @timestamp
       socket.send(JSON.stringify(msg))
 
     @close = () =>

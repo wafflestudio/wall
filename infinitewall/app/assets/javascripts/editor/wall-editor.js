@@ -11,7 +11,7 @@
 /* 앞에다가 추가한 경우 */
 
 
-var initContent = "<div> <br></div>";
+var initContent = "";
 
 $(document).ready(function() {
    rangy.init();

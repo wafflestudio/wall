@@ -38,9 +38,7 @@ class window.TextSheet extends Sheet
     beforeAndAfter = params.beforeAndAfter
 
     console.log 'setText'
-
-    serverContent = serverContent.replace(/\<div\>\<br( |\/)*\>\<\/div\>/g, initContent)
-
+    serverContent = serverContent.replace(/(<([^>]+)>)/ig, "")
     if keyCode == 46
     else if keyCode < 16 || keyCode > 18 && keyCode < 37 || keyCode > 40
       @element.find('div.sheetTextField').html(serverContent)

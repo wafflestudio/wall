@@ -47,7 +47,7 @@ class TextSheet(id: Pk[Long], x:Double, y:Double, width:Double, height: Double,
 				"width" -> JsNumber(width),
 				"height" -> JsNumber(height),
 				"title" -> JsString(escapeHtml(title)),
-				"content" -> JsString(escapeHtml(TextContent.findBySheetId(id.get).content)),
+				"content" -> JsString(TextContent.findBySheetId(id.get).content),
 				"contentType" -> JsString("text")
 			)
 		).toString()
