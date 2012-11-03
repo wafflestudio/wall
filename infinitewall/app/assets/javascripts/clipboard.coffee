@@ -9,7 +9,6 @@ clipboard = {
 copyHandler = (wall) ->
   onKeyDown = (e) ->
     element = glob.currentSheet
-    console.log(element)
     if (($.client.os == "Mac" && e.which == 67 && e.metaKey) || ($.client.os != "Mac" && e.which == 67 && e.ctrlKey))
       $(element).trigger('copy')
     else if (($.client.os == "Mac" && e.which == 88 && e.metaKey) || ($.client.os != "Mac" && e.which == 88 && e.ctrlKey))
@@ -50,12 +49,14 @@ copyHandler = (wall) ->
       sheet.trigger("remove", {id: id})
 
   $(wall).on('keydown', onKeyDown).on('copy cut', onCutAndCopy)
+  $(wall).on('drop', (e) ->
+    console.log(e)
+  )
 
 pasteHandler = (element) ->
   doFakePaste = false
 
   onKeyDown = (e) ->
-    console.log('w')
     #These browser work with the real paste event
     if ($.client.browser == "Chrome")
       return
@@ -68,23 +69,23 @@ pasteHandler = (element) ->
       #got a paste
       if (!$("*:focus").is("input") && !$("*:focus").is("textarea"))
         #Focus the offscreen editable
-        $('#WallPasteArea').focus()
+        $('#wallPasteArea').focus()
         
         #Opera doesn't support onPaste events so we have to use a timeout to get the paste
         if ($.client.browser == "Opera")
           setTimeout(() ->
             doFakePaste = false
-            html = $('#WallPasteArea').html()
-            text = $('#WallPasteArea').text()
+            html = $('#wallPasteArea').html()
+            text = $('#wallPasteArea').text()
             if (text == '')
-              text = $('#WallPasteArea').val()
+              text = $('#wallPasteArea').val()
 
             console.log("o " + html)
             console.log("o " + text)
 
-            $('#WallPasteArea').val('')
-            $('#WallPasteArea').text('')
-            $('#WallPasteArea').blur()
+            $('#wallPasteArea').val('')
+            $('#wallPasteArea').text('')
+            $('#wallPasteArea').blur()
           , 1)
 
   onPaste = (e) ->
@@ -93,6 +94,7 @@ pasteHandler = (element) ->
 
     if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".sheetTextField"))
       return
+
 
     if clipboard.state
       x = Math.random()*500
@@ -132,7 +134,7 @@ pasteHandler = (element) ->
     console.log("1 " + text)
 
   #Setup the offscreen paste capture area
-  $('<div contenteditable id="WallPasteArea"></div>').css({
+  $('#wallPasteArea').css({
     'position': 'absolute',
     'top': '-100000px',
     'width': '100px',
@@ -140,17 +142,17 @@ pasteHandler = (element) ->
   }).on('paste', (e) ->
     setTimeout(() ->
       doFakePaste = false
-      html = $('#WallPasteArea').html()
-      text = $('#WallPasteArea').text()
+      html = $('#wallPasteArea').html()
+      text = $('#wallPasteArea').text()
       if (text == '')
-        text = $('#WallPasteArea').val()
+        text = $('#wallPasteArea').val()
 
       console.log("2 " + html)
       console.log("2 " + text)
 
-      $('#WallPasteArea').val('')
-      $('#WallPasteArea').text('')
-      $('#WallPasteArea').blur()
+      $('#wallPasteArea').val('')
+      $('#wallPasteArea').text('')
+      $('#wallPasteArea').blur()
     , 1)
   )
 
