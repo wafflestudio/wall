@@ -14,50 +14,38 @@
 
 <div id = "rightBar">
 
-	<div id = "miniMap">
+  <div id="toolBar">
+    <img id="zoomIcon" src="@routes.Assets.at("images/zoomIcon.png")"></img>
+    <p id="zoomLevelText"></p>
+    <img class="createBtn" rel="text" src="@routes.Assets.at("images/createSheet.png")"></img>
+    <img id="minimapBtn" src="@routes.Assets.at("images/minimap.png")"></img>
+    <img id="folderBtn" src="@routes.Assets.at("images/folder.png")"></img>
+  </div>
+
+  <div id = "miniMap">
     <div id = "minimapWorld">
       <div id = "minimapElements"></div>
-			<div id = "minimapCurrentScreen"></div>
-		</div>
-	</div>
+      <div id = "minimapCurrentScreen"></div>
+    </div>
+  </div>
 
-	<div id = "chatWindow">
+  <div id = "chatWindow">
 
-		<div id="chat-userlist">
-			<ul id="users" class="unstyled">
-			</ul>
-		</div>
+    <div id="chat-userlist">
+      <ul id="users" class="unstyled">
+      </ul>
+    </div>
 
-		<div id="log">
-		</div>
+    <div id="log">
+    </div>
 
-		<div id = "chatInputContainer">
-			<textarea id="talk"></textarea>
-		</div>
+    <div id = "chatInputContainer">
+      <textarea id="talk"></textarea>
+    </div>
 
-	</div>
-
-</div>
-
-<div id="toolBar">
-
-	<div id="zoomToolBar">
-		<img id="zoomIcon" src="@routes.Assets.at("images/zoomIcon.png")"></img>
-		<p id="zoomLevelText"></p>
-	</div>
-
-	<div id="middleToolBar">
-		<img id="create" src="@routes.Assets.at("images/createSheet.png")"></img>
-		<a href="#" rel="text" class="createBtn">Text</a>
-		<a href="#" rel="image" class="createBtn">Image</a>
-	</div>
-
-	<div id="rightToolBar">
-		<img id="minimapBtn" src="@routes.Assets.at("images/minimap.png")"></img>
-	</div>
+  </div>
 
 </div>
-
 
 
 <div id="wallmanagement">
@@ -68,37 +56,37 @@
 <script type="text/javascript">
 
 
-$(function()
-{
-  $('#logoImage').attr('href', 'javascript:')
-  $('#wallmanagement').appendTo($("#logoMenu"))
+  $(function()
+  {
+    $('#logoImage').attr('href', 'javascript:')
+    $('#wallmanagement').appendTo($("#logoMenu"))
 
-  $('#logoImage').click(function() {
+    $('#logoImage').click(function() {
       $('#wallmanagement').toggle()
+    })
+
   })
 
-})
+  var glob = new function() {
+    this.currentSheet = null;
+    this.zoomLevel = 1;
+    this.minimapToggled = 1;
+    this.rightBarOffset = 267 + 80 + 30; // 80은 위에 userList, 30은 밑에 input 
 
-var glob = new function() {
-  this.currentSheet = null;
-  this.zoomLevel = 1;
-  this.minimapToggled = 1;
-  this.rightBarOffset = 267 + 80 + 30; // 80은 위에 userList, 30은 밑에 input 
+    this.scaleLayerXPos = 0;
+    this.scaleLayerYPos = 0;
 
-  this.scaleLayerXPos = 0;
-  this.scaleLayerYPos = 0;
+    this.worldTop = 0;
+    this.worldBottom = 0;
+    this.worldLeft = 0;
+    this.worldRight = 0;
 
-  this.worldTop = 0;
-  this.worldBottom = 0;
-  this.worldLeft = 0;
-  this.worldRight = 0;
-
-  this.tempImageID = 20000;
-}
+    this.tempImageID = 20000;
+  }
 
 
-	// initialize wall socket/events
-	var wallSocket = new window.WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
+  // initialize wall socket/events
+  var wallSocket = new window.WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
   wallSocket.on('receive', function(detail) {
     var sheet = sheets[detail.params.id];
 
@@ -114,36 +102,36 @@ var glob = new function() {
       sheet.setText(detail.params);
     else if(detail.action == "setTitle")
       sheet.setTitle(detail.params);
-	})
+  })
 
-	// initialize chat socket
-	var chatSocket = new window.ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
+  // initialize chat socket
+  var chatSocket = new window.ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
 
-	// initialize current stage
-	$(function() {	
-		var sheets = []
+  // initialize current stage
+  $(function() {	
+    var sheets = []
 
-		@sheets.map { sheet => 
+    @sheets.map { sheet => 
       sheets.push(@Html(sheet.toJson()))
-		}
+    }
 
-		for(var i = 0; i < sheets.length; i++)  {	
-			var sheet = sheets[i]
-			console.log(sheet)
-			createSheet(sheet.id, sheet)
-		}
-		/*
-		$('.sheetTextField').redactor({
-			autoresize: true,
-			air: true,
-			airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
-		});	
-		*/
+    for(var i = 0; i < sheets.length; i++)  {	
+      var sheet = sheets[i]
+      console.log(sheet)
+      createSheet(sheet.id, sheet)
+    }
+    /*
+    $('.sheetTextField').redactor({
+      autoresize: true,
+      air: true,
+      airButtons: ['formatting', '|', 'bold', 'italic', 'deleted']
+    });	
+    */
 
-		glob.zoomLevel = @pref.zoom;
-		$('#scaleLayer').css('scale', glob.zoomLevel)
-		$('#moveLayer').css('x', @pref.panX)
-		$('#moveLayer').css('y', @pref.panY)
+    glob.zoomLevel = @pref.zoom;
+    $('#scaleLayer').css('scale', glob.zoomLevel)
+    $('#moveLayer').css('x', @pref.panX)
+    $('#moveLayer').css('y', @pref.panY)
 
 
     $.getJSON('/tree', function(data) {
@@ -153,11 +141,11 @@ var glob = new function() {
 
     })
 
-		
 
-		// wall ready
-		$(document).trigger("wallready")
-	})
+
+    // wall ready
+    $(document).trigger("wallready")
+  })
 </script>
 
 }

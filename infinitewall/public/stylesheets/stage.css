@@ -107,41 +107,29 @@
 #toolBar {
 	position:absolute;
 	top:37px;
-	left:0px;
 	width:100%;
 	height:35px;
 	background-color:white;
 	border-bottom:1px dotted gray;
-}
-
-#zoomToolBar {
-	float:left;
-	top:-1px;
-	width:140px;
-	height:100%;
-	border-right:1px dotted gray;
-
+  border-left:1px dotted gray;
 }
 
 #zoomIcon{
 	float:left;
-	padding:10px 0px 10px 30px;
+	padding:10px 0px 10px 27px;
 }
 
 #zoomLevelText {
 	float:left;
 	width:55px;
-	margin-top:9px;
+	margin-top:10px;
 	font-family:avantgarde;
-	font-size:20px;
+	font-size:21px;
 	text-align:center;
+  color:black;
 }
 
-#middleToolBar {
-	float:left;
-}
-
-#createBtn {
+.createBtn {
 	float:left;
 	margin-top:7px;
 	margin-left:10px;
@@ -156,11 +144,15 @@
 }
 
 #minimapBtn {
-	
 	float:left;
-	margin-top:7px;
-	margin-left:50px;
+	margin-top:9px;
+	margin-left:10px;
+}
 
+#folderBtn {
+  float:left;
+  margin-top:7px;
+  margin-left:7px;
 }
 
 #wall {
@@ -210,6 +202,7 @@
 	position:absolute;
 	top:0px;
 	left:0px;
+  outline:none;
 }
 
 .sheet {
@@ -245,6 +238,10 @@
   margin:0px 10px;
 }
 
+.sheet > .sheetTopBar > .sheetTitle {
+  outline:none;
+}
+
 .sheetTopBar > h1 {
 	font-family:avantgarde;
 	font-size:18px;
@@ -266,16 +263,13 @@
 	padding:0;
 	border:none;
 	resize:none;
+  outline:none;
 }
 
 .sheetImage {
 	background-size:100%;
 	width:100%;
 	height:100%;
-}
-
-.redactor_box {
-
 }
 
 .boxClose {

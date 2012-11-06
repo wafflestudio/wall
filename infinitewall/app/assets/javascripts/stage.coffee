@@ -408,17 +408,17 @@ wallHandler = (element) ->
 toggleMinimap = ->
   if glob.minimapToggled
     glob.minimapToggled = 0
-    $('#miniMap').animate {right: '-220'}, 200, toggleMinimapFinished
+    $('#miniMap').transition {x: '220'}, 300, toggleMinimapFinished
   else
     glob.minimapToggled = 1
-    $('#chatWindow').animate {height: '-=190'}, 200, toggleMinimapFinished
+    $('#chatWindow').transition {height: '-=190'}, 300, toggleMinimapFinished
 
 toggleMinimapFinished = ->
   if glob.minimapToggled
-    $('#miniMap').animate {right: '0'}, 200
+    $('#miniMap').transition {x: '0'}, 300
     glob.rightBarOffset += 190
   else
-    $('#chatWindow').animate {height: '+=190'}, 200
+    $('#chatWindow').transition {height: '+=190'}, 300
     glob.rightBarOffset -= 190
 
 setMinimap = ->
