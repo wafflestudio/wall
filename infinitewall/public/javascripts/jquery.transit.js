@@ -122,7 +122,9 @@
       // forcing Chrome to not use the 3d transforms as well.  Not sure if
       // translate is affectede, but not risking it.  Detection code from
       // http://davidwalsh.name/detecting-google-chrome-javascript
-      if (support.transform === 'WebkitTransform' && !isChrome) {
+      //if (support.transform === 'WebkitTransform' && !isChrome) {
+      //크롬은 이겨낼 수 있을거야..!
+      if (support.transform === 'WebkitTransform') {
         elem.style[support.transform] = value.toString(true);
       } else {
         elem.style[support.transform] = value.toString();
