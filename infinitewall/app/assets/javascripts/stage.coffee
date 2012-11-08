@@ -96,27 +96,31 @@ window.textSheetHandler = (elem) ->
         y : (starty + e.pageY - deltay) / glob.zoomLevel
       }
     else
+      if glob.currentSheet
+        glob.currentSheet.find('.boxClose').hide()
+        glob.currentSheet.find('.sheetTextField').blur()
+        glob.currentSheet.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
+        $(glob.currentSheet.children('.sheet')).css 'border-top', ''
+        $(glob.currentSheet.children('.sheet')).css 'margin-top', ''
+        $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'black'
+      
+      glob.currentSheet = element
+      glob.currentSheet.find('.boxClose').show()
+      glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
+      glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
+      
+      miniElem = $('#map_' + glob.currentSheet.attr('id'))
+      miniElem.css 'background-color', 'crimson'
+      
       element.find('div.sheetTextField').trigger('activate')
+      toCenter()
+      setMinimap()
 
   onMouseDown = (e) ->
     hasMoved = false
     $('#moveLayer').append element
-
-    if glob.currentSheet
-      glob.currentSheet.find('.boxClose').hide()
-      glob.currentSheet.find('.sheetTextField').blur()
-      glob.currentSheet.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
-      $(glob.currentSheet.children('.sheet')).css 'border-top', ''
-      $(glob.currentSheet.children('.sheet')).css 'margin-top', ''
-      $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'black'
-
-    glob.currentSheet = element
-    glob.currentSheet.find('.boxClose').show()
-    glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
-    glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
-
-    miniElem = $('#map_' + glob.currentSheet.attr('id'))
-    miniElem.css 'background-color', 'crimson'
+    
+    miniElem = $('#map_' + element.attr('id'))
     $('#minimapElements').append miniElem
 
     startx = parseInt(element.css('x')) * glob.zoomLevel
@@ -198,27 +202,30 @@ window.imageSheetHandler = (elem) ->
         x : (startx + e.pageX - deltax) / glob.zoomLevel,
         y : (starty + e.pageY - deltay) / glob.zoomLevel
       }
+    else
+      if glob.currentSheet
+        glob.currentSheet.find('.boxClose').hide()
+        glob.currentSheet.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
+        $(glob.currentSheet.children('.sheet')).css 'border-top', ''
+        $(glob.currentSheet.children('.sheet')).css 'margin-top', ''
+        $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'black'
+
+      glob.currentSheet = element
+      glob.currentSheet.find('.boxClose').show()
+      glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
+      glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
+      glob.currentSheet.find('.sheetTopBar').show()
+    
+      miniElem = $('#map_' + glob.currentSheet.attr('id'))
+      miniElem.css 'background-color', 'crimson'
+      toCenter()
+      setMinimap()
 
   onMouseDown = (e) ->
     hasMoved = false
     $('#moveLayer').append element
-
-    if glob.currentSheet
-      glob.currentSheet.find('.boxClose').hide()
-      glob.currentSheet.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
-      #glob.currentSheet.find('.sheetTextField').blur()
-      $(glob.currentSheet.children('.sheet')).css 'border-top', ''
-      $(glob.currentSheet.children('.sheet')).css 'margin-top', ''
-      $('#map_' + glob.currentSheet.attr('id')).css 'background-color', 'black'
-
-    glob.currentSheet = element
-    glob.currentSheet.find('.boxClose').show()
-    glob.currentSheet.children('.sheet').css 'border-top', '2px solid #FF4E58'
-    glob.currentSheet.children('.sheet').css 'margin-top', '-2px'
-    glob.currentSheet.find('.sheetTopBar').show()
     
-    miniElem = $('#map_' + glob.currentSheet.attr('id'))
-    miniElem.css 'background-color', 'crimson'
+    miniElem = $('#map_' + element.attr('id'))
     $('#minimapElements').append miniElem
 
     startx = parseInt(element.css('x')) * glob.zoomLevel
@@ -426,7 +433,7 @@ setMinimap = ->
   #좌표는 moveLayer의 기준에서 본 wall의 좌표!
   sB = $('.sheetBox')
   screenWidth = ($(window).width() - 225) / glob.zoomLevel
-  screenHeight = ($(window).height() - 74) / glob.zoomLevel
+  screenHeight = ($(window).height() - 38) / glob.zoomLevel
   screenTop = -(glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
   screenBottom = screenTop + screenHeight
   screenLeft = -(glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
@@ -453,22 +460,23 @@ setMinimap = ->
   worldWidth = glob.worldRight - glob.worldLeft
   worldHeight = glob.worldBottom - glob.worldTop
   ratio = 1
-  mE = $('#minimapElements')
+
+  mW = $('#minimapWorld')
   mCS = $('#minimapCurrentScreen')
 
   if (worldWidth / worldHeight) > (224 / 185)
     ratio = 224 / worldWidth
-    mE.css 'width', 224
-    mE.css 'height', worldHeight * ratio
-    mE.css 'top', (185 - worldHeight * ratio) / 2
-    mE.css 'left', 0
+    mW.css 'width', 224
+    mW.css 'height', worldHeight * ratio
+    mW.css 'top', (185 - worldHeight * ratio) / 2
+    mW.css 'left', 0
   
   else
     ratio = 185 / worldHeight
-    mE.css 'width', worldWidth * ratio
-    mE.css 'height', 185
-    mE.css 'top', 0
-    mE.css 'left', (224 - worldWidth * ratio) / 2
+    mW.css 'width', worldWidth * ratio
+    mW.css 'height', 185
+    mW.css 'top', 0
+    mW.css 'left', (224 - worldWidth * ratio) / 2
   
   mCS.css 'width', screenWidth * ratio
   mCS.css 'height', screenHeight * ratio
@@ -484,9 +492,40 @@ setMinimap = ->
   
   shrinkMiniSheet $(elem) for elem in sB
 
+toCenter = ->
+  
+  #좌표는 moveLayer의 기준에서 본 wall의 좌표!
+  sB = $('.sheetBox')
+  screenWidth = ($(window).width() - 225) / glob.zoomLevel
+  screenHeight = ($(window).height() - 38) / glob.zoomLevel
+  screenTop = -(glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+  screenLeft = -(glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+
+  sheet = glob.currentSheet
+  sheetWidth = parseInt (sheet.css 'width')
+  sheetHeight = parseInt (sheet.css 'height')
+  sheetX = parseInt (sheet.css 'x')
+  sheetY = parseInt (sheet.css 'y')
+
+  if ((sheetX < screenLeft) or (sheetX + sheetWidth > screenLeft + screenWidth) or (sheetY < screenTop) or (sheetY + sheetHeight > screenTop + screenHeight))
+    
+    translateX = screenLeft + (screenWidth - sheetWidth) / 2
+    translateY = screenTop + (screenHeight - sheetHeight) / 2
+
+    diffX = translateX - sheetX
+    diffY = translateY - sheetY
+
+    moveLayerX = parseInt ($('#moveLayer').css 'x')
+    moveLayerY = parseInt ($('#moveLayer').css 'y')
+  
+    $('#moveLayer').transition {
+      x : diffX + moveLayerX,
+      y : diffY + moveLayerY
+    }
+
 window.createSheet = createSheet
 window.setMinimap = setMinimap
-
+window.toCenter = toCenter
 
 $(window).resize ->
   $('#chatWindow').height ($(window).height() - glob.rightBarOffset)
