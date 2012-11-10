@@ -5,8 +5,6 @@
     font-style: normal;
 }
 
-
-
 #wallmanagement {
 	margin:7px;
 	display:none;  
@@ -186,8 +184,9 @@
 	position:absolute;
 	top:40px;
 	left:0;
-	width:1px;
-	height:1px;
+	width:10px;
+	height:10px;
+  background-color:black;
 }
 
 #moveLayer {
@@ -327,3 +326,4 @@
 #currentWallNameText {
 	margin-left:1px;
 }
+

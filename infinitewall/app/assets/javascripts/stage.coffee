@@ -360,14 +360,10 @@ wallHandler = (element) ->
     #scaleLayer의 좌표를 wall의 기준으로 저장
 
     sL = $('#scaleLayer')
+    sL.css {transformOrigin: xScaleLayer + 'px ' + yScaleLayer + 'px'}
     sL.css {scale: glob.zoomLevel}
-
-    #This tweak makes the scaling a bit smoother - at the expense of crispness
-    #sL.css {transform :"scale3d(#{glob.zoomLevel}, #{glob.zoomLevel}, 1)"}
-
     sL.css 'x', xNew
     sL.css 'y', yNew
-    sL.css {transformOrigin: xScaleLayer + 'px ' + yScaleLayer + 'px'}
     $('.boxClose').css {scale: 1 / glob.zoomLevel}
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     setMinimap()
@@ -382,9 +378,10 @@ wallHandler = (element) ->
     yScaleLayer += (yWall - yWallLast) / glob.zoomLevel
     
     glob.zoomLevel = if glob.zoomLevel is 1 then 0.25 else 1
-        
-    xNew = (xWall - xScaleLayer) / glob.zoomLevel
-    yNew = (yWall - yScaleLayer) / glob.zoomLevel
+   
+    if glob.zoomLevel is 1
+      xNew = (xWall - xScaleLayer) / glob.zoomLevel
+      yNew = (yWall - yScaleLayer) / glob.zoomLevel
     
     xWallLast = xWall
     yWallLast = yWall
@@ -393,24 +390,18 @@ wallHandler = (element) ->
     glob.scaleLayerYPos = yWall - yScaleLayer * glob.zoomLevel
 
     sL = $('#scaleLayer')
-    
+    sL.css {transformOrigin: xWall + 'px ' + yWall + 'px'}
     sL.transition {scale: glob.zoomLevel}
     sL.css 'x', xNew
     sL.css 'y', yNew
-    sL.css {transformOrigin: xScaleLayer + 'px ' + yScaleLayer + 'px'}
-
-    
     $('.boxClose').css {scale: 1 / glob.zoomLevel}
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     setMinimap()
     return false
 
-
   $(element).on 'dblclick', onMouseDblClick
   $(element).on 'mousedown', onMouseDown
   $(element).on 'mousewheel', onMouseWheel
-  
-
 
 toggleMinimap = ->
   if glob.minimapToggled
