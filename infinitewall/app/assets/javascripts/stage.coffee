@@ -114,7 +114,6 @@ window.textSheetHandler = (elem) ->
       
       element.find('div.sheetTextField').trigger('activate')
       toCenter()
-      setMinimap()
 
   onMouseDown = (e) ->
     hasMoved = false
@@ -219,7 +218,6 @@ window.imageSheetHandler = (elem) ->
       miniElem = $('#map_' + glob.currentSheet.attr('id'))
       miniElem.css 'background-color', 'crimson'
       toCenter()
-      setMinimap()
 
   onMouseDown = (e) ->
     hasMoved = false
@@ -396,7 +394,8 @@ wallHandler = (element) ->
     sL.css 'y', yNew
     $('.boxClose').css {scale: 1 / glob.zoomLevel}
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
-    setMinimap()
+    setMinimap {isTransition: true}
+    # setMinimap에 option값을 두어서 if transition = true 부드러운 움직임이 가능하게
     return false
 
   $(element).on 'dblclick', onMouseDblClick
@@ -419,16 +418,24 @@ toggleMinimapFinished = ->
     $('#chatWindow').transition {height: '+=190'}, 300
     glob.rightBarOffset -= 190
 
-setMinimap = ->
+setMinimap = (callInfo = null) ->
   
+  mL = $('#moveLayer')
+  if !callInfo or !callInfo.mLx or !callInfo.mLy
+    mLx = parseInt (mL.css 'x')
+    mLy = parseInt (mL.css 'y')
+  else
+    mLx = callInfo.mLx
+    mLy = callInfo.mLy
+
   #좌표는 moveLayer의 기준에서 본 wall의 좌표!
   sB = $('.sheetBox')
   screenWidth = ($(window).width() - 225) / glob.zoomLevel
   screenHeight = ($(window).height() - 38) / glob.zoomLevel
-  screenTop = -(glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
-  screenBottom = screenTop + screenHeight
-  screenLeft = -(glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+  screenLeft = -(glob.scaleLayerXPos + mLx * glob.zoomLevel) / glob.zoomLevel
+  screenTop = -(glob.scaleLayerYPos + mLy * glob.zoomLevel) / glob.zoomLevel
   screenRight = screenLeft + screenWidth
+  screenBottom = screenTop + screenHeight
 
   glob.worldTop = screenTop
   glob.worldBottom = screenBottom
@@ -454,32 +461,42 @@ setMinimap = ->
 
   mW = $('#minimapWorld')
   mCS = $('#minimapCurrentScreen')
+  
+  $.fn.moveFunc = if callInfo and callInfo.isTransition then $.fn.transition else $.fn.css
 
   if (worldWidth / worldHeight) > (224 / 185)
     ratio = 224 / worldWidth
-    mW.css 'width', 224
-    mW.css 'height', worldHeight * ratio
-    mW.css 'top', (185 - worldHeight * ratio) / 2
-    mW.css 'left', 0
+    mW.moveFunc {
+      width: 224,
+      height: worldHeight * ratio,
+      top: (185 - worldHeight * ratio) / 2,
+      left: 0
+    }
   
   else
     ratio = 185 / worldHeight
-    mW.css 'width', worldWidth * ratio
-    mW.css 'height', 185
-    mW.css 'top', 0
-    mW.css 'left', (224 - worldWidth * ratio) / 2
+    mW.moveFunc {
+      width: worldWidth * ratio,
+      height: 185,
+      top: 0,
+      left: (224 - worldWidth * ratio) / 2
+    }
   
-  mCS.css 'width', screenWidth * ratio
-  mCS.css 'height', screenHeight * ratio
-  mCS.css 'top', (screenTop - glob.worldTop) * ratio
-  mCS.css 'left', (screenLeft - glob.worldLeft) * ratio
+  mCS.moveFunc {
+    width: screenWidth * ratio,
+    height: screenHeight * ratio,
+    top: (screenTop - glob.worldTop) * ratio,
+    left: (screenLeft - glob.worldLeft) * ratio
+  }
   
   shrinkMiniSheet = (elem) ->
     miniSheet = $('#map_' + elem.attr('id'))
-    miniSheet.css 'left', ((parseInt elem.css('x')) - glob.worldLeft) * ratio
-    miniSheet.css 'top', ((parseInt elem.css('y')) - glob.worldTop) * ratio
-    miniSheet.css 'width', ((parseInt elem.css('width'))) * ratio
-    miniSheet.css 'height', ((parseInt elem.css('height'))) * ratio
+    miniSheet.moveFunc {
+      left: ((parseInt elem.css('x')) - glob.worldLeft) * ratio,
+      top: ((parseInt elem.css('y')) - glob.worldTop) * ratio,
+      width: ((parseInt elem.css('width'))) * ratio,
+      height: ((parseInt elem.css('height'))) * ratio
+    }
   
   shrinkMiniSheet $(elem) for elem in sB
 
@@ -513,6 +530,13 @@ toCenter = ->
       x : diffX + moveLayerX,
       y : diffY + moveLayerY
     }
+    setMinimap {
+      isTransition: true,
+      mLx: diffX + moveLayerX,
+      mLy: diffY + moveLayerY
+    }
+
+
 
 window.createSheet = createSheet
 window.setMinimap = setMinimap
