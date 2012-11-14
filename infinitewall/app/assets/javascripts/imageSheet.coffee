@@ -2,8 +2,6 @@ imageTemplate = "<div class='sheetBox' tabindex='-1'><div class='sheet' contentT
 
 class window.ImageSheet extends Sheet
   @create: (content) ->
-    w = 0
-    h = 0
     img = new Image()
     img.onload = ->
       w = this.width

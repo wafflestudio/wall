@@ -170,7 +170,7 @@ window.textSheetHandler = (elem) ->
   element.on 'mousedown', onMouseDown
   
   element.children('.sheet').on 'change', (e) ->
-    element.trigger 'setText', e
+      element.trigger 'setText', e
 
 
 window.imageSheetHandler = (elem) ->
@@ -281,8 +281,6 @@ window.imageSheetHandler = (elem) ->
   element.on 'mousedown', '.boxClose', onButtonMouseDown
   element.on 'mousedown', '.resizeHandle', onResizeMouseDown
   element.on 'mousedown', onMouseDown
-
-
 
 
 wallHandler = (element) ->
@@ -421,12 +419,15 @@ toggleMinimapFinished = ->
 setMinimap = (callInfo = null) ->
   
   mL = $('#moveLayer')
-  if !callInfo or !callInfo.mLx or !callInfo.mLy
+  if !callInfo or !callInfo.mLx and !callInfo.mLy
     mLx = parseInt (mL.css 'x')
     mLy = parseInt (mL.css 'y')
   else
     mLx = callInfo.mLx
     mLy = callInfo.mLy
+
+  #console.log mLx
+  #console.log mLy
 
   #좌표는 moveLayer의 기준에서 본 wall의 좌표!
   sB = $('.sheetBox')
@@ -515,21 +516,39 @@ toCenter = ->
   sheetX = parseInt (sheet.css 'x')
   sheetY = parseInt (sheet.css 'y')
 
+  #if ((sheetX < screenLeft) or (sheetX + sheetWidth > screenLeft + screenWidth) or (sheetY < screenTop) or (sheetY + sheetHeight > screenTop + screenHeight))
+    
+    #translateX = screenLeft + (screenWidth - sheetWidth) / 2
+    #translateY = screenTop + (screenHeight - sheetHeight) / 2
+
+    #diffX = translateX - sheetX
+    #diffY = translateY - sheetY
+    #중앙으로 보내고싶을때 이 로직 사용
+  
+  
   if ((sheetX < screenLeft) or (sheetX + sheetWidth > screenLeft + screenWidth) or (sheetY < screenTop) or (sheetY + sheetHeight > screenTop + screenHeight))
     
-    translateX = screenLeft + (screenWidth - sheetWidth) / 2
-    translateY = screenTop + (screenHeight - sheetHeight) / 2
+    diffX = 0
+    diffY = 0
+    offset = 35
 
-    diffX = translateX - sheetX
-    diffY = translateY - sheetY
+    if (sheetX < screenLeft)
+      diffX = screenLeft - sheetX + offset
+    if (sheetX + sheetWidth > screenLeft + screenWidth)
+      diffX = (screenLeft + screenWidth) - (sheetX + sheetWidth + offset)
+    if (sheetY < screenTop)
+      diffY = screenTop - sheetY + offset
+    if (sheetY + sheetHeight > screenTop + screenHeight)
+      diffY = screenTop + screenHeight - (sheetY + sheetHeight + offset)
 
     moveLayerX = parseInt ($('#moveLayer').css 'x')
     moveLayerY = parseInt ($('#moveLayer').css 'y')
-  
+    
     $('#moveLayer').transition {
       x : diffX + moveLayerX,
       y : diffY + moveLayerY
     }
+    
     setMinimap {
       isTransition: true,
       mLx: diffX + moveLayerX,
@@ -548,11 +567,20 @@ $(window).resize ->
 
 $ () ->
   wallHandler('#wall')
+
+  loadingSheet = null
   
   $('#fileupload').fileupload  {
     dataType : 'json',
+    drop : (e, data) ->
+      console.log "Image dropped!"
+    progressall : (e, data) ->
+      progress = parseInt (data.loaded / data.total * 100)
+      console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
+      #console.log progress,
     done : (e, data) ->
       $.each(data.result, (index, file) ->
+        $(loadingSheet).trigger 'remove'
         ImageSheet.create("/assets/files/#{file.name}")
       )
   }
