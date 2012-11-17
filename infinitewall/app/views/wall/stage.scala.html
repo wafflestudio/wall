@@ -15,7 +15,7 @@
 <div id = "rightBar">
   <div id="toolBar">
     <img id="zoomIcon" src="@routes.Assets.at("images/zoomIcon.png")"></img>
-    <p id="zoomLevelText"></p>
+    <p id="zoomLevelText">100%</p>
     <img class="createBtn" rel="text" src="@routes.Assets.at("images/createSheet.png")"></img>
     <img id="minimapBtn" src="@routes.Assets.at("images/minimap.png")"></img>
     <img id="folderBtn" src="@routes.Assets.at("images/folder.png")"></img>
@@ -57,24 +57,6 @@
     })
 
   })
-
-  var glob = new function() {
-    this.currentSheet = null;
-    this.zoomLevel = 1;
-    this.minimapToggled = 1;
-    this.rightBarOffset = 267 + 80 + 30; // 80은 위에 userList, 30은 밑에 input 
-
-    this.scaleLayerXPos = 0;
-    this.scaleLayerYPos = 0;
-
-    this.worldTop = 0;
-    this.worldBottom = 0;
-    this.worldLeft = 0;
-    this.worldRight = 0;
-
-    this.tempImageID = 20000;
-  }
-
 
   // initialize wall socket/events
   var wallSocket = new window.WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")

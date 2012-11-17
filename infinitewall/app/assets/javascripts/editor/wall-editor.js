@@ -45,6 +45,7 @@ $(document).ready(function() {
     });
     $(this).bind('activate', function() {
        console.log('click');
+
        savedSel = rangy.getSelection().saveCharacterRanges(this);
 
        var start = savedSel[0].range.start;

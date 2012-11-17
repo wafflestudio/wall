@@ -4,6 +4,7 @@ window.glob = new ->
   this.currentSheet = null
   this.zoomLevel = 1
   this.minimapToggled = 1
+  this.minimapRatio = 1
   this.rightBarOffset = 267 + 80 + 30 # 80은 위에 userList, 30은 밑에 input
   
   this.scaleLayerXPos = 0
@@ -112,8 +113,9 @@ window.textSheetHandler = (elem) ->
       miniElem = $('#map_' + glob.currentSheet.attr('id'))
       miniElem.css 'background-color', 'crimson'
       
+      #element.find('div.sheetTextField').focus()
       element.find('div.sheetTextField').trigger('activate')
-      toCenter()
+      revealSheet()
 
   onMouseDown = (e) ->
     hasMoved = false
@@ -130,6 +132,7 @@ window.textSheetHandler = (elem) ->
 
     $(document).on 'mousemove', onMouseMove
     $(document).on 'mouseup', onMouseUp
+    #e.preventDefault()
     e.stopPropagation()
 
   onButtonMouseDown = (e) ->
@@ -217,7 +220,7 @@ window.imageSheetHandler = (elem) ->
     
       miniElem = $('#map_' + glob.currentSheet.attr('id'))
       miniElem.css 'background-color', 'crimson'
-      toCenter()
+      revealSheet()
 
   onMouseDown = (e) ->
     hasMoved = false
@@ -245,8 +248,7 @@ window.imageSheetHandler = (elem) ->
   onButtonMouseUp = (e) ->
     $(document).off 'mousemove', onMouseMove
     $(document).off 'mouseup', onMouseUp
-    element.trigger 'remove', 
-    #여기는 이렇게 콤마 뒤에 암것도 안놔둬도 괜찮은건가 뭔가 작업하다가 사라진걸까
+    element.trigger 'remove'
 
   onResizeMouseDown = (e) ->
     $(document).on 'mousemove', onResizeMouseMove
@@ -269,14 +271,13 @@ window.imageSheetHandler = (elem) ->
       element.children('.sheet').css 'width', (startWidth + dY * ratio) / glob.zoomLevel
       element.children('.sheet').css 'height', (startHeight + dY) / glob.zoomLevel
 
-
   onResizeMouseUp = (e) ->
     $(document).off 'mousemove', onResizeMouseMove
     $(document).off 'mouseup', onResizeMouseUp
-    element.trigger 'resize', 
+    element.trigger 'resize', {
       id: element.attr('id').substr(5),
       width: parseInt(element.children('.sheet').css('width')),
-      height: parseInt(element.children('.sheet').css('height'))
+      height: parseInt(element.children('.sheet').css('height'))}
   
   element.on 'mousedown', '.boxClose', onButtonMouseDown
   element.on 'mousedown', '.resizeHandle', onResizeMouseDown
@@ -284,6 +285,7 @@ window.imageSheetHandler = (elem) ->
 
 
 wallHandler = (element) ->
+  element = $('#wall')
   deltax = 0
   deltay = 0
   startx = 0
@@ -390,15 +392,14 @@ wallHandler = (element) ->
     sL.transition {scale: glob.zoomLevel}
     sL.css 'x', xNew
     sL.css 'y', yNew
-    $('.boxClose').css {scale: 1 / glob.zoomLevel}
+    $('.boxClose').transition {scale: 1 / glob.zoomLevel}
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     setMinimap {isTransition: true}
-    # setMinimap에 option값을 두어서 if transition = true 부드러운 움직임이 가능하게
     return false
 
-  $(element).on 'dblclick', onMouseDblClick
-  $(element).on 'mousedown', onMouseDown
-  $(element).on 'mousewheel', onMouseWheel
+  element.on 'dblclick', onMouseDblClick
+  element.on 'mousedown', onMouseDown
+  element.on 'mousewheel', onMouseWheel
 
 toggleMinimap = ->
   if glob.minimapToggled
@@ -416,6 +417,96 @@ toggleMinimapFinished = ->
     $('#chatWindow').transition {height: '+=190'}, 300
     glob.rightBarOffset -= 190
 
+
+
+
+
+
+
+
+minimapHandler = () ->
+  element = $('#miniMap')
+  mW = $('#minimapWorld')
+  mCS = $('#minimapCurrentScreen')
+  mL = $('#moveLayer')
+
+  #기준좌표는 minimapWorld의 origin
+
+  onMouseMove = (e) ->
+    mLx = parseInt (mL.css 'x')
+    mLy = parseInt (mL.css 'y')
+    mCSw = mCS.width()
+    mCSh = mCS.height()
+
+    tempX = e.pageX - mW.offset().left
+    tempY = e.pageY - mW.offset().top
+
+    mouseX =
+      if tempX < mCSw / 2 then (mCSw / 2) / glob.minimapRatio
+      else if tempX > mW.width() - mCSw / 2 then (mW.width() - mCSw / 2) / glob.minimapRatio
+      else tempX / glob.minimapRatio
+      
+    mouseY =
+      if tempY < mCSh / 2 then (mCSh / 2) / glob.minimapRatio
+      else if tempY > mW.height() - mCSh / 2 then (mW.height() - mCSh / 2) / glob.minimapRatio
+      else tempY / glob.minimapRatio
+
+    newMoveLayerX = -((mouseX + glob.worldLeft - (mCSw / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
+    newMoveLayerY = -((mouseY + glob.worldTop - (mCSh / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
+
+    mL.css 'x', newMoveLayerX
+    mL.css 'y', newMoveLayerY
+
+    setMinimap()
+  
+  onMouseUp = (e) ->
+    $(document).off 'mousemove', onMouseMove
+    $(document).off 'mouseup', onMouseUp
+
+  onMouseDown = (e) ->
+    
+    mLx = parseInt (mL.css 'x')
+    mLy = parseInt (mL.css 'y')
+    mCSw = mCS.width()
+    mCSh = mCS.height()
+
+    tempX = e.pageX - mW.offset().left
+    tempY = e.pageY - mW.offset().top
+
+    mouseX =
+      if tempX < mCSw / 2 then (mCSw / 2) / glob.minimapRatio
+      else if tempX > mW.width() - mCSw / 2 then (mW.width() - mCSw / 2) / glob.minimapRatio
+      else tempX / glob.minimapRatio
+      
+    mouseY =
+      if tempY < mCSh / 2 then (mCSh / 2) / glob.minimapRatio
+      else if tempY > mW.height() - mCSh / 2 then (mW.height() - mCSh / 2) / glob.minimapRatio
+      else tempY / glob.minimapRatio
+
+    newMoveLayerX = -((mouseX + glob.worldLeft - (mCSw / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
+    newMoveLayerY = -((mouseY + glob.worldTop - (mCSh / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
+
+    mL.transition {
+      x: newMoveLayerX
+      y: newMoveLayerY
+    }, 200
+
+    setMinimap {
+      isTransition: true,
+      mLx: newMoveLayerX,
+      mLy: newMoveLayerY,
+      duration: 200
+    }
+    
+    $(document).on 'mousemove', onMouseMove
+    $(document).on 'mouseup', onMouseUp
+    return false
+
+  element.on 'mousedown', onMouseDown
+
+
+
+
 setMinimap = (callInfo = null) ->
   
   mL = $('#moveLayer')
@@ -425,9 +516,6 @@ setMinimap = (callInfo = null) ->
   else
     mLx = callInfo.mLx
     mLy = callInfo.mLy
-
-  #console.log mLx
-  #console.log mLy
 
   #좌표는 moveLayer의 기준에서 본 wall의 좌표!
   sB = $('.sheetBox')
@@ -464,6 +552,7 @@ setMinimap = (callInfo = null) ->
   mCS = $('#minimapCurrentScreen')
   
   $.fn.moveFunc = if callInfo and callInfo.isTransition then $.fn.transition else $.fn.css
+  dur = if callInfo and callInfo.duration then callInfo.duration else 400
 
   if (worldWidth / worldHeight) > (224 / 185)
     ratio = 224 / worldWidth
@@ -472,7 +561,7 @@ setMinimap = (callInfo = null) ->
       height: worldHeight * ratio,
       top: (185 - worldHeight * ratio) / 2,
       left: 0
-    }
+    }, dur
   
   else
     ratio = 185 / worldHeight
@@ -481,14 +570,16 @@ setMinimap = (callInfo = null) ->
       height: 185,
       top: 0,
       left: (224 - worldWidth * ratio) / 2
-    }
+    }, dur
+
+  glob.minimapRatio = ratio
   
   mCS.moveFunc {
     width: screenWidth * ratio,
     height: screenHeight * ratio,
     top: (screenTop - glob.worldTop) * ratio,
     left: (screenLeft - glob.worldLeft) * ratio
-  }
+  }, dur
   
   shrinkMiniSheet = (elem) ->
     miniSheet = $('#map_' + elem.attr('id'))
@@ -497,11 +588,11 @@ setMinimap = (callInfo = null) ->
       top: ((parseInt elem.css('y')) - glob.worldTop) * ratio,
       width: ((parseInt elem.css('width'))) * ratio,
       height: ((parseInt elem.css('height'))) * ratio
-    }
+    }, dur
   
   shrinkMiniSheet $(elem) for elem in sB
 
-toCenter = ->
+revealSheet = ->
   
   #좌표는 moveLayer의 기준에서 본 wall의 좌표!
   sB = $('.sheetBox')
@@ -516,16 +607,6 @@ toCenter = ->
   sheetX = parseInt (sheet.css 'x')
   sheetY = parseInt (sheet.css 'y')
 
-  #if ((sheetX < screenLeft) or (sheetX + sheetWidth > screenLeft + screenWidth) or (sheetY < screenTop) or (sheetY + sheetHeight > screenTop + screenHeight))
-    
-    #translateX = screenLeft + (screenWidth - sheetWidth) / 2
-    #translateY = screenTop + (screenHeight - sheetHeight) / 2
-
-    #diffX = translateX - sheetX
-    #diffY = translateY - sheetY
-    #중앙으로 보내고싶을때 이 로직 사용
-  
-  
   if ((sheetX < screenLeft) or (sheetX + sheetWidth > screenLeft + screenWidth) or (sheetY < screenTop) or (sheetY + sheetHeight > screenTop + screenHeight))
     
     diffX = 0
@@ -555,18 +636,16 @@ toCenter = ->
       mLy: diffY + moveLayerY
     }
 
-
-
 window.createSheet = createSheet
 window.setMinimap = setMinimap
-window.toCenter = toCenter
 
 $(window).resize ->
   $('#chatWindow').height ($(window).height() - glob.rightBarOffset)
   setMinimap()
 
 $ () ->
-  wallHandler('#wall')
+  wallHandler()
+  minimapHandler()
 
   loadingSheet = null
   
@@ -577,7 +656,6 @@ $ () ->
     progressall : (e, data) ->
       progress = parseInt (data.loaded / data.total * 100)
       console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
-      #console.log progress,
     done : (e, data) ->
       $.each(data.result, (index, file) ->
         $(loadingSheet).trigger 'remove'
@@ -585,13 +663,11 @@ $ () ->
       )
   }
 
-  $('.createBtn').live('click', () ->
+  $('.createBtn').on('click', () ->
     if $(this).attr('rel') == 'text'
       TextSheet.create("text")
   )
 
   $('#minimapBtn').click toggleMinimap
   $('#chatWindow').height ($(window).height() - glob.rightBarOffset)
-  $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
   $('#currentWallNameText').text "First wall"
-
