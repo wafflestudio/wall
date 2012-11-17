@@ -429,6 +429,9 @@ minimapHandler = () ->
   mW = $('#minimapWorld')
   mCS = $('#minimapCurrentScreen')
   mL = $('#moveLayer')
+  isBoxDrag = false
+  relX = 0
+  relY = 0
 
   #기준좌표는 minimapWorld의 origin
 
@@ -441,18 +444,33 @@ minimapHandler = () ->
     tempX = e.pageX - mW.offset().left
     tempY = e.pageY - mW.offset().top
 
-    mouseX =
-      if tempX < mCSw / 2 then (mCSw / 2) / glob.minimapRatio
-      else if tempX > mW.width() - mCSw / 2 then (mW.width() - mCSw / 2) / glob.minimapRatio
-      else tempX / glob.minimapRatio
-      
-    mouseY =
-      if tempY < mCSh / 2 then (mCSh / 2) / glob.minimapRatio
-      else if tempY > mW.height() - mCSh / 2 then (mW.height() - mCSh / 2) / glob.minimapRatio
-      else tempY / glob.minimapRatio
+    if isBoxDrag
+      mouseX =
+        if tempX < relX then relX / glob.minimapRatio
+        else if tempX > mW.width() - (mCSw - relX) then (mW.width() - (mCSw - relX)) / glob.minimapRatio
+        else tempX / glob.minimapRatio
+        
+      mouseY =
+        if tempY < relY then relY / glob.minimapRatio
+        else if tempY > mW.height() - (mCSh - relY) then (mW.height() - (mCSh - relY)) / glob.minimapRatio
+        else tempY / glob.minimapRatio
 
-    newMoveLayerX = -((mouseX + glob.worldLeft - (mCSw / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
-    newMoveLayerY = -((mouseY + glob.worldTop - (mCSh / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
+      newMoveLayerX = -((mouseX + glob.worldLeft - relX / glob.minimapRatio) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
+      newMoveLayerY = -((mouseY + glob.worldTop - relY / glob.minimapRatio) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
+  
+    else
+      mouseX =
+        if tempX < mCSw / 2 then (mCSw / 2) / glob.minimapRatio
+        else if tempX > mW.width() - mCSw / 2 then (mW.width() - mCSw / 2) / glob.minimapRatio
+        else tempX / glob.minimapRatio
+        
+      mouseY =
+        if tempY < mCSh / 2 then (mCSh / 2) / glob.minimapRatio
+        else if tempY > mW.height() - mCSh / 2 then (mW.height() - mCSh / 2) / glob.minimapRatio
+        else tempY / glob.minimapRatio
+
+      newMoveLayerX = -((mouseX + glob.worldLeft - (mCSw / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
+      newMoveLayerY = -((mouseY + glob.worldTop - (mCSh / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
 
     mL.css 'x', newMoveLayerX
     mL.css 'y', newMoveLayerY
@@ -460,51 +478,74 @@ minimapHandler = () ->
     setMinimap()
   
   onMouseUp = (e) ->
+
+    mCS.css {
+      'background-color': 'transparent',
+      opacity: 1
+    }
+
     $(document).off 'mousemove', onMouseMove
     $(document).off 'mouseup', onMouseUp
 
   onMouseDown = (e) ->
-    
+
     mLx = parseInt (mL.css 'x')
     mLy = parseInt (mL.css 'y')
+    mCSx = parseInt (mCS.css 'left')
+    mCSy = parseInt (mCS.css 'top')
     mCSw = mCS.width()
     mCSh = mCS.height()
+
+    mCS.css {
+      'background-color': '#96A6D6',
+      opacity: 0.5
+    }
 
     tempX = e.pageX - mW.offset().left
     tempY = e.pageY - mW.offset().top
 
-    mouseX =
-      if tempX < mCSw / 2 then (mCSw / 2) / glob.minimapRatio
-      else if tempX > mW.width() - mCSw / 2 then (mW.width() - mCSw / 2) / glob.minimapRatio
-      else tempX / glob.minimapRatio
-      
-    mouseY =
-      if tempY < mCSh / 2 then (mCSh / 2) / glob.minimapRatio
-      else if tempY > mW.height() - mCSh / 2 then (mW.height() - mCSh / 2) / glob.minimapRatio
-      else tempY / glob.minimapRatio
+    relX = tempX - mCSx
+    relY = tempY - mCSy
 
-    newMoveLayerX = -((mouseX + glob.worldLeft - (mCSw / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
-    newMoveLayerY = -((mouseY + glob.worldTop - (mCSh / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
-
-    mL.transition {
-      x: newMoveLayerX
-      y: newMoveLayerY
-    }, 200
-
-    setMinimap {
-      isTransition: true,
-      mLx: newMoveLayerX,
-      mLy: newMoveLayerY,
-      duration: 200
-    }
+    isBoxDrag = if mCSx <= tempX and tempX <= mCSx + mCSw and mCSy <= tempY and tempY <= mCSy + mCSh then true else false
     
+    if not isBoxDrag
+
+      mouseX =
+        if tempX < mCSw / 2 then (mCSw / 2) / glob.minimapRatio
+        else if tempX > mW.width() - mCSw / 2 then (mW.width() - mCSw / 2) / glob.minimapRatio
+        else tempX / glob.minimapRatio
+
+      mouseY =
+        if tempY < mCSh / 2 then (mCSh / 2) / glob.minimapRatio
+        else if tempY > mW.height() - mCSh / 2 then (mW.height() - mCSh / 2) / glob.minimapRatio
+        else tempY / glob.minimapRatio
+
+      newMoveLayerX = -((mouseX + glob.worldLeft - (mCSw / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
+      newMoveLayerY = -((mouseY + glob.worldTop - (mCSh / glob.minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
+
+      mL.transition {
+        x: newMoveLayerX
+        y: newMoveLayerY
+      }, 200
+
+      setMinimap {
+        isTransition: true,
+        mLx: newMoveLayerX,
+        mLy: newMoveLayerY,
+        duration: 200
+      }
+
     $(document).on 'mousemove', onMouseMove
     $(document).on 'mouseup', onMouseUp
     return false
+  
+  onMouseDblClick = (e) ->
+    console.log "Implement me!"
+    return false
 
+  element.on 'dblclick', onMouseDblClick
   element.on 'mousedown', onMouseDown
-
-
 
 
 setMinimap = (callInfo = null) ->
@@ -552,7 +593,7 @@ setMinimap = (callInfo = null) ->
   mCS = $('#minimapCurrentScreen')
   
   $.fn.moveFunc = if callInfo and callInfo.isTransition then $.fn.transition else $.fn.css
-  dur = if callInfo and callInfo.duration then callInfo.duration else 400
+  duration = if callInfo and callInfo.duration then callInfo.duration else 400
 
   if (worldWidth / worldHeight) > (224 / 185)
     ratio = 224 / worldWidth
@@ -561,7 +602,7 @@ setMinimap = (callInfo = null) ->
       height: worldHeight * ratio,
       top: (185 - worldHeight * ratio) / 2,
       left: 0
-    }, dur
+    }, duration
   
   else
     ratio = 185 / worldHeight
@@ -570,7 +611,7 @@ setMinimap = (callInfo = null) ->
       height: 185,
       top: 0,
       left: (224 - worldWidth * ratio) / 2
-    }, dur
+    }, duration
 
   glob.minimapRatio = ratio
   
@@ -579,7 +620,7 @@ setMinimap = (callInfo = null) ->
     height: screenHeight * ratio,
     top: (screenTop - glob.worldTop) * ratio,
     left: (screenLeft - glob.worldLeft) * ratio
-  }, dur
+  }, duration
   
   shrinkMiniSheet = (elem) ->
     miniSheet = $('#map_' + elem.attr('id'))
@@ -588,7 +629,7 @@ setMinimap = (callInfo = null) ->
       top: ((parseInt elem.css('y')) - glob.worldTop) * ratio,
       width: ((parseInt elem.css('width'))) * ratio,
       height: ((parseInt elem.css('height'))) * ratio
-    }, dur
+    }, duration
   
   shrinkMiniSheet $(elem) for elem in sB
 
