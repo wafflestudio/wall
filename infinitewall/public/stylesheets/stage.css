@@ -42,9 +42,8 @@
 
 .minimapElement {
 	position:absolute;
+  background-color:black;
 	opacity:0.5;
-	/*background-color:#AB7A7A;*/
-	background-color:black;
 }
 
 #chatWindow {

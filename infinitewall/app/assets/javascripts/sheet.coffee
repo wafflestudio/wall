@@ -46,6 +46,7 @@ class window.Sheet
     
     newMiniSheet = $($('<div class = "minimapElement"></div>').appendTo('#minimapElements'))
     newMiniSheet.attr('id', 'map_sheet' + @id)
+    miniSheetHandler(newMiniSheet)
     setMinimap()
 
     window.sheets[params.id] = this

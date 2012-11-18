@@ -419,9 +419,78 @@ toggleMinimapFinished = ->
 
 
 
+window.miniSheetHandler = (element) ->
 
+  onMouseDown = (e) ->
 
+    #xWall = e.pageX - $(this).offset().left
+    #yWall = e.pageY - $(this).offset().top - 38
 
+    #xScaleLayer += (xWall - xWallLast) / glob.zoomLevel
+    #yScaleLayer += (yWall - yWallLast) / glob.zoomLevel
+    
+    #glob.zoomLevel = if glob.zoomLevel is 1 then 0.25 else 1
+   
+    #if glob.zoomLevel is 1
+      #xNew = (xWall - xScaleLayer) / glob.zoomLevel
+      #yNew = (yWall - yScaleLayer) / glob.zoomLevel
+    
+    #xWallLast = xWall
+    #yWallLast = yWall
+
+    #glob.scaleLayerXPos = xWall - xScaleLayer * glob.zoomLevel
+    #glob.scaleLayerYPos = yWall - yScaleLayer * glob.zoomLevel
+    
+    #glob.zoomLevel = 1
+
+    #sL = $('#scaleLayer')
+    #sL.css {transformOrigin: xWall + 'px ' + yWall + 'px'}
+    #sL.transition {scale: glob.zoomLevel}
+    #sL.css 'x', xNew
+    #sL.css 'y', yNew
+    #$('.boxClose').transition {scale: 1 / glob.zoomLevel}
+    #$('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
+    
+    # 화면이 100%로 확대되게 만들어야
+
+    element.css 'background-color', '#96A6D6'
+
+    sheetId = element.attr('id').split('_')[1]
+    sheet = $("#" + sheetId)
+
+    screenWidth = ($(window).width() - 225) / glob.zoomLevel
+    screenHeight = ($(window).height() - 38) / glob.zoomLevel
+    screenTop = -(glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+    screenLeft = -(glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+
+    sheetWidth = parseInt (sheet.css 'width')
+    sheetHeight = parseInt (sheet.css 'height')
+    sheetX = parseInt (sheet.css 'x')
+    sheetY = parseInt (sheet.css 'y')
+
+    translateX = screenLeft + (screenWidth - sheetWidth) / 2
+    translateY = screenTop + (screenHeight - sheetHeight) / 2
+
+    diffX = translateX - sheetX
+    diffY = translateY - sheetY
+  
+    moveLayerX = parseInt ($('#moveLayer').css 'x')
+    moveLayerY = parseInt ($('#moveLayer').css 'y')
+    
+    $('#moveLayer').transition {
+      x : diffX + moveLayerX,
+      y : diffY + moveLayerY
+    }, () -> element.css 'background-color', 'black'
+    
+    setMinimap {
+      isTransition: true,
+      mLx: diffX + moveLayerX,
+      mLy: diffY + moveLayerY
+    }
+
+    return false
+  
+  element.on 'mousedown', onMouseDown
 
 
 minimapHandler = () ->
@@ -636,7 +705,6 @@ setMinimap = (callInfo = null) ->
 revealSheet = ->
   
   #좌표는 moveLayer의 기준에서 본 wall의 좌표!
-  sB = $('.sheetBox')
   screenWidth = ($(window).width() - 225) / glob.zoomLevel
   screenHeight = ($(window).height() - 38) / glob.zoomLevel
   screenTop = -(glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
