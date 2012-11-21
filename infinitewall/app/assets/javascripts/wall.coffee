@@ -173,7 +173,7 @@ class window.Wall
         y : diffY + moveLayerY
       }
       
-      setMinimap {
+      minimap.refresh {
         isTransition: true,
         mLx: diffX + moveLayerX,
         mLy: diffY + moveLayerY
