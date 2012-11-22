@@ -61,11 +61,16 @@ class window.Sheet
     @element.children('.sheet').transition {width : params.width + "px", height : params.height + "px"}
 
   remove: (params) ->
-    @element.transition {opacity: 0, scale : 1.25}, -> $(this).remove()
+    @element.transition {opacity: 0, scale : 1.25}, =>
+      @element.remove()
+      miniSheets[@id].remove()
+      glob.activeSheet = null
+      #delete sheets[@id]
+      #Memory is leaking!
+    
     @element.off 'mousemove'
     @element.off 'mouseup'
     @element.off 'mousedown'
-    $('#map_sheet' + params.id).remove()
 
   setTitle: (params) ->
     @element.find('.sheetTitle').html(params.title)
@@ -76,13 +81,18 @@ class window.Sheet
     @element.children('.sheet').css 'border-top', '2px solid #FF4E58'
     @element.children('.sheet').css 'margin-top', '-2px'
     @element.find('.sheetTopBar').show()
+    #@element.find('.sheetTextField').focus()
+    miniSheets[@id].becomeActive()
 
   resignActive: () ->
+    glob.activeSheet = null
     @element.find('.boxClose').hide()
     @element.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
     @element.children('.sheet').css 'border-top', ''
     @element.children('.sheet').css 'margin-top', ''
-    $('#map_' + @element.attr('id')).css 'background-color', 'black'
+    @element.find('.sheetTextField').blur()
+    @element.find('.sheetTitle').blur()
+    miniSheets[@id].resignActive()
 
   setXY: (x, y) ->
     @element.css({x: x, y: y})

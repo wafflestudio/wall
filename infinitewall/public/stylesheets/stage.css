@@ -260,7 +260,7 @@
 	padding:0;
 	border:none;
 	resize:none;
-  outline:none;
+  /*outline:none;*/
 }
 
 .sheetImage {

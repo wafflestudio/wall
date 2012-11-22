@@ -1,7 +1,6 @@
 class window.MiniSheet
   id: null
   element: null
-  handler: null
 
   constructor: (id) ->
     @id = id
@@ -17,6 +16,10 @@ class window.MiniSheet
 
   becomeSelected: () ->
     @element.css 'background-color', '#96A6D6'
+
+  remove: () ->
+    @element.remove()
+    #delete miniSheets[@id]
 
   getXY: () ->
     x: parseInt(@element.css('x'))

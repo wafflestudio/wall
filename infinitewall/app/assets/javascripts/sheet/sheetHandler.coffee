@@ -18,12 +18,14 @@ class window.SheetHandler
       @sheet.socketSetText()
 
   onMouseMove: (e) =>
-
-    newX = (@startx + e.pageX - @deltax) / glob.zoomLevel
-    newY = (@starty + e.pageY - @deltay) / glob.zoomLevel
-    @sheet.setXY(newX, newY)
-    @hasMoved = true
-    minimap.refresh()
+    if glob.activeSheet is @sheet
+      return false
+    else
+      newX = (@startx + e.pageX - @deltax) / glob.zoomLevel
+      newY = (@starty + e.pageY - @deltay) / glob.zoomLevel
+      @sheet.setXY(newX, newY)
+      @hasMoved = true
+      minimap.refresh()
    
   onMouseUp: (e) =>
     $(document).off 'mousemove', @onMouseMove
@@ -34,32 +36,58 @@ class window.SheetHandler
         x: (@startx + e.pageX - @deltax) / glob.zoomLevel,
         y: (@starty + e.pageY - @deltay) / glob.zoomLevel
       }
+      @sheet.element.find('.sheetTextField').blur()
+      @sheet.element.find('.sheetTitle').blur()
     else
       if glob.activeSheet
-        glob.activeSheet.resignActive()
-      
-      @sheet.becomeActive()
-      miniSheets[@sheet.id].becomeActive()
-      
-      #@sheet.element.find('.sheetTextField').focus()
-      #@sheet.element.find('.sheetTextField').trigger('activate')
-      
+        if glob.activeSheet isnt @sheet
+          glob.activeSheet.resignActive()
+          @sheet.becomeActive()
+      else
+        @sheet.becomeActive()
+        #console.log "3"
+        #newEvt = $.Event("mousedown",{
+          #canBubble: true,
+          #cancelable: true,
+          #view: e.view,
+          #detail: e.detail,
+          #screenX: e.screenX,
+          #screenY: e.screenY,
+          #clientX: e.clientX,
+          #clientY: e.clientY,
+          #ctrlKey: e.ctrlKey,
+          #altKey: e.altKey,
+          #shiftKey: e.shiftKey,
+          #metaKey: e.metaKey,
+          #button: e.button,
+          #relatedTarget: e.relatedTarget
+        #})
+
+        #@sheet.element.trigger(newEvt, true)
+        #@sheet.element.find('.sheetTextField').trigger('activate')
+
       wall.revealSheet()
 
-  onMouseDown: (e) =>
-    @hasMoved = false
-    wall.bringToTop(@sheet)
-    minimap.bringToTop(miniSheets[@sheet.id])
-    
-    @startx = @sheet.getXY().x * glob.zoomLevel
-    @starty = @sheet.getXY().y * glob.zoomLevel
+    return false
 
-    @deltax = e.pageX
-    @deltay = e.pageY
+  onMouseDown: (e, doDefault = false) =>
+    if doDefault
+      e.stopPropagation()
+    else
+      console.log e
+      @hasMoved = false
+      wall.bringToTop(@sheet)
+      minimap.bringToTop(miniSheets[@sheet.id])
+      
+      @startx = @sheet.getXY().x * glob.zoomLevel
+      @starty = @sheet.getXY().y * glob.zoomLevel
 
-    $(document).on 'mousemove', @onMouseMove
-    $(document).on 'mouseup', @onMouseUp
-    e.stopPropagation()
+      @deltax = e.pageX
+      @deltay = e.pageY
+
+      $(document).on 'mousemove', @onMouseMove
+      $(document).on 'mouseup', @onMouseUp
+      e.stopPropagation()
 
   onButtonMouseDown: (e) =>
     $(document).on 'mouseup', @onButtonMouseUp
