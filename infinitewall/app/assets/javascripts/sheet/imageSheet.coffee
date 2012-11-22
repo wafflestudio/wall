@@ -1,4 +1,14 @@
-imageTemplate = "<div class='sheetBox' tabindex='-1'><div class='sheet' contentType='image'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetImage'></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
+imageTemplate = "
+  <div class='sheetBox' tabindex='-1'>
+    <div class='sheet' contentType='image'>
+      <div class='sheetTopBar'>
+        <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
+      </div>
+      <div class='sheetImage'></div>
+      <div class='resizeHandle'></div>
+    </div>
+    <a class = 'boxClose'>x</a>
+  </div>"
 
 class window.ImageSheet extends Sheet
   @create: (content) ->

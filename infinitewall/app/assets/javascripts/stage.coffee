@@ -1,7 +1,6 @@
 #variables
 
 globglob = new ->
-    this.currentSheet = null
     this.activeSheet = null
     this.zoomLevel = 1
     this.minimapToggled = 1

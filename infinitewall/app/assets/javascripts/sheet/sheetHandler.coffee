@@ -14,11 +14,8 @@ class window.SheetHandler
     @sheet.element.on 'mousedown', '.boxClose', @onButtonMouseDown
     @sheet.element.on 'mousedown', '.resizeHandle', @onResizeMouseDown
     @sheet.element.on 'mousedown', @onMouseDown
-    @sheet.element.children('.sheet').on 'change', (e) ->
-      console.log "dddd"
+    @sheet.element.on 'setText', (e) =>
       @sheet.socketSetText()
-
-      #왜 안되는가..
 
   onMouseMove: (e) =>
 
@@ -90,9 +87,4 @@ class window.SheetHandler
       width: @sheet.getWH().w,
       height: @sheet.getWH().h
     }
-    setMinimap()
-
-
-  #element.children('.@sheet').on 'change', (e) ->
-      #element.trigger 'setText', e
-
+    minimap.refresh()

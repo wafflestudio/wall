@@ -1,4 +1,17 @@
-textTemplate = "<div class='sheetBox' tabindex='-1'><div class='sheet' contentType='text'><div class='sheetTopBar'><h1 class='sheetTitle' contenteditable='true'> New Sheet </h1></div><div class='sheetText'><div class='sheetTextField' contenteditable='true'><div> <br></div></div></div><div class='resizeHandle'></div></div><a class = 'boxClose'>x</a></div>"
+textTemplate = "
+  <div class='sheetBox' tabindex='-1'>
+    <div class='sheet' contentType='text'>
+      <div class='sheetTopBar'>
+        <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
+      </div>
+    <div class='sheetText'>
+      <div class='sheetTextField' contenteditable='true'>
+        <div> <br></div>
+      </div>
+    </div>
+    <div class='resizeHandle'></div></div>
+    <a class = 'boxClose'>x</a>
+  </div>"
 
 class window.TextSheet extends Sheet
   @create: (content) ->
@@ -17,22 +30,21 @@ class window.TextSheet extends Sheet
 
   constructor: (params) ->
     super(params)
-    
+
     @element.find('div.sheetTextField').html(params.content)
     @element.find('div.sheetTextField').wallEditor()
 
   attachHandler: () ->
     @handler = new TextSheetHandler(this)
 
-  socketSetText: (e) ->
-    console.log "asdfasdf"
+  socketSetText: (e) =>
     wallSocket.send {
       action : 'setText',
       params : {
-        id : self.id,
-        text : self.element.find('div.sheetTextField').html(),
-        keyCode : self.element.find('div.sheetTextField')[0].keyCode,
-        beforeAndAfter : self.element.find('div.sheetTextField')[0].beforeAndAfter
+        id : @id,
+        text : @element.find('div.sheetTextField').html(),
+        keyCode : @element.find('div.sheetTextField')[0].keyCode,
+        beforeAndAfter : @element.find('div.sheetTextField')[0].beforeAndAfter
       }
     }
 
@@ -40,7 +52,6 @@ class window.TextSheet extends Sheet
     serverContent = params.text
     keyCode = params.keyCode
     beforeAndAfter = params.beforeAndAfter
-
     console.log 'setText'
     # strip tag
     serverContent = serverContent.replace(/(<([^>]+)>)/ig, "")
