@@ -1,6 +1,7 @@
 package wall
 
 import play.api.libs.json._
+import play.api.Logger
 
 // Action detail
 sealed trait ActionDetail {
@@ -18,6 +19,7 @@ case class ResizeAction(userId:Long, timestamp:Long, id:Long, width:Double, heig
 case class RemoveAction(userId:Long, timestamp:Long, id:Long) extends ActionDetailWithId
 case class SetTitleAction(userId:Long, timestamp:Long, id:Long, title:String) extends ActionDetailWithId
 case class SetTextAction(userId:Long, timestamp:Long, id:Long, text:String) extends ActionDetailWithId
+case class AlterTextAction(userId:Long, timestamp:Long, id:Long, from:Int, length:Int, content:String, msgId:Long) extends ActionDetailWithId
 
 // Action detail parser
 object ActionDetail {
@@ -34,7 +36,10 @@ object ActionDetail {
 		def y = (params \ "y").as[Double]
 		def width = (params \ "width").as[Double]
 		def height = (params \ "height").as[Double]
-		
+		def from = (params \ "from").as[Int]
+		def length = (params \ "length").as[Int]
+		def msgId = (params \ "msgId").as[Long]
+	
 		if(actionType == "create")
 			CreateAction(userId, timestamp, title, contentType, content, x, y, width, height)
 		else {		
@@ -49,6 +54,9 @@ object ActionDetail {
 					SetTitleAction(userId, timestamp, id, title)
 				case "setText" =>
 					SetTextAction(userId, timestamp, id, text)
+				case "alterText" =>
+					Logger.info(content)
+					AlterTextAction(userId, timestamp, id, from, length, content, msgId)
 			}				
 		}
 	}

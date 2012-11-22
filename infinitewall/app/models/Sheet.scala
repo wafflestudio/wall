@@ -160,6 +160,22 @@ object Sheet extends ActiveRecord[Sheet] {
 		TextContent.setText(id, text)
 	}
 	
+	
+	
+	def alterText(id: Long, from:Int, length:Int, content:String) = {
+		val text = TextContent.findBySheetId(id).content
+		try {
+			val alteredText = spliceText(text, from, length, content)
+			Logger.info("original text:" + text + ",altered Text: " + alteredText)
+			TextContent.setText(id, alteredText)
+		}
+		catch{
+			case e:Exception =>
+				Logger.error("bad alter text operation:" + from + ", " + length + "," +  content + " => " + text )
+				throw e
+		}
+	}
+	
 	def setTitle(id: Long, title:String) = {
 		DB.withConnection { implicit c =>
 			SQL("update " + tableName + " SET title = {title} where id = {id}").on(
@@ -175,6 +191,10 @@ object Sheet extends ActiveRecord[Sheet] {
 					'width -> width,
 					'height -> height).executeUpdate()
 		}
+	}
+	
+	private def spliceText(str:String, offset:Int, remove:Int, content:String) = {
+		str.substring(0, offset) + content + str.substring(offset+remove, str.length)
 	}
 	
 }

@@ -14,8 +14,6 @@ class window.SheetHandler
     @sheet.element.on 'mousedown', '.boxClose', @onButtonMouseDown
     @sheet.element.on 'mousedown', '.resizeHandle', @onResizeMouseDown
     @sheet.element.on 'mousedown', @onMouseDown
-    @sheet.element.on 'setText', (e) =>
-      @sheet.socketSetText()
 
   onMouseMove: (e) =>
     if glob.activeSheet is @sheet
