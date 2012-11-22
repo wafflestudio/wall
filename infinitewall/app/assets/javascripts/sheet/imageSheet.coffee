@@ -13,6 +13,7 @@ imageTemplate = "
 class window.ImageSheet extends Sheet
   @create: (content) ->
     img = new Image()
+    img.src = content
     img.onload = ->
       w = this.width
       h = this.height
@@ -26,14 +27,12 @@ class window.ImageSheet extends Sheet
         h = 400
         w = 400 * ratio
     
-      x = (-w + ($(window).width() - 225) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
-      y = (-h + ($(window).height() - 74) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
-
+      x = (-w + ($(window).width() - 225) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + wall.getMLxy().x * glob.zoomLevel) / glob.zoomLevel
+      y = (-h + ($(window).height() - 74) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + wall.getMLxy().y * glob.zoomLevel) / glob.zoomLevel
+      
       title = "Untitled Image"
-
+      
       wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
-
-    img.src = content
 
   setElement: () ->
     @element = $($(imageTemplate).appendTo('#moveLayer'))
@@ -46,9 +45,5 @@ class window.ImageSheet extends Sheet
     @element.children('.sheet').children('.sheetImage').css 'background', "url('#{params.content}') no-repeat"
     @element.children('.sheet').children('.sheetImage').css 'background-size', '100%'
 
-  attachSocketAction: () ->
-    super()
-
   attachHandler: () ->
     @handler = new ImageSheetHandler(this)
-    #imageSheetHandler(this)

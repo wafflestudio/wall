@@ -1,8 +1,8 @@
 class window.TextSheetHandler extends SheetHandler
 
   onMouseMove: (e) =>
-    if $("*:focus").is(".sheetTitle") or $("*:focus").is(".redactor_editor")
-      return
+    #if $("*:focus").is(".sheetTitle") or $("*:focus").is(".sheetTextField")
+      #return
     super e
 
   onResizeMouseMove: (e) =>

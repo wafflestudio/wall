@@ -6,36 +6,30 @@ class window.Sheet
   @create: (content) ->
     #interface for random creation
 
-  setElement: () ->
-    #interface for element creation
+  setElement: (params) ->
 
   constructor: (params) ->
-    self = this
-
     @id = params.id
     @setElement()
-
-    prevTitle = params.title
-
-    @element.attr 'id', 'sheet' + params.id
-
     @setXY(params.x, params.y)
     @setWH(params.width, params.height)
-
+    @element.attr 'id', 'sheet' + params.id
     @element.children('.boxClose').css {scale: 1 / glob.zoomLevel}
+    
+    prevTitle = params.title
 
-    @element.find('.sheetTitle').keydown (e) ->
-      curTitle = self.element.find('.sheetTitle').html()
+    @element.find('.sheetTitle').keydown (e) =>
+      curTitle = @element.find('.sheetTitle').html()
       if e.keyCode is 13
         curTitle = msg.substr(0, msg.length - 1) if curTitle.charAt(curTitle.length - 1) is '\n'
         if prevTitle isnt curTitle
-          self.element.trigger 'setTitle'
+          @socketSetTitle()
+          @element.find('.sheetTitle').blur()
           prevTitle = curTitle
-          self.element.find('.sheetTitle').blur()
           return false
-    .focusout (e) ->
-      curTitle = self.element.find('.sheetTitle').html()
-      $(self.element).trigger ('setTitle') if prevTitle isnt curTitle
+    .focusout (e) =>
+      curTitle = @element.find('.sheetTitle').html()
+      @socketSetTitle() if prevTitle isnt curTitle
       prevTitle = curTitle
     .html(params.title)
    
@@ -46,7 +40,6 @@ class window.Sheet
     window.sheets[params.id] = this
     minimap.refresh()
     
-
   socketMove: (params) ->
     wallSocket.send {action : 'move', params : $.extend(params, {id : @id})}
 
@@ -86,7 +79,6 @@ class window.Sheet
 
   resignActive: () ->
     @element.find('.boxClose').hide()
-    @element.find('.sheetTextField').blur()
     @element.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
     @element.children('.sheet').css 'border-top', ''
     @element.children('.sheet').css 'margin-top', ''

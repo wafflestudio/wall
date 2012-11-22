@@ -41,8 +41,8 @@ class window.SheetHandler
       @sheet.becomeActive()
       miniSheets[@sheet.id].becomeActive()
       
-      @sheet.element.find('div.sheetTextField').focus()
-      @sheet.element.find('div.sheetTextField').trigger('activate')
+      #@sheet.element.find('.sheetTextField').focus()
+      #@sheet.element.find('.sheetTextField').trigger('activate')
       
       wall.revealSheet()
 
