@@ -21,9 +21,9 @@ import models.Sheet
 // Message
 case class Join(userId: Long, timestamp: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
-case class Action(json:JsValue, detail:ActionDetail)
+case class Action(json:JsValue, producer:Enumerator[JsValue], detail:ActionDetail)
 
-case class Connected(enumerator: Enumerator[JsValue])
+case class Connected(enumerator: Enumerator[JsValue], prevMessages:Enumerator[JsValue])
 case class CannotConnect(msg: String)
 
 case class Message(kind: String, username: String, text: String)
@@ -51,16 +51,16 @@ object WallSystem {
 		val joinResult = wall(wallId) ? Join(userId, timestamp)
 
 		joinResult.asPromise.map {
-			case Connected(producer) =>
+			case Connected(producer, prevMessages) =>
 				// Create an Iteratee to consume the feed
-				val consumer = Iteratee.foreach[JsValue] { json: JsValue =>
+				val consumer:Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] { json: JsValue =>
 					Logger.info(json.toString)
-					wall(wallId) ! Action(json, ActionDetail(userId, json))
+					wall(wallId) ! Action(json, producer, ActionDetail(userId, json))
 				}.mapDone { _ =>
 					wall(wallId) ! Quit(userId, producer)
 				}
 
-				(consumer, producer)
+				(consumer, prevMessages >>> producer)
 
 			case CannotConnect(error) =>
 
@@ -82,7 +82,7 @@ object WallSystem {
 
 class WallActor(wallId: Long) extends Actor {
 
-	var connections = List.empty[(Long, PushEnumerator[JsValue])]
+	var connections = Map.empty[Long, List[PushEnumerator[JsValue]]]
 
 	def prevLogs(timestamp: Long) = {
 		WallLog.list(wallId, timestamp)
@@ -105,14 +105,14 @@ class WallActor(wallId: Long) extends Actor {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
 			}
 			else {
-				connections = connections :+ (userId, producer)
-				sender ! Connected(prev >>> producer)
+				connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ producer))
+				sender ! Connected(producer, prev)
 			}
 		}
-		case Action(detail, c:CreateAction) => 					
+		case Action(detail, origin, c:CreateAction) => 					
 			val sheetId = Sheet.createInit(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId)
-			notifyAll("action", c.timestamp, c.userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString)
-		case Action(detail, action:ActionDetailWithId) =>
+			notifyAll("action", c.timestamp, c.userId, origin, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString)
+		case Action(detail, origin, action:ActionDetailWithId) =>
 			Sheet.findById(action.id) map { sheet =>
 				action match {
 					case a:MoveAction =>
@@ -125,22 +125,31 @@ class WallActor(wallId: Long) extends Actor {
 						Sheet.setTitle(a.id, a.title)
 					case a:SetTextAction =>
 						Sheet.setText(a.id, a.text)
+					case a:AlterTextAction =>
+						Sheet.alterText(a.id, a.from, a.length, a.content)
 				}
 			}
-			notifyAll("action", action.timestamp, action.userId, detail.toString)
+			notifyAll("action", action.timestamp, action.userId, origin, detail.toString)
 
 		case Quit(userId, producer) => {
-			connections = connections.flatMap { p =>
-				if (p eq producer)
-					None
+			connections.get(userId).map { producers =>
+				val newProducers = producers.flatMap { p =>
+					if (p eq producer)
+						None
+					else
+						Some(p)
+				}
+				if(newProducers.isEmpty)
+					connections = connections - userId
 				else
-					Some(p)
+					connections = connections + (userId -> newProducers)
 			}
+		
 		}
 
 	}
 
-	def notifyAll(kind: String, basetimestamp:Long, userId: Long, detail: String) {
+	def notifyAll(kind: String, basetimestamp:Long, userId: Long, origin:Enumerator[JsValue], detail: String) {
 
 		val username = User.findById(userId).get.email
 
@@ -156,7 +165,13 @@ class WallActor(wallId: Long) extends Actor {
 		)
 
 		connections.foreach {
-			case (_, producer) => producer.push(msg)
+			case (_, producers) => 
+				producers.map { producer => 
+					if(producer == origin)
+						producer.push(msg ++ JsObject(Seq("mine" -> JsBoolean(true))))
+					else
+						producer.push(msg)
+				}
 		}
 
 	}
