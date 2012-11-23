@@ -110,7 +110,7 @@ class window.Wall
     return false
 
   onMouseDblClick: (e) =>
-    
+       
     xWall = e.pageX - @wall.offset().left
     yWall = e.pageY - @wall.offset().top - 38
 
@@ -135,6 +135,7 @@ class window.Wall
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh {isTransition: true}
     return false
+  
 
   revealSheet: ->
 
@@ -168,7 +169,7 @@ class window.Wall
       moveLayerX = @getMLxy().x
       moveLayerY = @getMLxy().y
 
-      $('#moveLayer').transition {
+      @mL.transition {
         x : diffX + moveLayerX,
         y : diffY + moveLayerY
       }
@@ -178,3 +179,62 @@ class window.Wall
         mLx: diffX + moveLayerX,
         mLy: diffY + moveLayerY
       }
+
+  toCenter: (sheet) ->
+    sheetW = sheet.getWH().w
+    sheetH = sheet.getWH().h
+    screenW = $(window).width() - 225
+    screenH = $(window).height() - 38
+
+    if glob.zoomLevel is 1
+      screenT = -(glob.scaleLayerYPos + @getMLxy().y * glob.zoomLevel) / glob.zoomLevel
+      screenL = -(glob.scaleLayerXPos + @getMLxy().x * glob.zoomLevel) / glob.zoomLevel
+
+      sheetX = sheet.getXY().x
+      sheetY = sheet.getXY().y
+      
+      translateX = screenL + (screenW - sheetW) / 2
+      translateY = screenT + (screenH - sheetH) / 2
+
+      diffX = translateX - sheetX
+      diffY = translateY - sheetY
+
+      moveLayerX = @getMLxy().x
+      moveLayerY = @getMLxy().y
+      
+      @mL.transition {
+        x : diffX + moveLayerX,
+        y : diffY + moveLayerY
+      }
+      
+      minimap.refresh {
+        isTransition: true,
+        mLx: diffX + moveLayerX,
+        mLy: diffY + moveLayerY
+      }
+
+    else
+      sheetX = (glob.scaleLayerXPos + (@getMLxy().x + sheet.getXY().x) * glob.zoomLevel)
+      sheetY = (glob.scaleLayerYPos + (@getMLxy().y + sheet.getXY().y) * glob.zoomLevel)
+
+      xWall = (sheetX - (screenW - sheetW) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
+      yWall = (sheetY - (screenH - sheetH) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
+
+      @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
+      @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
+      
+      glob.zoomLevel = 1
+      xNew = (xWall - @xScaleLayer) / glob.zoomLevel
+      yNew = (yWall - @yScaleLayer) / glob.zoomLevel
+      
+      @xWallLast = xWall
+      @yWallLast = yWall
+
+      glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
+      glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
+
+      @setSL(xWall, yWall, xNew, yNew, true)
+
+      $('.boxClose').transition {scale: 1 / glob.zoomLevel}
+      $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
+      minimap.refresh {isTransition: true}

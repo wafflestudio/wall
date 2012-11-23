@@ -30,6 +30,8 @@ class window.SheetHandler
   onMouseUp: (e) =>
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
+    d = new Date()
+    t = d.getTime()
 
     if @hasMoved
       @sheet.socketMove {
@@ -39,42 +41,51 @@ class window.SheetHandler
       @sheet.element.find('.sheetTextField').blur()
       @sheet.element.find('.sheetTitle').blur()
     else
-      if glob.activeSheet
-        if glob.activeSheet isnt @sheet
-          glob.activeSheet.resignActive()
-          @sheet.becomeActive()
+      if @onMouseUp.lastClick is undefined
+        @onMouseUp.lastClick = 0
+
+      if t - @onMouseUp.lastClick < 300
+        console.log "doubleClick!"
+        if glob.activeSheet
+          if glob.activeSheet isnt @sheet
+            glob.activeSheet.resignActive()
+            @sheet.becomeActive()
+
+        wall.toCenter(@sheet)
+
       else
-        @sheet.becomeActive()
-        #console.log "3"
-        #newEvt = $.Event("mousedown",{
-          #canBubble: true,
-          #cancelable: true,
-          #view: e.view,
-          #detail: e.detail,
-          #screenX: e.screenX,
-          #screenY: e.screenY,
-          #clientX: e.clientX,
-          #clientY: e.clientY,
-          #ctrlKey: e.ctrlKey,
-          #altKey: e.altKey,
-          #shiftKey: e.shiftKey,
-          #metaKey: e.metaKey,
-          #button: e.button,
-          #relatedTarget: e.relatedTarget
-        #})
+        if glob.activeSheet
+          if glob.activeSheet isnt @sheet
+            glob.activeSheet.resignActive()
+            @sheet.becomeActive()
+        else
+          @sheet.becomeActive()
+          #newEvt = $.Event("mousedown",{
+            #canBubble: true,
+            #cancelable: true,
+            #view: e.view,
+            #detail: e.detail,
+            #screenX: e.screenX,
+            #screenY: e.screenY,
+            #clientX: e.clientX,
+            #clientY: e.clientY,
+            #ctrlKey: e.ctrlKey,
+            #altKey: e.altKey,
+            #shiftKey: e.shiftKey,
+            #metaKey: e.metaKey,
+            #button: e.button,
+            #relatedTarget: e.relatedTarget
+          #})
+          #@sheet.element.trigger(newEvt, true)
+          #@sheet.element.find('.sheetTextField').trigger('activate')
+        wall.revealSheet()
 
-        #@sheet.element.trigger(newEvt, true)
-        #@sheet.element.find('.sheetTextField').trigger('activate')
-
-      wall.revealSheet()
-
+    @onMouseUp.lastClick = t
     return false
 
   onMouseDown: (e, doDefault = false) =>
-    if doDefault
-      e.stopPropagation()
-    else
-      console.log e
+    
+    if not doDefault
       @hasMoved = false
       wall.bringToTop(@sheet)
       minimap.bringToTop(miniSheets[@sheet.id])
@@ -87,7 +98,8 @@ class window.SheetHandler
 
       $(document).on 'mousemove', @onMouseMove
       $(document).on 'mouseup', @onMouseUp
-      e.stopPropagation()
+    
+    e.stopPropagation()
 
   onButtonMouseDown: (e) =>
     $(document).on 'mouseup', @onButtonMouseUp

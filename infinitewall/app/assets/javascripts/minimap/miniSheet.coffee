@@ -102,7 +102,11 @@ class window.MiniSheet
     wall.mL.transition {
       x : diffX + moveLayerX,
       y : diffY + moveLayerY
-    }, () => @resignActive()
+    }, () =>
+      if glob.activeSheet is sheets[@id]
+        @becomeActive()
+      else
+        @resignActive()
     
     minimap.refresh {
       isTransition: true,
