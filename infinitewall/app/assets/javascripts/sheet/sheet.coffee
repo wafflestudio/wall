@@ -14,7 +14,6 @@ class window.Sheet
     @setXY(params.x, params.y)
     @setWH(params.width, params.height)
     @element.attr 'id', 'sheet' + params.id
-    @element.children('.boxClose').css {scale: 1 / glob.zoomLevel}
     
     prevTitle = params.title
 

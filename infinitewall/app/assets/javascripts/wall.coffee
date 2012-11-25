@@ -15,14 +15,14 @@ class window.Wall
   bringToTop: (sheet) ->
     @mL.append sheet.element
 
-  setSL: (tx, ty, x, y, isTransition = false) ->
+  setSL: (tx, ty, x, y, isTransition = false, callBack) ->
     @sL.css {
       transformOrigin: tx + 'px ' + ty + 'px',
       x: x,
       y: y
     }
     if isTransition
-      @sL.transition {scale: glob.zoomLevel}
+      @sL.transition {scale: glob.zoomLevel}, callBack
     else
       @sL.css {scale: glob.zoomLevel}
 
@@ -102,10 +102,7 @@ class window.Wall
     #scaleLayer의 좌표를 wall의 기준으로 저장
 
     @setSL(@xScaleLayer, @yScaleLayer, xNew, yNew)
-
-    $('.boxClose').css {scale: 1 / glob.zoomLevel}
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
-
     minimap.refresh()
     return false
 
@@ -131,7 +128,6 @@ class window.Wall
 
     @setSL(xWall, yWall, xNew, yNew, true)
 
-    $('.boxClose').transition {scale: 1 / glob.zoomLevel}
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh {isTransition: true}
     return false
@@ -180,7 +176,7 @@ class window.Wall
         mLy: diffY + moveLayerY
       }
 
-  toCenter: (sheet) ->
+  toCenter: (sheet, callBack) ->
     sheetW = sheet.getWH().w
     sheetH = sheet.getWH().h
     screenW = $(window).width() - 225
@@ -205,7 +201,7 @@ class window.Wall
       @mL.transition {
         x : diffX + moveLayerX,
         y : diffY + moveLayerY
-      }
+      }, callBack
       
       minimap.refresh {
         isTransition: true,
@@ -233,8 +229,7 @@ class window.Wall
       glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
       glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
 
-      @setSL(xWall, yWall, xNew, yNew, true)
+      @setSL(xWall, yWall, xNew, yNew, true, callBack)
 
-      $('.boxClose').transition {scale: 1 / glob.zoomLevel}
       $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
       minimap.refresh {isTransition: true}

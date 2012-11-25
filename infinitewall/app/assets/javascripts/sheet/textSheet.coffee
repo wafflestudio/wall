@@ -2,6 +2,7 @@ textTemplate = "
   <div class='sheetBox' tabindex='-1'>
     <div class='sheet' contentType='text'>
       <div class='sheetTopBar'>
+        <a class = 'boxClose'>x</a>
         <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
       </div>
     <div class='sheetText'>
@@ -10,7 +11,6 @@ textTemplate = "
       </div>
     </div>
     <div class='resizeHandle'></div></div>
-    <a class = 'boxClose'>x</a>
   </div>"
 
 class window.TextSheet extends Sheet

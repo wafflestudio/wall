@@ -270,23 +270,13 @@
 }
 
 .boxClose {
-	position:absolute;
-	top:0;
-	right:0;
-	width:26px;
-	height:26px;
-	background-color:black;
-	text-align:center;
-	border-radius:13px;
-	margin-top:-12px;
-	margin-right:-12px;
-	opacity:0.5;
+  float:right;
+  opacity:0.7;
 	cursor:pointer;
 	display:none;
-	color:white;
-	font-weight:bold;
-	font-size:20px;
-	padding-top:2px;
+	font-size:30px;
+  color:black;
+  margin-top:4px;
 }
 
 .resizeHandle {

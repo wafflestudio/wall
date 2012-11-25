@@ -41,8 +41,7 @@ class window.SheetHandler
       @sheet.element.find('.sheetTextField').blur()
       @sheet.element.find('.sheetTitle').blur()
     else
-      if @onMouseUp.lastClick is undefined
-        @onMouseUp.lastClick = 0
+      @onMouseUp.lastClick = 0 if @onMouseUp.lastClick is undefined
 
       if t - @onMouseUp.lastClick < 300
         console.log "doubleClick!"
@@ -102,12 +101,19 @@ class window.SheetHandler
     e.stopPropagation()
 
   onButtonMouseDown: (e) =>
+    @onButtonMouseDown.hasMoved = false
+    $(document).on 'mousemove', @onButtonMouseMove
     $(document).on 'mouseup', @onButtonMouseUp
+    return false
+
+  onButtonMouseMove: (e) =>
+    @onButtonMouseDown.hasMoved = true
+    return false
   
   onButtonMouseUp: (e) =>
-    $(document).off 'mousemove', @onMouseMove
-    $(document).off 'mouseup', @onMouseUp
-    @sheet.socketRemove()
+    @sheet.socketRemove() if not @onButtonMouseDown.hasMoved
+    $(document).off 'mousemove', @onButtonMouseMove
+    $(document).off 'mouseup', @onButtonMouseUp
   
   onResizeMouseDown: (e) =>
     $(document).on 'mousemove', @onResizeMouseMove
