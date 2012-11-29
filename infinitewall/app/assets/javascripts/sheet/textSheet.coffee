@@ -18,7 +18,6 @@ textTemplate = "
       </div>
       <div class='resizeHandle'></div>
     </div>
-    <div class='resizeHandle'></div></div>
   </div>"
 
 spliceString = (str, offset, remove, add) ->
