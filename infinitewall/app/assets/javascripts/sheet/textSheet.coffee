@@ -14,7 +14,6 @@ textTemplate = "
       </div>
       <div class='sheetText'>
         <div class='sheetTextField' contenteditable='true'>
-          <div></div>
         </div>
       </div>
       <div class='resizeHandle'></div>
@@ -23,6 +22,7 @@ textTemplate = "
   </div>"
 
 spliceString = (str, offset, remove, add) ->
+  console.log("*", str.substr(0,offset),"*", (if add? then add else ""),"*",str.substr(offset+remove))
   str.substr(0,offset) + (if add? then add else "") + str.substr(offset+remove)
 
 updateTextActionSet = (action, actionSet) ->
@@ -186,12 +186,15 @@ detectOperation = (old, current, range) ->
   # delete
   # replace
 
-  if range[1] == range[0]
+  range[0] = if range[0] > 0 then range[0] else 0
+  range[1] = if range[1] > 0 then range[1] else 0
+  range[0] = if range[0] < current.length then range[0] else current.length-1
+  range[1] = if range[1] < current.length then range[1] else current.length-1
+
+  heuristic = ()->
     # there is no range. meaing we need heuristics to detect change
-    cursor = range[0]
+    cursor = range[1]
     console.log(cursor)
- 
-    console.log("diffBegin", diffBegin, "diffEnd", diffEnd)
 
     # make sure Xend < cursor
     Xend = -1
@@ -223,9 +226,14 @@ detectOperation = (old, current, range) ->
     console.log("Xend:", Xend, ",Zstart(old):", ZstartAtOld, ",Zstart(cur):", ZstartAtCurrent, "added:", current.substr(Xend+1, ZstartAtCurrent-Xend-1))
 
     if spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)) != current
+      console.warn spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)), current
       throw "operation error"
 
     {from: Xend+1, length: ZstartAtOld-Xend-1, content: current.substr(Xend+1,ZstartAtCurrent-Xend-1), range: [cursor,cursor]}
+
+
+  if range[1] == range[0]
+    heuristic()
   else
     # there is range, meaning the person did undo/redo. clearly the difference is in the range
     # case 1: replaced selection & undo
@@ -242,25 +250,9 @@ detectOperation = (old, current, range) ->
 
     if current.substr(0, diffBegin) != old.substr(0,diffBegin) or current.substr(rangeEnd) != old.substr(diffEnd)
       console.error('something is wrong with the text change. Falling back to heuristics')
-      # find difference at front
-      i = 0
-      while i < diffBegin and i < old.length
-        if current.charCodeAt(i) != old.charCodeAt(i)
-          diffBegin = i
-          break
-        i +=1
-
-      # find difference at back
-      i = current.length - 1
-      j = old.length - 1
-      while i > diffBegin and j > diffBegin
-        if current.charCodeAt(i) != old.charCodeAt(j)
-          diffEnd = j
-          break
-        i -= 1
-        j -= 1
-
-    {from: diffBegin, length: diffEnd-diffBegin, content: current.substr(diffBegin, rangeEnd - rangeBegin), range: range}
+      heuristic()
+    else
+      {from: diffBegin, length: diffEnd-diffBegin, content: current.substr(diffBegin, rangeEnd - rangeBegin), range: range}
 
 
 class window.TextSheet extends Sheet
@@ -432,7 +424,7 @@ class window.TextSheet extends Sheet
       deactivate = ()=>
         detectChangeAndUpdate() # check change for the last time
         clearInterval(intervalId)
-        $(textfield).off 'focusout', deactivate
+        textfield.off 'focusout', deactivate
         $(textfield).get(0).normalize()
         @setRange(0, textfield.html().length)
 
@@ -460,27 +452,28 @@ class window.TextSheet extends Sheet
     range = @getRange()
     if isMine
       if @pending.length > 0 and @pending[0].msgId == operation.msgId
-        console.log("received mine")
+        #console.log("received mine")
         head = @pending.shift()
         @baseText = spliceString(@baseText, head.from, head.length, head.content)
       else
         console.error("unexpected msgId came: #{operation.msgId} expected: #{@pending[0].msgId}")
     else
       
-      
       @pending = updateTextActionSet(operation, @pending)
+      range = updateRange(range, @pending)
       head = @pending.shift()
       @baseText = spliceString(@baseText, head.from, head.length, head.content)
 
       html = @baseText
       
       for action in @pending
-        console.log("action:",action)
+        #console.log("action:",action)
         html = spliceString(html, action.from, action.length, action.content)
 
       console.log("base:", @baseText, " altered:", html, " pending:", @pending)
-      range = updateRange(range, @pending)
+      
       @textfield.html(html)
+      console.log(range)
       #@setRange(range)
 
   
