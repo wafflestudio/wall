@@ -59,19 +59,19 @@ $ () ->
   window.minimap = new Minimap()
   loadingSheet = null
   
-  #$('#fileupload').fileupload  {
-    #dataType : 'json',
-    #drop : (e, data) ->
-      #console.log "Image dropped!"
-    #progressall : (e, data) ->
-      #progress = parseInt (data.loaded / data.total * 100)
-      #console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
-    #done : (e, data) ->
-      #$.each(data.result, (index, file) ->
-        #$(loadingSheet).trigger 'remove'
-        #ImageSheet.create("/assets/files/#{file.name}")
-      #)
-  #}
+  $('#fileupload').fileupload  {
+    dataType : 'json',
+    drop : (e, data) ->
+      console.log "Image dropped!"
+    progressall : (e, data) ->
+      progress = parseInt (data.loaded / data.total * 100)
+      console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
+    done : (e, data) ->
+      $.each(data.result, (index, file) ->
+        $(loadingSheet).trigger 'remove'
+        ImageSheet.create("/assets/files/#{file.name}")
+      )
+  }
 
   $('.createBtn').on('click', () ->
     if $(this).attr('rel') == 'text'
