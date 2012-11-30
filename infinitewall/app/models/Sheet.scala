@@ -162,16 +162,17 @@ object Sheet extends ActiveRecord[Sheet] {
 	
 	
 	
-	def alterText(id: Long, from:Int, length:Int, content:String) = {
-		val text = TextContent.findBySheetId(id).content
+	def alterText(id: Long, from:Int, length:Int, content:String):(String, String) = {
+		val baseText = TextContent.findBySheetId(id).content
 		try {
-			val alteredText = spliceText(text, from, length, content)
-			Logger.info("original text:" + text + ",altered Text: " + alteredText)
+			val alteredText = spliceText(baseText, from, length, content)
+			Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"")
 			TextContent.setText(id, alteredText)
+			(baseText, alteredText)
 		}
 		catch{
 			case e:Exception =>
-				Logger.error("bad alter text operation:" + from + ", " + length + "," +  content + " => " + text )
+				Logger.error("bad alter text operation:" + from + ", " + length + "," +  content + " => " + baseText )
 				throw e
 		}
 	}
@@ -194,7 +195,11 @@ object Sheet extends ActiveRecord[Sheet] {
 	}
 	
 	private def spliceText(str:String, offset:Int, remove:Int, content:String) = {
-		str.substring(0, offset) + content + str.substring(offset+remove, str.length)
+		val p1 = scala.math.min(scala.math.max(0,offset), str.length)
+		val p2 = scala.math.min(scala.math.max(0,offset+remove), str.length)
+		
+		str.substring(0, p1) + content + str.substring(p2, str.length)
+		
 	}
 	
 }

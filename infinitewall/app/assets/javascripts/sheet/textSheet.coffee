@@ -20,54 +20,103 @@ textTemplate = "
     </div>
   </div>"
 
+class Operation
+    constructor: (@from, @length, @content) ->
+ 
+
+
+class CharWithState
+    constructor: (@c, @insertedBy = {}, @deletedBy = {}) ->
+
+        
+    setDeletedBy: (branch) ->
+        @deletedBy[branch] = true
+    setInsertedBy: (branch) ->
+        @insertedBy[branch] = true
+    
+    
+class StringWithState
+    constructor:(str)->
+        i = 0
+        @list = []
+        while i < str.length
+            @list.push(new CharWithState(str.charAt(i)))
+            i++
+
+    apply:(op, branch) ->
+        i = 0
+        iBranch = 0
+        insertPos = 0
+        alteredFrom = 0
+        numDeleted = 0
+
+        @list = for cs in @list
+            if !cs.deletedBy[branch] && (Object.keys(cs.insertedBy).length == 0 || cs.insertedBy[branch])
+                if iBranch >= op.from && iBranch < op.from + op.length
+                    if Object.keys(cs.deletedBy).length == 0
+                        numDeleted++
+                    cs.deletedBy[branch] = true
+                else if iBranch == op.from + op.length
+                    insertPos = i
+                iBranch++
+            i++
+            cs
+
+        inserted = for c in op.content
+            insertedBy = {}
+            insertedBy[branch] = true
+            new CharWithState(c, insertedBy)
+        
+        i = 0
+        for cs in @list
+            if i < insertPos
+                if Object.keys(cs.deletedBy).length == 0
+                    alteredFrom++
+            i++
+
+        @list = @list.slice(0, insertPos).concat(inserted).concat(@list.slice(insertPos))
+        new Operation(alteredFrom, numDeleted, op.content)
+
+
+
+    text:() ->
+        text = ""
+        i = 0
+        while i < @list.length
+            cs = @list[i]
+            if Object.keys(cs.deletedBy).length == 0
+                text += cs.c
+            i++
+        text
+
+    html:() ->
+        html = ""
+        i = 0
+        while i < @list.length
+            cs = @list[i]
+            classes = []
+            if Object.keys(cs.deletedBy).length > 0
+                classes.push('deleted')
+            if Object.keys(cs.insertedBy).length > 0
+                classes.push('inserted')
+            # if cs.deletedBy[A] || cs.deletedByA
+            #     classes.push('A')
+            # if cs.insertedByB || cs.deletedByB
+            #     classes.push('B')
+
+            if classes.length > 0
+                html += "<span class='#{classes.join(' ')}'>#{cs.c}</span>"
+            else
+                html += cs.c
+
+            i++
+
+        html
+                   
+
 spliceString = (str, offset, remove, add) ->
-  console.log("*", str.substr(0,offset),"*", (if add? then add else ""),"*",str.substr(offset+remove))
-  str.substr(0,offset) + (if add? then add else "") + str.substr(offset+remove)
-
-updateTextActionSet = (action, actionSet) ->
-  console.log action
-  
-  #actionent
-  timestamp = action.timestamp
-  from = action.from
-  length = action.length
-  content = action.content
-  
-  #if(type != 'replace') return actionSet
-  #if(checkExistance(action, actionSet) == true) return actionSet
-  diff = 0
-  if from >= 0 and length is 0 and content isnt "" # add action
-    console.log "ADDDDDD[from: " + action.from + ", length: " + length + ", content: " + content + "]"
-    
-    #from += diff;
-    contentLength = content.length
-    diff += contentLength
-  else if from >= 0 and length > 0 and content is "" # remove
-    console.log "REMOVEE[from: " + action.from + ", length: " + length + ", content: " + content + "]"
-    
-    #from += diff;
-    contentLength = content.length
-    diff -= length
-  else if from >= 0 and length > 0 and content isnt "" # replace
-    console.log "REPLACE[from: " + action.from + ", length: " + length + ", content: " + content + "]"
-    
-    #from += diff;
-    contentLength = content.length
-    diff += contentLength - length
-  else
-    console.error "not proper action"
-  newActionSet = []
-  newActionSet.push action  if actionSet.length is 0
-  i = 0
-
-  while i < actionSet.length
-    elem = actionSet[i]
-    if timestamp < action.timestamp
-      newActionSet.push action
-      elem.from += diff
-    newActionSet.push elem
-    i++
-  newActionSet
+  console.log("*", str.substr(0,offset),"*", (if add? then add else ""),"*",str.substr(Math.max(0,offset+remove)))
+  str.substr(0,offset) + (if add? then add else "") + str.substr(Math.max(0, offset+remove))
 
 
 updateRange = (range, actionSet) ->
@@ -202,6 +251,8 @@ detectOperation = (old, current, range) ->
     while i < cursor and i < old.length and i < current.length
       if current.charCodeAt(i) == old.charCodeAt(i)
         Xend = i
+      else
+        break
       i++
 
     limit = if Xend < cursor then cursor else Xend
@@ -216,13 +267,15 @@ detectOperation = (old, current, range) ->
       if current.charCodeAt(i) == old.charCodeAt(j)
         ZstartAtCurrent = i
         ZstartAtOld = j
+      else
+        break
       i--
       j--
 
-    console.log('old:', old.length, old)
-    console.log('current:', current.length, current)
-    console.log("r:", range)
-    console.log("Xend:", Xend, ",Zstart(old):", ZstartAtOld, ",Zstart(cur):", ZstartAtCurrent, "added:", current.substr(Xend+1, ZstartAtCurrent-Xend-1))
+    # console.log('old:', old.length, old)
+    # console.log('current:', current.length, current)
+    # console.log("r:", range)
+    # console.log("Xend:", Xend, ",Zstart(old):", ZstartAtOld, ",Zstart(cur):", ZstartAtCurrent, "added:", current.substr(Xend+1, ZstartAtCurrent-Xend-1))
 
     if spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)) != current
       console.warn spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)), current
@@ -268,18 +321,19 @@ class window.TextSheet extends Sheet
   setElement: () ->
     @element = $($(textTemplate).appendTo('#sheetLayer'))
 
-  constructor: (params) ->
+  constructor: (params, timestamp) ->
     super(params)
     textfield = @element.find('.sheetTextField')
-    @baseText = params.content # used for rebuilding with @pending
+    @baseText = params.content # used for rebuilding with @pending 
     @pending = [] # {basetimestamp, userid, original change, }
     @msgId = 0
     @id = params.id
     @textfield = textfield
+    @timestamp = timestamp
 
     @element.find('.sheetTextField').html(params.content)
 
-    savedText = params.content
+    @savedText = params.content
     textfield.html(params.content)
 
     if textfield.html() != params.content
@@ -397,31 +451,33 @@ class window.TextSheet extends Sheet
       
       [start, end]
 
-    detectChangeAndUpdate = () =>
-      oldText = savedText
+    @detectChangeAndUpdate = () =>
+      oldText = @savedText
 
       currentRange = @getRange()
 
       if !savedRange or savedRange[0] != currentRange[0] or savedRange[1] != currentRange[1]
-        console.log('selection changed', savedRange, "->", currentRange)
+        #console.log('selection changed', savedRange, "->", currentRange)
         savedRange = currentRange
 
-      if savedText != $(textfield).html()
-        savedText = $(textfield).html()
-        operation = detectOperation(oldText, savedText, savedRange)
-        @pending.push(operation)
+      if @savedText != $(textfield).html()
+        console.log("change detected: \"" + @savedText, "\",\"" + textfield.html() + "\"")
+        @savedText = $(textfield).html()
+        operation = detectOperation(oldText, @savedText, savedRange)
         @msgId++
-        console.log({action:"alterText", params:$.extend(operation, {id : @id, msgId: @msgId}) })
-        wallSocket.send({action:"alterText", params:$.extend(operation, {id : @id, msgId: @msgId}) })
+        operation.msgId = @msgId
+        @pending.push(operation)
+        wallSocket.send({action:"alterText", timestamp:@timestamp, params:{id:@id, operations:@pending}})
+        #for test: #wallSocket.sendDelayed({action:"alterText", timestamp:@timestamp, params:{id:@id, operations:@pending}}, 2000)
 
     # activate focus event handlers:
     $(textfield).focusin ()=>
       savedRange = @getRange()
-      intervalId = setInterval(detectChangeAndUpdate, 5000)
+      intervalId = setInterval(@detectChangeAndUpdate, 8000)
 
       # deactivate when focused out
       deactivate = ()=>
-        detectChangeAndUpdate() # check change for the last time
+        @detectChangeAndUpdate() # check change for the last time
         clearInterval(intervalId)
         textfield.off 'focusout', deactivate
         $(textfield).get(0).normalize()
@@ -430,12 +486,12 @@ class window.TextSheet extends Sheet
       $(textfield).on 'focusout', deactivate
 
     # activate key event handlers
-    $(textfield).on 'keyup', ()->
-      detectChangeAndUpdate()
+    $(textfield).on 'keyup', ()=>
+      @detectChangeAndUpdate()
 
     # check for any update by the browser
-    $(()->
-        setTimeout detectChangeAndUpdate, 200
+    $(()=>
+        setTimeout @detectChangeAndUpdate, 200
     )
 
 
@@ -443,36 +499,50 @@ class window.TextSheet extends Sheet
     @handler = new TextSheetHandler(this)
 
 
-  alterText: (operation, isMine) ->
+  alterText: (operation, isMine, timestamp) ->
     # save current cursor and text
     # if it differs from last one, create new operation?
     # apply my change list => set text
-    # restore cursor 
+    # restore cursor
+    @detectChangeAndUpdate()
+    @timestamp = timestamp
+
     range = @getRange()
     if isMine
+      console.log("mine came (#{timestamp})")
       if @pending.length > 0 and @pending[0].msgId == operation.msgId
         #console.log("received mine")
         head = @pending.shift()
         @baseText = spliceString(@baseText, head.from, head.length, head.content)
+      else if @pending.length > 0
+        console.error("unexpected msgId came: #{operation.msgId} expected: #{@pending[0].msgId}, timestamp:#{timestamp}")
       else
-        console.error("unexpected msgId came: #{operation.msgId} expected: #{@pending[0].msgId}")
+        console.error("unexpected msgId came: #{operation.msgId}, timestamp:#{timestamp}")
     else
-      
-      @pending = updateTextActionSet(operation, @pending)
+      original = @baseText
+
+      ss = new StringWithState(@baseText)
+      ss.apply(operation, 0)
+
+      @baseText = spliceString(@baseText, operation.from, operation.length, operation.content)
+
+      @pending = for p in @pending
+        $.extend(ss.apply(p, 1), {msgId:p.msgId})
+
       range = updateRange(range, @pending)
-      head = @pending.shift()
-      @baseText = spliceString(@baseText, head.from, head.length, head.content)
 
       html = @baseText
-      
-      for action in @pending
-        #console.log("action:",action)
-        html = spliceString(html, action.from, action.length, action.content)
 
-      console.log("base:", @baseText, " altered:", html, " pending:", @pending)
+      # apply each operation in pending      
+      for p in @pending
+        #console.log("action:",action)
+        html = spliceString(html, p.from, p.length, p.content)
+
+      console.log("other came (#{timestamp}). base:", original, " altered:", html, " pending:", @pending)
       
       @textfield.html(html)
-      console.log(range)
+      @savedText = @textfield.html()
+      #console.log(range)
       #@setRange(range)
 
   

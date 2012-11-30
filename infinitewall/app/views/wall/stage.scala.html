@@ -61,15 +61,15 @@
   })
 
   // initialize wall socket/events
-  var wallSocket = new window.WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()")
-  wallSocket.on('receivedAction', function(detail, isMine) {
+  var wallSocket = new window.WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()", @timestamp)
+  wallSocket.on('receivedAction', function(detail, isMine, timestamp) {
     isMine = isMine || false
     var sheet = sheets[detail.params.id];
 
     if(isMine && detail.action == "alterText")
-      sheet.alterText(detail.params, isMine)
+      sheet.alterText(detail.params, true, timestamp)
     else if(detail.action == "create")
-      createSheet(detail.id, detail.params);
+      createSheet(detail.id, detail.params, timestamp);
     else if(detail.action == "move")
       sheet.move(detail.params);
     else if(detail.action == "resize")
@@ -80,7 +80,7 @@
     // else if(detail.action == "setText")
     //   sheet.setText(detail.params);
     else if(detail.action == "alterText")
-      sheet.alterText(detail.params)
+      sheet.alterText(detail.params, false, timestamp)
     else if(detail.action == "setTitle")
       sheet.setTitle(detail.params);
   })
@@ -99,7 +99,7 @@
     for(var i = 0; i < sheets.length; i++)  {	
       var sheet = sheets[i]
       console.log(sheet)
-      createSheet(sheet.id, sheet)
+      createSheet(sheet.id, sheet, @timestamp)
     }
     /*
     $('.sheetTextField').redactor({

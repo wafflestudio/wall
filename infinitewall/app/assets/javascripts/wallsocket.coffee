@@ -1,18 +1,32 @@
 
 class WallSocket extends window.EventDispatcher
-  constructor: (url) ->
+  constructor: (url, timestamp) ->
     super
    
-    @timestamp = 999
-    @receivedTimestamp = 999
+    @timestamp = timestamp
+    @receivedTimestamp = timestamp
 
     WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
     socket = new WS(url)
+    console.info("wall socket initialized to ts:#{timestamp}")
 
     # methods
     @send = (msg) ->
-      msg.timestamp = @timestamp
+      if !msg.timestamp?
+        msg.timestamp = @timestamp
+        
       socket.send(JSON.stringify(msg))
+
+    @sendDelayed = (msg, delay) ->
+      if !msg.timestamp?
+        msg.timestamp = @timestamp
+
+      json = JSON.stringify(msg)
+      console.log("will send:" + json)
+      sender = () =>
+        socket.send(json)
+        
+      setTimeout(sender, delay)
 
     @close = () =>
       socket.close
@@ -32,7 +46,7 @@ class WallSocket extends window.EventDispatcher
       if data.kind == "action" and @timestamp < @receivedTimestamp
         @timestamp = data.timestamp
         detail = JSON.parse(data.detail)
-        @trigger('receivedAction', detail, data.mine)
+        @trigger('receivedAction', detail, data.mine, data.timestamp)
         
     onError = (e) =>
       console.log("error", e)

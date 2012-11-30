@@ -20,9 +20,9 @@ window.sheets = {}
 window.miniSheets = {}
 
 #default functions for socket receive
-window.createSheet = (id, params) ->
+window.createSheet = (id, params, timestamp) ->
   if params.contentType == window.contentTypeEnum.text
-    new TextSheet($.extend(params, {id : id}))
+    new TextSheet($.extend(params, {id : id}), timestamp)
   else if params.contentType == window.contentTypeEnum.image
     new ImageSheet($.extend(params, {id : id}))
 
