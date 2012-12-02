@@ -13,7 +13,7 @@ class window.Wall
   hasMoved: false
   
   bringToTop: (sheet) ->
-    @mL.append sheet.element
+    $("#sheetLayer").append sheet.element
 
   setSL: (tx, ty, x, y, isTransition = false, callBack) ->
     @sL.css {
@@ -107,7 +107,7 @@ class window.Wall
     return false
 
   onMouseDblClick: (e) =>
-       
+    console.log "suspicious"
     xWall = e.pageX - @wall.offset().left
     yWall = e.pageY - @wall.offset().top - 38
 
@@ -142,8 +142,8 @@ class window.Wall
     screenLeft = -(glob.scaleLayerXPos + @getMLxy().x * glob.zoomLevel) / glob.zoomLevel
 
     sheet = glob.activeSheet
-    sheetWidth = sheet.getWH().w
-    sheetHeight = sheet.getWH().h
+    sheetWidth = sheet.getOuterWH().w
+    sheetHeight = sheet.getOuterWH().h
     sheetX = sheet.getXY().x
     sheetY = sheet.getXY().y
 

@@ -2,6 +2,7 @@ class window.Sheet
   id: null
   element: null
   handler: null
+  links: null
 
   @create: (content) ->
     #interface for random creation
@@ -14,6 +15,7 @@ class window.Sheet
     @setXY(params.x, params.y)
     @setWH(params.width, params.height)
     @element.attr 'id', 'sheet' + params.id
+    @links = new Object()
     
     prevTitle = params.title
 
@@ -55,17 +57,26 @@ class window.Sheet
 
   move: (params) ->
     @element.transition {x : params.x, y : params.y}
+    for id, link of @links
+      link.transitionRefresh(@id, params.x, params.y)
 
   resize: (params) ->
     @element.children('.sheet').transition {width : params.width + "px", height : params.height + "px"}
 
   remove: (params) ->
+    for id, link of @links
+      link.element.transition {opacity:0, scale: 1.25}, =>
+        link.remove()
+    @links = null
+
     @element.transition {opacity: 0, scale : 1.25}, =>
       @element.remove()
       miniSheets[@id].remove()
       glob.activeSheet = null
-      #delete sheets[@id]
-      #Memory is leaking!
+      #miniSheets[@id] = null
+      #sheets[@id] = null
+      #memory is leaking!
+      #minimap.refresh() 함수에서 징징댐
     
     @element.off 'mousemove'
     @element.off 'mouseup'
@@ -93,6 +104,12 @@ class window.Sheet
     @element.find('.sheetTitle').blur()
     miniSheets[@id].resignActive()
 
+  becomeSelected: () ->
+    @element.children('.sheet').css {'background-color': '#CFD2FF'}
+
+  resignSelected: () ->
+    @element.children('.sheet').css {'background-color': 'white'}
+
   setXY: (x, y) ->
     @element.css({x: x, y: y})
 
@@ -106,3 +123,7 @@ class window.Sheet
   getWH: () ->
     w: parseInt(@element.children('.sheet').css('width'))
     h: parseInt(@element.children('.sheet').css('height'))
+
+  getOuterWH: ->
+    w: parseInt(@element.css('width'))
+    h: parseInt(@element.css('height'))

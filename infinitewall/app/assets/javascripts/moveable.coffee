@@ -11,13 +11,13 @@ class window.Moveable
   w: -> parseInt(@innerElement.css('width'))
   h: -> parseInt(@innerElement.css('height'))
 
-  setXY: (x, y, moveFunc = $.fn.css, duration) ->
+  setXY: (x, y, moveFunc = $.fn.css, duration = 400) ->
     @element.moveFunc {
       x: x,
       y: y
     }, duration
 
-  setWH: (w, h, moveFunc = $.fn.css, duration) ->
+  setWH: (w, h, moveFunc = $.fn.css, duration = 400) ->
     @innerElement.moveFunc {
       width: w,
       height: h

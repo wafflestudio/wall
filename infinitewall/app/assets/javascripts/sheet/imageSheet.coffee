@@ -35,7 +35,7 @@ class window.ImageSheet extends Sheet
       wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
 
   setElement: () ->
-    @element = $($(imageTemplate).appendTo('#moveLayer'))
+    @element = $($(imageTemplate).appendTo('#sheetLayer'))
 
   constructor: (params) ->
     super(params)

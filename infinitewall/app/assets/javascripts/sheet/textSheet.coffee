@@ -266,7 +266,7 @@ class window.TextSheet extends Sheet
     wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}})
 
   setElement: () ->
-    @element = $($(textTemplate).appendTo('#moveLayer'))
+    @element = $($(textTemplate).appendTo('#sheetLayer'))
 
   constructor: (params) ->
     super(params)

@@ -2,24 +2,20 @@
 
 globglob = new ->
     this.activeSheet = null
+    this.hoverSheet = null
+    this.rightClick = false
     this.zoomLevel = 1
+
     this.minimapToggled = 1
-    this.minimapRatio = 1
     this.rightBarOffset = 267 + 80 + 30 # 80은 위에 userList, 30은 밑에 input
     
     this.scaleLayerXPos = 0
     this.scaleLayerYPos = 0
 
-    this.worldTop = 0
-    this.worldBottom = 0
-    this.worldLeft = 0
-    this.worldRight = 0
-
 window.contentTypeEnum = {
   text: "text",
   image: "image"
 }
-
 window.sheets = {}
 window.miniSheets = {}
 
@@ -46,8 +42,6 @@ toggleMinimapFinished = ->
     $('#chatWindow').transition {height: '+=190'}, 300
     glob.rightBarOffset -= 190
 
-
-
 $(window).resize ->
   $('#chatWindow').height ($(window).height() - glob.rightBarOffset)
   minimap.refresh()
@@ -57,6 +51,13 @@ $ () ->
   window.glob = globglob
   window.wall = new Wall()
   window.minimap = new Minimap()
+  
+  $(document).bind "contextmenu", ->
+    return false
+
+  $("#zoomLevelText").dblclick ->
+    console.log "Implement me!"
+
   loadingSheet = null
   
   $('#fileupload').fileupload  {

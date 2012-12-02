@@ -8,12 +8,37 @@ class window.SheetHandler
   startWidth: 0
   startHeight: 0
   hasMoved: false
+  currentLink: null
 
   constructor: (params) ->
     @sheet = params
     @sheet.element.on 'mousedown', '.boxClose', @onButtonMouseDown
     @sheet.element.on 'mousedown', '.resizeHandle', @onResizeMouseDown
     @sheet.element.on 'mousedown', @onMouseDown
+    @sheet.element.on 'mouseenter', @onMouseEnter
+    @sheet.element.on 'mouseleave', @onMouseLeave
+  
+  onRightMouseMove: (e) =>
+    if @onRightMouseMove.mouseMoved is false
+      @sheet.becomeSelected()
+    
+    @onRightMouseMove.mouseMoved = true
+    @currentLink.followMouse(e.pageX / glob.zoomLevel, (e.pageY - 38) / glob.zoomLevel)
+
+  onRightMouseUp: (e) =>
+    $(document).off 'mousemove', @onRightMouseMove
+    $(document).off 'mouseup', @onRightMouseUp
+    glob.rightClick = false
+    @sheet.resignSelected()
+    
+    if glob.hoverSheet
+      @currentLink.connect(glob.hoverSheet)
+      sheets[glob.hoverSheet].resignSelected()
+
+    else
+      @currentLink.remove()
+    
+    @currentLink = null
 
   onMouseMove: (e) =>
     if glob.activeSheet is @sheet
@@ -24,6 +49,9 @@ class window.SheetHandler
       @sheet.setXY(newX, newY)
       @hasMoved = true
       minimap.refresh()
+      
+      for id, link of @sheet.links
+        link.refresh()
    
   onMouseUp: (e) =>
     $(document).off 'mousemove', @onMouseMove
@@ -49,6 +77,7 @@ class window.SheetHandler
             @sheet.becomeActive()
 
         wall.toCenter(@sheet)
+        e.stopPropagation()
 
       else
         if glob.activeSheet
@@ -83,18 +112,26 @@ class window.SheetHandler
   onMouseDown: (e, doDefault = false) =>
     
     if not doDefault
-      @hasMoved = false
-      wall.bringToTop(@sheet)
-      minimap.bringToTop(miniSheets[@sheet.id])
-      
-      @startx = @sheet.getXY().x * glob.zoomLevel
-      @starty = @sheet.getXY().y * glob.zoomLevel
+      if e.which is 1
+        @hasMoved = false
+        wall.bringToTop(@sheet)
+        minimap.bringToTop(miniSheets[@sheet.id])
+        
+        @startx = @sheet.getXY().x * glob.zoomLevel
+        @starty = @sheet.getXY().y * glob.zoomLevel
 
-      @deltax = e.pageX
-      @deltay = e.pageY
+        @deltax = e.pageX
+        @deltay = e.pageY
 
-      $(document).on 'mousemove', @onMouseMove
-      $(document).on 'mouseup', @onMouseUp
+        $(document).on 'mousemove', @onMouseMove
+        $(document).on 'mouseup', @onMouseUp
+      else if e.which is 3
+        glob.rightClick = true
+        @currentLink = new LinkLine(@sheet.id)
+        @onRightMouseMove.mouseMoved = false
+        $(document).on 'mousemove', @onRightMouseMove
+        $(document).on 'mouseup', @onRightMouseUp
+        return false
     
     e.stopPropagation()
 
@@ -132,3 +169,13 @@ class window.SheetHandler
       height: @sheet.getWH().h
     }
     minimap.refresh()
+
+  onMouseEnter: (e) =>
+    if glob.rightClick
+      glob.hoverSheet = @sheet.id
+      @sheet.becomeSelected()
+
+  onMouseLeave: (e) =>
+    glob.hoverSheet = null
+    if not @currentLink
+      @sheet.resignSelected()
