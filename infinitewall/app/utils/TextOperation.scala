@@ -34,6 +34,7 @@ class StringWithState(str:String)
 					if(cs.deletedBy.isEmpty)
 						numDeleted += 1
 					cs.deletedBy += branch
+                    insertPos = i
 				}
 				else if(iBranch == op.from + op.length){
 					insertPos = i

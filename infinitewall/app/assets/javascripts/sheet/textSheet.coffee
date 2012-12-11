@@ -56,6 +56,7 @@ class StringWithState
                     if Object.keys(cs.deletedBy).length == 0
                         numDeleted++
                     cs.deletedBy[branch] = true
+                    insertPos = i
                 else if iBranch == op.from + op.length
                     insertPos = i
                 iBranch++
@@ -77,6 +78,18 @@ class StringWithState
         @list = @list.slice(0, insertPos).concat(inserted).concat(@list.slice(insertPos))
         new Operation(alteredFrom, numDeleted, op.content)
 
+    clone:() ->
+        ss = new StringWithState("")
+        ss.list = for cs in @list
+            insertedBy = {}
+            deletedBy = {}
+            for k,v of cs.insertedBy
+                insertedBy[k] = v
+            for k,v of cs.deletedBy
+                deletedBy[k] = v
+
+            new CharWithState(cs.c, insertedBy, deletedBy)
+        ss
 
 
     text:() ->
@@ -99,15 +112,22 @@ class StringWithState
                 classes.push('deleted')
             if Object.keys(cs.insertedBy).length > 0
                 classes.push('inserted')
+            branches = {}
+            for b,v of cs.deletedBy
+              branches[b] = true
+            for b,v of cs.insertedBy
+              branches[b] = true
+            for b,v of branches
+              classes.push("b#{b}")
             # if cs.deletedBy[A] || cs.deletedByA
             #     classes.push('A')
             # if cs.insertedByB || cs.deletedByB
             #     classes.push('B')
 
             if classes.length > 0
-                html += "<span class='#{classes.join(' ')}'>#{cs.c}</span>"
+                html = html + "<span class='#{classes.join(' ')}'>#{cs.c}</span>"
             else
-                html += cs.c
+                html = html + cs.c
 
             i++
 
@@ -118,7 +138,7 @@ spliceString = (str, offset, remove, add) ->
   console.log("*", str.substr(0,offset),"*", (if add? then add else ""),"*",str.substr(Math.max(0,offset+remove)))
   str.substr(0,offset) + (if add? then add else "") + str.substr(Math.max(0, offset+remove))
 
-
+###
 updateRange = (range, actionSet) ->
  
   start = range[0]
@@ -227,6 +247,12 @@ updateRange = (range, actionSet) ->
     i++
 
   [start,end]
+###
+
+
+updateRange = (range, baseText, changes) ->
+
+
 
 detectOperation = (old, current, range) ->
 
@@ -449,7 +475,7 @@ class window.TextSheet extends Sheet
       selection.removeAllRanges()
       selection.addRange(range, backwards)
       
-      [start, end]
+      [start, end, textfield.html().length]
 
     @detectChangeAndUpdate = () =>
       oldText = @savedText
@@ -522,14 +548,39 @@ class window.TextSheet extends Sheet
       original = @baseText
 
       ss = new StringWithState(@baseText)
-      ss.apply(operation, 0)
+      console.log("ss:", ss.html(), operation)
+      tmp = ss.apply(operation, 0)
+      console.log("ss:", ss.html(), tmp)
 
       @baseText = spliceString(@baseText, operation.from, operation.length, operation.content)
-
+      
       @pending = for p in @pending
         $.extend(ss.apply(p, 1), {msgId:p.msgId})
+      
+      console.log('old range:',range , "text (#{ss.text().length}):", ss.text())
+      console.log("ss:", ss.html())
 
-      range = updateRange(range, @pending)
+      rangeop = []
+      len = range[2]
+
+      ss2 = ss.clone()
+      ss3 = ss.clone()
+
+      if range[0] >= len
+        rangeop[0] = new Operation(range[0]-1, 0, "A")
+      else
+        rangeop[0] = new Operation(range[0], 0, "")
+      if range[1] >= len
+        rangeop[1] = new Operation(range[1]-1, 0, "A")
+      else
+        rangeop[1] = new Operation(range[1], 0, "")
+      console.log(rangeop)
+
+      range[0] = ss2.apply(rangeop[0], 1).from
+      console.log("ss2:", ss2.html())
+      range[1] = ss3.apply(rangeop[1], 1).from
+      console.log("ss3:", ss3.html())
+      console.log('new range:',range)
 
       html = @baseText
 
@@ -543,6 +594,6 @@ class window.TextSheet extends Sheet
       @textfield.html(html)
       @savedText = @textfield.html()
       #console.log(range)
-      #@setRange(range)
+      @setRange(range[0], range[1])
 
   
