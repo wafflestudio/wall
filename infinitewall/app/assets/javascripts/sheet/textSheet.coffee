@@ -242,20 +242,20 @@ detectOperation = (old, current, range) ->
   heuristic = ()->
     # there is no range. meaing we need heuristics to detect change
     cursor = range[1]
+    cursor2 = if cursor > 0 then cursor-1 else 0
     console.log(cursor)
 
     # make sure Xend < cursor
     Xend = -1
 
     i = 0
-    while i < cursor and i < old.length and i < current.length
+    while i < cursor2 and i < old.length and i < current.length
       if current.charCodeAt(i) == old.charCodeAt(i)
         Xend = i
       else
         break
       i++
 
-    limit = if Xend < cursor then cursor else Xend
     ZstartAtCurrent = current.length
     ZstartAtOld = old.length
     
@@ -263,7 +263,7 @@ detectOperation = (old, current, range) ->
 
     i = current.length - 1
     j = old.length - 1
-    while i >= cursor and j >= cursor
+    while i >= cursor2 and j >= cursor2
       if current.charCodeAt(i) == old.charCodeAt(j)
         ZstartAtCurrent = i
         ZstartAtOld = j
