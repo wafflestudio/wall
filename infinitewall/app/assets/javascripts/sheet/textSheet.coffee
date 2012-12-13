@@ -159,13 +159,14 @@ detectOperation = (old, current, range) ->
     # there is no range. meaing we need heuristics to detect change
     cursor = range[1]
     cursor2 = if cursor > 0 then cursor-1 else 0
+    cursor2 = cursor
     console.log(cursor)
 
     # make sure Xend < cursor
     Xend = -1
 
     i = 0
-    while i <= cursor2+1 and i < old.length and i < current.length
+    while i <= cursor2 and i < old.length and i < current.length
       if current.charCodeAt(i) == old.charCodeAt(i)
         Xend = i
       else
@@ -179,7 +180,7 @@ detectOperation = (old, current, range) ->
 
     i = current.length - 1
     j = old.length - 1
-    while i >= cursor2 and j >= cursor2 and i > Xend and j > Xend
+    while i >= cursor2-1 and i >= 0 and j >= cursor2-1 and j >= 0 and i > Xend and j > Xend
       if current.charCodeAt(i) == old.charCodeAt(j)
         ZstartAtCurrent = i
         ZstartAtOld = j
@@ -188,9 +189,9 @@ detectOperation = (old, current, range) ->
       i--
       j--
 
-    # console.log('old:', old.length, old)
-    # console.log('current:', current.length, current)
-    # console.log("r:", range)
+    console.log('old:', old.length, old)
+    console.log('current:', current.length, current)
+    console.log("r:", range)
     console.log("Xend:", Xend, ",Zstart(old):", ZstartAtOld, ",Zstart(cur):", ZstartAtCurrent, "added:", current.substr(Xend+1, ZstartAtCurrent-Xend-1))
 
     if spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)) != current
@@ -397,7 +398,7 @@ class window.TextSheet extends Sheet
         clearInterval(intervalId)
         textfield.off 'focusout', deactivate
         $(textfield).get(0).normalize()
-        @setRange(0, textfield.html().length)
+        #@setRange(0, textfield.html().length)
 
       $(textfield).on 'focusout', deactivate
 
