@@ -45,6 +45,9 @@ class StringWithState(str:String)
 			cs
 		}
 		
+		if(iBranch <= op.from)
+			insertPos = iBranch
+		
 		val inserted = op.content.map { c =>
 			new CharWithState(c, Set(branch))
 		}

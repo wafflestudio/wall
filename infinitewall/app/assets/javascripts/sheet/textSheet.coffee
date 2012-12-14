@@ -63,6 +63,9 @@ class StringWithState
             i++
             cs
 
+        if iBranch <= op.from
+          insertPos = iBranch
+
         inserted = for c in op.content
             insertedBy = {}
             insertedBy[branch] = true
@@ -138,121 +141,6 @@ spliceString = (str, offset, remove, add) ->
   console.log("*", str.substr(0,offset),"*", (if add? then add else ""),"*",str.substr(Math.max(0,offset+remove)))
   str.substr(0,offset) + (if add? then add else "") + str.substr(Math.max(0, offset+remove))
 
-###
-updateRange = (range, actionSet) ->
- 
-  start = range[0]
-  end = range[1]
- 
-  totalLength = 0
-  i = 0
-  while i < actionSet.length
-    elem = actionSet[i]
-    
-    #element
-    from = elem.from
-    length = elem.length
-    content = elem.content
-    
-    #if(type != 'replace') continue;
-    if from >= 0 and length is 0 and content isnt "" # add action
-      #console.log "ADDDDDD[from: " + elem.from + ", length: " + length + ", content: " + content + "]"
-      contentLength = content.length
-      totalLength += contentLength
-      #result = result.substr(0, from) + content + result.substr(from, result.length)
-
-      if start is 0 and end is 0
-
-      
-      # nothing
-      else if start is 0 and end isnt 0
-        if start is from and from < end
-          start += contentLength
-          end += contentLength
-        else end += contentLength  if start < from and from < end
-      else if end is totalLength
-        if start is end
-
-        
-        #nothing
-        else if start >= from
-          start += contentLength
-          end += contentLength
-        else end += contentLength  if start < from and from < end
-      else if start > 0 and start is end
-        if start >= from
-          start += contentLength
-          end += contentLength
-      else if start > 0 and start < end
-        if start >= from
-          start += contentLength
-          end += contentLength
-        else end += contentLength  if start < from and from < end
-    else if from >= 0 and length > 0 and content is "" # remove
-      #console.log "REMOVEE[applied: " + applied + ", from: " + elem.from + ", length: " + length + ", content: " + content + "]"
-      contentLength = content.length
-      totalLength -= length
-      #result = result.substr(0, from) + result.substr(from + length, result.length)
-      if start is 0 and end is 0
-
-      
-      # nothing
-      else if from < start
-        if from + length <= start
-          start -= length
-          end -= length
-        else if from + length >= end
-          start = from
-          end = from
-        else
-          start = from
-          end -= length
-      else if start <= from
-        if from + length < end
-          end -= length
-        else
-          end = from
-      else
-    
-    # nothing
-    else if from >= 0 and length > 0 and content isnt "" # replace
-      #console.log "REPLACE[applied: " + applied + ", from: " + elem.from + ", length: " + length + ", content: " + content + "]"
-      contentLength = content.length
-      totalLength -= length - contentLength
-      #result = result.substr(0, from) + content + result.substr(from + length, result.length)
-      if start is 0 and end is 0
-
-      
-      # nothing
-      else if from < start
-        if from + length <= start
-          start -= length - contentLength
-          end -= length - contentLength
-        else if from + length >= end
-          start = from + contentLength
-          end = from + contentLength
-        else
-          start = from + contentLength
-          end -= length - contentLength
-      else if start <= from
-        if from + length < end
-          end -= length - contentLength
-        else
-          end = from + contentLength
-      else
-    
-    # nothing
-    else
-      console.error "not proper action"
-    i++
-
-  [start,end]
-###
-
-
-updateRange = (range, baseText, changes) ->
-
-
 
 detectOperation = (old, current, range) ->
 
@@ -275,7 +163,7 @@ detectOperation = (old, current, range) ->
     Xend = -1
 
     i = 0
-    while i < cursor2 and i < old.length and i < current.length
+    while i <= cursor2+1 and i < old.length and i < current.length
       if current.charCodeAt(i) == old.charCodeAt(i)
         Xend = i
       else
@@ -289,7 +177,7 @@ detectOperation = (old, current, range) ->
 
     i = current.length - 1
     j = old.length - 1
-    while i >= cursor2 and j >= cursor2
+    while i >= cursor2 and j >= cursor2 and i > Xend and j > Xend
       if current.charCodeAt(i) == old.charCodeAt(j)
         ZstartAtCurrent = i
         ZstartAtOld = j
@@ -301,7 +189,7 @@ detectOperation = (old, current, range) ->
     # console.log('old:', old.length, old)
     # console.log('current:', current.length, current)
     # console.log("r:", range)
-    # console.log("Xend:", Xend, ",Zstart(old):", ZstartAtOld, ",Zstart(cur):", ZstartAtCurrent, "added:", current.substr(Xend+1, ZstartAtCurrent-Xend-1))
+    console.log("Xend:", Xend, ",Zstart(old):", ZstartAtOld, ",Zstart(cur):", ZstartAtCurrent, "added:", current.substr(Xend+1, ZstartAtCurrent-Xend-1))
 
     if spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)) != current
       console.warn spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)), current
@@ -557,7 +445,7 @@ class window.TextSheet extends Sheet
       @pending = for p in @pending
         $.extend(ss.apply(p, 1), {msgId:p.msgId})
       
-      console.log('old range:',range , "text (#{ss.text().length}):", ss.text())
+      console.log('old range:',range , "basetext (#{@baseText}) ,text (#{ss.text().length}):", ss.text())
       console.log("ss:", ss.html())
 
       rangeop = []
@@ -566,14 +454,10 @@ class window.TextSheet extends Sheet
       ss2 = ss.clone()
       ss3 = ss.clone()
 
-      if range[0] >= len
-        rangeop[0] = new Operation(range[0]-1, 0, "A")
-      else
-        rangeop[0] = new Operation(range[0], 0, "")
-      if range[1] >= len
-        rangeop[1] = new Operation(range[1]-1, 0, "A")
-      else
-        rangeop[1] = new Operation(range[1], 0, "")
+ 
+      rangeop[0] = new Operation(range[0], 0, "")
+
+      rangeop[1] = new Operation(range[1], 0, "")
       console.log(rangeop)
 
       range[0] = ss2.apply(rangeop[0], 1).from
