@@ -49,6 +49,7 @@ class StringWithState
         insertPos = 0
         alteredFrom = 0
         numDeleted = 0
+        iAtIBranch = 0
 
         @list = for cs in @list
             if !cs.deletedBy[branch] && (Object.keys(cs.insertedBy).length == 0 || cs.insertedBy[branch])
@@ -60,11 +61,12 @@ class StringWithState
                 else if iBranch == op.from + op.length
                     insertPos = i
                 iBranch++
+                iAtIBranch = i+1
             i++
             cs
 
         if iBranch <= op.from
-          insertPos = iBranch
+          insertPos = iAtIBranch
 
         inserted = for c in op.content
             insertedBy = {}
@@ -456,7 +458,6 @@ class window.TextSheet extends Sheet
 
  
       rangeop[0] = new Operation(range[0], 0, "")
-
       rangeop[1] = new Operation(range[1], 0, "")
       console.log(rangeop)
 

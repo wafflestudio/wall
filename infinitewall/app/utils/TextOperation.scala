@@ -25,6 +25,7 @@ class StringWithState(str:String)
 		var insertPos = 0
 		var alteredFrom = 0
 		var numDeleted = 0
+		var iAtIBranch = 0
 		
 		list = list.map { cs =>
 			if(!cs.deletedBy.contains(branch) && (cs.insertedBy.isEmpty || cs.insertedBy == Set(branch)))
@@ -40,13 +41,14 @@ class StringWithState(str:String)
 					insertPos = i
 				}
 				iBranch += 1
+				iAtIBranch = i+1
 			}
 			i += 1
 			cs
 		}
 		
 		if(iBranch <= op.from)
-			insertPos = iBranch
+			insertPos = iAtIBranch
 		
 		val inserted = op.content.map { c =>
 			new CharWithState(c, Set(branch))
