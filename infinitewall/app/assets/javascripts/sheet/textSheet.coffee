@@ -140,7 +140,7 @@ class StringWithState
                    
 
 spliceString = (str, offset, remove, add) ->
-  console.log("*", str.substr(0,offset),"*", (if add? then add else ""),"*",str.substr(Math.max(0,offset+remove)))
+  #console.log("*", str.substr(0,offset),"*", (if add? then add else ""),"*",str.substr(Math.max(0,offset+remove)))
   str.substr(0,offset) + (if add? then add else "") + str.substr(Math.max(0, offset+remove))
 
 
@@ -149,7 +149,6 @@ detectOperation = (old, current, range) ->
   # add
   # delete
   # replace
-  console.log('r1:', range)
   
   range[0] = if range[0] <= current.length then range[0] else current.length-1
   range[1] = if range[1] <= current.length then range[1] else current.length-1
@@ -159,8 +158,7 @@ detectOperation = (old, current, range) ->
   heuristic = ()->
     # there is no range. meaing we need heuristics to detect change
     cursor = range[1]
-    console.log('cursor:', cursor)
-
+    
     ZstartAtCurrent = current.length
     ZstartAtOld = old.length
     
@@ -188,14 +186,11 @@ detectOperation = (old, current, range) ->
         break
       i++
 
-    
-
-    console.log('old:', old.length, old)
-    console.log('current:', current.length, current)
-    console.log("r:", range)
-    console.log("Xend:", Xend, ",Zstart(old):", ZstartAtOld, ",Zstart(cur):", ZstartAtCurrent, "added:", current.substr(Xend+1, ZstartAtCurrent-Xend-1))
-
     if spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)) != current
+      console.log('old:', old.length, old)
+      console.log('current:', current.length, current)
+      console.log("r:", range)
+      console.log("Xend:", Xend, ",Zstart(old):", ZstartAtOld, ",Zstart(cur):", ZstartAtCurrent, "added:", current.substr(Xend+1, ZstartAtCurrent-Xend-1))
       console.warn spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)), current
       throw "operation error"
 
@@ -379,7 +374,7 @@ class window.TextSheet extends Sheet
         savedRange = currentRange
 
       if @savedText != $(textfield).html()
-        console.log("change detected: \"" + @savedText, "\",\"" + textfield.html() + "\"")
+        #console.log("change detected: \"" + @savedText, "\",\"" + textfield.html() + "\"")
         @savedText = $(textfield).html()
         operation = detectOperation(oldText, @savedText, savedRange)
         @msgId++
@@ -440,35 +435,25 @@ class window.TextSheet extends Sheet
       original = @baseText
 
       ss = new StringWithState(@baseText)
-      console.log("ss:", ss.html(), operation)
       tmp = ss.apply(operation, 0)
-      console.log("ss:", ss.html(), tmp)
-
+      
       @baseText = spliceString(@baseText, operation.from, operation.length, operation.content)
       
       @pending = for p in @pending
         $.extend(ss.apply(p, 1), {msgId:p.msgId})
-      
-      console.log('old range:',range , "basetext (#{@baseText}) ,text (#{ss.text().length}):", ss.text())
-      console.log("ss:", ss.html())
-
+    
       rangeop = []
       len = range[2]
 
       ss2 = ss.clone()
       ss3 = ss.clone()
 
- 
       rangeop[0] = new Operation(range[0], 0, "")
       rangeop[1] = new Operation(range[1], 0, "")
-      console.log(rangeop)
-
+      
       range[0] = ss2.apply(rangeop[0], 1).from
-      console.log("ss2:", ss2.html())
       range[1] = ss3.apply(rangeop[1], 1).from
-      console.log("ss3:", ss3.html())
-      console.log('new range:',range)
-
+      
       html = @baseText
 
       # apply each operation in pending      
@@ -476,7 +461,7 @@ class window.TextSheet extends Sheet
         #console.log("action:",action)
         html = spliceString(html, p.from, p.length, p.content)
 
-      console.log("other came (#{timestamp}). base:", original, " altered:", html, " pending:", @pending)
+      #console.log("other came (#{timestamp}). base:", original, " altered:", html, " pending:", @pending)
       
       @textfield.html(html)
       @savedText = @textfield.html()

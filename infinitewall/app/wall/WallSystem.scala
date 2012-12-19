@@ -140,7 +140,7 @@ class WallActor(wallId: Long) extends Actor {
 						val records = recentRecords.filter(_.timestamp > a.timestamp)
 						// simulate consolidation of records after timestamp
 						var pending = a.operations // all mine with > a.timestamp	
-						Logger.info("ts:" + a.timestamp + " status: " + pending.size + "," + records.size)
+						//Logger.info("ts:" + a.timestamp + " status: " + pending.size + "," + records.size)
 						assert(pending.size-1 == records.filter(_.conn == origin).size)
 						records.map { r =>
 							if(r.conn == origin)  {	
@@ -153,7 +153,7 @@ class WallActor(wallId: Long) extends Actor {
 								pending = pending.map { p =>
 									OperationWithState(ss.apply(p.op, 0), p.msgId)
 								}
-								Logger.debug("simulation: " + ss.text)
+								//Logger.debug("simulation: " + ss.text)
 							}
 						}
 						
@@ -161,11 +161,10 @@ class WallActor(wallId: Long) extends Actor {
 						
 						val (baseText,resultText) = Sheet.alterText(a.id, alteredAction.from, alteredAction.length, alteredAction.content)
 						// keep track of pending text until disconnection
-						
-						Logger.info("before:(" + a.timestamp + ") :" + detail.toString)
+						//Logger.info("before:(" + a.timestamp + ") :" + detail.toString)
 						val newAction = AlterTextAction(a.userId, a.timestamp, a.id, List(OperationWithState(alteredAction, a.operations.last.msgId)))
 						val timestamp = notifyAll("action", action.timestamp, action.userId, origin, newAction.singleJson.toString)
-						Logger.info("after:(" + timestamp + ") :" +  newAction.singleJson.toString)
+						//Logger.info("after:(" + timestamp + ") :" +  newAction.singleJson.toString)
 						
 						recentRecords = recentRecords :+ Record(timestamp, baseText, resultText, alteredAction, origin)
 				}
@@ -182,15 +181,6 @@ class WallActor(wallId: Long) extends Actor {
 		case Quit(userId, producer) => {
 			// clear sessions for userid. if none exists for a userid, remove userid key.
 			connections.get(userId).map { producers =>
-				// 1. remove timestamp tracking
-				// 2. update recentActions according to smallest timestamp left
-//				timestamps = timestamps - producer
-//				if(!timestamps.isEmpty)  {
-//					val oldestTimestamp = timestamps.minBy(_._2)._2
-//					recentActions = recentActions.dropWhile(_._1 < oldestTimestamp)
-//				}
-//				else
-//					recentActions = List.empty
 				
 				val newProducers = producers.filterNot(_ == producer)
 

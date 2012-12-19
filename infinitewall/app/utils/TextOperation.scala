@@ -4,15 +4,6 @@ case class Operation(from:Int, length:Int, content:String)
 
 class CharWithState(val char:Char, var insertedBy:Set[Int] = Set(), var deletedBy:Set[Int] = Set())
 
-object StringWithState
-{
-	// get new op after applying history
-	
-	def rebase(op:Operation, baseText:String, history:List[(Operation,Boolean)]) = {
-		
-	}
-}
-
 class StringWithState(str:String) 
 {
 	var list:List[CharWithState] = str.map { c =>
@@ -86,21 +77,21 @@ object TextOperation extends App{
 	val B = Array(Operation(2,2,"or"), Operation(3,1,"R"), Operation(0,3,""))
 	val base = new StringWithState("baseText")
 	
-	println(base.text)
-	for(a <- A) {
-		val a2 = base(a, 0)
-		if(a != a2)
-			println("altered op: " + a + " => " + a2)
-		println(base.text)
-		//println(base.html)
-	}
-	
-	for(b <- B) {
-		val b2 = base(b, 1)
-		if(b != b2)
-			println("altered op: " + b + " => " + b2)
-		println(base.text)
-		//println(base.html)
-	}
+//	println(base.text)
+//	for(a <- A) {
+//		val a2 = base(a, 0)
+//		if(a != a2)
+//			println("altered op: " + a + " => " + a2)
+//		println(base.text)
+//		//println(base.html)
+//	}
+//	
+//	for(b <- B) {
+//		val b2 = base(b, 1)
+//		if(b != b2)
+//			println("altered op: " + b + " => " + b2)
+//		println(base.text)
+//		//println(base.html)
+//	}
 	
 }
