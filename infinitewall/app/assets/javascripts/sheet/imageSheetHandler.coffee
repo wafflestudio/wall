@@ -4,8 +4,8 @@ class window.ImageSheetHandler extends SheetHandler
 
   constructor: (params) ->
     super params
-    @imgWidth = @sheet.getWH().w
-    @imgHeight = @sheet.getWH().h
+    @imgWidth = @sheet.iw()
+    @imgHeight = @sheet.ih()
 
   onResizeMouseMove: (e) =>
     
@@ -14,10 +14,8 @@ class window.ImageSheetHandler extends SheetHandler
     ratio = @imgWidth / @imgHeight
 
     if Math.abs(dX / dY) > ratio
-      newW = (@startWidth + dX) / glob.zoomLevel
-      newH = (@startHeight + dX / ratio) / glob.zoomLevel
+      @sheet.iw((@startWidth + dX) / glob.zoomLevel)
+      @sheet.ih((@startHeight + dX / ratio) / glob.zoomLevel)
     else
-      newW = (@startWidth + dY * ratio) / glob.zoomLevel
-      newH = (@startHeight + dY) / glob.zoomLevel
-
-    @sheet.setWH(newW, newH)
+      @sheet.iw((@startWidth + dY * ratio) / glob.zoomLevel)
+      @sheet.ih((@startHeight + dY) / glob.zoomLevel)

@@ -233,6 +233,7 @@ class window.TextSheet extends Sheet
 
   setElement: () ->
     @element = $($(textTemplate).appendTo('#sheetLayer'))
+    @innerElement = @element.children('.sheet')
 
   constructor: (params, timestamp) ->
     super(params)

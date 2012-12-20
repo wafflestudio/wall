@@ -1,3 +1,22 @@
+class MoveLayer extends Moveable
+  constructor: () ->
+    @element = $("#moveLayer")
+
+class ScaleLayer extends Moveable
+  constructor: () ->
+    @element = $("#scaleLayer")
+  
+  set: (tx, ty, x, y, isTransition = false, callback) ->
+    @element.css {
+      transformOrigin: tx + 'px ' + ty + 'px',
+      x: x,
+      y: y
+    }
+    if isTransition
+      @element.transition {scale: glob.zoomLevel}, callback
+    else
+      @element.css {scale: glob.zoomLevel}
+
 class window.Wall
   wall: null
   mL: null
@@ -15,41 +34,17 @@ class window.Wall
   bringToTop: (sheet) ->
     $("#sheetLayer").append sheet.element
 
-  setSL: (tx, ty, x, y, isTransition = false, callBack) ->
-    @sL.css {
-      transformOrigin: tx + 'px ' + ty + 'px',
-      x: x,
-      y: y
-    }
-    if isTransition
-      @sL.transition {scale: glob.zoomLevel}, callBack
-    else
-      @sL.css {scale: glob.zoomLevel}
-
-  setMLxy: (x, y) ->
-    @mL.css {x: x, y: y}
-
-  getMLxy: () ->
-    x: parseInt(@mL.css('x'))
-    y: parseInt(@mL.css('y'))
-
-  #screenWidth: ($(window).width() - 225) / glob.zoomLevel
-  #screenHeight: ($(window).height() - 38) / glob.zoomLevel
-  #screenTop: -(glob.scaleLayerYPos + @getMLxy().y * glob.zoomLevel) / glob.zoomLevel
-  #screenLeft: -(glob.scaleLayerXPos + @getMLxy().x * glob.zoomLevel) / glob.zoomLevel
-
   constructor: () ->
     @wall = $('#wall')
-    @mL = $('#moveLayer')
-    @sL = $('#scaleLayer')
+    @mL = new MoveLayer()
+    @sL = new ScaleLayer()
     @wall.on 'dblclick', @onMouseDblClick
     @wall.on 'mousedown', @onMouseDown
     @wall.on 'mousewheel', @onMouseWheel
 
   onMouseMove: (e) =>
-    newX = (@startx + e.pageX - @deltax) / glob.zoomLevel
-    newY = (@starty + e.pageY - @deltay) / glob.zoomLevel
-    @setMLxy(newX, newY)
+    @mL.x((@startx + e.pageX - @deltax) / glob.zoomLevel)
+    @mL.y((@starty + e.pageY - @deltay) / glob.zoomLevel)
     @hasMoved = true
     minimap.refresh()
 
@@ -62,8 +57,8 @@ class window.Wall
   
   onMouseDown: (e) =>
     @hasMoved = false
-    @startx = @getMLxy().x * glob.zoomLevel
-    @starty = @getMLxy().y * glob.zoomLevel
+    @startx = @mL.x() * glob.zoomLevel
+    @starty = @mL.y() * glob.zoomLevel
     @deltax = e.pageX
     @deltay = e.pageY
 
@@ -86,7 +81,7 @@ class window.Wall
     #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
     
     glob.zoomLevel += delta / 2.5
-    glob.zoomLevel = if glob.zoomLevel < 0.25 then 0.25 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
+    glob.zoomLevel = if glob.zoomLevel < 0.2 then 0.2 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
         
     xNew = (xWall - @xScaleLayer) / glob.zoomLevel
     yNew = (yWall - @yScaleLayer) / glob.zoomLevel
@@ -101,7 +96,7 @@ class window.Wall
 
     #scaleLayer의 좌표를 wall의 기준으로 저장
 
-    @setSL(@xScaleLayer, @yScaleLayer, xNew, yNew)
+    @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh()
     return false
@@ -114,7 +109,7 @@ class window.Wall
     @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
     @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
     
-    glob.zoomLevel = if glob.zoomLevel is 1 then 0.25 else 1
+    glob.zoomLevel = if glob.zoomLevel is 1 then 0.2 else 1
    
     if glob.zoomLevel is 1
       xNew = (xWall - @xScaleLayer) / glob.zoomLevel
@@ -126,26 +121,25 @@ class window.Wall
     glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
     glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
 
-    @setSL(xWall, yWall, xNew, yNew, true)
+    @sL.set(xWall, yWall, xNew, yNew, true)
 
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh {isTransition: true}
     return false
-  
 
   revealSheet: ->
 
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
     screenWidth = ($(window).width() - 225) / glob.zoomLevel
     screenHeight = ($(window).height() - 38) / glob.zoomLevel
-    screenTop = -(glob.scaleLayerYPos + @getMLxy().y * glob.zoomLevel) / glob.zoomLevel
-    screenLeft = -(glob.scaleLayerXPos + @getMLxy().x * glob.zoomLevel) / glob.zoomLevel
+    screenTop = -(glob.scaleLayerYPos + @mL.y() * glob.zoomLevel) / glob.zoomLevel
+    screenLeft = -(glob.scaleLayerXPos + @mL.x() * glob.zoomLevel) / glob.zoomLevel
 
     sheet = glob.activeSheet
-    sheetWidth = sheet.getOuterWH().w
-    sheetHeight = sheet.getOuterWH().h
-    sheetX = sheet.getXY().x
-    sheetY = sheet.getXY().y
+    sheetWidth = sheet.w()
+    sheetHeight = sheet.h()
+    sheetX = sheet.x()
+    sheetY = sheet.y()
 
     if ((sheetX < screenLeft) or (sheetX + sheetWidth > screenLeft + screenWidth) or (sheetY < screenTop) or (sheetY + sheetHeight > screenTop + screenHeight))
       
@@ -161,57 +155,51 @@ class window.Wall
         diffY = screenTop - sheetY + offset
       if (sheetY + sheetHeight > screenTop + screenHeight)
         diffY = screenTop + screenHeight - (sheetY + sheetHeight + offset)
+       
+      mLX = @mL.x()
+      mLY = @mL.y()
       
-      moveLayerX = @getMLxy().x
-      moveLayerY = @getMLxy().y
-
-      @mL.transition {
-        x : diffX + moveLayerX,
-        y : diffY + moveLayerY
-      }
+      @mL.tXY(diffX + mLX, diffY + mLY)
       
       minimap.refresh {
         isTransition: true,
-        mLx: diffX + moveLayerX,
-        mLy: diffY + moveLayerY
+        mLx: diffX + mLX,
+        mLy: diffY + mLY
       }
 
-  toCenter: (sheet, callBack) ->
-    sheetW = sheet.getWH().w
-    sheetH = sheet.getWH().h
+  toCenter: (sheet, callback) ->
+    sheetW = sheet.w()
+    sheetH = sheet.h()
     screenW = $(window).width() - 225
     screenH = $(window).height() - 38
 
     if glob.zoomLevel is 1
-      screenT = -(glob.scaleLayerYPos + @getMLxy().y * glob.zoomLevel) / glob.zoomLevel
-      screenL = -(glob.scaleLayerXPos + @getMLxy().x * glob.zoomLevel) / glob.zoomLevel
-
-      sheetX = sheet.getXY().x
-      sheetY = sheet.getXY().y
+      mLX = @mL.x()
+      mLY = @mL.y()
       
+      screenT = -(glob.scaleLayerYPos + mLY * glob.zoomLevel) / glob.zoomLevel
+      screenL = -(glob.scaleLayerXPos + mLX * glob.zoomLevel) / glob.zoomLevel
+      
+      sheetX = sheet.x()
+      sheetY = sheet.y()
+
       translateX = screenL + (screenW - sheetW) / 2
       translateY = screenT + (screenH - sheetH) / 2
 
       diffX = translateX - sheetX
       diffY = translateY - sheetY
+      
+      @mL.tXY(diffX + mLX, diffY + mLY, callback)
 
-      moveLayerX = @getMLxy().x
-      moveLayerY = @getMLxy().y
-      
-      @mL.transition {
-        x : diffX + moveLayerX,
-        y : diffY + moveLayerY
-      }, callBack
-      
       minimap.refresh {
         isTransition: true,
-        mLx: diffX + moveLayerX,
-        mLy: diffY + moveLayerY
+        mLx: diffX + mLX,
+        mLy: diffY + mLY
       }
 
     else
-      sheetX = (glob.scaleLayerXPos + (@getMLxy().x + sheet.getXY().x) * glob.zoomLevel)
-      sheetY = (glob.scaleLayerYPos + (@getMLxy().y + sheet.getXY().y) * glob.zoomLevel)
+      sheetX = (glob.scaleLayerXPos + (@mL.x() + sheet.x()) * glob.zoomLevel)
+      sheetY = (glob.scaleLayerYPos + (@mL.y() + sheet.y()) * glob.zoomLevel)
 
       xWall = (sheetX - (screenW - sheetW) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
       yWall = (sheetY - (screenH - sheetH) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
@@ -229,7 +217,7 @@ class window.Wall
       glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
       glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
 
-      @setSL(xWall, yWall, xNew, yNew, true, callBack)
+      @sL.set(xWall, yWall, xNew, yNew, true, callback)
 
       $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
       minimap.refresh {isTransition: true}

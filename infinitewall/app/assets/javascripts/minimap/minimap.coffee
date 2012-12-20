@@ -34,8 +34,8 @@ class window.Minimap
 
   refresh: (callInfo = null) =>
     if !callInfo or !callInfo.mLx and !callInfo.mLy
-      mLx = wall.getMLxy().x
-      mLy = wall.getMLxy().y
+      mLx = wall.mL.x()
+      mLy = wall.mL.y()
     else
       mLx = callInfo.mLx
       mLy = callInfo.mLy
@@ -54,10 +54,10 @@ class window.Minimap
     @worldRight = screenRight
 
     updateWorldSize = (sheet) =>
-      sheetX = sheet.getXY().x
-      sheetY = sheet.getXY().y
-      sheetW = sheet.getOuterWH().w
-      sheetH = sheet.getOuterWH().h
+      sheetX = sheet.x()
+      sheetY = sheet.y()
+      sheetW = sheet.w()
+      sheetH = sheet.h()
 
       @worldLeft = sheetX if sheetX < @worldLeft
       @worldRight = sheetX + sheetW if sheetX + sheetW > @worldRight
@@ -102,14 +102,12 @@ class window.Minimap
     }, duration
     
     shrinkMiniSheet = (id, sheet) =>
-      newX = (sheet.getXY().x - @worldLeft) * ratio
-      newY = (sheet.getXY().y - @worldTop) * ratio
-      newW = sheet.getOuterWH().w * ratio
-      newH = sheet.getOuterWH().h * ratio
+      newX = (sheet.x() - @worldLeft) * ratio
+      newY = (sheet.y() - @worldTop) * ratio
+      newW = sheet.w() * ratio
+      newH = sheet.h() * ratio
       
       mS = miniSheets[id]
-      #mS.setXY(newX, newY, $.fn.moveFunc, duration)
-      #mS.setWH(newW, newH, $.fn.moveFunc, duration)
       mS.element.moveFunc {
         x: newX,
         y: newY,
@@ -128,8 +126,8 @@ class window.Minimap
   #기준좌표는 minimapWorld의 origin
 
   onMouseMove: (e) =>
-    mLx = wall.getMLxy().x
-    mLy = wall.getMLxy().y
+    mLx = wall.mL.x()
+    mLy = wall.mL.y()
     mCSw = @mCS.width()
     mCSh = @mCS.height()
 
@@ -163,8 +161,9 @@ class window.Minimap
 
       newMoveLayerX = -((mouseX + @worldLeft - (mCSw / @minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
       newMoveLayerY = -((mouseY + @worldTop - (mCSh / @minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
-
-    wall.setMLxy(newMoveLayerX, newMoveLayerY)
+    
+    wall.mL.x(newMoveLayerX)
+    wall.mL.y(newMoveLayerY)
     @refresh()
   
   onMouseUp: (e) =>
@@ -173,9 +172,8 @@ class window.Minimap
     $(document).off 'mouseup', @onMouseUp
 
   onMouseDown: (e) =>
-
-    mLx = wall.getMLxy().x
-    mLy = wall.getMLxy().y
+    mLx = wall.mL.x()
+    mLy = wall.mL.y()
     mCSx = parseInt (@mCS.css 'left')
     mCSy = parseInt (@mCS.css 'top')
     mCSw = @mCS.width()

@@ -10,8 +10,8 @@ class window.LinkLine extends Moveable
     @from = from
   
   getCenter: (sheetID) ->
-    x: sheets[sheetID].getXY().x + sheets[sheetID].getOuterWH().w / 2
-    y: sheets[sheetID].getXY().y + sheets[sheetID].getOuterWH().h / 2
+    x: sheets[sheetID].x() + sheets[sheetID].w() / 2
+    y: sheets[sheetID].y() + sheets[sheetID].h() / 2
 
   rotateLink: (fromX, fromY, toX, toY, isTransition = false) ->
     @rotateLink.oldTheta = 0 if undefined
@@ -44,8 +44,8 @@ class window.LinkLine extends Moveable
   
   followMouse: (x, y) =>
     fgC = @getCenter(@from)
-    toX = x - (glob.scaleLayerXPos + wall.getMLxy().x * glob.zoomLevel) / glob.zoomLevel
-    toY = y - (glob.scaleLayerYPos + wall.getMLxy().y * glob.zoomLevel) / glob.zoomLevel
+    toX = x - (glob.scaleLayerXPos + wall.mL.x() * glob.zoomLevel) / glob.zoomLevel
+    toY = y - (glob.scaleLayerYPos + wall.mL.y() * glob.zoomLevel) / glob.zoomLevel
     @rotateLink(fgC.x, fgC.y, toX, toY)
    
   connect: (toID) =>
@@ -65,8 +65,8 @@ class window.LinkLine extends Moveable
     @rotateLink(fgC.x, fgC.y, tgC.x, tgC.y)
 
   transitionRefresh: (id, x, y) ->
-    centerX = sheets[id].getWH().w / 2
-    centerY = sheets[id].getWH().h / 2
+    centerX = sheets[id].w() / 2
+    centerY = sheets[id].h() / 2
 
     if id is @from
       gC = @getCenter(@to)

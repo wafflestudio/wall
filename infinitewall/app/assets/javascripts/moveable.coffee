@@ -5,20 +5,39 @@ class window.Moveable
   handler: null
 
   constructor: (params) ->
+  
+  x: (x) ->
+    return parseInt(@element.css('x')) unless x?
+    @element.css {x: x}
 
-  x: -> parseInt(@element.css('x'))
-  y: -> parseInt(@element.css('y'))
-  w: -> parseInt(@innerElement.css('width'))
-  h: -> parseInt(@innerElement.css('height'))
+  y: (y) ->
+    return parseInt(@element.css('y')) unless y?
+    @element.css {y: y}
 
-  setXY: (x, y, moveFunc = $.fn.css, duration = 400) ->
-    @element.moveFunc {
+  w: (w) ->
+    return parseInt(@element.css('width')) unless w?
+    @element.css {width: w}
+
+  h: (h) ->
+    return parseInt(@element.css('height')) unless h?
+    @element.css {height: h}
+  
+  iw: (w) ->
+    return parseInt(@innerElement.css('width')) unless w?
+    @innerElement.css {width: w}
+
+  ih: (h) ->
+    return parseInt(@innerElement.css('height')) unless h?
+    @innerElement.css {height: h}
+
+  tXY: (x, y, callback) ->
+    @element.transition {
       x: x,
       y: y
-    }, duration
+    }, callback
 
-  setWH: (w, h, moveFunc = $.fn.css, duration = 400) ->
-    @innerElement.moveFunc {
+  tiWH: (w, h, callback) ->
+    @innerElement.transition {
       width: w,
       height: h
-    }, duration
+    }, callback

@@ -1,7 +1,4 @@
-class window.Sheet
-  id: null
-  element: null
-  handler: null
+class window.Sheet extends Moveable
   links: null
 
   @create: (content) ->
@@ -12,8 +9,11 @@ class window.Sheet
   constructor: (params) ->
     @id = params.id
     @setElement()
-    @setXY(params.x, params.y)
-    @setWH(params.width, params.height)
+    @x(params.x)
+    @y(params.y)
+    @iw(params.width)
+    @ih(params.height)
+
     @element.attr 'id', 'sheet' + params.id
     @links = new Object()
     
@@ -56,12 +56,12 @@ class window.Sheet
   attachHandler: () ->
 
   move: (params) ->
-    @element.transition {x : params.x, y : params.y}
+    @tXY(params.x, params.y)
     for id, link of @links
       link.transitionRefresh(@id, params.x, params.y)
 
   resize: (params) ->
-    @element.children('.sheet').transition {width : params.width + "px", height : params.height + "px"}
+    @tiWH(params.width, params.height)
 
   remove: (params) ->
     for id, link of @links
@@ -109,21 +109,3 @@ class window.Sheet
 
   resignSelected: () ->
     @element.children('.sheet').css {'background-color': 'white'}
-
-  setXY: (x, y) ->
-    @element.css({x: x, y: y})
-
-  getXY: () ->
-    x: parseInt(@element.css('x'))
-    y: parseInt(@element.css('y'))
-
-  setWH: (w, h) ->
-    @element.children('.sheet').css({width: w, height: h})
-
-  getWH: () ->
-    w: parseInt(@element.children('.sheet').css('width'))
-    h: parseInt(@element.children('.sheet').css('height'))
-
-  getOuterWH: ->
-    w: parseInt(@element.css('width'))
-    h: parseInt(@element.css('height'))

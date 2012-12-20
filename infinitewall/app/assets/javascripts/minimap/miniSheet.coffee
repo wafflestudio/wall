@@ -1,7 +1,4 @@
-class window.MiniSheet
-  id: null
-  element: null
-
+class window.MiniSheet extends Moveable
   constructor: (id) ->
     @id = id
     @element = $($('<div class = "minimapElement"></div>').appendTo('#minimapElements'))
@@ -20,26 +17,6 @@ class window.MiniSheet
   remove: () ->
     @element.remove()
     #delete miniSheets[@id]
-
-  getXY: () ->
-    x: parseInt(@element.css('x'))
-    y: parseInt(@element.css('y'))
-
-  setXY: (x, y, moveFunc = $.fn.css, duration) ->
-    @element.moveFunc {
-      x: x,
-      y: y
-    }, duration
-
-  getWH: () ->
-    w: parseInt(@element.css('width'))
-    h: parseInt(@element.css('height'))
-
-  setWH: (w, h, moveFunc = $.fn.css, duration) ->
-    @element.moveFunc {
-      width: w,
-      height: h
-    }, duration
 
   onMouseDown: (e) =>
     @becomeSelected()

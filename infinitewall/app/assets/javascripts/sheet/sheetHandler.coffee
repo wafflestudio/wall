@@ -44,9 +44,8 @@ class window.SheetHandler
     if glob.activeSheet is @sheet
       return false
     else
-      newX = (@startx + e.pageX - @deltax) / glob.zoomLevel
-      newY = (@starty + e.pageY - @deltay) / glob.zoomLevel
-      @sheet.setXY(newX, newY)
+      @sheet.x((@startx + e.pageX - @deltax) / glob.zoomLevel)
+      @sheet.y((@starty + e.pageY - @deltay) / glob.zoomLevel)
       @hasMoved = true
       minimap.refresh()
       
@@ -77,7 +76,7 @@ class window.SheetHandler
             @sheet.becomeActive()
 
         wall.toCenter(@sheet)
-        e.stopPropagation()
+        e.stopImmediatePropagation()
 
       else
         if glob.activeSheet
@@ -116,9 +115,9 @@ class window.SheetHandler
         @hasMoved = false
         wall.bringToTop(@sheet)
         minimap.bringToTop(miniSheets[@sheet.id])
-        
-        @startx = @sheet.getXY().x * glob.zoomLevel
-        @starty = @sheet.getXY().y * glob.zoomLevel
+
+        @startx = @sheet.x() * glob.zoomLevel
+        @starty = @sheet.y() * glob.zoomLevel
 
         @deltax = e.pageX
         @deltay = e.pageY
@@ -133,7 +132,7 @@ class window.SheetHandler
         $(document).on 'mouseup', @onRightMouseUp
         return false
     
-    e.stopPropagation()
+    e.stopImmediatePropagation()
 
   onButtonMouseDown: (e) =>
     @onButtonMouseDown.hasMoved = false
@@ -153,8 +152,8 @@ class window.SheetHandler
   onResizeMouseDown: (e) =>
     $(document).on 'mousemove', @onResizeMouseMove
     $(document).on 'mouseup', @onResizeMouseUp
-    @startWidth = @sheet.getWH().w * glob.zoomLevel
-    @startHeight = @sheet.getWH().h * glob.zoomLevel
+    @startWidth = @sheet.iw() * glob.zoomLevel
+    @startHeight = @sheet.ih() * glob.zoomLevel
     @deltax = e.pageX
     @deltay = e.pageY
     return false
@@ -165,8 +164,8 @@ class window.SheetHandler
     $(document).off 'mousemove', @onResizeMouseMove
     $(document).off 'mouseup', @onResizeMouseUp
     @sheet.socketResize {
-      width: @sheet.getWH().w,
-      height: @sheet.getWH().h
+      width: @sheet.iw(),
+      height: @sheet.ih()
     }
     minimap.refresh()
 
