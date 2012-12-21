@@ -57,11 +57,11 @@ class window.Sheet extends Moveable
 
   move: (params) ->
     @tXY(params.x, params.y)
-    for id, link of @links
-      link.transitionRefresh(@id, params.x, params.y)
+    @refreshLinks(params.x, params.y, @w(), @h())
 
   resize: (params) ->
     @tiWH(params.width, params.height)
+    @refreshLinks(@x(), @y(), params.width, params.height)
 
   remove: (params) ->
     for id, link of @links
@@ -109,3 +109,7 @@ class window.Sheet extends Moveable
 
   resignSelected: () ->
     @element.children('.sheet').css {'background-color': 'white'}
+
+  refreshLinks: (x, y, w, h) ->
+    for id, link of @links
+      link.transitionRefresh(@id, x, y, w, h)

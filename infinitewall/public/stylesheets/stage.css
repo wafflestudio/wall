@@ -318,7 +318,7 @@
 
 .linkLine {
   position: absolute;
-  width: 3px;
+  height:3px;
   background-color:black;
 }
 

@@ -36,6 +36,7 @@ class window.ImageSheet extends Sheet
 
   setElement: () ->
     @element = $($(imageTemplate).appendTo('#sheetLayer'))
+    @innerElement = @element.children('.sheet')
 
   constructor: (params) ->
     super(params)

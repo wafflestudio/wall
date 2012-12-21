@@ -3,10 +3,11 @@ linkTemplate = "<div class = 'linkLine'></div>"
 class window.LinkLine extends Moveable
   from: null
   to: null
+  oldTheta: 0
 
   constructor: (from) ->
     @element = $($(linkTemplate).appendTo('#linkLayer'))
-    @element.css {transformOrigin: "top"}
+    @element.css {transformOrigin: "left"}
     @from = from
   
   getCenter: (sheetID) ->
@@ -14,33 +15,32 @@ class window.LinkLine extends Moveable
     y: sheets[sheetID].y() + sheets[sheetID].h() / 2
 
   rotateLink: (fromX, fromY, toX, toY, isTransition = false) ->
-    @rotateLink.oldTheta = 0 if undefined
+    plus = false
+    minus = false
+
     $.fn.moveFunc = if isTransition then $.fn.transition else $.fn.css
 
     length = Math.sqrt((fromX - toX) * (fromX - toX) + (fromY - toY) * (fromY - toY))
-    newTheta = 180 / 3.14 * Math.acos((toY - fromY) / length)
-    newTheta *= -1 if toX > fromX
-   
-    temp = @rotateLink.oldTheta
-    @rotateLink.oldTheta = newTheta
-
-    if temp > 90 and newTheta < 0 # 예전 각도가 2사분면에 있고, 새로운 각도가 1, 4 사분면으로 갈때
-      newTheta += 360
-
-    else if temp < -90 and newTheta > 0 # 예전 각도가 1사분면에 있고, 새로운 각도가 2, 3 사분면으로 갈때
+    newTheta = 180 / 3.14 * Math.atan2(toY - fromY, toX - fromX)
+    
+    temp = @oldTheta
+    @oldTheta = newTheta
+    
+    if temp < -90 and newTheta > 90
       newTheta -= 360
+      minus = true
+    else if temp > 90 and newTheta < -90
+      newTheta += 360
+      plus = true
 
     @element.moveFunc {
       x: fromX,
       y: fromY,
-      height: length,
+      width: length,
       rotate: newTheta
     }, =>
-      if Math.abs(temp) > 90
-        if newTheta > 180
-          @element.css {rotate: newTheta - 360}
-        else if newTheta < -180
-          @element.css {rotate: newTheta + 360}
+      @element.css {rotate: newTheta - 360} if plus
+      @element.css {rotate: newTheta + 360} if minus
   
   followMouse: (x, y) =>
     fgC = @getCenter(@from)
@@ -64,16 +64,14 @@ class window.LinkLine extends Moveable
     tgC = @getCenter(@to)
     @rotateLink(fgC.x, fgC.y, tgC.x, tgC.y)
 
-  transitionRefresh: (id, x, y) ->
-    centerX = sheets[id].w() / 2
-    centerY = sheets[id].h() / 2
+  transitionRefresh: (id, x, y, w, h) ->
 
     if id is @from
       gC = @getCenter(@to)
-      @rotateLink(x + centerX, y + centerY, gC.x, gC.y, true)
+      @rotateLink(x + (w / 2), y + (h / 2), gC.x, gC.y, true)
     else
       gC = @getCenter(@from)
-      @rotateLink(gC.x, gC.y, x + centerX, y + centerY, true)
+      @rotateLink(gC.x, gC.y, x + (w / 2), y + (h / 2), true)
 
   remove: ->
     @element.remove()
