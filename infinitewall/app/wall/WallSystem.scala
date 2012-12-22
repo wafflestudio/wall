@@ -81,23 +81,52 @@ object WallSystem {
 
 }
 
-
-case class Record(timestamp:Long, baseText:String, resultText:String, consolidated:Operation, conn:Enumerator[JsValue])
+case class Record(timestamp: Long, baseText: String, resultText: String, consolidated: Operation, conn: Enumerator[JsValue])
 
 class WallActor(wallId: Long) extends Actor {
 
 	// key: userId, values: list of sessions user have
-	var connections = Map.empty[Long, List[PushEnumerator[JsValue]]]
+	var connections = Map.empty[Long, List[(PushEnumerator[JsValue], Long)]]
 	// trick to track pending messages for each session (session, timestamp, action)
 	var recentRecords = List[Record]()
-	
-	
+
 	def prevLogs(timestamp: Long) = {
 		WallLog.list(wallId, timestamp)
 	}
 
 	def logMessage(kind: String, basetimestamp: Long, userId: Long, message: String) = {
 		WallLog.create(kind, wallId, basetimestamp, userId, message)
+	}
+
+	def updateTimestamp(userId: Long, origin: Enumerator[JsValue], ts: Long) = {
+
+		connections.get(userId).map { connectionInfoList =>
+			val newConnectionInfoList = 
+			
+			connectionInfoList.map { connectionInfo =>
+				val connection = connectionInfo._1
+				
+				if(connection == origin)
+					(connection, ts)
+				else
+					connectionInfo
+			}
+			
+			connections = connections + (userId -> newConnectionInfoList)
+		}
+	}
+
+	def cleanRecentRecords() = {
+		var minTs:Long = 0
+		connections.map { keyvalue =>
+			val userId = keyvalue._1
+			keyvalue._2.map { pair =>
+				if(minTs == 0 || pair._2 > minTs)
+					minTs = pair._2
+			}
+		}
+		recentRecords = recentRecords.dropWhile(_.timestamp < minTs)
+
 	}
 
 	implicit def toDouble(value: JsValue) = { value.as[Double] }
@@ -113,16 +142,21 @@ class WallActor(wallId: Long) extends Actor {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
 			}
 			else {
-				connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ producer))
+				connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ (producer, timestamp)))
 				sender ! Connected(producer, prev)
 			}
 		}
+		case Action(detail, origin, ack: Ack) =>
+			Logger.debug("ack came(" + ack.timestamp + ").")
+			updateTimestamp(ack.userId, origin, ack.timestamp)
+			cleanRecentRecords()
+
 		case Action(detail, origin, c: CreateAction) =>
 			val sheetId = Sheet.createInit(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId)
 			notifyAll("action", c.timestamp, c.userId, origin, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString)
 		case Action(detail, origin, action: ActionDetailWithId) =>
 			Sheet.findById(action.id) map { sheet =>
-				
+
 				action match {
 					case a: MoveAction =>
 						Sheet.move(a.id, a.x, a.y)
@@ -135,53 +169,50 @@ class WallActor(wallId: Long) extends Actor {
 					case a: SetTextAction =>
 						Sheet.setText(a.id, a.text)
 					case a: AlterTextAction =>
-					
 
 						val records = recentRecords.filter(_.timestamp > a.timestamp)
 						// simulate consolidation of records after timestamp
 						var pending = a.operations // all mine with > a.timestamp	
 						//Logger.info("ts:" + a.timestamp + " status: " + pending.size + "," + records.size)
-						assert(pending.size-1 == records.filter(_.conn == origin).size)
+						assert(pending.size - 1 == records.filter(_.conn == origin).size)
 						records.map { r =>
-							if(r.conn == origin)  {	
+							if (r.conn == origin) {
 								// consolidated
 								pending = pending.drop(1)
 							}
-							else  { // apply arrived consolidated record
+							else { // apply arrived consolidated record
 								val ss = new StringWithState(r.baseText)
 								ss.apply(r.consolidated, 1)
 								pending = pending.map { p =>
 									OperationWithState(ss.apply(p.op, 0), p.msgId)
 								}
-								//Logger.debug("simulation: " + ss.text)
+								Logger.debug("simulation: " + ss.text)
 							}
 						}
-						
+
 						val alteredAction = pending.head.op
-						
-						val (baseText,resultText) = Sheet.alterText(a.id, alteredAction.from, alteredAction.length, alteredAction.content)
+
+						val (baseText, resultText) = Sheet.alterText(a.id, alteredAction.from, alteredAction.length, alteredAction.content)
 						// keep track of pending text until disconnection
 						//Logger.info("before:(" + a.timestamp + ") :" + detail.toString)
 						val newAction = AlterTextAction(a.userId, a.timestamp, a.id, List(OperationWithState(alteredAction, a.operations.last.msgId)))
 						val timestamp = notifyAll("action", action.timestamp, action.userId, origin, newAction.singleJson.toString)
 						//Logger.info("after:(" + timestamp + ") :" +  newAction.singleJson.toString)
-						
+
 						recentRecords = recentRecords :+ Record(timestamp, baseText, resultText, alteredAction, origin)
 				}
-				
+
 				action match {
-					case a:AlterTextAction =>
+					case a: AlterTextAction =>
 					case _ =>
 						notifyAll("action", action.timestamp, action.userId, origin, detail.toString)
 				}
 			}
-			
-			
 
 		case Quit(userId, producer) => {
 			// clear sessions for userid. if none exists for a userid, remove userid key.
 			connections.get(userId).map { producers =>
-				
+
 				val newProducers = producers.filterNot(_ == producer)
 
 				if (newProducers.isEmpty)
@@ -189,6 +220,10 @@ class WallActor(wallId: Long) extends Actor {
 				else
 					connections = connections + (userId -> newProducers)
 			}
+			
+			cleanRecentRecords()
+
+			notifyAll("userQuit", 0, userId, producer, "")
 
 		}
 
@@ -208,10 +243,11 @@ class WallActor(wallId: Long) extends Actor {
 				"timestamp" -> JsNumber(logId)
 			)
 		)
- 
+
 		connections.foreach {
 			case (_, producers) =>
-				producers.map { producer =>
+				producers.map { producerPair =>
+					val producer = producerPair._1
 					if (producer == origin)
 						producer.push(msg ++ JsObject(Seq("mine" -> JsBoolean(true), "timestamp" -> JsNumber(logId))))
 					else

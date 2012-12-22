@@ -22,6 +22,7 @@ sealed trait ActionDetailWithId extends ActionDetail {
 	}
 }
 
+case class Ack(userId:Long, timestamp:Long) extends ActionDetail
 case class CreateAction(userId:Long, timestamp:Long, title:String, contentType:String, content:String, x:Double, y:Double, width:Double, height:Double) extends ActionDetail
 case class MoveAction(userId:Long, timestamp:Long, id:Long, x:Double, y:Double) extends ActionDetailWithId
 case class ResizeAction(userId:Long, timestamp:Long, id:Long, width:Double, height:Double) extends ActionDetailWithId
@@ -87,6 +88,8 @@ object ActionDetail {
 
 		if(actionType == "create")
 			CreateAction(userId, timestamp, title, contentType, content, x, y, width, height)
+		else if(actionType == "ack")
+			Ack(userId, timestamp)
 		else {		
 			actionType match {
 				case "move" =>
@@ -102,6 +105,7 @@ object ActionDetail {
 				case "alterText" =>
 					//Logger.info(content)
 					AlterTextAction(userId, timestamp, id, operations)
+					
 			}				
 		}
 	}

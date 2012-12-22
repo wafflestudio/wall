@@ -47,6 +47,7 @@ class WallSocket extends window.EventDispatcher
         @timestamp = data.timestamp
         detail = JSON.parse(data.detail)
         @trigger('receivedAction', detail, data.mine, data.timestamp)
+        @send({action:'ack'})
         
     onError = (e) =>
       console.log("error", e)
