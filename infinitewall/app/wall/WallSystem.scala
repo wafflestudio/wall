@@ -81,7 +81,7 @@ object WallSystem {
 
 }
 
-case class Record(timestamp: Long, baseText: String, resultText: String, consolidated: Operation, conn: Enumerator[JsValue])
+case class Record(timestamp: Long, sheetId:Long,  baseText: String, resultText: String, consolidated: Operation, conn: Enumerator[JsValue])
 
 class WallActor(wallId: Long) extends Actor {
 
@@ -121,10 +121,11 @@ class WallActor(wallId: Long) extends Actor {
 		connections.map { keyvalue =>
 			val userId = keyvalue._1
 			keyvalue._2.map { pair =>
-				if(minTs == 0 || pair._2 > minTs)
+				if(minTs == 0 || pair._2 < minTs)
 					minTs = pair._2
 			}
 		}
+		
 		recentRecords = recentRecords.dropWhile(_.timestamp < minTs)
 
 	}
@@ -170,11 +171,13 @@ class WallActor(wallId: Long) extends Actor {
 						Sheet.setText(a.id, a.text)
 					case a: AlterTextAction =>
 
-						val records = recentRecords.filter(_.timestamp > a.timestamp)
+						val records = recentRecords.filter(r => r.sheetId == a.id && r.timestamp > a.timestamp)
 						// simulate consolidation of records after timestamp
 						var pending = a.operations // all mine with > a.timestamp	
 						//Logger.info("ts:" + a.timestamp + " status: " + pending.size + "," + records.size)
-						assert(pending.size - 1 == records.filter(_.conn == origin).size)
+//						Logger.info(recentRecords.toString)
+						assert(pending.size - 1 == records.filter(_.conn == origin).size, 
+								"pending:" + (pending.size -1) + " record:" + records.filter(_.conn == origin).size)
 						records.map { r =>
 							if (r.conn == origin) {
 								// consolidated
@@ -197,9 +200,9 @@ class WallActor(wallId: Long) extends Actor {
 						//Logger.info("before:(" + a.timestamp + ") :" + detail.toString)
 						val newAction = AlterTextAction(a.userId, a.timestamp, a.id, List(OperationWithState(alteredAction, a.operations.last.msgId)))
 						val timestamp = notifyAll("action", action.timestamp, action.userId, origin, newAction.singleJson.toString)
-						//Logger.info("after:(" + timestamp + ") :" +  newAction.singleJson.toString)
+//						Logger.info("after:(" + timestamp + ") :" +  newAction.singleJson.toString)
 
-						recentRecords = recentRecords :+ Record(timestamp, baseText, resultText, alteredAction, origin)
+						recentRecords = recentRecords :+ Record(timestamp, a.id, baseText, resultText, alteredAction, origin)
 				}
 
 				action match {
