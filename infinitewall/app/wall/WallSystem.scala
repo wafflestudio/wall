@@ -97,6 +97,24 @@ class WallActor(wallId: Long) extends Actor {
 	def logMessage(kind: String, basetimestamp: Long, userId: Long, message: String) = {
 		WallLog.create(kind, wallId, basetimestamp, userId, message)
 	}
+	
+	
+	def quit(userId:Long, producer:Enumerator[JsValue]) = {
+		// clear sessions for userid. if none exists for a userid, remove userid key.
+		var numConnections = 0
+		connections.get(userId).map { producers =>
+
+			val newProducers = producers.filterNot(_._1 == producer)
+
+			if (newProducers.isEmpty)
+				connections = connections - userId
+			else
+				connections = connections + (userId -> newProducers)
+			numConnections += newProducers.length	
+		}
+		cleanRecentRecords()
+		Logger.info("Number of active connections: " + numConnections)
+	}
 
 	def updateTimestamp(userId: Long, origin: Enumerator[JsValue], ts: Long) = {
 
@@ -127,8 +145,8 @@ class WallActor(wallId: Long) extends Actor {
 		}
 		
 		recentRecords = recentRecords.dropWhile(_.timestamp < minTs)
-
 	}
+	
 
 	implicit def toDouble(value: JsValue) = { value.as[Double] }
 	implicit def toLong(value: JsValue) = { value.as[Long] }
@@ -136,7 +154,9 @@ class WallActor(wallId: Long) extends Actor {
 	def receive = {
 		case Join(userId, timestamp) => {
 			// Create an Enumerator to write to this socket
-			val producer = Enumerator.imperative[JsValue]()
+			val wallActor = self
+			lazy val producer:PushEnumerator[JsValue] = Enumerator.imperative[JsValue]()
+			
 			val prev = Enumerator(prevLogs(timestamp).map { walllog => WallLog.walllog2Json(walllog) }: _*)
 
 			if (false /* maximum connection per user constraint here*/ ) {
@@ -175,7 +195,7 @@ class WallActor(wallId: Long) extends Actor {
 						// simulate consolidation of records after timestamp
 						var pending = a.operations // all mine with > a.timestamp	
 						//Logger.info("ts:" + a.timestamp + " status: " + pending.size + "," + records.size)
-//						Logger.info(recentRecords.toString)
+						//Logger.info(recentRecords.toString)
 						assert(pending.size - 1 == records.filter(_.conn == origin).size, 
 								"pending:" + (pending.size -1) + " record:" + records.filter(_.conn == origin).size)
 						records.map { r =>
@@ -200,7 +220,7 @@ class WallActor(wallId: Long) extends Actor {
 						//Logger.info("before:(" + a.timestamp + ") :" + detail.toString)
 						val newAction = AlterTextAction(a.userId, a.timestamp, a.id, List(OperationWithState(alteredAction, a.operations.last.msgId)))
 						val timestamp = notifyAll("action", action.timestamp, action.userId, origin, newAction.singleJson.toString)
-//						Logger.info("after:(" + timestamp + ") :" +  newAction.singleJson.toString)
+						//Logger.info("after:(" + timestamp + ") :" +  newAction.singleJson.toString)
 
 						recentRecords = recentRecords :+ Record(timestamp, a.id, baseText, resultText, alteredAction, origin)
 				}
@@ -213,21 +233,8 @@ class WallActor(wallId: Long) extends Actor {
 			}
 
 		case Quit(userId, producer) => {
-			// clear sessions for userid. if none exists for a userid, remove userid key.
-			connections.get(userId).map { producers =>
-
-				val newProducers = producers.filterNot(_ == producer)
-
-				if (newProducers.isEmpty)
-					connections = connections - userId
-				else
-					connections = connections + (userId -> newProducers)
-			}
-			
-			cleanRecentRecords()
-
+			quit(userId, producer)
 			notifyAll("userQuit", 0, userId, producer, "")
-
 		}
 
 	}
