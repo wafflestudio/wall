@@ -4,11 +4,13 @@ class window.ImageSheetHandler extends SheetHandler
 
   constructor: (params) ->
     super params
+    @sheet.element.on 'mousedown', '.sheetImage', (e) -> e.preventDefault()
     @imgWidth = @sheet.iw()
     @imgHeight = @sheet.ih()
 
   onResizeMouseMove: (e) =>
-    
+    super e
+
     dX = e.pageX - @deltax
     dY = e.pageY - @deltay
     ratio = @imgWidth / @imgHeight

@@ -76,7 +76,6 @@ class window.SheetHandler
             @sheet.becomeActive()
 
         wall.toCenter(@sheet)
-        e.stopImmediatePropagation()
 
       else
         if glob.activeSheet
@@ -85,24 +84,6 @@ class window.SheetHandler
             @sheet.becomeActive()
         else
           @sheet.becomeActive()
-          #newEvt = $.Event("mousedown",{
-            #canBubble: true,
-            #cancelable: true,
-            #view: e.view,
-            #detail: e.detail,
-            #screenX: e.screenX,
-            #screenY: e.screenY,
-            #clientX: e.clientX,
-            #clientY: e.clientY,
-            #ctrlKey: e.ctrlKey,
-            #altKey: e.altKey,
-            #shiftKey: e.shiftKey,
-            #metaKey: e.metaKey,
-            #button: e.button,
-            #relatedTarget: e.relatedTarget
-          #})
-          #@sheet.element.trigger(newEvt, true)
-          #@sheet.element.find('.sheetTextField').trigger('activate')
         wall.revealSheet()
 
     @onMouseUp.lastClick = t
@@ -124,6 +105,7 @@ class window.SheetHandler
 
         $(document).on 'mousemove', @onMouseMove
         $(document).on 'mouseup', @onMouseUp
+
       else if e.which is 3
         glob.rightClick = true
         @currentLink = new LinkLine(@sheet.id)
@@ -132,7 +114,7 @@ class window.SheetHandler
         $(document).on 'mouseup', @onRightMouseUp
         return false
     
-    e.stopImmediatePropagation()
+    e.stopPropagation()
 
   onButtonMouseDown: (e) =>
     @onButtonMouseDown.hasMoved = false
@@ -159,6 +141,8 @@ class window.SheetHandler
     return false
 
   onResizeMouseMove: (e) =>
+    for id, link of @sheet.links
+      link.refresh()
 
   onResizeMouseUp: (e) =>
     $(document).off 'mousemove', @onResizeMouseMove

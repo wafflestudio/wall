@@ -58,10 +58,26 @@ class window.Sheet extends Moveable
   move: (params) ->
     @tXY(params.x, params.y)
     @refreshLinks(params.x, params.y, @w(), @h())
+    minimap.refresh {
+      id: params.id
+      x: params.x
+      y: params.y
+      w: @w()
+      h: @h()
+      isTransition: true
+    }
 
   resize: (params) ->
     @tiWH(params.width, params.height)
     @refreshLinks(@x(), @y(), params.width, params.height)
+    minimap.refresh {
+      id: params.id
+      x: @x()
+      y: @y()
+      w: params.width
+      h: params.height
+      isTransition: true
+    }
 
   remove: (params) ->
     for id, link of @links
