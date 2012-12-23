@@ -1,4 +1,4 @@
-class window.MiniSheet extends Moveable
+class window.MiniSheet extends Movable
   constructor: (id) ->
     @id = id
     @element = $($('<div class = "minimapElement"></div>').appendTo('#minimapElements'))

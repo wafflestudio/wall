@@ -32,12 +32,15 @@ class window.SheetHandler
     @sheet.resignSelected()
     
     if glob.hoverSheet
-      @currentLink.connect(glob.hoverSheet)
+      if @sheet.links[glob.hoverSheet]?
+        @sheet.links[glob.hoverSheet].remove()
+        delete @sheet.links[glob.hoverSheet]
+        @currentLink.remove()
+      else
+        @currentLink.connect(glob.hoverSheet)
       sheets[glob.hoverSheet].resignSelected()
-
     else
       @currentLink.remove()
-    
     @currentLink = null
 
   onMouseMove: (e) =>
@@ -89,31 +92,29 @@ class window.SheetHandler
     @onMouseUp.lastClick = t
     return false
 
-  onMouseDown: (e, doDefault = false) =>
-    
-    if not doDefault
-      if e.which is 1
-        @hasMoved = false
-        wall.bringToTop(@sheet)
-        minimap.bringToTop(miniSheets[@sheet.id])
+  onMouseDown: (e) =>
+    if e.which is 1 # left click
+      @hasMoved = false
+      #wall.bringToTop(@sheet)
+      #minimap.bringToTop(miniSheets[@sheet.id])
 
-        @startx = @sheet.x() * glob.zoomLevel
-        @starty = @sheet.y() * glob.zoomLevel
+      @startx = @sheet.x() * glob.zoomLevel
+      @starty = @sheet.y() * glob.zoomLevel
 
-        @deltax = e.pageX
-        @deltay = e.pageY
+      @deltax = e.pageX
+      @deltay = e.pageY
 
-        $(document).on 'mousemove', @onMouseMove
-        $(document).on 'mouseup', @onMouseUp
+      $(document).on 'mousemove', @onMouseMove
+      $(document).on 'mouseup', @onMouseUp
 
-      else if e.which is 3
-        glob.rightClick = true
-        @currentLink = new LinkLine(@sheet.id)
-        @onRightMouseMove.mouseMoved = false
-        $(document).on 'mousemove', @onRightMouseMove
-        $(document).on 'mouseup', @onRightMouseUp
-        return false
-    
+    else if e.which is 3 # right click
+      glob.rightClick = true
+      @currentLink = new LinkLine(@sheet.id)
+      @onRightMouseMove.mouseMoved = false
+      $(document).on 'mousemove', @onRightMouseMove
+      $(document).on 'mouseup', @onRightMouseUp
+      return false
+
     e.stopPropagation()
 
   onButtonMouseDown: (e) =>

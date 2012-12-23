@@ -33,7 +33,6 @@ class window.Minimap
     }
 
   refresh: (info = null) =>
-    console.log info
     if !info or !info.mLx and !info.mLy
       mLx = wall.mL.x()
       mLy = wall.mL.y()

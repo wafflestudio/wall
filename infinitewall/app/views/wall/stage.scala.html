@@ -4,23 +4,25 @@
 
 <input id="fileupload" type="file" name="files[]" data-url="/file" multiple>
 
-<div id="wall">
-	<div id="scaleLayer">
-    <div id ="moveLayer">
-      <div id="linkLayer"></div>
-      <div id="sheetLayer"></div>
+<div id = "wall">
+  <div id = "scaleLayer">
+    <div id = "moveLayer">
+      <div id = "linkLayer"></div>
+      <div id = "sheetLayer"></div>
 		</div>
 	</div>
-	<div contenteditable=true id="wallPasteArea"></div>
+  <div id = "dockLayer">
+  </div>
+	<div contenteditable = true id = "wallPasteArea"></div>
 </div>
 
 <div id = "rightBar">
-  <div id="toolBar">
-    <img id="zoomIcon" src="@routes.Assets.at("images/zoomIcon.png")"></img>
-    <p id="zoomLevelText">100%</p>
-    <img class="createBtn" rel="text" src="@routes.Assets.at("images/createSheet.png")"></img>
-    <img id="minimapBtn" src="@routes.Assets.at("images/minimap.png")"></img>
-    <img id="folderBtn" src="@routes.Assets.at("images/folder.png")"></img>
+  <div id = "toolBar">
+    <img id = "zoomIcon" src = "@routes.Assets.at("images/zoomIcon.png")"></img>
+    <p id = "zoomLevelText">100%</p>
+    <img class = "createBtn" rel = "text" src = "@routes.Assets.at("images/createSheet.png")"></img>
+    <img id = "minimapBtn" src = "@routes.Assets.at("images/minimap.png")"></img>
+    <img id = "folderBtn" src="@routes.Assets.at("images/folder.png")"></img>
   </div>
   <div id = "miniMap">
     <div id = "minimapWorld">
@@ -29,24 +31,24 @@
     </div>
   </div>
   <div id = "chatWindow">
-    <div id="chat-userlist">
-      <ul id="users" class="unstyled">
+    <div id = "chat-userlist">
+      <ul id = "users" class = "unstyled">
       </ul>
     </div>
-    <div id="log">
+    <div id = "log">
     </div>
     <div id = "chatInputContainer">
-      <textarea id="talk"></textarea>
+      <textarea id = "talk"></textarea>
     </div>
   </div>
 </div>
 
-<div id="wallmanagement">
-  <div id="folder-test">
+<div id = "wallmanagement">
+  <div id = "folder-test">
   </div>
 </div>
 
-<script type="text/javascript">
+<script type = "text/javascript">
 
 
   $(function()

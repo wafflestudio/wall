@@ -1,6 +1,6 @@
 linkTemplate = "<div class = 'linkLine'></div>"
 
-class window.LinkLine extends Moveable
+class window.LinkLine extends Movable
   from: null
   to: null
   oldTheta: 0
@@ -49,15 +49,12 @@ class window.LinkLine extends Moveable
     @rotateLink(fgC.x, fgC.y, toX, toY)
    
   connect: (toID) =>
-    if sheets[@from].links[toID] or toID is @from
-      @remove()
-    else
-      @to = toID
-      tgC = @getCenter(@to)
-      fgC = @getCenter(@from)
-      @rotateLink(fgC.x, fgC.y, tgC.x, tgC.y)
-      sheets[@from].links[@to] = this
-      sheets[@to].links[@from] = this
+    @to = toID
+    tgC = @getCenter(@to)
+    fgC = @getCenter(@from)
+    @rotateLink(fgC.x, fgC.y, tgC.x, tgC.y)
+    sheets[@from].links[@to] = this
+    sheets[@to].links[@from] = this
 
   refresh: () ->
     fgC = @getCenter(@from)

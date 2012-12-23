@@ -1,4 +1,4 @@
-class window.Moveable
+class window.Movable
   id: null
   element: null
   innerElement: null

@@ -1,5 +1,6 @@
-class window.Sheet extends Moveable
+class window.Sheet extends Movable
   links: null
+  docked: false
 
   @create: (content) ->
     #interface for random creation
@@ -129,3 +130,12 @@ class window.Sheet extends Moveable
   refreshLinks: (x, y, w, h) ->
     for id, link of @links
       link.transitionRefresh(@id, x, y, w, h)
+
+  dock: () ->
+    wall.dock(this)
+    @resignActive()
+    @docked = true
+
+  undock: () ->
+    wall.undock(this)
+    @docked = false

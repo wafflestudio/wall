@@ -1,8 +1,4 @@
-class MoveLayer extends Moveable
-  constructor: () ->
-    @element = $("#moveLayer")
-
-class ScaleLayer extends Moveable
+class ScaleLayer extends Movable
   constructor: () ->
     @element = $("#scaleLayer")
   
@@ -17,10 +13,19 @@ class ScaleLayer extends Moveable
     else
       @element.css {scale: glob.zoomLevel}
 
+class MoveLayer extends Movable
+  constructor: () ->
+    @element = $("#moveLayer")
+
+class DockLayer extends Movable
+  constructor: () ->
+    @element = $("#dockLayer")
+
 class window.Wall
   wall: null
   mL: null
   sL: null
+  dL: null
   deltax: 0
   deltay: 0
   startx: 0
@@ -31,6 +36,12 @@ class window.Wall
   yWallLast: 0
   hasMoved: false
   
+  dock: (sheet) ->
+    @dL.element.append sheet.element
+
+  undock: (sheet) ->
+    @bringToTop(sheet)
+
   bringToTop: (sheet) ->
     $("#sheetLayer").append sheet.element
 
@@ -38,6 +49,7 @@ class window.Wall
     @wall = $('#wall')
     @mL = new MoveLayer()
     @sL = new ScaleLayer()
+    @dL = new DockLayer()
     @wall.on 'dblclick', @onMouseDblClick
     @wall.on 'mousedown', @onMouseDown
     @wall.on 'mousewheel', @onMouseWheel
@@ -80,7 +92,9 @@ class window.Wall
     #xWall - xWallLast는 저번과 현재의 마우스 좌표 차이 
     #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
     
-    glob.zoomLevel += delta / 2.5
+    delta /= 2.5
+    tempDelta = if Math.abs(delta) < 0.15 then delta else (delta / Math.abs(delta)) * 0.15
+    glob.zoomLevel += tempDelta
     glob.zoomLevel = if glob.zoomLevel < 0.2 then 0.2 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
         
     xNew = (xWall - @xScaleLayer) / glob.zoomLevel
