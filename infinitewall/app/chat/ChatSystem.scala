@@ -26,19 +26,18 @@ case class NotifyJoin(userId: Long)
 case class Connected(enumerator: Enumerator[JsValue])
 case class CannotConnect(msg: String)
 
-case class Message(kind: String, username:String, text:String)
-
+case class Message(kind: String, username: String, text: String)
 
 object ChatSystem {
-	
+
 	implicit val timeout = Timeout(1 second)
 
-	var rooms:Map[Long, ActorRef] = Map()
-	
-	def room(roomId:Long):ActorRef = {
-		rooms.get(roomId) match { 
+	var rooms: Map[Long, ActorRef] = Map()
+
+	def room(roomId: Long): ActorRef = {
+		rooms.get(roomId) match {
 			case Some(room) => room
-			case None => 
+			case None =>
 				val newRoom = Akka.system.actorOf(Props(new ChatRoomActor(roomId)))
 				rooms = rooms + (roomId -> newRoom)
 				newRoom
@@ -78,15 +77,15 @@ object ChatSystem {
 
 }
 
-class ChatRoomActor(roomId:Long) extends Actor {
+class ChatRoomActor(roomId: Long) extends Actor {
 
 	var connections = List.empty[(Long, PushEnumerator[JsValue])]
-	
-	def prevMessages(timestamp:Long) = {
+
+	def prevMessages(timestamp: Long) = {
 		ChatLog.list(roomId, timestamp)
 	}
-		
-	def logMessage(kind:String, userId:Long, message:String) = {
+
+	def logMessage(kind: String, userId: Long, message: String) = {
 		ChatLog.create(kind, roomId, userId, message)
 	}
 
@@ -96,14 +95,14 @@ class ChatRoomActor(roomId:Long) extends Actor {
 			// Create an Enumerator to write to this socket
 			val producer = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin(userId))
 			val prev = Enumerator(prevMessages(0).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
-			
+
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
 			}
 			else {
 				prev.map { jsval => producer.push(jsval) }
 				connections = connections :+ (userId, producer)
-        ChatRoom.addUser(roomId, userId)
+				ChatRoom.addUser(roomId, userId)
 				sender ! Connected(producer)
 			}
 		}
@@ -123,7 +122,7 @@ class ChatRoomActor(roomId:Long) extends Actor {
 				else
 					Some(p)
 			}
-      ChatRoom.removeUser(roomId, userId)
+			ChatRoom.removeUser(roomId, userId)
 			notifyAll("quit", userId, "has left the room")
 		}
 
@@ -131,26 +130,26 @@ class ChatRoomActor(roomId:Long) extends Actor {
 
 	def notifyAll(kind: String, userId: Long, message: String) {
 
-			val username = User.findById(userId).get.email
-      val users = ChatRoom.listUsers(roomId)
+		val username = User.findById(userId).get.email
+		val users = ChatRoom.listUsers(roomId)
 
-			val msg = JsObject(
-				Seq(
-					"kind" -> JsString(kind),
-					"username" -> JsString(username),
-					"message" -> JsString(message),
-          "users" -> JsArray(
-            connections.map(i => JsString(User.findById(i._1).get.email) )
-          )
+		val msg = JsObject(
+			Seq(
+				"kind" -> JsString(kind),
+				"username" -> JsString(username),
+				"message" -> JsString(message),
+				"users" -> JsArray(
+					connections.map(i => JsString(User.findById(i._1).get.email))
 				)
 			)
-			
-			logMessage(kind, userId, message)
-			
-			connections.foreach {
-				case (_, producer) => producer.push(msg)
-			}
-	
+		)
+
+		logMessage(kind, userId, message)
+
+		connections.foreach {
+			case (_, producer) => producer.push(msg)
+		}
+
 	}
 
 }
