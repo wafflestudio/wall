@@ -34,14 +34,13 @@ class window.Sheet extends Movable
       @socketSetTitle() if prevTitle isnt curTitle
       prevTitle = curTitle
     .html(params.title)
-   
     @attachHandler()
-
+    
     newMiniSheet = new MiniSheet(@id)
     window.miniSheets[@id] = newMiniSheet
     window.sheets[params.id] = this
     minimap.refresh()
-    
+   
   socketMove: (params) ->
     wallSocket.send {action : 'move', params : $.extend(params, {id : @id})}
 

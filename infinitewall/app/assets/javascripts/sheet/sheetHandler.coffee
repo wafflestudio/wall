@@ -14,10 +14,72 @@ class window.SheetHandler
     @sheet = params
     @sheet.element.on 'mousedown', '.boxClose', @onButtonMouseDown
     @sheet.element.on 'mousedown', '.resizeHandle', @onResizeMouseDown
+    @sheet.element.on 'touchstart', '.resizeHandle', @onResizeTouchStart
     @sheet.element.on 'mousedown', @onMouseDown
+    @sheet.element.on 'touchstart', @onTouchStart
     @sheet.element.on 'mouseenter', @onMouseEnter
     @sheet.element.on 'mouseleave', @onMouseLeave
   
+  onTouchStart: (e) =>
+    console.log "touchstart"
+    wall.bringToTop(@sheet)
+    minimap.bringToTop(miniSheets[@sheet.id])
+    
+    @hasMoved = false
+    @startx = @sheet.x() * glob.zoomLevel
+    @starty = @sheet.y() * glob.zoomLevel
+    @deltax = e.originalEvent.pageX
+    @deltay = e.originalEvent.pageY
+    $(document).on 'touchmove', @onTouchMove
+    $(document).on 'touchend', @onTouchEnd
+    return false
+    e.stopPropagation()
+
+  onTouchMove: (e) =>
+    @sheet.x((@startx + e.originalEvent.pageX - @deltax) / glob.zoomLevel)
+    @sheet.y((@starty + e.originalEvent.pageY - @deltay) / glob.zoomLevel)
+    @hasMoved = true
+      
+  onTouchEnd: (e) =>
+    $(document).off 'touchmove', @onTouchMove
+    $(document).off 'touchend', @onTouchEnd
+    d = new Date()
+    t = d.getTime()
+    
+    minimap.refresh()
+
+
+    if @hasMoved
+      @sheet.socketMove {
+        x: @sheet.x()
+        y: @sheet.y()
+      }
+      @sheet.element.find('.sheetTextField').blur()
+      @sheet.element.find('.sheetTitle').blur()
+    else
+      @onTouchEnd.lastTouch = 0 if @onTouchEnd.lastTouch is undefined
+
+      if t - @onMouseUp.lastTouch < 300
+        console.log "doubleClick!"
+        if glob.activeSheet
+          if glob.activeSheet isnt @sheet
+            glob.activeSheet.resignActive()
+            @sheet.becomeActive()
+
+        wall.toCenter(@sheet)
+
+      else
+        if glob.activeSheet
+          if glob.activeSheet isnt @sheet
+            glob.activeSheet.resignActive()
+            @sheet.becomeActive()
+        else
+          @sheet.becomeActive()
+        wall.revealSheet()
+
+    @onMouseUp.lastClick = t
+    return false
+
   onRightMouseMove: (e) =>
     if @onRightMouseMove.mouseMoved is false
       @sheet.becomeSelected()
@@ -132,6 +194,26 @@ class window.SheetHandler
     $(document).off 'mousemove', @onButtonMouseMove
     $(document).off 'mouseup', @onButtonMouseUp
   
+  onResizeTouchStart: (e) =>
+    $(document).on 'touchmove', @onResizeTouchMove
+    $(document).on 'touchend', @onResizeTouchEnd
+    console.log "resizetouchstart"
+    @startWidth = @sheet.iw() * glob.zoomLevel
+    @startHeight = @sheet.ih() * glob.zoomLevel
+    @deltax = e.originalEvent.pageX
+    @deltay = e.originalEvent.pageY
+    return false
+
+
+  onResizeTouchEnd: (e) =>
+    $(document).off 'touchmove', @onResizeTouchMove
+    $(document).off 'touchend', @onResizeTouchEnd
+    @sheet.socketResize {
+      width: @sheet.iw()
+      height: @sheet.ih()
+    }
+    minimap.refresh()
+
   onResizeMouseDown: (e) =>
     $(document).on 'mousemove', @onResizeMouseMove
     $(document).on 'mouseup', @onResizeMouseUp

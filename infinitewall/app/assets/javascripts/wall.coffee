@@ -30,6 +30,8 @@ class window.Wall
   deltay: 0
   startx: 0
   starty: 0
+  startlen: 0
+  startzoom: 1
   xScaleLayer: 0
   yScaleLayer: 0
   xWallLast: 0
@@ -52,7 +54,101 @@ class window.Wall
     @dL = new DockLayer()
     @wall.on 'dblclick', @onMouseDblClick
     @wall.on 'mousedown', @onMouseDown
+    @wall.on 'touchstart', @onTouchStart
     @wall.on 'mousewheel', @onMouseWheel
+  
+  averageX = (e) ->
+    x = 0
+    for k, v of e.originalEvent.touches
+      if v instanceof Touch
+        x += v.pageX
+    x / e.originalEvent.touches.length
+
+  averageY = (e) ->
+    y = 0
+    for k, v of e.originalEvent.touches
+      if v instanceof Touch
+        y += v.pageY
+    y / e.originalEvent.touches.length
+
+  onTouchStart: (e) =>
+    len = e.originalEvent.touches.length
+    @startx = @mL.x() * glob.zoomLevel
+    @starty = @mL.y() * glob.zoomLevel
+    
+    if len is 1
+      @hasMoved = false
+      @deltax = e.originalEvent.pageX
+      @deltay = e.originalEvent.pageY
+    else # 첫번쨰 이후의 터치일 경우
+      $(document).off 'touchmove', @onTouchMove
+      $(document).off 'touchend', @onTouchEnd
+      @deltax = averageX(e)
+      @deltay = averageY(e)
+      xlen = e.originalEvent.touches[0].pageX - e.originalEvent.touches[1].pageX
+      ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY
+      @startlen = Math.sqrt(xlen * xlen + ylen * ylen)
+      @startzoom = glob.zoomLevel
+    
+    $(document).on 'touchmove', @onTouchMove
+    $(document).on 'touchend', @onTouchEnd
+    e.preventDefault()
+
+  onTouchMove: (e) =>
+    @hasMoved = true
+    
+    if e.originalEvent.touches.length is 1
+      @mL.x((@startx + e.originalEvent.pageX - @deltax) / glob.zoomLevel)
+      @mL.y((@starty + e.originalEvent.pageY - @deltay) / glob.zoomLevel)
+    else # 터치가 2개 이상, pinch-to-zoom / 중점 기준으로 움직이게
+      x = averageX(e)
+      y = averageY(e)
+      
+      xlen = e.originalEvent.touches[0].pageX - e.originalEvent.touches[1].pageX
+      ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY
+      
+      xWall = x - @wall.offset().left
+      yWall = y - @wall.offset().top - 38
+
+      @mL.x((@startx + x - @deltax) / glob.zoomLevel)
+      @mL.y((@starty + y - @deltay) / glob.zoomLevel)
+
+      #-38은 #wall이 위에 네비게이션 바 밑으로 들어간 38픽셀에 대한 compensation
+      #xWall, yWall은 wall의 (0,0)을 origin으로 본 마우스 커서 위치
+
+      @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
+      @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
+      
+      #xWall - xWallLast는 저번과 현재의 마우스 좌표 차이 
+      #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
+     
+      glob.zoomLevel = @startzoom * Math.sqrt(xlen * xlen + ylen * ylen) / @startlen
+      glob.zoomLevel = if glob.zoomLevel < 0.2 then 0.2 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
+          
+      xNew = (xWall - @xScaleLayer) / glob.zoomLevel
+      yNew = (yWall - @yScaleLayer) / glob.zoomLevel
+      
+      #xNew, yNew는 wall기준 mouse위치와 scaleLayer기준 mouseLayer 의 차..
+      
+      @xWallLast = xWall
+      @yWallLast = yWall
+
+      glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
+      glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
+
+      #scaleLayer의 좌표를 wall의 기준으로 저장
+
+      @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
+      $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
+      #minimap.refresh()
+
+  onTouchEnd: (e) =>
+    $(document).off 'touchmove', @onTouchMove
+    $(document).off 'touchend', @onTouchEnd
+    minimap.refresh()
+    
+    if glob.activeSheet and not @hasMoved
+      glob.activeSheet.resignActive()
 
   onMouseMove: (e) =>
     @mL.x((@startx + e.pageX - @deltax) / glob.zoomLevel)

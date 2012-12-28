@@ -3,7 +3,7 @@ class ChatSocket
     WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
     socket = new WS(url)
 
-    sendMessage = ()=>      
+    sendMessage = ()=>
       msg = $('#talk').val()
       
       if msg.charAt(msg.length-1) == '\n'
@@ -18,7 +18,7 @@ class ChatSocket
       $('#talk').val("")
 
     onReceive = (e) ->
-      data = JSON.parse(e.data);
+      data = JSON.parse(e.data)
       if data.error
         console.log('disconnected: ' + data.error)
         socket.close()
@@ -31,8 +31,6 @@ class ChatSocket
       log.append newMessage
       log.animate {scrollTop : log.prop('scrollHeight') - log.height()}, 200
 
-      #$("#log").append("<p>" + data.username + " : " + data.message + "</p>")
-      
       #update user list
       $('#users').html('')
       $(data.users).each () ->

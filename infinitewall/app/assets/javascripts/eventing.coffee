@@ -21,7 +21,7 @@ class EventDispatcher
       args = []
       i = 1
       while i < arguments.length
-        args.push(arguments[i]) 
+        args.push(arguments[i])
         i = i + 1
       
       handlers = eventHandlers[evtName]
@@ -35,9 +35,8 @@ class EventDispatcher
     @clear = (evtName) ->
       if evtName
         eventHandlers[evtName] = []
-      else 
+      else
         eventHandlers = {}
-
 
 
 test = () -> 

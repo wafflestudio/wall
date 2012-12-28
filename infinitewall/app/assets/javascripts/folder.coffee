@@ -222,7 +222,7 @@ class FolderView extends window.EventDispatcher
       </div>')
     
 
-    @container.append(@root.element)  
+    @container.append(@root.element)
     @container.append(@bottombar)
     
   appendTo: (jq) =>

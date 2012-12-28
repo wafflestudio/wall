@@ -31,6 +31,9 @@ class window.Minimap
       'background-color': 'transparent',
       opacity: 1
     }
+  
+  mlRefresh: () =>
+    # moveLayer만 움직였을 경우 시트는 그대로이기 떄문에 계산을 줄일 수 있음
 
   refresh: (info = null) =>
     if !info or !info.mLx and !info.mLy
