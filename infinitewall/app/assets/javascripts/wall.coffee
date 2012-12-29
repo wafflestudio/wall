@@ -10,6 +10,7 @@ class ScaleLayer extends Movable
     }
 
   setZoom: (isTransition = false, callback) ->
+    $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     if isTransition
       @element.transition {scale: glob.zoomLevel}, callback
     else
@@ -44,17 +45,16 @@ class window.Wall
   yWallLast: 0
   hasMoved: false
 
-
   save: ()->
     
     if @saveTimeout
       clearTimeout(@saveTimeout)
 
     @saveTimeout = setTimeout(
-      () => 
-        x =  (glob.scaleLayerXPos + @mL.x() * glob.zoomLevel) / glob.zoomLevel
-        y =  (glob.scaleLayerYPos + @mL.y() * glob.zoomLevel) / glob.zoomLevel
-        zoom = glob.zoomLevel 
+      () =>
+        x = (glob.scaleLayerXPos + @mL.x() * glob.zoomLevel) / glob.zoomLevel
+        y = (glob.scaleLayerYPos + @mL.y() * glob.zoomLevel) / glob.zoomLevel
+        zoom = glob.zoomLevel
         console.log("x: #{x}, y: #{y}, zoom: #{zoom}")
         $.post("/wall/view/#{glob.wallId}", {x:x, y:y, zoom:zoom})
     ,1000)
@@ -160,7 +160,6 @@ class window.Wall
       #scaleLayer의 좌표를 wall의 기준으로 저장
 
       @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
-      $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
       #minimap.refresh()
 
   onTouchEnd: (e) =>
@@ -196,7 +195,6 @@ class window.Wall
     $(document).on 'mouseup', @onMouseUp
     e.preventDefault()
     
-
   onMouseWheel: (e, delta, deltaX, deltaY) =>
 
     xWall = e.pageX - @wall.offset().left
@@ -230,8 +228,8 @@ class window.Wall
     #scaleLayer의 좌표를 wall의 기준으로 저장
 
     @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
-    $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh()
+
     @save()
     return false
 
@@ -256,9 +254,8 @@ class window.Wall
     glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
 
     @sL.set(xWall, yWall, xNew, yNew, true)
-
-    $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh {isTransition: true}
+
     @save()
     return false
 
@@ -355,8 +352,6 @@ class window.Wall
       glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
 
       @sL.set(xWall, yWall, xNew, yNew, true, callback)
-
-      $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
       minimap.refresh {isTransition: true}
 
     @save()
