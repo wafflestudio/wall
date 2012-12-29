@@ -85,8 +85,13 @@ object Wall extends Controller with Auth with Login{
 		Ok(Json.toJson("OK"))
 	}
 	
-	def setView(wallId: Long, panX: Double, panY: Double, zoom: Double) = AuthenticatedAction { implicit request =>
-		models.WallPreference.setView(currentUserId, wallId, panX, panY, zoom)
+	def setView(wallId: Long) = AuthenticatedAction { implicit request =>
+		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
+		val x = params.get("x").getOrElse(Seq("0.0"))(0).toDouble
+		val y = params.get("y").getOrElse(Seq("0.0"))(0).toDouble
+		val zoom = params.get("zoom").getOrElse(Seq("1.0"))(0).toDouble
+		
+		models.WallPreference.setView(currentUserId, wallId, x, y, zoom)
 		Ok(Json.toJson("OK"))
 	}
 	

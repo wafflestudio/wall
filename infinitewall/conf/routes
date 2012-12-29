@@ -22,6 +22,7 @@ GET     /tree                       controllers.Wall.tree
 GET     /wall/:wallId               controllers.Wall.stage(wallId:Long)
 POST    /wall/create                controllers.Wall.create
 GET     /wall/sync/:wallId/:timestamp     controllers.Wall.sync(wallId:Long, timestamp:Long)
+POST    /wall/view/:wallId        controllers.Wall.setView(wallId:Long)
 
 GET     /group                       controllers.Group.index
 GET     /group/:groupId              controllers.Group.show(groupId:Long)

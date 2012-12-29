@@ -37,6 +37,21 @@ class window.Wall
   xWallLast: 0
   yWallLast: 0
   hasMoved: false
+
+
+  save: ()->
+    
+    if @saveTimeout
+      clearTimeout(@saveTimeout)
+
+    @saveTimeout = setTimeout(
+      () => 
+        x =  (glob.scaleLayerXPos + @mL.x() * glob.zoomLevel) / glob.zoomLevel
+        y =  (glob.scaleLayerYPos + @mL.y() * glob.zoomLevel) / glob.zoomLevel
+        zoom = glob.zoomLevel 
+        console.log("x: #{x}, y: #{y}, zoom: #{zoom}")
+        $.post("/wall/view/#{glob.wallId}", {x:x, y:y, zoom:zoom})
+    ,1000)
   
   dock: (sheet) ->
     @dL.element.append sheet.element
@@ -155,6 +170,7 @@ class window.Wall
     @mL.y((@starty + e.pageY - @deltay) / glob.zoomLevel)
     @hasMoved = true
     minimap.refresh()
+    @save()
 
   onMouseUp: ->
     $(document).off 'mousemove', @onMouseMove
@@ -173,6 +189,7 @@ class window.Wall
     $(document).on 'mousemove', @onMouseMove
     $(document).on 'mouseup', @onMouseUp
     e.preventDefault()
+    
 
   onMouseWheel: (e, delta, deltaX, deltaY) =>
 
@@ -209,6 +226,7 @@ class window.Wall
     @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh()
+    @save()
     return false
 
   onMouseDblClick: (e) =>
@@ -235,6 +253,7 @@ class window.Wall
 
     $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh {isTransition: true}
+    @save()
     return false
 
   revealSheet: ->
@@ -276,6 +295,7 @@ class window.Wall
         mLx: diffX + mLX,
         mLy: diffY + mLY
       }
+      @save()
 
   toCenter: (sheet, callback) ->
     sheetW = sheet.w()
@@ -307,6 +327,7 @@ class window.Wall
         mLy: diffY + mLY
       }
 
+
     else
       sheetX = (glob.scaleLayerXPos + (@mL.x() + sheet.x()) * glob.zoomLevel)
       sheetY = (glob.scaleLayerYPos + (@mL.y() + sheet.y()) * glob.zoomLevel)
@@ -331,3 +352,5 @@ class window.Wall
 
       $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
       minimap.refresh {isTransition: true}
+
+    @save()
