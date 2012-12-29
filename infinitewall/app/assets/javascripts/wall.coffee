@@ -2,16 +2,22 @@ class ScaleLayer extends Movable
   constructor: () ->
     @element = $("#scaleLayer")
   
-  set: (tx, ty, x, y, isTransition = false, callback) ->
+  setPoint: (tx, ty, x, y) ->
     @element.css {
-      transformOrigin: tx + 'px ' + ty + 'px',
-      x: x,
+      transformOrigin: tx + 'px ' + ty + 'px'
+      x: x
       y: y
     }
+
+  setZoom: (isTransition = false, callback) ->
     if isTransition
       @element.transition {scale: glob.zoomLevel}, callback
     else
       @element.css {scale: glob.zoomLevel}
+
+  set: (tx, ty, x, y, isTransition = false, callback) ->
+    @setPoint(tx, ty, x, y)
+    @setZoom(isTransition, callback)
 
 class MoveLayer extends Movable
   constructor: () ->

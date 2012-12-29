@@ -103,12 +103,10 @@
 
     glob.zoomLevel = @pref.zoom;
     glob.wallId = @wallId;
-    wall.sL.set(0,0,0,false)
-		//$('#scaleLayer').css('scale', glob.zoomLevel)
-    $('#moveLayer').css('x', @pref.panX)
-		$('#moveLayer').css('y', @pref.panY)
-		//wall.mL.x(@pref.panX)
-    //wall.mL.y(@pref.panY)
+    wall.sL.setZoom()
+		wall.mL.x(@pref.panX)
+    wall.mL.y(@pref.panY)
+    minimap.refresh()
 
     $.getJSON('/tree', function(data) {
       // folder test
