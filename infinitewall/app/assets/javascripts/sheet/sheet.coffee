@@ -104,8 +104,8 @@ class window.Sheet extends Movable
   becomeActive: () ->
     glob.activeSheet = this
     @element.find('.boxClose').show()
-    @element.children('.sheet').css 'border-top', '2px solid #FF4E58'
-    @element.children('.sheet').css 'margin-top', '-2px'
+    @element.children('.sheet').css 'border-top', '3px solid #FF4E58'
+    @element.children('.sheet').css 'margin-top', '-3px'
     @element.find('.sheetTopBar').show()
     #@element.find('.sheetTextField').focus()
     miniSheets[@id].becomeActive()
