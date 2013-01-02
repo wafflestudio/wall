@@ -33,19 +33,20 @@ class window.LinkLine extends Movable
     transform_str = "T" + -bbox.x + "," + -bbox.y
     newline_str = Raphael.transformPath(line_str, transform_str)
 
-    @element.css {position: 'absolute', width: bbox.width+100, height: bbox.height+100}
     if @line == null
       @line = @paper.path(newline_str)
       @line.attr("stroke", "black")
       @line.attr("stroke-width", "3")
     else
       @line.attr("path", newline_str)
-      if @element.attr('top') != bbox.y
-        @element.css {top: bbox.y}
-      if @element.attr('left') != bbox.x
-        @element.css {left: bbox.x}
+      
+    @element.css {position: 'absolute', width: bbox.width+100, height: bbox.height+100}
+    if @element.attr('top') != bbox.y
+      @element.css {top: bbox.y}
+    if @element.attr('left') != bbox.x
+      @element.css {left: bbox.x}
 
-    @line.data("marker-end", "url()")
+    #TODO: different movement on transition case?
 
   followMouse: (x, y) =>
     fgC = @getCenter(@from)

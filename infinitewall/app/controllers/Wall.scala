@@ -15,6 +15,7 @@ import wall.WallSystem
 import models.ChatRoom
 import models.WallLog
 import models.Sheet
+import models.SheetLink
 import play.api.db.DB
 import models.WallPreference
 import models.ResourceTree
@@ -52,11 +53,11 @@ object Wall extends Controller with Auth with Login{
 		wall match {
 			case Some(_) =>
 				val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
-				val (timestamp, sheets) = DB.withTransaction { implicit c => 
-					(WallLog.timestamp(wallId), Sheet.findByWallId(wallId))
+				val (timestamp, sheets, sheetlinks) = DB.withTransaction { implicit c => 
+					(WallLog.timestamp(wallId), Sheet.findByWallId(wallId), SheetLink.findByWallId(wallId))
 				}
 				val pref = WallPreference.findOrCreate(currentUserId, wallId)
-				Ok(views.html.wall.stage(wallId, pref, sheets, timestamp, chatRoomId))
+				Ok(views.html.wall.stage(wallId, pref, sheets, sheetlinks, timestamp, chatRoomId))
 			case None => 
 				Forbidden("Request wall with id " + wallId + " not accessible")
 		}

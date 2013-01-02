@@ -58,6 +58,8 @@ case class AlterTextAction(userId:Long, timestamp:Long, id:Long, operations:List
 			))
 	}
 }
+case class SetLinkAction(userId:Long, timestamp:Long, id:Long, to_id:Long) extends ActionDetailWithId
+case class RemoveLinkAction(userId:Long, timestamp:Long, id:Long, to_id:Long) extends ActionDetailWithId
 
 case class OperationWithState(op:Operation, msgId:Long)
 
@@ -76,7 +78,9 @@ object ActionDetail {
 		def y = (params \ "y").as[Double]
 		def width = (params \ "width").as[Double]
 		def height = (params \ "height").as[Double]
-		
+	
+	  def to_id = (params \ "to_id").as[Long]
+
 		def operations = (params \ "operations").as[List[JsObject]].map { js =>
 			val from = (js \ "from").as[Int]
 			val length = (js \ "length").as[Int]
@@ -105,7 +109,11 @@ object ActionDetail {
 				case "alterText" =>
 					//Logger.info(content)
 					AlterTextAction(userId, timestamp, id, operations)
-					
+				case "setLink" =>
+				  SetLinkAction(userId, timestamp, id, to_id)
+				case "removeLink" =>
+				  RemoveLinkAction(userId, timestamp, id, to_id)
+
 			}				
 		}
 	}

@@ -146,6 +146,8 @@ object Sheet extends ActiveRecord[Sheet] {
 		}
 	}
 
+
+
 	def move(id:Long, x:Double, y:Double) = {
 		
 		DB.withConnection { implicit c =>
@@ -158,8 +160,7 @@ object Sheet extends ActiveRecord[Sheet] {
 	
 	def setText(id: Long, text:String) = {
 		TextContent.setText(id, text)
-	}
-	
+	}	
 	
 	
 	def alterText(id: Long, from:Int, length:Int, content:String):(String, String) = {
@@ -193,7 +194,7 @@ object Sheet extends ActiveRecord[Sheet] {
 					'height -> height).executeUpdate()
 		}
 	}
-	
+
 	private def spliceText(str:String, offset:Int, remove:Int, content:String) = {
 		val p1 = scala.math.min(scala.math.max(0,offset), str.length)
 		val p2 = scala.math.min(scala.math.max(0,offset+remove), str.length)
