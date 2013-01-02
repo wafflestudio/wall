@@ -1,13 +1,21 @@
-linkTemplate = "<div class = 'linkLine'></div>"
+#linkTemplate = "<div class='linkLine'></div>"
 
 class window.LinkLine extends Movable
+  paper: null
+  line: null
+
   from: null
   to: null
   oldTheta: 0
 
   constructor: (from) ->
+    @id = "linkLine_" + from + "_null"
+    linkTemplate = "<div id='" + @id + "' class='linkLine'></div>"
+
     @element = $($(linkTemplate).appendTo('#linkLayer'))
-    @element.css {transformOrigin: "left"}
+    gC = @getCenter(from)
+    @element.css {position: 'absolute', top: gC.y, left: gC.x, width: 500, height: 500}
+    @paper = Raphael(@id, '100%', '100%')
     @from = from
   
   getCenter: (sheetID) ->
@@ -15,33 +23,30 @@ class window.LinkLine extends Movable
     y: sheets[sheetID].y() + sheets[sheetID].h() / 2
 
   rotateLink: (fromX, fromY, toX, toY, isTransition = false) ->
-    plus = false
-    minus = false
+    curveX1 = (fromX + toX) / 2
+    curveY1 = fromY
+    curveX2 = (fromX + toX) / 2
+    curveY2 = toY
+    line_str = "M" + fromX + "," + fromY + "C" + curveX1 + "," + curveY1 + "," + curveX2 + "," + curveY2 + "," + toX + "," + toY
 
-    $.fn.moveFunc = if isTransition then $.fn.transition else $.fn.css
+    bbox = Raphael.pathBBox(line_str)
+    transform_str = "T" + -bbox.x + "," + -bbox.y
+    newline_str = Raphael.transformPath(line_str, transform_str)
 
-    length = Math.sqrt((fromX - toX) * (fromX - toX) + (fromY - toY) * (fromY - toY))
-    newTheta = 180 / 3.14 * Math.atan2(toY - fromY, toX - fromX)
-    
-    temp = @oldTheta
-    @oldTheta = newTheta
-    
-    if temp < -90 and newTheta > 90
-      newTheta -= 360
-      minus = true
-    else if temp > 90 and newTheta < -90
-      newTheta += 360
-      plus = true
+    @element.css {position: 'absolute', width: bbox.width+100, height: bbox.height+100}
+    if @line == null
+      @line = @paper.path(newline_str)
+      @line.attr("stroke", "black")
+      @line.attr("stroke-width", "3")
+    else
+      @line.attr("path", newline_str)
+      if @element.attr('top') != bbox.y
+        @element.css {top: bbox.y}
+      if @element.attr('left') != bbox.x
+        @element.css {left: bbox.x}
 
-    @element.moveFunc {
-      x: fromX,
-      y: fromY,
-      width: length,
-      rotate: newTheta
-    }, =>
-      @element.css {rotate: newTheta - 360} if plus
-      @element.css {rotate: newTheta + 360} if minus
-  
+    @line.data("marker-end", "url()")
+
   followMouse: (x, y) =>
     fgC = @getCenter(@from)
     toX = x - (glob.scaleLayerXPos + wall.mL.x() * glob.zoomLevel) / glob.zoomLevel
@@ -51,8 +56,11 @@ class window.LinkLine extends Movable
   connect: (toID) =>
     @to = toID
     tgC = @getCenter(@to)
-    fgC = @getCenter(@from)
-    @rotateLink(fgC.x, fgC.y, tgC.x, tgC.y)
+    gC = @getCenter(@from)
+    @rotateLink(gC.x, gC.y, tgC.x, tgC.y)
+
+    @id = "linkLine_" + @from + "_" + @to
+    @element.attr('id', @id)
     sheets[@from].links[@to] = this
     sheets[@to].links[@from] = this
 
@@ -62,7 +70,6 @@ class window.LinkLine extends Movable
     @rotateLink(fgC.x, fgC.y, tgC.x, tgC.y)
 
   transitionRefresh: (id, x, y, w, h) ->
-
     if id is @from
       gC = @getCenter(@to)
       @rotateLink(x + (w / 2), y + (h / 2), gC.x, gC.y, true)
@@ -71,4 +78,7 @@ class window.LinkLine extends Movable
       @rotateLink(gC.x, gC.y, x + (w / 2), y + (h / 2), true)
 
   remove: ->
+    @line.remove()
+    @paper.remove()
     @element.remove()
+

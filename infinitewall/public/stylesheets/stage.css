@@ -317,12 +317,6 @@
 	cursor:se-resize;
 }
 
-.linkLine {
-  position: absolute;
-  height:4px;
-  background-color:black;
-}
-
 
 #currentWallName {
 	float:left;
