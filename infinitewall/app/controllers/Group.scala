@@ -14,7 +14,8 @@ object Group extends Controller with Auth with Login {
   def show(id:Long) = AuthenticatedAction { implicit request =>
     val users = models.Group.listUsers(id)
     val walls = models.Group.listWalls(id)
-    Ok(views.html.group.show(users, walls, id))
+    val nonSharedWalls = models.User.listNonSharedWalls(currentUserId)
+    Ok(views.html.group.show(users, walls, nonSharedWalls, id))
   }
   def create = AuthenticatedAction { implicit request =>
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
@@ -46,10 +47,19 @@ object Group extends Controller with Auth with Login {
     }
 		Redirect(routes.Wall.stage(wallId))
   }
-  def addWall(groupId:Long) = AuthenticatedAction { implicit request =>
+  def addWall_Post(groupId:Long) = AuthenticatedAction { implicit request =>
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
     val wallId = params.get("wall_id").getOrElse(Seq("-1"))
     val wall = models.Wall.findById(wallId(0).toLong)
+    wall.map { w =>
+      Logger.info("hi")
+      Logger.info(w.name)
+      models.Group.addWall(groupId, w.id.get)
+    }
+    Redirect(routes.Group.show(groupId))
+  }
+  def addWall_Get(groupId:Long, wallId:Long) = AuthenticatedAction { implicit request =>
+    val wall = models.Wall.findById(wallId)
     wall.map { w =>
       Logger.info("hi")
       Logger.info(w.name)
