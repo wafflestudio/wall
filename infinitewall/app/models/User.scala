@@ -79,7 +79,7 @@ object User extends ActiveRecord[User] {
   def listNonSharedWalls(id: Long) = {
     val sharedWalls = listSharedWalls(id)
     val ownWalls = Wall.findAllByUserId(id)
-    ownWalls -- sharedWalls
+    ownWalls filterNot (sharedWalls contains)
   }
 
   private def hashedPW(pw: String) = BCrypt.hashpw(pw, BCrypt.gensalt(12))
