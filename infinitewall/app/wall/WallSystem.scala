@@ -17,6 +17,7 @@ import models.User
 import models.WallLog
 import java.sql.Timestamp
 import models.Sheet
+import models.SheetLink
 import utils.StringWithState
 import utils.Operation
 
@@ -289,7 +290,14 @@ class WallActor(wallId: Long) extends Actor {
 						val timestamp = notifyAll("action", action.timestamp, action.userId, origin, newAction.singleJson.toString)
 						
 						recentRecords = recentRecords :+ Record(timestamp, a.id, baseText, resultText, alteredAction, origin)
+
+					case a: SetLinkAction =>
+					  SheetLink.create(a.id, a.to_id, wallId)
+					case a: RemoveLinkAction =>
+					  SheetLink.remove(a.id, a.to_id, wallId)
+
 				}
+        
 
 				action match {
 					case a: AlterTextAction =>

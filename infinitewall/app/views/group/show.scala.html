@@ -1,17 +1,33 @@
-@(users:List[User], groupId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(users:List[User], walls:List[Wall], groupId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.default("Walls ::: Infinite Wall") {
 
+	<h3>User List</h3>
+	<form method="POST" action="@{routes.Group.addUser(groupId)}" class="form-inline">
+		<input name="email" type="text" placeholder="User email"> <button class="btn">Add</button/>
+	</form>
 	@if(users.length == 0)  {
 		<p> No User </p>
 	}
-	<form method="POST" action="@{routes.Group.addUser(groupId)}" class="form-inline">
-		<input name="email" type="text" placeholder="User email"><button class="btn">Add</button/>
-	</form>
 	<ul>
 	@for(user <- users) {
-		<li>@user.email<a href="@{routes.Group.removeUser(groupId, user.id.get)}">remove</a></li>
+		<li>@user.email <a href="@{routes.Group.removeUser(groupId, user.id.get)}">remove</a></li>
 	}
 	</ul>
 
+	<h3>Wall List</h3>
+	<form method="POST" action="@{routes.Group.createWall(groupId)}" class="form-inline">
+		<input name="title" type="text" placeholder="Wall name"> <button class="btn">Create</button/>
+	</form>
+	<form method="POST" action="@{routes.Group.addWall(groupId)}" class="form-inline">
+		<input name="wall_id" type="text" placeholder="Wall ID"> <button class="btn">Add</button/>
+	</form>
+	@if(walls.length == 0)  {
+		<p> No Wall </p>
+	}
+	<ul>
+	@for(wall <- walls) {
+		<li>@wall.name <a href="@{routes.Group.removeWall(groupId, wall.id.get)}">remove</a></li>
+	}
+	</ul>
 }

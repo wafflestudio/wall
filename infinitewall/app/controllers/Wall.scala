@@ -15,6 +15,7 @@ import wall.WallSystem
 import models.ChatRoom
 import models.WallLog
 import models.Sheet
+import models.SheetLink
 import play.api.db.DB
 import models.WallPreference
 import models.ResourceTree
@@ -25,8 +26,11 @@ import models.RootFolder
 object Wall extends Controller with Auth with Login{
 	
 	def index = AuthenticatedAction { implicit request =>
-		val walls = models.Wall.findAllByUserId(currentUserId)
-		Ok(views.html.wall.index(walls))
+		//val sharedWalls = models.Wall.findAllByUserId(currentUserId)
+		val sharedWalls = models.User.listSharedWalls(currentUserId)
+		val nonSharedWalls = models.User.listNonSharedWalls(currentUserId)
+		//val walls = models.User.listNonSharedWalls(currentUserId)
+		Ok(views.html.wall.index(nonSharedWalls, sharedWalls))
 	}
 	
 	implicit def resourceTree2Json(implicit tree:ResourceTree):JsValue = {
@@ -48,15 +52,20 @@ object Wall extends Controller with Auth with Login{
 	}
 	
 	def stage(wallId: Long) = AuthenticatedAction { implicit request =>
-		val wall = models.Wall.findByUserId(currentUserId, wallId)
+		val wall = models.Wall.findById(wallId)
+    
 		wall match {
 			case Some(_) =>
-				val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
-				val (timestamp, sheets) = DB.withTransaction { implicit c => 
-					(WallLog.timestamp(wallId), Sheet.findByWallId(wallId))
-				}
-				val pref = WallPreference.findOrCreate(currentUserId, wallId)
-				Ok(views.html.wall.stage(wallId, pref, sheets, timestamp, chatRoomId))
+        if(models.Wall.isValid(wallId, currentUserId)) {
+          val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
+          val (timestamp, sheets, sheetlinks) = DB.withTransaction { implicit c => 
+            (WallLog.timestamp(wallId), Sheet.findByWallId(wallId), SheetLink.findByWallId(wallId))
+          }
+          val pref = WallPreference.findOrCreate(currentUserId, wallId)
+          Ok(views.html.wall.stage(wallId, pref, sheets, sheetlinks, timestamp, chatRoomId))
+        } else {
+          Forbidden("Request wall with id " + wallId + " not accessible")
+        }
 			case None => 
 				Forbidden("Request wall with id " + wallId + " not accessible")
 		}

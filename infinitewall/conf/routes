@@ -28,7 +28,10 @@ GET     /group                       controllers.Group.index
 GET     /group/:groupId              controllers.Group.show(groupId:Long)
 POST    /group/create                controllers.Group.create
 POST    /group/adduser/:groupId      controllers.Group.addUser(groupId:Long)
-GET  /group/rmuser/:groupId/:userId       controllers.Group.removeUser(groupId:Long, userId:Long)
+GET  	  /group/rmuser/:groupId/:userId       controllers.Group.removeUser(groupId:Long, userId:Long)
+POST    /group/createWall/:groupId      controllers.Group.createWall(groupId:Long)
+POST    /group/addwall/:groupId      controllers.Group.addWall(groupId:Long)
+GET  	  /group/rmwall/:groupId/:wallId       controllers.Group.removeWall(groupId:Long, wallId:Long)
 
 POST    /file                 controllers.File.upload
 GET     /file                 controllers.File.info

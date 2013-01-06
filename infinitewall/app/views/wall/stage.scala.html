@@ -1,4 +1,4 @@
-@(wallId:Long, pref:WallPreference, sheets:List[Sheet], timestamp:Long, chatId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(wallId:Long, pref:WallPreference, sheets:List[Sheet], sheetlinks:List[SheetLink],timestamp:Long, chatId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.stage("Wall ::: Infinite Wall") {
 
@@ -85,6 +85,10 @@
       sheet.alterText(detail.params, false, timestamp)
     else if(!isMine && detail.action == "setTitle")
       sheet.setTitle(detail.params);
+    else if(detail.action == "setLink")
+      sheet.setLink(detail.params);
+    else if(detail.action == "removeLink")
+      sheet.removeLink(detail.params)
   })
 
   // initialize current stage
@@ -100,6 +104,19 @@
       console.log(sheet)
       createSheet(sheet.id, sheet, @timestamp)
     }
+
+    var sheetlinkData = []
+
+    @sheetlinks.map { sheetlink => 
+      sheetlinkData.push(@Html(sheetlink.toJson()))
+    }
+
+    for(var i = 0; i < sheetlinkData.length; i++)  {	
+      var sheetlink = sheetlinkData[i]
+      console.log(sheetlink)
+      createSheetLink(sheetlink, @timestamp)
+    }
+
 
     glob.zoomLevel = @pref.zoom;
     glob.wallId = @wallId;

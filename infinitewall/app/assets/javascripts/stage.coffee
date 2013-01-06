@@ -26,6 +26,10 @@ window.createSheet = (id, params, timestamp) ->
   else if params.contentType == window.contentTypeEnum.image
     new ImageSheet($.extend(params, {id : id}))
 
+window.createSheetLink = (params, timestamp) ->
+  fromSheet = sheets[params.from_id]
+  fromSheet.setLink(params)
+
 toggleMinimap = ->
   if glob.minimapToggled
     glob.minimapToggled = 0

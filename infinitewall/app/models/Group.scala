@@ -6,8 +6,9 @@ import anorm.SqlParser._
 import play.api.Play.current
 
 
-case class Group(id: Pk[Long], name: String, userId:Long)
+case class Group(id: Pk[Long], name: String, userId: Long)
 case class UserInGroup(userId:Long, groupId:Long)
+case class WallInGroup(wallId:Long, groupId:Long)
 
 object Group extends ActiveRecord[Group] {
 	val tableName = "UserGroup"
@@ -27,11 +28,12 @@ object Group extends ActiveRecord[Group] {
 		}
 	}
 
-  def list(userId:Long) = {
-    DB.withConnection { implicit c =>
-			SQL("select * from "+tableName+" where user_id={userId}").on('userId -> userId).as(Group.simple*)
-    }
-  }
+	val walls = {
+		get[Long]("WallInGroup.wall_id") ~
+		get[Long]("WallInGroup.group_id") map {
+			case wall_id ~ group_id => WallInGroup(wall_id, group_id)
+		}
+	}
 
 	def create(name: String, userId:Long) = {
 		DB.withConnection { implicit c =>
@@ -62,6 +64,19 @@ object Group extends ActiveRecord[Group] {
 			).executeUpdate()
 		}
 	}
+	def addWall(id: Long, wall_id: Long) = {
+		DB.withConnection { implicit c =>
+			SQL(""" 
+				merge into WallInGroup (wall_id, group_id) values (					
+					{wall_id},
+					{group_id}
+				)
+			""").on(
+				'wall_id -> wall_id,
+				'group_id -> id
+			).executeUpdate()
+		}
+	}
 
 	def removeUser(id: Long, user_id: Long) = {
 		DB.withConnection { implicit c =>
@@ -73,6 +88,16 @@ object Group extends ActiveRecord[Group] {
 			).executeUpdate()
 		}
 	}
+	def removeWall(id: Long, wall_id: Long) = {
+		DB.withConnection { implicit c =>
+			SQL(""" 
+				delete from WallInGroup where group_id = {id} and wall_id = {wall_id}	
+			""").on(
+				'id -> id,
+				'wall_id -> wall_id
+			).executeUpdate()
+		}
+	}
 
 	def listUsers(id: Long) = {
 		DB.withConnection { implicit c =>
@@ -80,11 +105,18 @@ object Group extends ActiveRecord[Group] {
 				as(User.simple*)
 		}
 	}
+
+	def listWalls(id: Long) = {
+		DB.withConnection { implicit c =>
+			SQL("select wall.* from WallInGroup as wig, Wall where wig.group_id = {id} and wig.wall_id = wall.id").on('id -> id).
+				as(Wall.simple*)
+		}
+	}
+
 	def rename(id:Long, name:String) = {
 		DB.withConnection { implicit c =>
 			SQL("update "+tableName+" set name = {name} where id = {id}").
 				on('id -> id, 'name -> name).executeUpdate()
 		}
-	}
-
+}
 }

@@ -95,11 +95,12 @@ class window.SheetHandler
     
     if glob.hoverSheet
       if @sheet.links[glob.hoverSheet]?
-        @sheet.links[glob.hoverSheet].remove()
-        delete @sheet.links[glob.hoverSheet]
-        @currentLink.remove()
-      else
-        @currentLink.connect(glob.hoverSheet)
+        #@sheet.links[glob.hoverSheet].remove()
+        #delete @sheet.links[glob.hoverSheet]
+        @sheet.socketRemoveLink(glob.hoverSheet)
+      else if @sheet.id != glob.hoverSheet
+        @sheet.socketSetLink(glob.hoverSheet)
+      @currentLink.remove()
       sheets[glob.hoverSheet].resignSelected()
     else
       @currentLink.remove()
