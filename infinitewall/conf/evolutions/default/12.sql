@@ -1,16 +1,17 @@
+# ImageSheet
+
 # --- !Ups
 
-create table WallInGroup (
-	wall_id bigint(20) not null,
-	group_id bigint(20) not null,  
-  primary key(wall_id, group_id),
-  constraint fk_wallingroup_wall_1 foreign key (wall_id) references Wall (id),
-  constraint fk_wallingroup_group_1 foreign key (group_id) references UserGroup (id)
+CREATE TABLE SheetLink (
+		id bigint(20) NOT NULL,
+    from_id bigint(20) NOT NULL,
+    to_id bigint(20) NOT NULL,
+    wall_id  bigint(20) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create index idx_wallingroup_wall_1 on WallInGroup (wall_id);
-create index idx_wallingroup_group_1 on WallInGroup (group_id);
-
+CREATE SEQUENCE sheetlink_seq start with 1000;
 # --- !Downs
 
-drop table WallInGroup;
+drop table SheetLink if exists;
+drop sequence sheetlink_seq if exists;

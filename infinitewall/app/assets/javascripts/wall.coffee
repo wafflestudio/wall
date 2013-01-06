@@ -2,16 +2,23 @@ class ScaleLayer extends Movable
   constructor: () ->
     @element = $("#scaleLayer")
   
-  set: (tx, ty, x, y, isTransition = false, callback) ->
+  setPoint: (tx, ty, x, y) ->
     @element.css {
-      transformOrigin: tx + 'px ' + ty + 'px',
-      x: x,
+      transformOrigin: tx + 'px ' + ty + 'px'
+      x: x
       y: y
     }
+
+  setZoom: (isTransition = false, callback) ->
+    $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     if isTransition
       @element.transition {scale: glob.zoomLevel}, callback
     else
       @element.css {scale: glob.zoomLevel}
+
+  set: (tx, ty, x, y, isTransition = false, callback) ->
+    @setPoint(tx, ty, x, y)
+    @setZoom(isTransition, callback)
 
 class MoveLayer extends Movable
   constructor: () ->
@@ -37,6 +44,20 @@ class window.Wall
   xWallLast: 0
   yWallLast: 0
   hasMoved: false
+
+  save: ()->
+    
+    if @saveTimeout
+      clearTimeout(@saveTimeout)
+
+    @saveTimeout = setTimeout(
+      () =>
+        x = (glob.scaleLayerXPos + @mL.x() * glob.zoomLevel) / glob.zoomLevel
+        y = (glob.scaleLayerYPos + @mL.y() * glob.zoomLevel) / glob.zoomLevel
+        zoom = glob.zoomLevel
+        console.log("x: #{x}, y: #{y}, zoom: #{zoom}")
+        $.post("/wall/view/#{glob.wallId}", {x:x, y:y, zoom:zoom})
+    ,1000)
   
   dock: (sheet) ->
     @dL.element.append sheet.element
@@ -139,7 +160,6 @@ class window.Wall
       #scaleLayer의 좌표를 wall의 기준으로 저장
 
       @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
-      $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
       #minimap.refresh()
 
   onTouchEnd: (e) =>
@@ -155,6 +175,7 @@ class window.Wall
     @mL.y((@starty + e.pageY - @deltay) / glob.zoomLevel)
     @hasMoved = true
     minimap.refresh()
+    @save()
 
   onMouseUp: ->
     $(document).off 'mousemove', @onMouseMove
@@ -173,7 +194,7 @@ class window.Wall
     $(document).on 'mousemove', @onMouseMove
     $(document).on 'mouseup', @onMouseUp
     e.preventDefault()
-
+    
   onMouseWheel: (e, delta, deltaX, deltaY) =>
 
     xWall = e.pageX - @wall.offset().left
@@ -207,8 +228,9 @@ class window.Wall
     #scaleLayer의 좌표를 wall의 기준으로 저장
 
     @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
-    $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh()
+
+    @save()
     return false
 
   onMouseDblClick: (e) =>
@@ -232,9 +254,9 @@ class window.Wall
     glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
 
     @sL.set(xWall, yWall, xNew, yNew, true)
-
-    $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
     minimap.refresh {isTransition: true}
+
+    @save()
     return false
 
   revealSheet: ->
@@ -276,6 +298,7 @@ class window.Wall
         mLx: diffX + mLX,
         mLy: diffY + mLY
       }
+      @save()
 
   toCenter: (sheet, callback) ->
     sheetW = sheet.w()
@@ -307,6 +330,7 @@ class window.Wall
         mLy: diffY + mLY
       }
 
+
     else
       sheetX = (glob.scaleLayerXPos + (@mL.x() + sheet.x()) * glob.zoomLevel)
       sheetY = (glob.scaleLayerYPos + (@mL.y() + sheet.y()) * glob.zoomLevel)
@@ -328,6 +352,6 @@ class window.Wall
       glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
 
       @sL.set(xWall, yWall, xNew, yNew, true, callback)
-
-      $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
       minimap.refresh {isTransition: true}
+
+    @save()

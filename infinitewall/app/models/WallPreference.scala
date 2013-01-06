@@ -76,9 +76,8 @@ object WallPreference extends ActiveRecord[WallPreference] {
 			val id = SQL("select next value for wallpreference_seq").as(scalar[Long].single)
 			
 			SQL(""" 
-				update WallPreference set panX = {panX}, panY = {panY}, zoom = {zoom}
+				update WallPreference set pan_x = {panX}, pan_y = {panY}, zoom = {zoom}
 					where user_id = {userId} and wall_id = {wallId}
-				)
 			""").on(
 				'panX -> panX,
 				'panY -> panY,

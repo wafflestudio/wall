@@ -53,6 +53,12 @@ class window.Sheet extends Movable
   socketSetTitle: () ->
     wallSocket.send {action : 'setTitle', params : {id : @id, title : @element.find('.sheetTitle').html()}}
 
+  socketSetLink: (to_id) ->
+    wallSocket.send {action : 'setLink', params: {id: @id, to_id: to_id}}
+    
+  socketRemoveLink: (to_id) ->
+    wallSocket.send {action : 'removeLink', params: {id: @id, to_id: to_id}}
+
   attachHandler: () ->
 
   move: (params) ->
@@ -125,6 +131,15 @@ class window.Sheet extends Movable
 
   resignSelected: () ->
     @element.children('.sheet').css {'background-color': 'white'}
+
+  setLink: (params) ->
+    @newLinkLine = new LinkLine(@id)
+    @newLinkLine.connect(params.to_id)
+
+  removeLink: (params) ->
+    @links[params.to_id].remove()
+    delete @links[params.to_id]
+    delete sheets[params.to_id].links[params.from_id]
 
   refreshLinks: (x, y, w, h) ->
     for id, link of @links
