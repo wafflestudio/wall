@@ -2,12 +2,13 @@
 
 @layouts.default("Walls ::: Infinite Wall") {
 
-	@if(groups.length == 0)  {
-		<p> No groups </p>
-	}
+	<h3>Group List</h3>
 	<form method="POST" action="/group/create" class="form-inline">
 		<input name="name" type="text" placeholder="Group name"><button class="btn">Create</button/>
 	</form>
+	@if(groups.length == 0)  {
+		<p> No groups </p>
+	}
 	<ul>
 	@for(group <- groups) {
 		<li><a href="/group/@group.id.get">@group.name</a></li>

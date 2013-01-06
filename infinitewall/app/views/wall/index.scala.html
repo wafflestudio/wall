@@ -1,17 +1,27 @@
-@(walls:List[Wall])(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(nonSharedWalls:List[Wall], sharedWalls:List[Wall])(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.default("Walls ::: Infinite Wall") {
 
-	@if(walls.length == 0)  {
-		<p> No walls available </p>
-	}
-	<form method="POST" action="/wall/create" class="form-inline">
+	<h3>Non Shared Walls</h3>
+	<form method="POST" action="@{routes.Wall.create}" class="form-inline">
 		<input name="title" type="text" placeholder="Wall name"><button class="btn">Create</button/>
 	</form>
+	@if(nonSharedWalls.length == 0)  {
+		<p> No non shared walls available </p>
+	}
 	<ul>
-	@for(wall <- walls) {
+	@for(wall <- nonSharedWalls) {
 		<li><a href="/wall/@wall.id.get">@wall.name</a></li>
 	}
 	</ul>
 
+	<h3>Shared Walls</h3>
+	@if(sharedWalls.length == 0)  {
+		<p> No shared walls available </p>
+	}
+	<ul>
+		@for(wall <- sharedWalls) {
+		<li><a href="/wall/@wall.id.get">@wall.name</a></li>
+		}
+	</ul>
 }

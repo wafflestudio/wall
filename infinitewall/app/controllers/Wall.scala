@@ -25,8 +25,11 @@ import models.RootFolder
 object Wall extends Controller with Auth with Login{
 	
 	def index = AuthenticatedAction { implicit request =>
-		val walls = models.Wall.findAllByUserId(currentUserId)
-		Ok(views.html.wall.index(walls))
+		//val sharedWalls = models.Wall.findAllByUserId(currentUserId)
+		val sharedWalls = models.User.listSharedWalls(currentUserId)
+		val nonSharedWalls = models.User.listNonSharedWalls(currentUserId)
+		//val walls = models.User.listNonSharedWalls(currentUserId)
+		Ok(views.html.wall.index(nonSharedWalls, sharedWalls))
 	}
 	
 	implicit def resourceTree2Json(implicit tree:ResourceTree):JsValue = {
@@ -48,7 +51,7 @@ object Wall extends Controller with Auth with Login{
 	}
 	
 	def stage(wallId: Long) = AuthenticatedAction { implicit request =>
-		val wall = models.Wall.findByUserId(currentUserId, wallId)
+		val wall = models.Wall.findById(wallId)
 		wall match {
 			case Some(_) =>
 				val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
