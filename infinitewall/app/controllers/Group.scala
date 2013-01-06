@@ -19,25 +19,27 @@ object Group extends Controller with Auth with Login {
   }
   def create = AuthenticatedAction { implicit request =>
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-    val name = params.get("name").getOrElse(Seq("unnamed"))
-    val groupId = models.Group.create(name(0), currentUserId)
-    Redirect(routes.Group.show(groupId))
-  }
-  def addUser(groupId:Long) = AuthenticatedAction { implicit request =>
+		val name = params.get("name").getOrElse(Seq("unnamed"))
+		val groupId = models.Group.create(name(0), currentUserId)
+		Redirect(routes.Group.show(groupId))
+	}
+	
+	def addUser(groupId: Long) = AuthenticatedAction { implicit request =>
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-    val userEmail = params.get("email").getOrElse(Seq("unnamed"))
-    Logger.info(userEmail(0))
-    val user = models.User.findByEmail(userEmail(0))
-    user.map { u =>
-      Logger.info("hi")
-      Logger.info(u.email)
-      models.Group.addUser(groupId, u.id.get)
-    }
-    Redirect(routes.Group.show(groupId))
-  }
-  def createWall(groupId:Long) = AuthenticatedAction { implicit request =>
+		val userEmail = params.get("email").getOrElse(Seq("unnamed"))
+		Logger.info(userEmail(0))
+		val user = models.User.findByEmail(userEmail(0))
+		user.map { u =>
+			Logger.info("hi")
+			Logger.info(u.email)
+			models.Group.addUser(groupId, u.id.get)
+		}
+		Redirect(routes.Group.show(groupId))
+	}
+	
+	def createWall(groupId: Long) = AuthenticatedAction { implicit request =>
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-    val title = params.get("title").getOrElse(Seq("unnamed"))
+		val title = params.get("title").getOrElse(Seq("unnamed"))
 		val wallId = models.Wall.create(currentUserId, title(0))
     val wall = models.Wall.findById(wallId)
     wall.map { w =>
@@ -78,8 +80,8 @@ object Group extends Controller with Auth with Login {
 	def rename(id:Long, name:String) = AuthenticatedAction { implicit request => 
 		models.Group.rename(id, name)
 		Ok("")
-  }
-	def delete(id:Long) = AuthenticatedAction { implicit request => 
+	}
+	def delete(id: Long) = AuthenticatedAction { implicit request =>
 		models.Group.delete(id)
 		Ok("")
 	}
