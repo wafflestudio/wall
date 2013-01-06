@@ -82,11 +82,15 @@ object Wall extends ActiveRecord[Wall] {
 		}	
 	}
 	
-	def findAllByUserId(userId:Long) = {
+	def findAllByUserId(userId: Long) = {
 		DB.withConnection {  implicit c =>
 			SQL("select * from Wall where user_id={userId}").on('userId -> userId).as(Wall.simple*)
 		}
 	}
+
+  def isValid(id: Long, userId: Long) = {
+    findAllByUserId(userId).exists((w: Wall) => w.id.get == id) | User.listSharedWalls(userId).exists((w: Wall) => w.id.get == id) 
+  }
 	
     private def buildSubtree(folder:Folder, folders:List[Folder],walls:List[Wall]):ResourceTree = {
         // search in folders and walls for folder.id as parent_id/folder_id
@@ -147,7 +151,6 @@ object Wall extends ActiveRecord[Wall] {
 		DB.withConnection {  implicit c =>
 			val folders = Folder.findByUserId(userId)
 			val walls = SQL("select * from Wall where user_id={userId} ORDER BY folder_id asc").on('userId -> userId).as(Wall.simple*)
-
             buildTree(folders, walls)
 		}	
 	}

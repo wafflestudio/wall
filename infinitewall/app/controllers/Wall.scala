@@ -53,14 +53,19 @@ object Wall extends Controller with Auth with Login{
 	
 	def stage(wallId: Long) = AuthenticatedAction { implicit request =>
 		val wall = models.Wall.findById(wallId)
+    
 		wall match {
 			case Some(_) =>
-				val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
-				val (timestamp, sheets, sheetlinks) = DB.withTransaction { implicit c => 
-					(WallLog.timestamp(wallId), Sheet.findByWallId(wallId), SheetLink.findByWallId(wallId))
-				}
-				val pref = WallPreference.findOrCreate(currentUserId, wallId)
-				Ok(views.html.wall.stage(wallId, pref, sheets, sheetlinks, timestamp, chatRoomId))
+        if(models.Wall.isValid(wallId, currentUserId)) {
+          val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
+          val (timestamp, sheets, sheetlinks) = DB.withTransaction { implicit c => 
+            (WallLog.timestamp(wallId), Sheet.findByWallId(wallId), SheetLink.findByWallId(wallId))
+          }
+          val pref = WallPreference.findOrCreate(currentUserId, wallId)
+          Ok(views.html.wall.stage(wallId, pref, sheets, sheetlinks, timestamp, chatRoomId))
+        } else {
+          Forbidden("Request wall with id " + wallId + " not accessible")
+        }
 			case None => 
 				Forbidden("Request wall with id " + wallId + " not accessible")
 		}
