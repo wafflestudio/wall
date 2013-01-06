@@ -21,20 +21,25 @@ object Group extends Controller with Auth with Login {
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
 		val name = params.get("name").getOrElse(Seq("unnamed"))
 		val groupId = models.Group.create(name(0), currentUserId)
+		models.Group.addUser(groupId, currentUserId)
 		Redirect(routes.Group.show(groupId))
 	}
 	
 	def addUser(groupId: Long) = AuthenticatedAction { implicit request =>
-		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-		val userEmail = params.get("email").getOrElse(Seq("unnamed"))
-		Logger.info(userEmail(0))
-		val user = models.User.findByEmail(userEmail(0))
-		user.map { u =>
-			Logger.info("hi")
-			Logger.info(u.email)
-			models.Group.addUser(groupId, u.id.get)
-		}
-		Redirect(routes.Group.show(groupId))
+    if(models.Group.isValid(groupId, currentUserId)) {
+      val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
+      val userEmail = params.get("email").getOrElse(Seq("unnamed"))
+      Logger.info(userEmail(0))
+      val user = models.User.findByEmail(userEmail(0))
+      user.map { u =>
+        Logger.info("hi")
+        Logger.info(u.email)
+        models.Group.addUser(groupId, u.id.get)
+      }
+      Redirect(routes.Group.show(groupId))
+    } else {
+      Forbidden("Invalid Request")
+    }
 	}
 	
 	def createWall(groupId: Long) = AuthenticatedAction { implicit request =>
@@ -50,15 +55,19 @@ object Group extends Controller with Auth with Login {
 		Redirect(routes.Wall.stage(wallId))
   }
   def addWall_Post(groupId:Long) = AuthenticatedAction { implicit request =>
-		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
+    val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
     val wallId = params.get("wall_id").getOrElse(Seq("-1"))
-    val wall = models.Wall.findById(wallId(0).toLong)
-    wall.map { w =>
-      Logger.info("hi")
-      Logger.info(w.name)
-      models.Group.addWall(groupId, w.id.get)
+    if(models.Wall.isValid(wallId(0).toLong, currentUserId)) {
+      val wall = models.Wall.findById(wallId(0).toLong)
+      wall.map { w =>
+        Logger.info("hi")
+        Logger.info(w.name)
+        models.Group.addWall(groupId, w.id.get)
+      }
+      Redirect(routes.Group.show(groupId))
+    } else {
+      Forbidden("Invalid Request")
     }
-    Redirect(routes.Group.show(groupId))
   }
   def addWall_Get(groupId:Long, wallId:Long) = AuthenticatedAction { implicit request =>
     val wall = models.Wall.findById(wallId)
