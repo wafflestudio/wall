@@ -68,16 +68,26 @@ case class Form[T](mapping: Mapping[T], data: Map[String, String], errors: Seq[F
    * @return a copy of this form filled with the new data
    */
   def bindFromRequest()(implicit request: play.api.mvc.Request[_]): Form[T] = {
-    val data = (request.body match {
-      case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => body.asFormUrlEncoded.get
-      case body: play.api.mvc.AnyContent if body.asMultipartFormData.isDefined => body.asMultipartFormData.get.asFormUrlEncoded
-      case body: play.api.mvc.AnyContent if body.asJson.isDefined => FormUtils.fromJson(js = body.asJson.get).mapValues(Seq(_))
-      case body: Map[_, _] => body.asInstanceOf[Map[String, Seq[String]]]
-      case body: play.api.mvc.MultipartFormData[_] => body.asFormUrlEncoded
-      case body: play.api.libs.json.JsValue => FormUtils.fromJson(js = body).mapValues(Seq(_))
-      case _ => Map.empty[String, Seq[String]]
-    }) ++ request.queryString
-    bind(data.mapValues(_.headOption.getOrElse("")))
+    bindFromRequest {
+      (request.body match {
+        case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => body.asFormUrlEncoded.get
+        case body: play.api.mvc.AnyContent if body.asMultipartFormData.isDefined => body.asMultipartFormData.get.asFormUrlEncoded
+        case body: play.api.mvc.AnyContent if body.asJson.isDefined => FormUtils.fromJson(js = body.asJson.get).mapValues(Seq(_))
+        case body: Map[_, _] => body.asInstanceOf[Map[String, Seq[String]]]
+        case body: play.api.mvc.MultipartFormData[_] => body.asFormUrlEncoded
+        case body: play.api.libs.json.JsValue => FormUtils.fromJson(js = body).mapValues(Seq(_))
+        case _ => Map.empty[String, Seq[String]]
+      }) ++ request.queryString
+    }
+  }
+
+  def bindFromRequest(data: Map[String, Seq[String]]): Form[T] = {
+    bind {
+      data.foldLeft(Map.empty[String,String]) { 
+        case (s, (key, values)) if key.endsWith("[]")=> s ++ values.zipWithIndex.map { case (v,i) => (key.dropRight(2) + "[" + i + "]") -> v }
+        case (s, (key, values)) => s + (key -> values.headOption.getOrElse(""))
+      }
+    }
   }
 
   /**
@@ -216,6 +226,35 @@ case class Form[T](mapping: Mapping[T], data: Map[String, String], errors: Seq[F
 
   }
 
+  /**
+   * Adds an error to this form
+   * @param error Error to add
+   * @return a copy of this form with the added error
+   */
+  def withError(error: FormError): Form[T] = this.copy(errors = errors :+ error, value = None)
+
+  /**
+   * Convenient overloaded method adding an error to this form
+   * @param key Key of the field having the error
+   * @param message Error message
+   * @param args Error message arguments
+   * @return a copy of this form with the added error
+   */
+  def withError(key: String, message: String, args: Any*): Form[T] = withError(FormError(key, message, args))
+
+  /**
+   * Adds a global error to this form
+   * @param message Error message
+   * @param args Error message arguments
+   * @return a copy of this form with the added global error
+   */
+  def withGlobalError(message: String, args: Any*): Form[T] = withError(FormError("", message, args))
+
+  /**
+   * Discards this form’s errors
+   * @return a copy of this form without errors
+   */
+  def discardingErrors: Form[T] = this.copy(errors = Seq.empty)
 }
 
 /**

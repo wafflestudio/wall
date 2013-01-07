@@ -21,8 +21,37 @@ object MimeTypes {
    */
   def forFileName(name: String) = name.split('.').takeRight(1).headOption.flatMap(forExtension(_))
 
-  lazy val types =
+  def types: Map[String, String] = defaultTypes ++ applicationTypes
 
+  /**
+   * Mimetypes defined in the current application, as declared in application.conf
+   */
+  def applicationTypes: Map[String, String] = play.api.Play.maybeApplication.flatMap { application =>
+    application.configuration.getConfig("mimetype").map { config =>
+      config.subKeys.map { key =>
+        (key, config.getString(key))
+      }.collect {
+        case ((key, Some(value))) =>
+          (key, value)
+      }.toMap
+    }
+  }.getOrElse(Map.empty)
+  
+  /**
+   * tells you if mimeType is text or not.
+   * Useful to determine whether the charset suffix should be attached to Content-Type or not 
+   * @param mimeType mimeType to check
+   * @return true if mimeType is text
+   */
+  def isText(mimeType: String): Boolean = {
+    mimeType.trim match {
+        case text if text.startsWith("text/") => true
+        case text if additionalText.contains(text) => true
+        case _ => false
+    }
+  }
+
+  lazy val defaultTypes =
     """
         3dm=x-world/x-3dmf
         3dmf=x-world/x-3dmf
@@ -116,6 +145,7 @@ object MimeTypes {
         elc=application/x-bytecodeelisp=(compiled=elisp)
         eml=message/rfc822
         env=application/x-envoy
+        eot=application/vnd.ms-fontobject
         eps=application/postscript
         es=application/x-esrehber
         etx=text/x-setext
@@ -253,7 +283,7 @@ object MimeTypes {
         mov=video/quicktime
         movie=video/x-sgi-movie
         mp2=audio/mpeg
-        mp3=audio/mpeg3
+        mp3=audio/mpeg
         mp4=video/mp4
         mpa=audio/mpeg
         mpc=application/x-project
@@ -488,6 +518,7 @@ object MimeTypes {
         wmlc=application/vnd.wap.wmlc
         wmls=text/vnd.wap.wmlscript
         wmlsc=application/vnd.wap.wmlscriptc
+        woff=application/x-font-woff
         word=application/msword
         wp5=application/wordperfect
         wp6=application/wordperfect
@@ -567,8 +598,13 @@ object MimeTypes {
 
         # Extensions for Mozilla apps (Firefox and friends)
         xpi=application/x-xpinstall
-        
+
     """.split('\n').map(_.trim).filter(_.size > 0).filter(_(0) != '#').map(_.split('=')).map(parts =>
       parts(0) -> parts.drop(1).mkString).toMap
+
+    lazy val additionalText =
+    """
+        application/json
+    """.split('\n').map(_.trim).filter(_.size > 0).filter(_(0) != '#')
 
 }

@@ -20,6 +20,20 @@ object Codecs {
   }
 
   /**
+   * Computes the MD5 digest for a byte array.
+   *
+   * @param bytes the data to hash
+   * @return the MD5 digest, encoded as a hex string
+   */
+  def md5(bytes: Array[Byte]): String = {
+    import java.security.MessageDigest
+    val digest = MessageDigest.getInstance("MD5")
+    digest.reset()
+    digest.update(bytes)
+    digest.digest().map(0xFF & _).map { "%02x".format(_) }.foldLeft("") { _ + _ }
+  }
+
+  /**
    * Compute the SHA-1 digest for a `String`.
    *
    * @param text the text to hash
@@ -49,6 +63,14 @@ object Codecs {
    */
   def toHexString(array: Array[Byte]): String = {
     new String(toHex(array))
+  }
+
+  /**
+   * Transform an hexadecimal String to a byte array.
+   */
+  def hexStringToByte(hexString: String): Array[Byte] = {
+    import org.apache.commons.codec.binary.Hex;
+    Hex.decodeHex(hexString.toCharArray());
   }
 
 }

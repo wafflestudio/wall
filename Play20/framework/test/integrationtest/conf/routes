@@ -13,18 +13,25 @@ GET     /cookie                 controllers.JavaApi.setCookie()
 GET     /read/:name             controllers.JavaApi.readCookie(name)
 GET     /clear/:name            controllers.JavaApi.clearCookie(name)
 
+GET     /json_java_instance     @controllers.JavaControllerInstance.index()
+GET     /json_scala_instance    @controllers.ScalaControllerInstance.index()
+
 GET     /notintercepted         controllers.JavaApi.notIntercepted()
 GET     /intercepted-with       controllers.JavaApi.interceptedUsingWith()
 GET     /intercepted            controllers.JavaApi.intercepted()
 
 GET     /json                   controllers.Application.json()
 GET     /json_from_jsobject     controllers.Application.jsonFromJsObject()
+GET     /jsonWithContentType    controllers.Application.jsonWithContentType()
+GET     /jsonWithCharset        controllers.Application.jsonWithContentTypeAndCharset()
 GET     /index_java_cache       controllers.Application.index_java_cache()
 GET     /conf                   controllers.Application.conf()
-GET     /urldecode/:p           controllers.Application.urldecode(p, q)
 
-GET     /accept                 controllers.Application.accept()
-GET     /accept-java            controllers.JavaApi.accept()
+GET     /take-bool              controllers.Application.takeBool(b: Boolean)
+GET     /take-bool-2/:b         controllers.Application.takeBool2(b: Boolean)
+
+GET     /take-list              controllers.Application.takeList(x: List[Int])
+GET     /take-list-java         controllers.JavaApi.takeList(x: java.util.List[java.lang.Integer])
 
 GET     /jsonp                  controllers.Application.jsonp(callback)
 GET     /jsonp-java             controllers.JavaApi.jsonpJava(callback)
@@ -33,6 +40,16 @@ GET     /urldecode/:p           controllers.Application.urldecode(p, q)
 
 GET     /javascript-routes      controllers.Application.javascriptRoutes()
 GET     /javascript-test        controllers.Application.javascriptTest(name)
+
+GET     /accept                 controllers.Application.accept()
+GET     /accept-java            controllers.JavaApi.accept()
+
+GET     /onCloseSendFile/*fp    controllers.Application.onCloseSendFile(fp)
+
+GET     /sync-error             controllers.Application.syncError()
+GET     /async-error            controllers.Application.asyncError()
+
+GET     /ident/:è27             controllers.πø$7ß.ôü65$t(è27: Int)
 
 # Map static resources from the /public folder to the /public path
 GET     /public/*file           controllers.Assets.at(path="/public", file)

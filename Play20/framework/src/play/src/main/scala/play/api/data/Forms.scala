@@ -290,6 +290,24 @@ object Forms {
   }
 
   /**
+   * Constructs a simple mapping for a numeric field (using a Long type behind).
+   *
+   * For example:
+   * {{{
+   * Form("size" -> longNumber(min=0, max=100))
+   * }}}
+   *
+   * @param min minimum value
+   * @param max maximum value
+   */
+  def longNumber(min: Long = Long.MinValue, max: Long = Long.MaxValue): Mapping[Long] = (min, max) match {
+    case (Long.MinValue, Long.MaxValue) => longNumber
+    case (min, Long.MaxValue) => longNumber verifying Constraints.min(min)
+    case (Long.MinValue, max) => longNumber verifying Constraints.max(max)
+    case (min, max) => longNumber verifying (Constraints.min(min), Constraints.max(max))
+  }
+
+  /**
    * Constructs a simple mapping for a date field.
    *
    * For example:
@@ -319,6 +337,20 @@ object Forms {
    * @param mapping The mapping to make optional.
    */
   def optional[A](mapping: Mapping[A]): Mapping[Option[A]] = OptionalMapping(mapping)
+
+  /**
+   * Defines an default mapping, if the parameter is not present, provide a default value.
+   *
+   * {{{
+   * Form(
+   *   "name" -> default(text, "The default text")
+   * )
+   * }}}
+   *
+   * @param mapping The mapping to make optional.
+   * @param value The default value when mapping and the field is not present.
+   */
+  def default[A](mapping: Mapping[A], value:A): Mapping[A] = OptionalMapping(mapping).transform(_.getOrElse(value), Some(_))
 
   /**
    * Defines a repeated mapping.
@@ -379,6 +411,28 @@ object Forms {
   def sqlDate(pattern: String): Mapping[java.sql.Date] = of[java.sql.Date] as sqlDateFormat(pattern)
 
   /**
+   * Constructs a simple mapping for a date field (mapped as `org.joda.time.DateTime type`).
+   *
+   * For example:
+   * {{{
+   *   Form("birthdate" -> jodaDate)
+   * }}}
+   */
+  val jodaDate: Mapping[org.joda.time.DateTime] = of[org.joda.time.DateTime]
+
+  /**
+   * Constructs a simple mapping for a date field (mapped as `org.joda.time.DateTime type`).
+   *
+   * For example:
+   * {{{
+   *   Form("birthdate" -> jodaDate("dd-MM-yyyy"))
+   * }}}
+   *
+   * @param pattern the date pattern, as defined in `org.joda.time.format.DateTimeFormat`
+   */
+  def jodaDate(pattern: String): Mapping[org.joda.time.DateTime] = of[org.joda.time.DateTime] as jodaDateTimeFormat(pattern)
+
+  /**
    * Constructs a simple mapping for an e-mail field.
    *
    * For example:
@@ -387,7 +441,7 @@ object Forms {
    * }}}
    */
   val email: Mapping[String] = of[String] verifying Constraints.pattern(
-    """\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}\b""".r,
+    """\b[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\b""".r,
     "constraint.email",
     "error.email")
 

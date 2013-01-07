@@ -4,6 +4,9 @@ import play.api.libs.json._
 import play.api.libs.iteratee._
 import play.api.libs.concurrent._
 
+import scala.concurrent.Future
+import play.core.Execution.internalContext
+
 /**
  * A WebSocket handler.
  *
@@ -11,6 +14,8 @@ import play.api.libs.concurrent._
  * @param f the socket messages generator
  */
 case class WebSocket[A](f: RequestHeader => (Enumerator[A], Iteratee[A, Unit]) => Unit)(implicit val frameFormatter: WebSocket.FrameFormatter[A]) extends Handler {
+
+  type FRAMES_TYPE = A
 
   /**
    * Returns itself, for better support in the routes file.
@@ -79,11 +84,11 @@ object WebSocket {
   /**
    * Creates a WebSocket result from inbound and outbound channels retrieved asynchronously.
    */
-  def async[A](f: RequestHeader => Promise[(Iteratee[A, _], Enumerator[A])])(implicit frameFormatter: FrameFormatter[A]): WebSocket[A] = {
+  def async[A](f: RequestHeader => Future[(Iteratee[A, _], Enumerator[A])])(implicit frameFormatter: FrameFormatter[A]): WebSocket[A] = {
     using { rh =>
       val p = f(rh)
-      val it = Iteratee.flatten(p.map(_._1))
-      val enum = Enumerator.flatten(p.map(_._2))
+      val it = Iteratee.flatten(p.map(_._1)(internalContext))
+      val enum = Enumerator.flatten(p.map(_._2)(internalContext))
       (it, enum)
     }
   }

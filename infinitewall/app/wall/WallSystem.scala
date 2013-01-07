@@ -2,9 +2,11 @@ package wall
 
 import play.api.libs.iteratee._
 import akka.actor._
-import akka.util.duration._
+import play.api.libs.concurrent._
+import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.duration._
+import scala.concurrent.Future
 import akka.pattern.ask
-import akka.util.Timeout
 import play.api.libs.concurrent._
 import play.api.Play.current
 import play.api.mvc.Result
@@ -20,6 +22,7 @@ import models.Sheet
 import models.SheetLink
 import utils.StringWithState
 import utils.Operation
+import akka.util.Timeout
 
 // Messages
 // WallSystem -> WallSystem Actor
@@ -50,11 +53,11 @@ object WallSystem {
 	implicit val timeout = Timeout(1 second)
 	lazy val actor = Akka.system.actorOf(Props(new WallSystem))
 
-	def establish(wallId: Long, userId: Long, timestamp: Long): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+	def establish(wallId: Long, userId: Long, timestamp: Long): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
 		val joinResult = actor ? JoinWall(wallId, userId, timestamp)
 
-		joinResult.asPromise.map {
+		joinResult.map {
 			case Connected(producer, prevMessages) =>
 				// Create an Iteratee to consume the feed
 				val consumer: Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] { json: JsValue =>
@@ -116,13 +119,13 @@ class WallSystem extends Actor {
 	def receive = {
 		case JoinWall(wallId, userId, timestamp) =>
 			val savedSender = sender
-			(wall(wallId) ? Join(userId, timestamp)).asPromise.map(savedSender ! _)
+			(wall(wallId) ? Join(userId, timestamp)).map(savedSender ! _)
 		case QuitWall(wallId, userId, producer) =>
 			val savedSender = sender
-			(wall(wallId) ? Quit(userId, producer)).asPromise.map(savedSender ! _)
+			(wall(wallId) ? Quit(userId, producer)).map(savedSender ! _)
 		case ActionInWall(wallId, json, producer, detail) =>
 			val savedSender = sender
-			(wall(wallId) ? Action(json, producer, detail)).asPromise.map(savedSender ! _)
+			(wall(wallId) ? Action(json, producer, detail)).map(savedSender ! _)
 		case Finishing(wallId) =>
 			if (System.currentTimeMillis() - lastAccessedTime(wallId) > WallSystem.shutdownFinalizeTimeout) {
 				Logger.info("shutting down wall actor (" + wallId + ") due to inactivity")

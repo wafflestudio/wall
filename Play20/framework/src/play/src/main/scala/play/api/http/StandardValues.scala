@@ -77,6 +77,7 @@ trait Status {
   val NO_CONTENT = 204
   val RESET_CONTENT = 205
   val PARTIAL_CONTENT = 206
+  val MULTI_STATUS = 207
 
   val MULTIPLE_CHOICES = 300
   val MOVED_PERMANENTLY = 301
@@ -104,6 +105,9 @@ trait Status {
   val UNSUPPORTED_MEDIA_TYPE = 415
   val REQUESTED_RANGE_NOT_SATISFIABLE = 416
   val EXPECTATION_FAILED = 417
+  val UNPROCESSABLE_ENTITY = 422
+  val LOCKED = 423
+  val FAILED_DEPENDENCY = 424
   val TOO_MANY_REQUEST = 429
 
   val INTERNAL_SERVER_ERROR = 500
@@ -112,7 +116,7 @@ trait Status {
   val SERVICE_UNAVAILABLE = 503
   val GATEWAY_TIMEOUT = 504
   val HTTP_VERSION_NOT_SUPPORTED = 505
-
+  val INSUFFICIENT_STORAGE = 507
 }
 
 /** Defines all standard HTTP headers. */
@@ -191,5 +195,18 @@ trait HeaderNames {
   val WWW_AUTHENTICATE = "WWW-Authenticate"
 
   val X_FORWARDED_FOR = "X-Forwarded-For"
-}
+  val X_FORWARDED_HOST = "X-Forwarded-Host"
+  val X_FORWARDED_PORT = "X-Forwarded-Port"
+  val X_FORWARDED_PROTO = "X-Forwarded-Proto"
+  
+  val ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin"
+  val ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers"
+  val ACCESS_CONTROL_MAX_AGE = "Access-Control-Max-Age"
+  val ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials"
+  val ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods"
+  val ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers"
 
+  val ORIGIN = "Origin"
+  val ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method"
+  val ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers"
+}

@@ -15,6 +15,10 @@ public class Application {
     
     private final play.api.Application application;
     
+    public play.api.Application getWrappedApplication() {
+      return application;
+    }
+
     /**
      * Creates an application from a Scala Application value.
      */
@@ -84,24 +88,6 @@ public class Application {
      */
     public <T> T plugin(Class<T> pluginClass) {
         return Scala.orNull(application.plugin(pluginClass));
-    }
-    
-    /**
-     * Scans the application classloader to retrieve all types annotated with a specific annotation.
-     * <p>
-     * This method is useful for some plug-ins, for example the EBean plugin will automatically detect all types
-     * annotated with <code>@javax.persistance.Entity</code>.
-     * <p>
-     * Note that it is better to specify a very specific package to avoid expensive searches.
-     *
-     * @param packageName the root package to scan
-     * @param annotation annotation class
-     * @return a set of types names statifying the condition
-     */
-    public Set<String> getTypesAnnotatedWith(String packageName, Class<? extends java.lang.annotation.Annotation> annotation) {
-        return scala.collection.JavaConverters.setAsJavaSetConverter(
-            application.getTypesAnnotatedWith(packageName, annotation)
-        ).asJava();
     }
     
     /**

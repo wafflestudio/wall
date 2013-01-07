@@ -2,7 +2,8 @@ package play.api.cache
 
 import play.api._
 
-import reflect.ClassManifest
+import reflect.{ClassTag, ClassManifest}
+import org.apache.commons.lang3.reflect.TypeUtils
 /**
  * API for a Cache plugin.
  */
@@ -13,7 +14,7 @@ trait CacheAPI {
    *
    * @param key Item key.
    * @param value Item value.
-   * @param expiration Expiration time in seconds.
+   * @param expiration Expiration time in seconds (0 second means eternity).
    */
   def set(key: String, value: Any, expiration: Int)
 
@@ -24,6 +25,10 @@ trait CacheAPI {
    */
   def get(key: String): Option[Any]
 
+  /**
+   * Remove a value from the cache
+   */
+  def remove(key: String)
 }
 
 /**
@@ -33,9 +38,12 @@ trait CacheAPI {
  */
 object Cache {
 
-  private def error = throw new Exception(
-    "There is no cache plugin registered. Make sure at least one CachePlugin implementation is enabled."
-  )
+  private def cacheAPI(implicit app: Application): CacheAPI = {
+    app.plugin[CachePlugin] match {
+      case Some(plugin) => plugin.api
+      case None => throw new Exception("There is no cache plugin registered. Make sure at least one CachePlugin implementation is enabled.")
+    }
+  }
 
   /**
    * Sets a value without expiration
@@ -45,7 +53,7 @@ object Cache {
    * @param expiration expiration period in seconds.
    */
   def set(key: String, value: Any, expiration: Int = 0)(implicit app: Application) = {
-    app.plugin[CachePlugin].map(_.api.set(key, value, expiration)).getOrElse(error)
+    cacheAPI.set(key, value, expiration)
   }
 
   /**
@@ -54,7 +62,7 @@ object Cache {
    * @param key Item key.
    */
   def get(key: String)(implicit app: Application): Option[Any] = {
-    app.plugin[CachePlugin].map(_.api.get(key)).getOrElse(error)
+    cacheAPI.get(key)
   }
 
   /**
@@ -64,7 +72,7 @@ object Cache {
    * @param expiration expiration period in seconds.
    * @param orElse The default function to invoke if the value was found in cache.
    */
-  def getOrElse[A](key: String, expiration: Int = 0)(orElse: => A)(implicit app: Application, m: ClassManifest[A]): A = {
+  def getOrElse[A](key: String, expiration: Int = 0)(orElse: => A)(implicit app: Application, ct: ClassTag[A]): A = {
     getAs[A](key).getOrElse {
       val value = orElse
       set(key, value, expiration)
@@ -78,12 +86,15 @@ object Cache {
    * @param key Item key.
    * @return result as Option[T]
    */
-  def getAs[T](key: String)(implicit app: Application, m: ClassManifest[T]): Option[T] = {
+  def getAs[T](key: String)(implicit app: Application, ct: ClassTag[T]): Option[T] = {
     get(key)(app).map { item =>
-      if (m.erasure.isAssignableFrom(item.getClass)) Some(item.asInstanceOf[T]) else None
+      if (TypeUtils.isInstance(item, ct.runtimeClass)) Some(item.asInstanceOf[T]) else None
     }.getOrElse(None)
   }
 
+  def remove(key: String)(implicit app: Application) {
+    cacheAPI.remove(key)
+  }
 }
 
 /**
@@ -116,7 +127,7 @@ class EhCachePlugin(app: Application) extends CachePlugin {
    * Is this plugin enabled.
    *
    * {{{
-   * ehcacheplugin.disabled=true
+   * ehcacheplugin=disabled
    * }}}
    */
   override lazy val enabled = {
@@ -144,6 +155,9 @@ class EhCachePlugin(app: Application) extends CachePlugin {
       Option(cache.get(key)).map(_.getObjectValue)
     }
 
+    def remove(key: String) {
+      cache.remove(key)
+    }
   }
 
 }

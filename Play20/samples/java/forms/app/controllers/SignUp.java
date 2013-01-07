@@ -3,6 +3,7 @@ package controllers;
 import play.*;
 import play.mvc.*;
 import play.data.*;
+import static play.data.Form.*;
 
 import views.html.signup.*;
 
@@ -13,7 +14,7 @@ public class SignUp extends Controller {
     /**
      * Defines a form wrapping the User class.
      */ 
-    final static Form<User> signupForm = form(User.class);
+    final static Form<User> signupForm = form(User.class, User.All.class);
   
     /**
      * Display a blank form.

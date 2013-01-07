@@ -8,12 +8,13 @@ import play.api.cache.Cache
 import play.api.libs.json._
 import play.api.libs.json.Json._
 import play.api.libs.Jsonp
-import play.api.i18n._
+import play.api.libs.concurrent.Promise
+
 import models._
 import models.Protocol._
 
 import play.cache.{Cache=>JCache}
-
+import play.api.i18n._
 
 object Application extends Controller {
 
@@ -24,7 +25,6 @@ object Application extends Controller {
     Cache.set("hello", "world")
     Ok(views.html.index(Cache.getAs[String]("hello").getOrElse("oh noooz")))
   }
-
 
   def submitForm = Action{
    Ok("ok")
@@ -37,11 +37,12 @@ object Application extends Controller {
   def conf = Action {
     val config = play.api.Play.configuration
     val overrideConfig =  play.api.Configuration.load(new java.io.File(".")).getString("play.akka.actor.retrieveBodyParserTimeout").get
+    val timeout = config.getMilliseconds("promise.akka.actor.typed.timeout").get
 
     val s = config.getString("complex-app.something").getOrElse("boooooo")
     val c = config.getString("nokey").getOrElse("None")
     val overrideAkka = play.api.libs.concurrent.Akka.system.settings.config.getString("akka.loglevel")
-    Ok(s + " no key: " + c +" - override akka:"+ overrideConfig+" akka-loglevel:"+ overrideAkka)
+    Ok(s + " no key: " + c +" - override akka:"+ overrideConfig+" akka-loglevel:"+ overrideAkka+ " promise-timeout:"+ timeout)
   }
   
   def post = Action { request =>
@@ -57,6 +58,23 @@ object Application extends Controller {
     Ok(toJson(JsObject(List("blah" -> JsString("foo"))))) 
   }
 
+  def jsonWithContentType = Action { request =>
+    request.headers.get("AccEPT") match {
+      case Some("application/json") =>  {
+        val acceptHdr = request.headers.toMap.collectFirst{ case (header,valueSeq) if header.equalsIgnoreCase("Accept") => (header, valueSeq) }
+        acceptHdr.map{
+          case (name,value) => Ok("{\""+name+"\":\""+ value.head+ "\"}").as("application/json")
+        }.getOrElse(InternalServerError)
+      }
+      case _ => UnsupportedMediaType
+
+    }
+  }
+
+  def jsonWithContentTypeAndCharset = Action {
+    Ok("{}").as("application/json; charset=utf-8")
+  }
+
   def index_java_cache = Action {
     import play.api.Play.current
     JCache.set("hello","world", 60)
@@ -70,8 +88,8 @@ object Application extends Controller {
     Ok(b.toString())
   }
 
-  def urldecode(fromPath: String, fromQueryString: String) = Action {
-    Ok("fromPath=%s fromQueryString=%s".format(fromPath, fromQueryString))
+  def takeBool2(b: Boolean) = Action {
+    Ok(b.toString())
   }
   
   def javascriptRoutes = Action { implicit request =>
@@ -83,6 +101,19 @@ object Application extends Controller {
     Ok(views.html.javascriptTest(name))
   }
 
+  def takeList(xs: List[Int]) = Action {
+    Ok(xs.mkString)
+  }
+
+  def jsonp(callback: String) = Action {
+    val json = JsObject(List("foo" -> JsString("bar")))
+    Ok(Jsonp(callback, json))
+  }
+
+  def urldecode(fromPath: String, fromQueryString: String) = Action {
+    Ok("fromPath=%s fromQueryString=%s".format(fromPath, fromQueryString))
+  }
+
   def accept = Action { request =>
     request match {
       case Accepts.Json() => Ok("json")
@@ -91,9 +122,20 @@ object Application extends Controller {
     }
   }
 
-  def jsonp(callback: String) = Action {
-    val json = JsObject(List("foo" -> JsString("bar")))
-    Ok(Jsonp(callback, json))
+  def onCloseSendFile(filepath: String) = Action {
+    import java.io.File
+    val file = new File(filepath)
+    Ok.sendFile(file, onClose = () => { file.delete() })
   }
 
+  def syncError = Action {
+    sys.error("Error")
+    Ok
+  }
+
+  def asyncError = Action {
+    Async {
+      Promise.pure[Result](sys.error("Error"))
+    }
+  }
 }

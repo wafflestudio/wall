@@ -1,6 +1,6 @@
 package play.api.libs
 
-import akka.dispatch.{ Future }
+import scala.concurrent.{ Future }
 
 /**
  * Utility classes commonly useful in concurrent programming, such as Promise and Akka helpers.
@@ -12,11 +12,17 @@ import akka.dispatch.{ Future }
  */
 package object concurrent {
 
-  type RedeemablePromise[A] = Promise[A] with Redeemable[A]
 
-  /**
-   * Implicit conversion of Future to AkkaFuture, supporting the asPromise operation.
-   */
-  implicit def akkaToPlay[A](future: Future[A]) = new AkkaFuture(future)
+  implicit def futureToPlayPromise[A](fu: scala.concurrent.Future[A]): PlayPromise[A] = new PlayPromise[A](fu)
 
+  implicit def promiseToRedeemable[A](p: scala.concurrent.Promise[A]): PlayRedeemable[A] = new PlayRedeemable(p)
+
+}
+
+package concurrent {
+  package object backwardCompatible {
+
+  type RedeemablePromise[A] = Future[A] with Redeemable[A]
+
+  }
 }

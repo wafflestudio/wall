@@ -5,6 +5,16 @@ package play.api {
    */
   object Routes {
 
+    // -- TAGS
+
+    val ROUTE_VERB = "ROUTE_VERB"
+    val ROUTE_PATTERN = "ROUTE_PATTERN"
+    val ROUTE_CONTROLLER = "ROUTE_CONTROLLER"
+    val ROUTE_ACTION_METHOD = "ROUTE_ACTION_METHOD"
+    val ROUTE_COMMENTS = "ROUTE_COMMENTS"
+
+    // --
+
     import play.core.Router._
     import play.api.mvc.RequestHeader
 
@@ -32,7 +42,7 @@ package play.api {
     def javascriptRouter(name: String = "Router", ajaxMethod: Option[String] = Some("jQuery.ajax"))(routes: JavascriptReverseRoute*)(implicit request: RequestHeader): String = {
       javascriptRouter(name, ajaxMethod, request.host, routes: _*)
     }
-    
+
     def javascriptRouter(name: String, ajaxMethod: Option[String], host: String, routes: JavascriptReverseRoute*): String = {
       """|var %s = {}; (function(_root){
              |var _nS = function(c,f,b){var e=c.split(f||"."),g=b||_root,d,a;for(d=0,a=e.length;d<a;d++){g=g[e[d]]=g[e[d]]||{}}return g}
@@ -43,7 +53,7 @@ package play.api {
              |})(%s)
           """.stripMargin.format(
         name,
-        ajaxMethod.map("ajax:function(c){c.url=r.url;c.type=r.method;return " + _ + "(c)},").getOrElse(""),
+        ajaxMethod.map("ajax:function(c){c=c||{};c.url=r.url;c.type=r.method;return " + _ + "(c)},").getOrElse(""),
         host,
         host,
         routes.map { route =>

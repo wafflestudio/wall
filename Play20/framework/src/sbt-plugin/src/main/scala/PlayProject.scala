@@ -6,42 +6,37 @@ import jline._
 import play.api._
 import play.core._
 
-import play.utils.Colors
+import play.console.Colors
 
-object PlayProject extends Plugin with PlayExceptions with PlayKeys with PlayReloader with PlayCommands with PlaySettings {
+import play.Project._
 
-  Option(System.getProperty("play.version")).map {
-    case badVersion if badVersion != play.core.PlayVersion.current => {
-      println(
-        Colors.red("""
-          |This project uses Play %s!
-          |Update the Play sbt-plugin version to %s (usually in project/plugins.sbt)
-        """.stripMargin.format(play.core.PlayVersion.current, badVersion))
-      )
-    }
-    case _ =>
-  }
+@deprecated("use play.Project instead", "2.1")
+object PlayProject extends Plugin with PlayExceptions with PlayKeys with PlayReloader with PlayCommands
+    with PlaySettings with PlayPositionMapper {
 
-  private def whichLang(name: String): Seq[Setting[_]] = {
-    if (name == JAVA) {
-      defaultJavaSettings
-    } else if (name == SCALA) {
-      defaultScalaSettings
-    } else {
-      Seq.empty
-    }
-  }
-
-  // ----- Create a Play project with default settings
-
-  def apply(name: String, applicationVersion: String = "1.0", dependencies: Seq[ModuleID] = Nil, path: File = file("."), mainLang: String = NONE, settings: => Seq[Setting[_]] = Defaults.defaultSettings ): Project = {
+  // ----- 
+  @deprecated("use play.Project instead", "2.1")
+  def apply(name: String, applicationVersion: String = "1.0", dependencies: Seq[ModuleID] = Nil, path: File = file("."), mainLang: String = NONE, settings: => Seq[Setting[_]] = Defaults.defaultSettings): Project = {
     
-    lazy val playSettings = 
-      PlayProject.defaultSettings ++ eclipseCommandSettings(mainLang) ++ intellijCommandSettings(mainLang)  ++ Seq(testListeners += testListener) ++ whichLang(mainLang) ++ Seq(
-        scalacOptions ++= Seq("-deprecation", "-unchecked", "-Xcheckinit", "-encoding", "utf8"),
-        javacOptions ++= Seq("-encoding", "utf8", "-g"),
+    println(Colors.red("""
+      |
+      |WARNING
+      |
+      |Looks like you are using a deprecated version of Play's SBT Project (PlayProject in project/Build.scala).
+      |We are adding all of the new Play artifacts to your libraryDependencies for now but consider switching to the new API (i.e. play.Project).
+      |
+      |For any migration related issues, please consult the migration manual at http://www.playframework.org
+      """).stripMargin)
+
+    val allDependencies = (dependencies ++ Seq(jdbc, anorm, javaCore, javaJdbc, javaEbean )).toSet.toSeq
+
+    
+    lazy val playSettings =
+      PlayProject.defaultSettings ++ eclipseCommandSettings(mainLang) ++ intellijCommandSettings(mainLang) ++ Seq(testListeners += testListener) ++ whichLang(mainLang) ++ Seq(
+        scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
+        javacOptions in Compile ++= Seq("-encoding", "utf8", "-g"),
         version := applicationVersion,
-        libraryDependencies ++= dependencies
+        libraryDependencies ++= allDependencies
       )
 
     lazy val allSettings = settings ++ playSettings

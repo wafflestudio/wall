@@ -1,13 +1,8 @@
 package play.mvc;
 
-import play.api.*;
-
+import play.i18n.Lang;
 import play.mvc.Http.*;
-import play.mvc.Result.*;
 
-import play.data.*;
-
-import java.util.*;
 
 /**
  * Superclass for a Java-based controller.
@@ -31,9 +26,19 @@ public abstract class Controller extends Results implements Status, HeaderNames 
     /**
      * Returns the current lang.
      */
-    public static play.i18n.Lang lang() {
-        return play.i18n.Lang.preferred(Context.current().request().acceptLanguages());
+    public static Lang lang() {
+        return Http.Context.current().lang();
     }
+
+    /**
+     * Change durably the lang for the current user
+     * @param code New lang code to use (e.g. "fr", "en_US", etc.)
+     * @return true if the requested lang was supported by the application, otherwise false.
+     */
+    public static boolean changeLang(String code) {
+        return Http.Context.current().changeLang(code);
+    }
+
     
     /**
      * Returns the current HTTP response.
@@ -83,28 +88,5 @@ public abstract class Controller extends Results implements Status, HeaderNames 
     public static String flash(String key) {
         return flash().get(key);
     }
-    
-    // -- Form
-    
-    /**
-     * Instantiates a dynamic form.
-     */
-    public static DynamicForm form() {
-        return new DynamicForm();
-    }
-    
-    /**
-     * Instantiates a new form that wraps the specified class.
-     */
-    public static <T> Form<T> form(Class<T> clazz) {
-        return new Form(clazz);
-    }
-    
-    /**
-     * Instantiates a new form that wraps the specified class.
-     */
-    public static <T> Form<T> form(String name, Class<T> clazz) {
-        return new Form(name, clazz);
-    }
-    
+
 }

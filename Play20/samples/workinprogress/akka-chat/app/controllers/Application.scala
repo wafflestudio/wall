@@ -1,6 +1,6 @@
 package controllers
 
-import akka.util.duration._
+import scala.concurrent.duration._
 import play.api._
 import play.api.mvc._
 import play.api.libs._
@@ -12,6 +12,8 @@ import actors._
 import actors.ChatRoomActor._
 import akka.util.Timeout
 import akka.pattern.ask
+import play.api.libs.concurrent.Execution.Implicits._
+
 
 object Application extends Controller {
   
@@ -28,7 +30,7 @@ object Application extends Controller {
   def stream = Action {
     AsyncResult {
       implicit val timeout = Timeout(5.seconds)
-      (ChatRoomActor.ref ? (Join()) ).mapTo[Enumerator[String]].asPromise.map { chunks =>
+      (ChatRoomActor.ref ? (Join()) ).mapTo[Enumerator[String]].map { chunks =>
         Ok.stream(chunks &> Comet( callback = "parent.message"))
       }
     }

@@ -1,7 +1,7 @@
 package models
 
 import akka.actor._
-import akka.util.duration._
+import scala.concurrent.duration._
 
 import play.api._
 import play.api.libs.json._
@@ -12,6 +12,7 @@ import akka.util.Timeout
 import akka.pattern.ask
 
 import play.api.Play.current
+import play.api.libs.concurrent.Execution.Implicits._
 
 object Robot {
   
@@ -52,8 +53,9 @@ object ChatRoom {
     roomActor
   }
 
-  def join(username:String):Promise[(Iteratee[JsValue,_],Enumerator[JsValue])] = {
-    (default ? Join(username)).asPromise.map {
+  def join(username:String):scala.concurrent.Future[(Iteratee[JsValue,_],Enumerator[JsValue])] = {
+
+    (default ? Join(username)).map {
       
       case Connected(enumerator) => 
       
@@ -92,7 +94,7 @@ class ChatRoom extends Actor {
     
     case Join(username) => {
       // Create an Enumerator to write to this socket
-      val channel =  Enumerator.imperative[JsValue]( onStart = self ! NotifyJoin(username))
+      val channel =  Enumerator.imperative[JsValue]( onStart = () => self ! NotifyJoin(username))
       if(members.contains(username)) {
         sender ! CannotConnect("This username is already used")
       } else {

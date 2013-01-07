@@ -1,8 +1,38 @@
 package sbt
 
 trait PlayKeys {
+  
+  val jdbc =  "play" %% "play-jdbc" % play.core.PlayVersion.current
+  
+  val anorm = "play" %% "anorm" % play.core.PlayVersion.current
+  
+  val javaCore = "play" %% "play-java" % play.core.PlayVersion.current
+  
+  val javaJdbc = "play" %% "play-java-jdbc" % play.core.PlayVersion.current
+  
+  val javaEbean = "play" %% "play-java-ebean" % play.core.PlayVersion.current
+  
+  val javaJpa = "play" %% "play-java-jpa" % play.core.PlayVersion.current
+
+  def component(id: String) = "play" %% id % play.core.PlayVersion.current
+
+  val filters = "play" %% "filters-helpers" % play.core.PlayVersion.current
+
+  val playVersion = SettingKey[String]("play-version")
+
+  val playDefaultPort = SettingKey[Int]("play-default-port")
+
+  val requireJs = SettingKey[Seq[String]]("play-require-js")
+
+  val requireNativePath = SettingKey[Option[String]]("play-require-native-path")
+
+  val playOnStarted = SettingKey[Seq[(java.net.InetSocketAddress) => Unit]]("play-onStarted")
+
+  val playOnStopped = SettingKey[Seq[() => Unit]]("play-onStopped")
 
   val distDirectory = SettingKey[File]("play-dist")
+
+  val distExcludes = SettingKey[Seq[String]]("dist-excludes")
 
   val playAssetsDirectories = SettingKey[Seq[File]]("play-assets-directories")
 
@@ -31,6 +61,8 @@ trait PlayKeys {
   val coffeescriptEntryPoints = SettingKey[PathFinder]("play-coffeescript-entry-points")
 
   val javascriptEntryPoints = SettingKey[PathFinder]("play-javascript-entry-points")
+
+  val playPlugin = SettingKey[Boolean]("play-plugin")
 
 }
 object PlayKeys extends PlayKeys

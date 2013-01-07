@@ -2,9 +2,10 @@ package chat
 
 import play.api.libs.iteratee._
 import akka.actor._
-import akka.util.duration._
+import play.api.libs.concurrent._
+import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.duration._
 import akka.pattern.ask
-import akka.util.Timeout
 import play.api.libs.concurrent._
 import play.api.Play.current
 import play.api.mvc.Result
@@ -17,6 +18,8 @@ import models.User
 import models.ChatLog
 import models.ChatRoom
 import java.sql.Timestamp
+import scala.concurrent.Future
+import akka.util.Timeout
 
 case class Join(userId: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
@@ -44,11 +47,11 @@ object ChatSystem {
 		}
 	}
 
-	def establish(roomId: Long, userId: Long, timestamp: Long): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+	def establish(roomId: Long, userId: Long, timestamp: Long): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
 		val joinResult = room(roomId) ? Join(userId)
 
-		joinResult.asPromise.map {
+		joinResult.map {
 			case Connected(producer) =>
 				// Create an Iteratee to consume the feed
 				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
@@ -93,7 +96,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
 
 		case Join(userId) => {
 			// Create an Enumerator to write to this socket
-			val producer = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin(userId))
+			val producer = Enumerator.imperative[JsValue](onStart = () => self ! NotifyJoin(userId))
 			val prev = Enumerator(prevMessages(0).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
 
 			if (false /* maximum connection per user constraint here*/ ) {

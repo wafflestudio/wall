@@ -8,6 +8,10 @@ import play.api.libs.json._
 import play.api.http.Status._
 import play.api.http.HeaderNames._
 
+import scala.concurrent.{ Future, ExecutionContext }
+
+import play.core.Execution.internalContext
+
 /**
  * A simple HTTP response header, used for standard responses.
  *
@@ -25,37 +29,9 @@ case class ResponseHeader(status: Int, headers: Map[String, String] = Map.empty)
 /**
  * Any Action result.
  */
-sealed trait Result extends NotNull
+sealed trait Result extends NotNull with WithHeaders[Result]
 
-/**
- * Helper utilities for Result values.
- */
-object Result {
-
-  /**
-   * Extractor:
-   *
-   * {{{
-   * case Result(status, headers) => ...
-   * }}}
-   */
-  def unapply(result: Result): Option[(Int, Map[String, String])] = result match {
-    case r: PlainResult => Some(r.header.status, r.header.headers)
-    case _ => None
-  }
-
-}
-
-/**
- * A plain HTTP result.
- */
-trait PlainResult extends Result {
-
-  /**
-   * The response header
-   */
-  val header: ResponseHeader
-
+sealed trait WithHeaders[+A <: Result] {
   /**
    * Adds HTTP headers to this result.
    *
@@ -67,7 +43,155 @@ trait PlainResult extends Result {
    * @param headers the headers to add to this result.
    * @return the new result
    */
-  def withHeaders(headers: (String, String)*): PlainResult
+  def withHeaders(headers: (String, String)*): A
+
+  /**
+   * Adds cookies to this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").withCookies(Cookie("theme", "blue"))
+   * }}}
+   *
+   * @param cookies the cookies to add to this result
+   * @return the new result
+   */
+  def withCookies(cookies: Cookie*): A
+
+
+  /**
+   * Discards cookies along this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").discardingCookies("theme")
+   * }}}
+   *
+   * @param names the names of the cookies to discard along to this result
+   * @return the new result
+   */
+  @deprecated("This method can only discard cookies on the / path with no domain and without secure set.  Use discardingCookies(DiscardingCookie*) instead.", "2.1")
+  def discardingCookies(name: String, names: String*): A = discardingCookies((name :: names.toList).map(n => DiscardingCookie(n)):_*)
+
+  /**
+   * Discards cookies along this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").discardingCookies(DiscardingCookie("theme"))
+   * }}}
+   *
+   * @param cookies the cookies to discard along to this result
+   * @return the new result
+   */
+  def discardingCookies(cookies: DiscardingCookie*): A
+
+  /**
+   * Sets a new session for this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").withSession(session + ("saidHello" -> "true"))
+   * }}}
+   *
+   * @param session the session to set with this result
+   * @return the new result
+   */
+  def withSession(session: Session): A
+
+  /**
+   * Sets a new session for this result, discarding the existing session.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").withSession("saidHello" -> "yes")
+   * }}}
+   *
+   * @param session the session to set with this result
+   * @return the new result
+   */
+  def withSession(session: (String, String)*): A
+
+  /**
+   * Discards the existing session for this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").withNewSession
+   * }}}
+   *
+   * @return the new result
+   */
+  def withNewSession: A
+
+  /**
+   * Adds values to the flash scope for this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").flashing(flash + ("success" -> "Done!"))
+   * }}}
+   *
+   * @param flash the flash scope to set with this result
+   * @return the new result
+   */
+  def flashing(flash: Flash): A
+
+  /**
+   * Adds values to the flash scope for this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").flashing("success" -> "Done!")
+   * }}}
+   *
+   * @param flash the flash values to set with this result
+   * @return the new result
+   */
+  def flashing(values: (String, String)*): A
+
+  /**
+   * Changes the result content type.
+   *
+   * For example:
+   * {{{
+   * Ok("<text>Hello world</text>").as("text/xml")
+   * }}}
+   *
+   * @param contentType the new content type.
+   * @return the new result
+   */
+  def as(contentType: String): A
+}
+
+/**
+ * Helper utilities for Result values.
+ */
+object PlainResult {
+
+  /**
+   * Extractor:
+   *
+   * {{{
+   * case Result(status, headers) => ...
+   * }}}
+   */
+  def unapply(result: Result): Option[(Int, Map[String, String])] = result match {
+    case r: PlainResult => Some((r.header.status, r.header.headers))
+    case _ => None
+  }
+
+}
+
+/**
+ * A plain HTTP result.
+ */
+trait PlainResult extends Result with WithHeaders[PlainResult] {
+
+  /**
+   * The response header
+   */
+  val header: ResponseHeader
 
   /**
    * Adds cookies to this result.
@@ -95,8 +219,8 @@ trait PlainResult extends Result {
    * @param cookies the cookies to discard along to this result
    * @return the new result
    */
-  def discardingCookies(names: String*): PlainResult = {
-    withHeaders(SET_COOKIE -> Cookies.merge(header.headers.get(SET_COOKIE).getOrElse(""), Nil, discard = names))
+  def discardingCookies(cookies: DiscardingCookie*): PlainResult = {
+    withHeaders(SET_COOKIE -> Cookies.merge(header.headers.get(SET_COOKIE).getOrElse(""), cookies.map(_.toCookie)))
   }
 
   /**
@@ -111,7 +235,7 @@ trait PlainResult extends Result {
    * @return the new result
    */
   def withSession(session: Session): PlainResult = {
-    if (session.isEmpty) discardingCookies(Session.COOKIE_NAME) else withCookies(Session.encodeAsCookie(session))
+    if (session.isEmpty) discardingCookies(Session.discard) else withCookies(Session.encodeAsCookie(session))
   }
 
   /**
@@ -249,7 +373,164 @@ case class ChunkedResult[A](header: ResponseHeader, chunks: Iteratee[A, Unit] =>
  *
  * @param result the promise of result, which can be any other result type
  */
-case class AsyncResult(result: Promise[Result]) extends Result
+case class AsyncResult(result: Future[Result]) extends Result with WithHeaders[AsyncResult] {
+
+  /**
+   * Apply some transformation to this `AsyncResult`
+   *
+   * @param f The transformation function
+   * @return The transformed `AsyncResult`
+   */
+  def transform(f: PlainResult => Result)(implicit ec: ExecutionContext): AsyncResult = AsyncResult (result.map {
+      case AsyncResult(r) => AsyncResult(r.map{
+        case r:PlainResult => f(r)
+        case r:AsyncResult => r.transform(f)})
+      case r:PlainResult => f(r)
+  })
+
+  def unflatten:Future[PlainResult] = result.flatMap {
+      case r:PlainResult => Promise.pure(r)
+      case r@AsyncResult(_) => r.unflatten
+  }(internalContext)
+
+  def map(f: Result => Result)(implicit ec: ExecutionContext): AsyncResult = AsyncResult(result.map(f))
+
+  /**
+   * Adds headers to this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").withHeaders(ETAG -> "0")
+   * }}}
+   *
+   * @param headers the headers to add to this result.
+   * @return the new result
+   */
+  def withHeaders(headers: (String, String)*): AsyncResult = {
+    map(_.withHeaders(headers: _*))(internalContext)
+  }
+
+  /**
+   * Adds cookies to this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").withCookies(Cookie("theme", "blue"))
+   * }}}
+   *
+   * @param cookies the cookies to add to this result
+   * @return the new result
+   */
+  def withCookies(cookies: Cookie*): AsyncResult = {
+    map(_.withCookies(cookies: _*))(internalContext)
+  }
+
+  /**
+   * Discards cookies along this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").discardingCookies("theme")
+   * }}}
+   *
+   * @param cookies the cookies to discard along to this result
+   * @return the new result
+   */
+  def discardingCookies(cookies: DiscardingCookie*): AsyncResult = {
+    map(_.discardingCookies(cookies: _*))(internalContext)
+  }
+
+  /**
+   * Sets a new session for this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").withSession(session + ("saidHello" -> "true"))
+   * }}}
+   *
+   * @param session the session to set with this result
+   * @return the new result
+   */
+  def withSession(session: Session): AsyncResult = {
+    map(_.withSession(session))(internalContext)
+  }
+
+  /**
+   * Sets a new session for this result, discarding the existing session.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").withSession("saidHello" -> "yes")
+   * }}}
+   *
+   * @param session the session to set with this result
+   * @return the new result
+   */
+  def withSession(session: (String, String)*): AsyncResult = {
+    map(_.withSession(session: _*))(internalContext)
+  }
+
+  /**
+   * Discards the existing session for this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").withNewSession
+   * }}}
+   *
+   * @return the new result
+   */
+  def withNewSession: AsyncResult = {
+    map(_.withNewSession)(internalContext)
+  }
+
+  /**
+   * Adds values to the flash scope for this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").flashing(flash + ("success" -> "Done!"))
+   * }}}
+   *
+   * @param flash the flash scope to set with this result
+   * @return the new result
+   */
+  def flashing(flash: Flash): AsyncResult = {
+    map(_.flashing(flash))(internalContext)
+  }
+
+  /**
+   * Adds values to the flash scope for this result.
+   *
+   * For example:
+   * {{{
+   * Ok("Hello world").flashing("success" -> "Done!")
+   * }}}
+   *
+   * @param flash the flash values to set with this result
+   * @return the new result
+   */
+  def flashing(values: (String, String)*): AsyncResult = {
+    map(_.flashing(values: _*))(internalContext)
+  }
+
+  /**
+   * Changes the result content type.
+   *
+   * For example:
+   * {{{
+   * Ok("<text>Hello world</text>").as("text/xml")
+   * }}}
+   *
+   * @param contentType the new content type.
+   * @return the new result
+   */
+  def as(contentType: String): AsyncResult = {
+    map(_.as(contentType))(internalContext)
+  }
+
+}
+
 
 /**
  * A Codec handle the conversion of String to Byte arrays.
@@ -326,13 +607,13 @@ trait Results {
      * @param inline Use Content-Disposition inline or attachment.
      * @param fileName function to retrieve the file name (only used for Content-Disposition attachment)
      */
-    def sendFile(content: java.io.File, inline: Boolean = false, fileName: java.io.File => String = _.getName): SimpleResult[Array[Byte]] = {
+    def sendFile(content: java.io.File, inline: Boolean = false, fileName: java.io.File => String = _.getName, onClose: () => Unit = () => ()): SimpleResult[Array[Byte]] = {
       SimpleResult(
         header = ResponseHeader(OK, Map(
           CONTENT_LENGTH -> content.length.toString,
           CONTENT_TYPE -> play.api.libs.MimeTypes.forFileName(content.getName).getOrElse(play.api.http.ContentTypes.BINARY)
         ) ++ (if (inline) Map.empty else Map(CONTENT_DISPOSITION -> ("attachment; filename=" + fileName(content))))),
-        Enumerator.fromFile(content)
+        Enumerator.fromFile(content) &> Enumeratee.onIterateeDone(onClose)
       )
     }
 
@@ -370,7 +651,7 @@ trait Results {
 
   }
 
-  def Async(promise: Promise[Result]) = AsyncResult(promise)
+  def Async(promise: Future[Result]) = AsyncResult(promise)
 
   /** Generates a ‘200 OK’ result. */
   val Ok = new Status(OK)
@@ -392,6 +673,9 @@ trait Results {
 
   /** Generates a ‘206 PARTIAL_CONTENT’ result. */
   val PartialContent = new Status(PARTIAL_CONTENT)
+
+  /** Generates a ‘207 MULTI_STATUS’ result. */
+  val MultiStatus = new Status(MULTI_STATUS)
 
   /**
    * Generates a ‘301 MOVED_PERMANENTLY’ simple result.
@@ -466,17 +750,38 @@ trait Results {
   /** Generates a ‘417 EXPECTATION_FAILED’ result. */
   val ExpectationFailed = new Status(EXPECTATION_FAILED)
 
+  /** Generates a ‘422 UNPROCESSABLE_ENTITY’ result. */
+  val UnprocessableEntity = new Status(UNPROCESSABLE_ENTITY)
+
+  /** Generates a ‘423 LOCKED’ result. */
+  val Locked = new Status(LOCKED)
+
+  /** Generates a ‘424 FAILED_DEPENDENCY’ result. */
+  val FailedDependency = new Status(FAILED_DEPENDENCY)
+
   /** Generates a ‘429 TOO_MANY_REQUEST’ result. */
   val TooManyRequest = new Status(TOO_MANY_REQUEST)
 
   /** Generates a ‘500 INTERNAL_SERVER_ERROR’ result. */
   val InternalServerError = new Status(INTERNAL_SERVER_ERROR)
-
+  
   /** Generates a ‘501 NOT_IMPLEMENTED’ result. */
   val NotImplemented = new Status(NOT_IMPLEMENTED)
 
+  /** Generates a ‘502 BAD_GATEWAY’ result. */
+  val BadGateway = new Status(BAD_GATEWAY)
+
   /** Generates a ‘503 SERVICE_UNAVAILABLE’ result. */
   val ServiceUnavailable = new Status(SERVICE_UNAVAILABLE)
+
+  /** Generates a ‘504 GATEWAY_TIMEOUT’ result. */
+  val GatewayTimeout = new Status(GATEWAY_TIMEOUT)
+
+  /** Generates a ‘505 HTTP_VERSION_NOT_SUPPORTED’ result. */
+  val HttpVersionNotSupported = new Status(HTTP_VERSION_NOT_SUPPORTED)
+
+  /** Generates a ‘507 INSUFFICIENT_STORAGE’ result. */
+  val InsufficientStorage = new Status(INSUFFICIENT_STORAGE)
 
   /**
    * Generates a simple result.

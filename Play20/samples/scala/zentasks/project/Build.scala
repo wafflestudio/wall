@@ -1,14 +1,19 @@
 import sbt._
 import Keys._
 
-import PlayProject._
+import play.Project._
 
 object ApplicationBuild extends Build {
 
     val appName         = "zentask"
     val appVersion      = "1.0"
 
-    val main = PlayProject(appName, appVersion, mainLang = SCALA)
+    val appDependencies = Seq(
+      jdbc,
+      anorm
+    )
+
+    val main = play.Project(appName, appVersion, appDependencies)
 
 }
             

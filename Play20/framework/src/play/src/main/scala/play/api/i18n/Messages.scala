@@ -48,13 +48,24 @@ object Lang {
   private val CountryLocale = """([a-zA-Z]{2})-([a-zA-Z]{2}|[0-9]{3})""".r
 
   /**
-   * Create a Lang value from a code (such as fr or en-US).
+   * Create a Lang value from a code (such as fr or en-US) and
+   *  throw exception if language is unrecognized
    */
   def apply(code: String): Lang = {
+    get(code).getOrElse(
+      sys.error("Unrecognized language: %s".format(code))
+    )
+  }
+
+  /**
+   * Create a Lang value from a code (such as fr or en-US) or none
+   * if language is unrecognized.
+   */
+  def get(code: String): Option[Lang] = {
     code match {
-      case SimpleLocale(language) => Lang(language, "")
-      case CountryLocale(language, country) => Lang(language, country)
-      case _ => sys.error("Unrecognized language: %s".format(code))
+      case SimpleLocale(language) => Some(Lang(language, ""))
+      case CountryLocale(language, country) => Some(Lang(language, country))
+      case _ => None
     }
   }
 
@@ -69,7 +80,7 @@ object Lang {
     app.configuration.getString("application.langs").map { langs =>
       langs.split(",").map(_.trim).map { lang =>
         try { Lang(lang) } catch {
-          case e => throw app.configuration.reportError("application.langs", "Invalid language code [" + lang + "]", Some(e))
+          case e: Exception => throw app.configuration.reportError("application.langs", "Invalid language code [" + lang + "]", Some(e))
         }
       }.toSeq
     }.getOrElse(Nil)
@@ -132,20 +143,6 @@ object Messages {
     override def skipWhitespace = false
     override val whiteSpace = """[ \t]+""".r
 
-    override def phrase[T](p: Parser[T]) = new Parser[T] {
-      lastNoSuccess = null
-      def apply(in: Input) = p(in) match {
-        case s @ Success(out, in1) =>
-          if (in1.atEnd)
-            s
-          else if (lastNoSuccess == null || lastNoSuccess.next.pos < in1.pos)
-            Failure("end of input expected", in1)
-          else
-            lastNoSuccess
-        case _ => lastNoSuccess
-      }
-    }
-
     def namedError[A](p: Parser[A], msg: String) = Parser[A] { i =>
       p(i) match {
         case Failure(_, in) => Failure(msg, in)
@@ -161,7 +158,17 @@ object Messages {
     def comment = """#.*""".r ^^ { case s => Comment(s) }
 
     def messageKey = namedError("""[a-zA-Z0-9_.]+""".r, "Message key expected")
-    def messagePattern = namedError(""".+""".r, "Message pattern expected")
+
+    def messagePattern = namedError(
+      rep(
+        """\""" ~> ("\r"?) ~> "\n" ^^ (_ => "") | // Ignore escaped end of lines \
+          """\n""" ^^ (_ => "\n") | // Translate literal \n to real newline
+          """\\""" ^^ (_ => """\""") | // Handle escaped \\
+          """.""".r // Or any character
+      ) ^^ { case chars => chars.mkString },
+      "Message pattern expected"
+    )
+
     def message = ignoreWhiteSpace ~ messageKey ~ (ignoreWhiteSpace ~ "=" ~ ignoreWhiteSpace) ~ messagePattern ^^ {
       case (_ ~ k ~ _ ~ v) => Messages.Message(k, v.trim, messageInput, messageSourceName)
     }
@@ -175,14 +182,14 @@ object Messages {
     }
 
     def parse = {
-      parser(new CharSequenceReader(messageInput.slurpString + "\n")) match {
+      parser(new CharSequenceReader(messageInput.string + "\n")) match {
         case Success(messages, _) => messages
         case NoSuccess(message, in) => {
-          throw new PlayException("Configuration error", message) with PlayException.ExceptionSource {
-            def line = Some(in.pos.line)
-            def position = Some(in.pos.column - 1)
-            def input = Some(messageInput)
-            def sourceName = Some(messageSourceName)
+          throw new PlayException.ExceptionSource("Configuration error", message) {
+            def line = in.pos.line
+            def position = in.pos.column - 1
+            def input = messageInput.string
+            def sourceName = messageSourceName
           }
         }
       }
@@ -209,9 +216,13 @@ case class MessagesApi(messages: Map[String, Map[String, String]]) {
    * @return the formatted message, if this key was defined
    */
   def translate(key: String, args: Seq[Any])(implicit lang: Lang): Option[String] = {
-    messages.get(lang.code).flatMap(_.get(key)).orElse(messages.get("default").flatMap(_.get(key))).map { pattern =>
-      new MessageFormat(pattern, lang.toLocale).format(args.map(_.asInstanceOf[java.lang.Object]).toArray)
-    }
+    val langsToTry: List[Lang] =
+      List(lang, Lang(lang.language, ""), Lang("default", ""))
+    val pattern: Option[String] =
+      langsToTry.foldLeft[Option[String]](None)((res, lang) =>
+        res.orElse(messages.get(lang.code).flatMap(_.get(key))))
+    pattern.map(pattern =>
+      new MessageFormat(pattern, lang.toLocale).format(args.map(_.asInstanceOf[java.lang.Object]).toArray))
   }
 
 }

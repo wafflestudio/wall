@@ -2,7 +2,7 @@ import play.api._
 
 import models._
 import anorm._
-import play.db.DB
+import play.api.db.DB
 import com.typesafe.config._
 import org.h2.Driver
 

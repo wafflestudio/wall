@@ -8,7 +8,16 @@ http://www.playframework.org
 
 ## Installing
 
-For convenience, you should add the framework installation directory to your system PATH. On UNIX systems will be something like:
+You first need to build Play:
+
+```bash
+$ cd framework/
+$ ./build
+> build-repository
+```
+
+Then, for convenience, add the framework installation directory to your system PATH.  
+On UNIX systems, it would be something like:
 
 ```bash
 export PATH=$PATH:/path/to/play2.0
@@ -22,21 +31,21 @@ On windows systems you'll need to set it in the global environment variables.
 
 Enter any existing Play 2.0 application directory and use the `play` command to launch the development console:
 
-```
+```bash
 $ cd ~/workspace/myApplication
 $ play
 ```
 
 You can also directly use `play run` to run the application:
 
-```
+```bash
 $ cd ~/workspace/myApplication
 $ play run
 ```
 
 Use `play new yourNewApplication` to create a new application:
 
-```
+```bash
 $ cd ~/workspace
 $ play new myNewApplication
 ```
@@ -52,15 +61,11 @@ $ play
 
 There are several samples applications included in the `samples/` directory. For example, to run the included Scala Hello World application:
 
-```
+```bash
 $ cd ~/workspace/play2.0/samples/scala/helloworld/
 $ play run
 ```
 > The application will be available on port 9000.
-
-## Documentation
-
-The edge documentation is available at https://github.com/playframework/Play20/wiki.
 
 ## Issues tracker
 
