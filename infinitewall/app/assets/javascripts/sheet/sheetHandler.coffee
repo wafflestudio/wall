@@ -9,6 +9,7 @@ class window.SheetHandler
   startHeight: 0
   hasMoved: false
   currentLink: null
+  myTouch: 0
 
   constructor: (params) ->
     @sheet = params
@@ -24,20 +25,23 @@ class window.SheetHandler
     console.log "touchstart"
     wall.bringToTop(@sheet)
     minimap.bringToTop(miniSheets[@sheet.id])
+
+    @myTouch = e.originalEvent.touches.length - 1
     
     @hasMoved = false
     @startx = @sheet.x() * glob.zoomLevel
     @starty = @sheet.y() * glob.zoomLevel
-    @deltax = e.originalEvent.pageX
-    @deltay = e.originalEvent.pageY
+    @deltax = e.originalEvent.touches[@myTouch].pageX
+    @deltay = e.originalEvent.touches[@myTouch].pageY
     $(document).on 'touchmove', @onTouchMove
     $(document).on 'touchend', @onTouchEnd
     return false
     e.stopPropagation()
 
+
   onTouchMove: (e) =>
-    @sheet.x((@startx + e.originalEvent.pageX - @deltax) / glob.zoomLevel)
-    @sheet.y((@starty + e.originalEvent.pageY - @deltay) / glob.zoomLevel)
+    @sheet.x((@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / glob.zoomLevel)
+    @sheet.y((@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / glob.zoomLevel)
     @hasMoved = true
       
   onTouchEnd: (e) =>
@@ -47,7 +51,6 @@ class window.SheetHandler
     t = d.getTime()
     
     minimap.refresh()
-
 
     if @hasMoved
       @sheet.socketMove {

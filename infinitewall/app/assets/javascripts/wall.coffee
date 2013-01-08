@@ -28,7 +28,6 @@ class DockLayer extends Movable
   constructor: () ->
     @element = $("#dockLayer")
 
-
 class window.Wall
   wall: null
   mL: null
@@ -45,7 +44,6 @@ class window.Wall
   xWallLast: 0
   yWallLast: 0
   hasMoved: false
-  pinch: false
 
   save: ()->
     
@@ -80,20 +78,6 @@ class window.Wall
     @wall.on 'touchstart', @onTouchStart
     @wall.on 'mousewheel', @onMouseWheel
   
-  averageX = (e) ->
-    x = 0
-    for k, v of e.originalEvent.touches
-      if v instanceof Touch
-        x += v.pageX
-    x / e.originalEvent.touches.length
-
-  averageY = (e) ->
-    y = 0
-    for k, v of e.originalEvent.touches
-      if v instanceof Touch
-        y += v.pageY
-    y / e.originalEvent.touches.length
-
   onTouchStart: (e) =>
     len = e.originalEvent.touches.length
     @startx = @mL.x() * glob.zoomLevel
@@ -106,8 +90,8 @@ class window.Wall
     else # 첫번쨰 이후의 터치일 경우
       $(document).off 'touchmove', @onTouchMove
       $(document).off 'touchend', @onTouchEnd
-      @deltax = averageX(e)
-      @deltay = averageY(e)
+      @deltax = e.originalEvent.pageX
+      @deltay = e.originalEvent.pageY
       xlen = e.originalEvent.touches[0].pageX - e.originalEvent.touches[1].pageX
       ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY
       @startlen = Math.sqrt(xlen * xlen + ylen * ylen)
@@ -124,8 +108,9 @@ class window.Wall
       @mL.x((@startx + e.originalEvent.pageX - @deltax) / glob.zoomLevel)
       @mL.y((@starty + e.originalEvent.pageY - @deltay) / glob.zoomLevel)
     else # 터치가 2개 이상, pinch-to-zoom / 중점 기준으로 움직이게
-      x = averageX(e)
-      y = averageY(e)
+      x = e.originalEvent.pageX
+      y = e.originalEvent.pageY
+      #그냥 이렇게 하면 따로 계산 안해도 중간 좌표값이 나오는듯
       
       xlen = e.originalEvent.touches[0].pageX - e.originalEvent.touches[1].pageX
       ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY
