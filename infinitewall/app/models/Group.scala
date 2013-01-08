@@ -51,6 +51,16 @@ object Group extends ActiveRecord[Group] {
 			id
 		}
 	}
+
+	def findAllByUserId(userId: Long) = {
+		DB.withConnection {  implicit c =>
+			SQL("select * from UserGroup where user_id={userId}").on('userId -> userId).as(Group.simple*)
+		}
+	}
+
+  def isValid(id: Long, userId: Long) = {
+    findAllByUserId(userId).exists((g: Group) => g.id.get == id) | User.listGroups(userId).exists((g: Group) => g.id.get == id) 
+  }
 	def addUser(id: Long, user_id: Long) = {
 		DB.withConnection { implicit c =>
 			SQL(""" 

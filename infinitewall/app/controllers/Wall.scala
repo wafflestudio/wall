@@ -20,13 +20,11 @@ import play.api.db.DB
 import models.WallPreference
 import models.ResourceTree
 import models.RootFolder
-import models.RootFolder
 
 
 object Wall extends Controller with Auth with Login{
 	
 	def index = AuthenticatedAction { implicit request =>
-		//val sharedWalls = models.Wall.findAllByUserId(currentUserId)
 		val sharedWalls = models.User.listSharedWalls(currentUserId)
 		val nonSharedWalls = models.User.listNonSharedWalls(currentUserId)
 		//val walls = models.User.listNonSharedWalls(currentUserId)

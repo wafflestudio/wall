@@ -1,4 +1,4 @@
-@(users:List[User], walls:List[Wall], groupId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(users:List[User], walls:List[Wall], nonSharedWalls:List[Wall], groupId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.default("Walls ::: Infinite Wall") {
 
@@ -19,9 +19,19 @@
 	<form method="POST" action="@{routes.Group.createWall(groupId)}" class="form-inline">
 		<input name="title" type="text" placeholder="Wall name"> <button class="btn">Create</button/>
 	</form>
-	<form method="POST" action="@{routes.Group.addWall(groupId)}" class="form-inline">
+	<form method="POST" action="@{routes.Group.addWall_Post(groupId)}" class="form-inline">
 		<input name="wall_id" type="text" placeholder="Wall ID"> <button class="btn">Add</button/>
 	</form>
+	<h5>My Walls</h5>
+	@if(nonSharedWalls.length == 0)  {
+		<p> No Wall </p>
+	}
+	<ul>
+	@for(wall <- nonSharedWalls) {
+		<li>@wall.name <a href="@{routes.Group.addWall_Get(groupId, wall.id.get)}">add to Group</a></li>
+	}
+	</ul>
+	<h5>Group's Walls</h5>
 	@if(walls.length == 0)  {
 		<p> No Wall </p>
 	}
