@@ -28,6 +28,7 @@ class DockLayer extends Movable
   constructor: () ->
     @element = $("#dockLayer")
 
+
 class window.Wall
   wall: null
   mL: null
@@ -44,6 +45,7 @@ class window.Wall
   xWallLast: 0
   yWallLast: 0
   hasMoved: false
+  pinch: false
 
   save: ()->
     
@@ -110,7 +112,7 @@ class window.Wall
       ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY
       @startlen = Math.sqrt(xlen * xlen + ylen * ylen)
       @startzoom = glob.zoomLevel
-    
+
     $(document).on 'touchmove', @onTouchMove
     $(document).on 'touchend', @onTouchEnd
     e.preventDefault()
@@ -124,8 +126,6 @@ class window.Wall
     else # 터치가 2개 이상, pinch-to-zoom / 중점 기준으로 움직이게
       x = averageX(e)
       y = averageY(e)
-      @endX = x
-      @endY = y
       
       xlen = e.originalEvent.touches[0].pageX - e.originalEvent.touches[1].pageX
       ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY
@@ -145,9 +145,9 @@ class window.Wall
       glob.zoomLevel = @startzoom * Math.sqrt(xlen * xlen + ylen * ylen) / @startlen
       glob.zoomLevel = if glob.zoomLevel < 0.2 then 0.2 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
           
-      xNew = (xWall - @xScaleLayer + x - @deltax) / glob.zoomLevel
-      yNew = (yWall - @yScaleLayer + y - @deltay) / glob.zoomLevel
-      
+      xNew = (xWall - @xScaleLayer) / glob.zoomLevel
+      yNew = (yWall - @yScaleLayer) / glob.zoomLevel
+
       #xNew, yNew는 wall기준 mouse위치와 scaleLayer기준 mouseLayer 의 차..
       
       @xWallLast = xWall
@@ -157,17 +157,12 @@ class window.Wall
       glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
 
       #scaleLayer의 좌표를 wall의 기준으로 저장
-
       @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
       #minimap.refresh()
 
   onTouchEnd: (e) =>
     $(document).off 'touchmove', @onTouchMove
     $(document).off 'touchend', @onTouchEnd
-    @xScaleLayer -= (@endX - @deltax) / glob.zoomLevel
-    @yScaleLayer -= (@endY - @deltay) / glob.zoomLevel
-
-    #xNew, yNew에서 옮겨줬던 픽셀만큼 compensate
     minimap.refresh()
     
     if glob.activeSheet and not @hasMoved
@@ -208,8 +203,6 @@ class window.Wall
 
     @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
     @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
-    
-    console.log "#{yWall - @yWallLast}"
     
     #xWall - xWallLast는 저번과 현재의 마우스 좌표 차이 
     #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨

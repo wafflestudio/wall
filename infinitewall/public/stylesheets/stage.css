@@ -194,7 +194,7 @@
 
 #scaleLayer {
 	position:absolute;
-	top:40px;
+	top:0;
 	left:0;
 	width:1px;
 	height:1px;
@@ -207,6 +207,7 @@
 	width:1px;
 	height:1px;
 }
+
 
 .sheetBox {
 	position:absolute;
