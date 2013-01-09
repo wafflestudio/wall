@@ -32,8 +32,10 @@ trait Auth {
 		Action { implicit request =>
 			if (request.session.get("current_user").isDefined)
 				f(request)
-			else
-				Forbidden
+			else  {
+				Logger.info("unauthorized access:" + request.uri)
+				Forbidden("You are not authorized to access this url")
+			}
 		}
 	
 }
