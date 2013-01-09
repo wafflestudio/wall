@@ -87,6 +87,9 @@ class window.Wall
       @hasMoved = false
       @deltax = e.originalEvent.pageX
       @deltay = e.originalEvent.pageY
+      
+      @onTouchEnd.xWall = e.originalEvent.pageX - @wall.offset().left
+      @onTouchEnd.yWall = e.originalEvent.pageY - @wall.offset().top - 38
     else # 첫번쨰 이후의 터치일 경우
       $(document).off 'touchmove', @onTouchMove
       $(document).off 'touchend', @onTouchEnd
@@ -148,10 +151,38 @@ class window.Wall
   onTouchEnd: (e) =>
     $(document).off 'touchmove', @onTouchMove
     $(document).off 'touchend', @onTouchEnd
-    minimap.refresh()
     
     if glob.activeSheet and not @hasMoved
       glob.activeSheet.resignActive()
+
+    minimap.refresh()
+    
+    d = new Date()
+    t = d.getTime()
+    
+    @onTouchEnd.lastTouch = @onTouchEnd.lastTouch || 0
+
+    if t - @onTouchEnd.lastTouch < 300
+      @xScaleLayer += (@onTouchEnd.xWall - @xWallLast) / glob.zoomLevel
+      @yScaleLayer += (@onTouchEnd.yWall - @yWallLast) / glob.zoomLevel
+      glob.zoomLevel = if glob.zoomLevel is 1 then 0.2 else 1
+     
+      if glob.zoomLevel is 1
+        xNew = (@onTouchEnd.xWall - @xScaleLayer) / glob.zoomLevel
+        yNew = (@onTouchEnd.yWall - @yScaleLayer) / glob.zoomLevel
+      
+      @xWallLast = @onTouchEnd.xWall
+      @yWallLast = @onTouchEnd.yWall
+
+      glob.scaleLayerXPos = @onTouchEnd.xWall - @xScaleLayer * glob.zoomLevel
+      glob.scaleLayerYPos = @onTouchEnd.yWall - @yScaleLayer * glob.zoomLevel
+
+      @sL.set(@onTouchEnd.xWall, @onTouchEnd.yWall, xNew, yNew, true)
+      minimap.refresh {isTransition: true}
+      @onTouchEnd.lastTouch = 0
+     
+    else
+      @onTouchEnd.lastTouch = t
 
   onMouseMove: (e) =>
     @mL.x((@startx + e.pageX - @deltax) / glob.zoomLevel)
@@ -229,13 +260,14 @@ class window.Wall
     if glob.zoomLevel is 1
       xNew = (xWall - @xScaleLayer) / glob.zoomLevel
       yNew = (yWall - @yScaleLayer) / glob.zoomLevel
-    
+     
     @xWallLast = xWall
     @yWallLast = yWall
 
     glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
     glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
-
+    
+    console.log "#{xWall}, #{yWall}, #{xNew}, #{yNew}"
     @sL.set(xWall, yWall, xNew, yNew, true)
     minimap.refresh {isTransition: true}
 

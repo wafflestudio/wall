@@ -59,17 +59,18 @@ class window.SheetHandler
       }
       @sheet.element.find('.sheetTextField').blur()
       @sheet.element.find('.sheetTitle').blur()
-    else
-      @onTouchEnd.lastTouch = 0 if @onTouchEnd.lastTouch is undefined
 
-      if t - @onMouseUp.lastTouch < 300
-        console.log "doubleClick!"
+    else
+      @onTouchEnd.lastTouch = @onTouchEnd.lastTouch || 0
+
+      if t - @onTouchEnd.lastTouch < 300
         if glob.activeSheet
           if glob.activeSheet isnt @sheet
             glob.activeSheet.resignActive()
             @sheet.becomeActive()
 
         wall.toCenter(@sheet)
+        @onTouchEnd.lastTouch = 0
 
       else
         if glob.activeSheet
@@ -79,8 +80,8 @@ class window.SheetHandler
         else
           @sheet.becomeActive()
         wall.revealSheet()
+        @onTouchEnd.lastTouch = t
 
-    @onMouseUp.lastClick = t
     return false
 
   onRightMouseMove: (e) =>
@@ -135,7 +136,7 @@ class window.SheetHandler
       @sheet.element.find('.sheetTextField').blur()
       @sheet.element.find('.sheetTitle').blur()
     else
-      @onMouseUp.lastClick = 0 if @onMouseUp.lastClick is undefined
+      @onMouseUp.lastClick = @onMouseUp.lastClick || 0
 
       if t - @onMouseUp.lastClick < 300
         console.log "doubleClick!"
