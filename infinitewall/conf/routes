@@ -12,10 +12,12 @@ GET     /signup        							controllers.Application.signup
 POST    /users/create   						controllers.Application.createNewUser
 GET     /logout         						controllers.Application.logout
 
-GET     /chat                       			controllers.Chat.index
-GET     /chat/:roomId               			controllers.Chat.room(roomId:Long)
-POST    /chat/create           				    controllers.Chat.create
-GET     /chat/establish/:roomId/:timestamp     	controllers.Chat.establish(roomId:Long, timestamp:Long)
+
+# Chat routes available only for testing
+# GET     /chat                       controllers.Chat.index
+# GET     /chat/:roomId               controllers.Chat.room(roomId:Long)
+# POST    /chat/create                controllers.Chat.create
+GET     /chat/establish/:roomId/:timestamp     controllers.Chat.establish(roomId:Long, timestamp:Long)
 
 GET     /wall                       			controllers.Wall.index
 GET     /tree                       			controllers.Wall.tree

@@ -21,7 +21,7 @@ object Chat extends Controller with Login {
 //	val createForm = Form(
 //		"title" -> nonEmptyText
 //	)
-
+/*
 	def index = AuthenticatedAction { implicit request =>
 		val rooms = ChatRoom.list()
 		Ok(views.html.chat.index(rooms))
@@ -41,7 +41,7 @@ object Chat extends Controller with Login {
 	def destroy = Action {
 		Ok("")
 	}
-
+*/
 	def establish(roomId: Long, timestamp: Long = 0) =
 		WebSocket.async[JsValue] { request =>
 
