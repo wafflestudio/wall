@@ -44,9 +44,20 @@ class window.Wall
   xWallLast: 0
   yWallLast: 0
   hasMoved: false
+  
+  redrawInstantly: () =>
+    @sL.redraw()
+    @mL.redraw()
+    for id, sheet of sheets
+      sheet.redraw()
+    console.log "redraw!"
 
-  save: ()->
-    
+  redraw: () ->
+    if @redrawTimeout
+      clearTimeout(@redrawTimeout)
+    @redrawTimeout = setTimeout(@redrawInstantly, 400)
+
+  save: () ->
     if @saveTimeout
       clearTimeout(@saveTimeout)
 
@@ -184,16 +195,20 @@ class window.Wall
     else
       @onTouchEnd.lastTouch = t
 
+    @save()
+    @redraw()
+
   onMouseMove: (e) =>
     @mL.x((@startx + e.pageX - @deltax) / glob.zoomLevel)
     @mL.y((@starty + e.pageY - @deltay) / glob.zoomLevel)
     @hasMoved = true
     minimap.refresh()
-    @save()
 
-  onMouseUp: ->
+  onMouseUp: =>
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
+    @redraw()
+    @save()
 
     if glob.activeSheet and not @hasMoved
       glob.activeSheet.resignActive()
@@ -243,7 +258,7 @@ class window.Wall
 
     @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
     minimap.refresh()
-
+    @redraw()
     @save()
     return false
 
@@ -271,6 +286,7 @@ class window.Wall
     @sL.set(xWall, yWall, xNew, yNew, true)
     minimap.refresh {isTransition: true}
 
+    @redraw()
     @save()
     return false
 
@@ -313,6 +329,7 @@ class window.Wall
         mLx: diffX + mLX,
         mLy: diffY + mLY
       }
+      @redraw()
       @save()
 
   toCenter: (sheet, callback) ->
@@ -345,7 +362,6 @@ class window.Wall
         mLy: diffY + mLY
       }
 
-
     else
       sheetX = (glob.scaleLayerXPos + (@mL.x() + sheet.x()) * glob.zoomLevel)
       sheetY = (glob.scaleLayerYPos + (@mL.y() + sheet.y()) * glob.zoomLevel)
@@ -370,3 +386,4 @@ class window.Wall
       minimap.refresh {isTransition: true}
 
     @save()
+    @redraw()

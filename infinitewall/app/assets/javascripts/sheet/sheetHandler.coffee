@@ -82,6 +82,7 @@ class window.SheetHandler
         wall.revealSheet()
         @onTouchEnd.lastTouch = t
 
+    wall.redraw()
     return false
 
   onRightMouseMove: (e) =>
@@ -157,6 +158,7 @@ class window.SheetHandler
         wall.revealSheet()
 
     @onMouseUp.lastClick = t
+    wall.redraw()
     return false
 
   onMouseDown: (e) =>
@@ -209,7 +211,6 @@ class window.SheetHandler
     @deltay = e.originalEvent.pageY
     return false
 
-
   onResizeTouchEnd: (e) =>
     $(document).off 'touchmove', @onResizeTouchMove
     $(document).off 'touchend', @onResizeTouchEnd
@@ -240,6 +241,7 @@ class window.SheetHandler
       height: @sheet.ih()
     }
     minimap.refresh()
+    wall.redraw()
 
   onMouseEnter: (e) =>
     if glob.rightClick

@@ -32,12 +32,15 @@ class window.Movable
 
   tXY: (x, y, callback) ->
     @element.transition {
-      x: x,
+      x: x
       y: y
     }, callback
 
   tiWH: (w, h, callback) ->
     @innerElement.transition {
-      width: w,
+      width: w
       height: h
     }, callback
+ 
+  redraw: () ->
+    @element.redraw2d()

@@ -162,6 +162,18 @@
       $(elem).data('transform', value);
     }
   };
+  
+  // 웹킷에선 translate3d를 사용하면 뿌옇게 되는데 가끔 얘를 써서 깔끔하게 해줄 필요가 있음
+  
+  $.fn.redraw2d = function() {
+    element = this;
+
+    var value = element.data('transform') || new Transform();
+
+    element[0].style[support.transform] = value.toString();
+    element.data('transform', value);
+  };
+
 
   // Add a CSS hook for `.css({ transform: '...' })`.
   // In jQuery 1.8+, this will intentionally override the default `transform`
