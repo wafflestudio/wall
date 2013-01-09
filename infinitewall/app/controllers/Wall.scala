@@ -21,54 +21,53 @@ import models.WallPreference
 import models.ResourceTree
 import models.RootFolder
 
+object Wall extends Controller with Auth with Login {
 
-object Wall extends Controller with Auth with Login{
-	
 	def index = AuthenticatedAction { implicit request =>
 		val sharedWalls = models.User.listSharedWalls(currentUserId)
 		val nonSharedWalls = models.User.listNonSharedWalls(currentUserId)
 		//val walls = models.User.listNonSharedWalls(currentUserId)
 		Ok(views.html.wall.index(nonSharedWalls, sharedWalls))
 	}
-	
-	implicit def resourceTree2Json(implicit tree:ResourceTree):JsValue = {
+
+	implicit def resourceTree2Json(implicit tree: ResourceTree): JsValue = {
 		tree.node match {
-			case root:models.RootFolder => 
+			case root: models.RootFolder =>
 				JsArray(tree.children.map(resourceTree2Json(_)))
-			case folder:models.Folder =>
-				JsObject(Seq("type" -> JsString("folder"), "id" -> JsNumber(folder.id.get), "name" -> JsString(folder.name), 
+			case folder: models.Folder =>
+				JsObject(Seq("type" -> JsString("folder"), "id" -> JsNumber(folder.id.get), "name" -> JsString(folder.name),
 					"children" -> JsArray(tree.children.map(resourceTree2Json(_)))))
-			case wall:models.Wall =>
+			case wall: models.Wall =>
 				JsObject(Seq("type" -> JsString("wall"), "id" -> JsNumber(wall.id.get), "name" -> JsString(wall.name)))
 		}
 	}
-	
-	
+
 	def tree = AuthenticatedAction { implicit request =>
 		val tree = models.Wall.tree(currentUserId)
 		Ok(resourceTree2Json(tree))
 	}
-	
+
 	def stage(wallId: Long) = AuthenticatedAction { implicit request =>
 		val wall = models.Wall.findById(wallId)
-    
+
 		wall match {
 			case Some(_) =>
-        if(models.Wall.isValid(wallId, currentUserId)) {
-          val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
-          val (timestamp, sheets, sheetlinks) = DB.withTransaction { implicit c => 
-            (WallLog.timestamp(wallId), Sheet.findByWallId(wallId), SheetLink.findByWallId(wallId))
-          }
-          val pref = WallPreference.findOrCreate(currentUserId, wallId)
-          Ok(views.html.wall.stage(wallId, pref, sheets, sheetlinks, timestamp, chatRoomId))
-        } else {
-          Forbidden("Request wall with id " + wallId + " not accessible")
-        }
-			case None => 
+				if (models.Wall.isValid(wallId, currentUserId)) {
+					val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
+					val (timestamp, sheets, sheetlinks) = DB.withTransaction { implicit c =>
+						(WallLog.timestamp(wallId), Sheet.findByWallId(wallId), SheetLink.findByWallId(wallId))
+					}
+					val pref = WallPreference.findOrCreate(currentUserId, wallId)
+					Ok(views.html.wall.stage(wallId, pref, sheets, sheetlinks, timestamp, chatRoomId))
+				}
+				else {
+					Forbidden("Request wall with id " + wallId + " not accessible")
+				}
+			case None =>
 				Forbidden("Request wall with id " + wallId + " not accessible")
 		}
 	}
-	
+
 	def create = AuthenticatedAction { implicit request =>
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
 		val title = params.get("title").getOrElse(Seq("unnamed"))
@@ -76,7 +75,7 @@ object Wall extends Controller with Auth with Login{
 		Redirect(routes.Wall.stage(wallId))
 	}
 
-	def sync(wallId: Long, timestamp:Long = 0) = WebSocket.async[JsValue] { request =>
+	def sync(wallId: Long, timestamp: Long = 0) = WebSocket.async[JsValue] { request =>
 		request.session.get("current_user_id") match {
 			case Some(userId) =>
 				WallSystem.establish(wallId, userId.toLong, timestamp)
@@ -87,27 +86,27 @@ object Wall extends Controller with Auth with Login{
 		}
 	}
 
-	def delete(id: Long) = AuthenticatedAction { implicit request => 
+	def delete(id: Long) = AuthenticatedAction { implicit request =>
 		models.Wall.deleteByUserId(currentUserId, id)
 		Ok(Json.toJson("OK"))
 	}
-	
+
 	def setView(wallId: Long) = AuthenticatedAction { implicit request =>
 		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
 		val x = params.get("x").getOrElse(Seq("0.0"))(0).toDouble
 		val y = params.get("y").getOrElse(Seq("0.0"))(0).toDouble
 		val zoom = params.get("zoom").getOrElse(Seq("1.0"))(0).toDouble
-		
+
 		models.WallPreference.setView(currentUserId, wallId, x, y, zoom)
 		Ok(Json.toJson("OK"))
 	}
-	
-	def rename(wallId:Long, name:String) = AuthenticatedAction { implicit request => 
+
+	def rename(wallId: Long, name: String) = AuthenticatedAction { implicit request =>
 		models.Wall.rename(wallId, name)
 		Ok(Json.toJson("OK"))
 	}
-	
-	def moveTo(wallId:Long, folderId:Long) = AuthenticatedAction { implicit request => 
+
+	def moveTo(wallId: Long, folderId: Long) = AuthenticatedAction { implicit request =>
 		models.Wall.moveTo(wallId, folderId)
 		Ok(Json.toJson("OK"))
 	}
