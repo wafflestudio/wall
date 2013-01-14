@@ -167,13 +167,10 @@
   
   $.fn.redraw2d = function() {
     element = this;
-
     var value = element.data('transform') || new Transform();
-
     element[0].style[support.transform] = value.toString();
     element.data('transform', value);
   };
-
 
   // Add a CSS hook for `.css({ transform: '...' })`.
   // In jQuery 1.8+, this will intentionally override the default `transform`

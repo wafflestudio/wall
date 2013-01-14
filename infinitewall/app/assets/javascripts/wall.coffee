@@ -53,9 +53,9 @@ class window.Wall
     console.log "redraw!"
 
   redraw: () ->
-    if @redrawTimeout
-      clearTimeout(@redrawTimeout)
-    @redrawTimeout = setTimeout(@redrawInstantly, 400)
+    #if @redrawTimeout
+      #clearTimeout(@redrawTimeout)
+    #@redrawTimeout = setTimeout(@redrawInstantly, 400)
 
   save: () ->
     if @saveTimeout

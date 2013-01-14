@@ -35,9 +35,7 @@ class window.SheetHandler
     @deltay = e.originalEvent.touches[@myTouch].pageY
     $(document).on 'touchmove', @onTouchMove
     $(document).on 'touchend', @onTouchEnd
-    return false
     e.stopPropagation()
-
 
   onTouchMove: (e) =>
     @sheet.x((@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / glob.zoomLevel)
