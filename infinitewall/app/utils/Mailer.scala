@@ -15,6 +15,7 @@ object Mailer {
 	lazy val username = config.getString("smtp.user")
 	lazy val password = config.getString("smtp.password")
 	lazy val from = config.getString("smtp.from")
+	lazy val rooturl = config.getString("rooturl")
 
 	def send(subject: String, content: String, recipient: String) = {
 		var email: Email = new HtmlEmail();
@@ -32,11 +33,11 @@ object Mailer {
 	}
 
 	def sendVerification(user: User) = {
-		send("Verify your account at Infinite wall", """
+		send("Verify your account at Infinite Wall", """
 				<html>
 					<p><a href="@URL"></a></p>
 				</html>
-				""".replaceAll("@URL", "http://localhost:9000/user/verify?value="),
+				""".replaceAll("@URL", rooturl + "/user/verify?value="),
 			user.email)
 	}
 }

@@ -95,6 +95,12 @@ object Application extends Controller with Login with SignUp {
 	def signup = Action { implicit request =>
 		Ok(views.html.signup(signupForm))
 	}
+	
+	def verify = Action { implicit request =>
+		// TODO: UPDATE model
+		// TODO: revise view accordingly
+		Ok(views.html.signup(signupForm))
+	}
 
 	def authenticate = Action { implicit request =>
 		loginForm.bindFromRequest.fold(
