@@ -10,7 +10,8 @@ import anorm.SqlParser._
 import play.api.Play.current
 import java.util.Date
 
-case class User(id: Pk[Long], val email: String, val hashedPW: String, val permission: Permission, val verified:Int)
+case class User(id: Pk[Long], val email: String, val hashedPW: String, val permission: Permission,
+                val nickname:Option[String], val picturePath:Option[String], val verified:Int)
 
 object User extends ActiveRecord[User] {
 	val tableName = "User"
@@ -19,9 +20,12 @@ object User extends ActiveRecord[User] {
 		field[Pk[Long]]("id") ~
 			field[String]("email") ~
 			field[String]("hashedPW") ~
-			field[Int]("permission") ~ 
+			field[Int]("permission") ~
+      field[Option[String]]("nickname") ~
+      field[Option[String]]("picture_path") ~
 			field[Int]("verified") map {
-				case id ~ email ~ hashedPW ~ permission ~ verified => User(id, email, hashedPW, GlobalPermission(permission), verified)
+				case id ~ email ~ hashedPW ~ permission ~ nickname ~ picturePath ~ verified =>
+          User(id, email, hashedPW, GlobalPermission(permission), nickname, picturePath, verified)
 			}
 	}
 
@@ -41,25 +45,25 @@ object User extends ActiveRecord[User] {
 		}
 	}
 
-	def signup(email: String, password: String): Option[User] = {
+	def signup(email: String, password: String, nickname:String = "", picturePath:String = ""): Option[User] = {
 		DB.withConnection { implicit c =>
 			SQL(""" 
-      insert into User (id, email, hashedpw, permission) values (
+      insert into User (id, email, hashedpw, permission, nickname, picture_path) values (
         (select next value for user_seq),
-        {email}, {hashedPW}, {permission}	
+        {email}, {hashedPW}, {permission}, {nickname}, {picturePath}
       )
     """).on(
 				'email -> email,
 				'hashedPW -> hashedPW(password),
-				'permission -> GlobalPermission.NormalUser.id
+				'permission -> GlobalPermission.NormalUser.id,
+        'nickname -> nickname,
+        'picturePath -> picturePath
 			).executeUpdate()
 		}
 
-		findByEmail(email) match {
-			case someUser @ Some(user) =>
+		findByEmail(email).map {  user =>
 				Mailer.sendVerification(user)
-				someUser
-			case None => None
+				user
 		}
 	}
 	

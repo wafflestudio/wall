@@ -12,6 +12,8 @@ infinitewall.trace.db
 infinitewall.lock.db
 dist
 .project
+.idea
+.idea_modules
 .classpath
 .settings/
 .scala_dependencies

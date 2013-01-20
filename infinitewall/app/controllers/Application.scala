@@ -88,45 +88,23 @@ object Application extends Controller with Login with SignUp {
 		Ok(views.html.contact())
 	}
 
+  def authenticate = Action { implicit request =>
+    loginForm.bindFromRequest.fold(
+      formWithErrors => {
+        Redirect(routes.Application.index).flashing("error" -> "Bad username or password")
+      },
+      loginData => {
+        val user = User.findByEmail(loginData.email).get
+        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> "newNickname")
+      }
+    )
+
+  }
+
 	def logout = AuthenticatedAction { implicit request =>
 		Redirect(routes.Application.index).withNewSession
 	}
 
-	def signup = Action { implicit request =>
-		Ok(views.html.signup(signupForm))
-	}
-	
-	def verify = Action { implicit request =>
-		// TODO: UPDATE model
-		// TODO: revise view accordingly
-		Ok(views.html.signup(signupForm))
-	}
 
-	def authenticate = Action { implicit request =>
-		loginForm.bindFromRequest.fold(
-			formWithErrors => {
-				Redirect(routes.Application.index).flashing("error" -> "Bad username or password")
-			},
-			loginData => {
-				val user = User.findByEmail(loginData.email).get
-				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> "newNickname")
-			}
-		)
-
-	}
-
-	def createNewUser = Action { implicit request =>
-
-		signupForm.bindFromRequest.fold(
-			formWithErrors => {
-				BadRequest(views.html.signup(formWithErrors)(loginForm, request)) //.flashing(formWithErrors.get.left.get.toSeq:_*)
-			},
-			signupData => {
-				val user = User.findByEmail(signupData.email).get
-				Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> "newNickname")
-			}
-				
-		)
-	}
 
 }
