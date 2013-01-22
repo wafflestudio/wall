@@ -11,12 +11,14 @@ class window.Minimap
   worldLeft: 0
   worldRight: 0
   minimapRatio: 1
+  minimapWidth: 224
+  minimapHeight: 185
 
   constructor: () ->
     @mW = $('#minimapWorld')
     @mCS = $('#minimapCurrentScreen')
     @mE = $('#minimapElements')
-    @mM = $('#miniMap')
+    @mM = $('#minimap')
     @mM.on 'dblclick', @onMouseDblClick
     @mM.on 'mousedown', @onMouseDown
   
@@ -44,8 +46,8 @@ class window.Minimap
       mLy = info.mLy
 
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
-    screenWidth = ($(window).width() - 225) / glob.zoomLevel
-    screenHeight = ($(window).height() - 38) / glob.zoomLevel
+    screenWidth = ($(window).width()) / glob.zoomLevel
+    screenHeight = ($(window).height()) / glob.zoomLevel
     screenLeft = -(glob.scaleLayerXPos + mLx * glob.zoomLevel) / glob.zoomLevel
     screenTop = -(glob.scaleLayerYPos + mLy * glob.zoomLevel) / glob.zoomLevel
     screenRight = screenLeft + screenWidth
@@ -79,28 +81,28 @@ class window.Minimap
     $.fn.moveFunc = if info and info.isTransition then $.fn.transition else $.fn.css
     duration = if info and info.duration then info.duration else 400
 
-    if (worldWidth / worldHeight) > (224 / 185)
-      ratio = 224 / worldWidth
+    if (worldWidth / worldHeight) > (@minimapWidth / @minimapHeight)
+      ratio = @minimapWidth / worldWidth
       @mW.moveFunc {
-        width: 224,
+        width: @minimapWidth,
         height: worldHeight * ratio,
-        top: (185 - worldHeight * ratio) / 2,
+        top: (@minimapHeight - worldHeight * ratio) / 2,
         left: 0
       }, duration
 
     else
-      ratio = 185 / worldHeight
+      ratio = @minimapHeight / worldHeight
       @mW.moveFunc {
         width: worldWidth * ratio,
-        height: 185,
+        height: @minimapHeight,
         top: 0,
-        left: (224 - worldWidth * ratio) / 2
+        left: (@minimapWidth - worldWidth * ratio) / 2
       }, duration
 
     @minimapRatio = ratio
 
     @mCS.moveFunc {
-      width: screenWidth * ratio,
+      width: screenWidth * ratio - 2,
       height: screenHeight * ratio,
       top: (screenTop - @worldTop) * ratio,
       left: (screenLeft - @worldLeft) * ratio

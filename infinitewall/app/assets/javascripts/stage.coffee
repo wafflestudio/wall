@@ -7,7 +7,6 @@ globglob = new ->
     this.zoomLevel = 1
 
     this.minimapToggled = 1
-    this.rightBarOffset = 267 + 80 + 30 # 80은 위에 userList, 30은 밑에 input
     
     this.scaleLayerXPos = 0
     this.scaleLayerYPos = 0
@@ -30,24 +29,8 @@ window.createSheetLink = (params, timestamp) ->
   fromSheet = sheets[params.from_id]
   fromSheet.setLink(params)
 
-toggleMinimap = ->
-  if glob.minimapToggled
-    glob.minimapToggled = 0
-    $('#miniMap').transition {x: '220'}, 300, toggleMinimapFinished
-  else
-    glob.minimapToggled = 1
-    $('#chatWindow').transition {height: '-=190'}, 300, toggleMinimapFinished
-
-toggleMinimapFinished = ->
-  if glob.minimapToggled
-    $('#miniMap').transition {x: '0'}, 300
-    glob.rightBarOffset += 190
-  else
-    $('#chatWindow').transition {height: '+=190'}, 300
-    glob.rightBarOffset -= 190
-
 $(window).resize ->
-  $('#chatWindow').height ($(window).height() - glob.rightBarOffset)
+  #$('#chatWindow').height ($(window).height() - glob.rightBarOffset)
   minimap.refresh()
 
 $ () ->
@@ -78,11 +61,10 @@ $ () ->
       )
   }
 
-  $('.createBtn').on('click', () ->
+  $('#newSheetButton').on('click', () ->
     if $(this).attr('rel') == 'text'
       TextSheet.create("text")
   )
 
-  $('#minimapBtn').click toggleMinimap
   $('#chatWindow').height ($(window).height() - glob.rightBarOffset)
   $('#currentWallNameText').text "First wall"

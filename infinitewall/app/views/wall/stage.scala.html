@@ -16,40 +16,52 @@
 	<div contenteditable = true id = "wallPasteArea"></div>
 </div>
 
-<div id = "rightBar">
-  <div id = "toolBar">
-    <img id = "zoomIcon" src = "@routes.Assets.at("images/zoomIcon.png")"></img>
+<div id = "menuBar">
+  <a href = "#">
+    <div id = "profilePic" class = "menuButton">
+      <div id = "nicknameBox"></div>
+      <div id = "nickname">deity</div>
+    </div>
+  </a>
+  <a href = "/logout"> <div id = "logoutButton" class = "menuButton"></div> </a>
+  <div id = "chatButton" class = "menuButton"></div>
+  <div id = "folderButton" class = "menuButton"></div>
+  <div id = "newSheetButton" class = "menuButton" rel = "text"></div>
+  <div id = "deleteSheetButton" class = "menuButton"></div>
+</div>
+
+<div id = "rightPart">
+  <div id = "infoBox"></div>
+  <div id = "infoText">
+    <p id = "currentWallName">testWallName</p>
     <p id = "zoomLevelText">100%</p>
-    <img class = "createBtn" rel = "text" src = "@routes.Assets.at("images/createSheet.png")"></img>
-    <img id = "minimapBtn" src = "@routes.Assets.at("images/minimap.png")"></img>
-    <img id = "folderBtn" src="@routes.Assets.at("images/folder.png")"></img>
   </div>
-  <div id = "miniMap">
+  <div id = "minimap">
     <div id = "minimapWorld">
       <div id = "minimapElements"></div>
       <div id = "minimapCurrentScreen"></div>
     </div>
   </div>
-  <div id = "chatWindow">
-    <div id = "chat-userlist">
-      <ul id = "users" class = "unstyled">
-      </ul>
-    </div>
-    <div id = "log">
-    </div>
-    <div id = "chatInputContainer">
-      <textarea id = "talk"></textarea>
-    </div>
-  </div>
 </div>
 
+<!--
+<div id = "chatWindow">
+  <div id = "chat-userlist">
+    <ul id = "users" class = "unstyled">
+    </ul>
+  </div>
+  <div id = "log">
+  </div>
+  <div id = "chatInputContainer">
+    <textarea id = "talk"></textarea>
+  </div>
+</div>
 <div id = "wallmanagement">
   <div id = "folder-test">
   </div>
 </div>
-
+-->
 <script type = "text/javascript">
-
 
   $(function()
   {

@@ -12,33 +12,118 @@
   font-style:normal;
 }
 
+#menuBar {
+  position:absolute;
+  top:0px;
+  left:0px;
+  height:100%;
+  width:70px;
+  background-color: #202020;
+}
+
+.menuButton {
+  /*background-color: white;*/
+  height: 65px;
+  margin: 2px;
+  border-bottom: 1px solid gray;
+  position:relative;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#profilePic {
+  background-image:url("/assets/images/ssk.png");
+  background-size:65px;
+  border-radius: 3px;
+}
+
+#nicknameBox {
+  background-color: black;
+  opacity: 0.6;
+  height:16px;
+  width:100%;
+  position:absolute;
+  bottom:0px;
+}
+
+#nickname {
+  color: white;
+  height:16px;
+  width:100%;
+  position:absolute;
+  bottom:0px;
+  text-align:center;
+  line-height:20px;
+  font-size:13px;
+  font-family: "futura";
+}
+
+#logoutButton {
+  background-image:url("/assets/images/logout.png");
+  background-size:43px;
+}
+
+#newSheetButton {
+  background-image:url("/assets/images/newsheet.png");
+  background-size:50px;
+}
+
 #wallmanagement {
 	margin:7px;
 	display:none;  
 }
 
-#rightBar {
+#rightPart {
 	position:absolute;
 	top:0px;
 	right:0px;
-	width:226px;
-	height:100%;
-	overflow:hidden;
+  width:224px;
 }
 
-#miniMap {
-	position:absolute;
-	top:75px;
-	right:0px;
-	width:224px;
+#infoBox {
+  width:100%;
+  height:20px;
+  background-color:black;
+  opacity: 0.65;
+}
+
+#infoText {
+  position:absolute;
+  top:0px;
+  left:0px;
+  width:100%;
+  height:20px;
+}
+
+#infoText p{
+  color:white;
+  font-size:17px;
+	font-family:avantgarde;
+  opacity:0.9;
+}
+
+#zoomLevelText{
+  position:absolute;
+  bottom:0px;
+  right:0px;
+  line-height:2px;
+  padding-right:4px;
+  text-align:right;
+}
+
+#currentWallName {
+	line-height:20px;
+	padding-left:4px;
+}
+
+#minimap {
+  position:relative;
+	width:100%;
 	height:185px;
-	background-color:white;
-	border:1px dotted gray;
 }
 
 #minimapWorld {
 	position:absolute;
-	/*border:1px solid gray;*/
 }
 
 #minimapCurrentScreen {
@@ -113,57 +198,6 @@
 	box-sizing: border-box;
 }
 
-#toolBar {
-	position:absolute;
-	top:37px;
-	width:100%;
-	height:35px;
-	background-color:white;
-	border-bottom:1px dotted gray;
-  border-left:1px dotted gray;
-}
-
-#zoomIcon{
-	float:left;
-	padding:10px 0px 10px 27px;
-}
-
-#zoomLevelText {
-	float:left;
-	width:55px;
-	margin-top:10px;
-	font-family:avantgarde;
-	font-size:21px;
-	text-align:center;
-  color:black;
-}
-
-.createBtn {
-	float:left;
-	margin-top:7px;
-	margin-left:10px;
-}
-
-#rightToolBar {
-	float:right;
-	top:-1px;
-	width:225px;
-	height:100%;
-	border-left:1px dotted gray;
-}
-
-#minimapBtn {
-	float:left;
-	margin-top:9px;
-	margin-left:10px;
-}
-
-#folderBtn {
-  float:left;
-  margin-top:7px;
-  margin-left:7px;
-}
-
 #wall {
 	position:absolute;
 	top:0px;
@@ -172,23 +206,6 @@
 	height:100%;
 	overflow:hidden;
 	background-image:url('/assets/images/tile.png');
-}
-
-#menuBar {
-	position:absolute;
-	right:0px;
-	width:10%;
-}
-
-.menuItem {
-	height:50px;
-	background-color:gray;
-	color:white;
-}
-
-.menuItem p {
-	font-size:20px;
-	text-align:center;
 }
 
 #scaleLayer {
@@ -315,19 +332,5 @@
 	border-radius:10px;
 	opacity:0.5;
 	cursor:se-resize;
-}
-
-
-#currentWallName {
-	float:left;
-	margin-left:-10px;
-	padding-top:4px;
-	line-height:38px;
-	font-family:avantgarde;
-	font-size:20px;
-}
-
-#currentWallNameText {
-	margin-left:1px;
 }
 

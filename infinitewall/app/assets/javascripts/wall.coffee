@@ -53,9 +53,9 @@ class window.Wall
     console.log "redraw!"
 
   redraw: () ->
-    #if @redrawTimeout
-      #clearTimeout(@redrawTimeout)
-    #@redrawTimeout = setTimeout(@redrawInstantly, 400)
+    if @redrawTimeout
+      clearTimeout(@redrawTimeout)
+    @redrawTimeout = setTimeout(@redrawInstantly, 400)
 
   save: () ->
     if @saveTimeout
@@ -100,7 +100,7 @@ class window.Wall
       @deltay = e.originalEvent.pageY
       
       @onTouchEnd.xWall = e.originalEvent.pageX - @wall.offset().left
-      @onTouchEnd.yWall = e.originalEvent.pageY - @wall.offset().top - 38
+      @onTouchEnd.yWall = e.originalEvent.pageY - @wall.offset().top
     else # 첫번쨰 이후의 터치일 경우
       $(document).off 'touchmove', @onTouchMove
       $(document).off 'touchend', @onTouchEnd
@@ -130,9 +130,8 @@ class window.Wall
       ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY
       
       xWall = x - @wall.offset().left
-      yWall = y - @wall.offset().top - 38
+      yWall = y - @wall.offset().top
       
-      #-38은 #wall이 위에 네비게이션 바 밑으로 들어간 38픽셀에 대한 compensation
       #xWall, yWall은 wall의 (0,0)을 origin으로 본 마우스 커서 위치
 
       @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
@@ -227,9 +226,8 @@ class window.Wall
   onMouseWheel: (e, delta, deltaX, deltaY) =>
 
     xWall = e.pageX - @wall.offset().left
-    yWall = e.pageY - @wall.offset().top - 38
+    yWall = e.pageY - @wall.offset().top
 
-    #-38은 #wall이 위에 네비게이션 바 밑으로 들어간 38픽셀에 대한 compensation
     #xWall, yWall은 wall의 (0,0)을 origin으로 본 마우스 커서 위치
 
     @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
@@ -265,7 +263,7 @@ class window.Wall
   onMouseDblClick: (e) =>
     console.log "suspicious"
     xWall = e.pageX - @wall.offset().left
-    yWall = e.pageY - @wall.offset().top - 38
+    yWall = e.pageY - @wall.offset().top
 
     @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
     @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
@@ -294,7 +292,7 @@ class window.Wall
 
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
     screenWidth = ($(window).width() - 225) / glob.zoomLevel
-    screenHeight = ($(window).height() - 38) / glob.zoomLevel
+    screenHeight = ($(window).height()) / glob.zoomLevel
     screenTop = -(glob.scaleLayerYPos + @mL.y() * glob.zoomLevel) / glob.zoomLevel
     screenLeft = -(glob.scaleLayerXPos + @mL.x() * glob.zoomLevel) / glob.zoomLevel
 
@@ -336,7 +334,7 @@ class window.Wall
     sheetW = sheet.w()
     sheetH = sheet.h()
     screenW = $(window).width() - 225
-    screenH = $(window).height() - 38
+    screenH = $(window).height()
 
     if glob.zoomLevel is 1
       mLX = @mL.x()
