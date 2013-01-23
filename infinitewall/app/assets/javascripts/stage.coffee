@@ -15,6 +15,7 @@ window.contentTypeEnum = {
   text: "text",
   image: "image"
 }
+
 window.sheets = {}
 window.miniSheets = {}
 
@@ -38,14 +39,11 @@ $ () ->
   window.glob = globglob
   window.wall = new Wall()
   window.minimap = new Minimap()
+  loadingSheet = null
   
   $(document).bind "contextmenu", ->
     return false
 
-  $("#zoomLevelText").dblclick ->
-    console.log "Implement me!"
-
-  loadingSheet = null
   
   $('#fileupload').fileupload  {
     dataType : 'json',
@@ -61,10 +59,14 @@ $ () ->
       )
   }
 
-  $('#newSheetButton').on('click', () ->
+  $('#newSheetButton').on 'click', () ->
     if $(this).attr('rel') == 'text'
       TextSheet.create("text")
-  )
 
-  $('#chatWindow').height ($(window).height() - glob.rightBarOffset)
-  $('#currentWallNameText').text "First wall"
+  $('#deleteSheetButton').on 'click', () ->
+    console.log glob.activeSheet
+    glob.activeSheet.socketRemove() if glob.activeSheet
+    wall.deactivateDelete()
+
+  #$('#chatWindow').height ($(window).height() - glob.rightBarOffset)
+  #$('#currentWallNameText').text "First wall"

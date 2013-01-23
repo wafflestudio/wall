@@ -33,6 +33,7 @@ class window.Wall
   mL: null
   sL: null
   dL: null
+  menu: null
   deltax: 0
   deltay: 0
   startx: 0
@@ -81,6 +82,7 @@ class window.Wall
 
   constructor: () ->
     @wall = $('#wall')
+    @menu = $('#menuBar')
     @mL = new MoveLayer()
     @sL = new ScaleLayer()
     @dL = new DockLayer()
@@ -385,3 +387,9 @@ class window.Wall
 
     @save()
     @redraw()
+
+  activateDelete: () ->
+    $('#deleteSheetButton').css('background-image', 'url(/assets/images/delete_red.png)')
+    
+  deactivateDelete: () ->
+    $('#deleteSheetButton').css('background-image', 'url(/assets/images/delete_white.png)')

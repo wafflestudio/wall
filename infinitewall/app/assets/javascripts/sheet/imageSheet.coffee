@@ -2,7 +2,6 @@ imageTemplate = "
   <div class='sheetBox' tabindex='-1'>
     <div class='sheet' contentType='image'>
       <div class='sheetTopBar'>
-        <a class = 'boxClose'>x</a>
         <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
       </div>
       <div class='sheetImage'></div>

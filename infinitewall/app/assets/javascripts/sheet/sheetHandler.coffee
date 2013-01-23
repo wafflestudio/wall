@@ -1,5 +1,4 @@
 class window.SheetHandler
-  
   sheet: null
   deltax: 0
   deltay: 0
@@ -13,7 +12,6 @@ class window.SheetHandler
 
   constructor: (params) ->
     @sheet = params
-    @sheet.element.on 'mousedown', '.boxClose', @onButtonMouseDown
     @sheet.element.on 'mousedown', '.resizeHandle', @onResizeMouseDown
     @sheet.element.on 'touchstart', '.resizeHandle', @onResizeTouchStart
     @sheet.element.on 'mousedown', @onMouseDown
@@ -184,21 +182,6 @@ class window.SheetHandler
 
     e.stopPropagation()
 
-  onButtonMouseDown: (e) =>
-    @onButtonMouseDown.hasMoved = false
-    $(document).on 'mousemove', @onButtonMouseMove
-    $(document).on 'mouseup', @onButtonMouseUp
-    return false
-
-  onButtonMouseMove: (e) =>
-    @onButtonMouseDown.hasMoved = true
-    return false
-  
-  onButtonMouseUp: (e) =>
-    @sheet.socketRemove() if not @onButtonMouseDown.hasMoved
-    $(document).off 'mousemove', @onButtonMouseMove
-    $(document).off 'mouseup', @onButtonMouseUp
-  
   onResizeTouchStart: (e) =>
     $(document).on 'touchmove', @onResizeTouchMove
     $(document).on 'touchend', @onResizeTouchEnd

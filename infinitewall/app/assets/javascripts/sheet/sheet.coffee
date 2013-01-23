@@ -115,6 +115,7 @@ class window.Sheet extends Movable
     @element.find('.sheetTopBar').show()
     #@element.find('.sheetTextField').focus()
     miniSheets[@id].becomeActive()
+    wall.activateDelete()
 
   resignActive: () ->
     glob.activeSheet = null
@@ -125,6 +126,7 @@ class window.Sheet extends Movable
     @element.find('.sheetTextField').blur()
     @element.find('.sheetTitle').blur()
     miniSheets[@id].resignActive()
+    wall.deactivateDelete()
 
   becomeSelected: () ->
     @element.children('.sheet').css {'background-color': '#CFD2FF'}

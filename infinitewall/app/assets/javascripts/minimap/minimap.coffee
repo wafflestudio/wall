@@ -11,8 +11,8 @@ class window.Minimap
   worldLeft: 0
   worldRight: 0
   minimapRatio: 1
-  minimapWidth: 224
-  minimapHeight: 185
+  minimapWidth: 0
+  minimapHeight: 0
 
   constructor: () ->
     @mW = $('#minimapWorld')
@@ -21,6 +21,8 @@ class window.Minimap
     @mM = $('#minimap')
     @mM.on 'dblclick', @onMouseDblClick
     @mM.on 'mousedown', @onMouseDown
+    @minimapWidth = @mM.width()
+    @minimapHeight = @mM.height()
   
   becomeSelected: () ->
     @mCS.css {
