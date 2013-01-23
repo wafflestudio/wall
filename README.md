@@ -7,6 +7,10 @@ Infinite Wall
 - Notetaking that scales
 - Ideas that scale
 
+#### Requirements
+
+- coffeescript 컴파일러
+- sass rails gem
 
 #### 자동 컴파일 및 실행
     $ play 
