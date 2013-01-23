@@ -5,25 +5,7 @@
 
 @layouts.default("Infinite Wall") {
 
-    <script src="@routes.Assets.at("javascripts/jquery.iframe-transport.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/jquery.fileupload-fp.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/jquery.fileupload-ui.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/jquery.fileupload.js")" type="text/javascript"></script>
-    <script>
-        $(function () {
-            $('#fileupload').fileupload({
-                dataType: 'json',
-                done: function (e, data) {
-                    $.each(data.result, function (index, file) {
-                        $('<p/>').text(file.name).appendTo(document.body);
-                    });
-                }
-            });
-        });
-    </script>
-
-
-	@helper.form(action = routes.Account.createNewUser, 'class -> "well form-horizontal") {
+	@helper.form(action = routes.Account.createNewUser, 'class -> "well form-horizontal", 'enctype -> "multipart/form-data") {
         
         <legend>New Account</legend>
 
@@ -61,7 +43,8 @@
                 'placeholder -> "Nickname"
             )
 
-            <div class="clearfix control-group  " id="ProfilePicture_field">
+            <!--
+            <div class="clearfix control-group" id="ProfilePicture_field">
                 <label class="control-label" for="ProfilePicture">Avatar</label>
                 <div class="controls">
                     
@@ -70,20 +53,23 @@
                     <span class="help-inline"></span>
                     <span class="help-block">Upload a image file for identifying yourself.</span>
                 </div>
-            </div>
 
-            <!--
+
+                </div>
+
+            </div>
+            -->
+
             @inputFile(
-                signupForm("ProfilePicture"), 
+                signupForm("ProfilePicture"),
                 '_label -> "Avatar",
                 'id -> "fileupload",
                 'name-> "files[]",
-                'multiple -> "multiple",
-                '_help -> "Upload a image file for identifying yourself.",
+                '_help -> "Upload an image file for identifying yourself.",
                 '_error -> signupForm.error("ProfilePicture"),
                 'placeholder -> "Upload"
-            ) 
-            -->
+            )
+
            
         </fieldset>
         

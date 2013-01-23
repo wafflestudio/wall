@@ -23,12 +23,13 @@
 </script>
 
 
-@helper.form(action = routes.Account.updateUser, 'class -> "well form-horizontal") {
+@helper.form(action = routes.Account.update, 'class -> "well form-horizontal", 'enctype -> "multipart/form-data") {
 
     <legend>My Account</legend>
 
 
     <fieldset>
+
     @inputText(
         accountForm("Nickname"),
         '_label -> "Nickname",
@@ -36,6 +37,7 @@
         'placeholder -> "Nickname"
     )
 
+    <!--
     <div class="clearfix control-group  " id="ProfilePicture_field">
         <label class="control-label" for="ProfilePicture">Avatar</label>
         <div class="controls">
@@ -46,19 +48,20 @@
             <span class="help-block">Upload a image file for identifying yourself.</span>
         </div>
     </div>
+    -->
 
-        <!--
+
             @inputFile(
         accountForm("ProfilePicture"),
         '_label -> "Avatar",
         'id -> "fileupload",
-        'name-> "files[]",
+        'name-> "ProfilePicture",
         'multiple -> "multiple",
-        '_help -> "Upload a image file for identifying yourself.",
+        '_help -> "Upload an image file for identifying yourself.",
         '_error -> accountForm.error("ProfilePicture"),
         'placeholder -> "Upload"
         )
-            -->
+
 
         </fieldset>
 

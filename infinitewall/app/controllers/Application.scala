@@ -17,6 +17,7 @@ case class LoginData(val email: String, val password: String)
 case class SignUpData(val email: String, val password: String, val nickname:String)
 case class CurrentUser(val userId: Long, val email: String)
 
+
 trait Auth {
 	self: Controller =>
 
@@ -41,6 +42,16 @@ trait Auth {
 				Forbidden("You are not authorized to access this url")
 			}
 		}
+
+  def AuthenticatedAction[A](bodyParser: BodyParser[A])(f: Request[A] => Result): Action[A] =
+    Action(bodyParser) { implicit request =>
+      if (request.session.get("current_user").isDefined)
+        f(request)
+      else  {
+        Logger.info("unauthorized access:" + request.uri)
+        Forbidden("You are not authorized to access this url")
+      }
+    }
 	
 }
 
@@ -55,27 +66,8 @@ trait Login extends Auth {
 	}
 }
 
-trait SignUp {
 
-	val signupForm = Form {
-		val user2Tuple = (user: User) => (user.email, "", "")
-
-		mapping("Email" -> email,
-			"Password" -> tuple(
-				"main" -> text(minLength = 8),
-				"confirm" -> text
-			).verifying("password fields must be identical", t => t._1 == t._2),
-			"Nickname" -> text
-		) {
-				(email, passwords, nickname) =>
-					SignUpData(email, passwords._1, nickname)
-			} {
-				signupData => Some(signupData.email, ("", ""), "")
-			}.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password, signup.nickname).isDefined)
-	}
-}
-
-object Application extends Controller with Login with SignUp {
+object Application extends Controller with Login {
 
 	def index = Action { implicit request =>
 		Ok(views.html.index())
