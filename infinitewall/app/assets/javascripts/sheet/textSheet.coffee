@@ -36,7 +36,7 @@ class window.TextSheet extends Sheet
 
     wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}})
 
-  setElement: () ->
+  setElement: ->
     @element = $($(textTemplate).appendTo('#sheetLayer'))
     @innerElement = @element.children('.sheet')
 
@@ -214,7 +214,7 @@ class window.TextSheet extends Sheet
     )
 
 
-  attachHandler: () ->
+  attachHandler: ->
     @handler = new TextSheetHandler(this)
 
 

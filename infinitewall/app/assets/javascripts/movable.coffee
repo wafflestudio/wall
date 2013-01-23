@@ -42,5 +42,5 @@ class window.Movable
       height: h
     }, callback
  
-  redraw: () ->
+  redraw: ->
     @element.redraw2d()

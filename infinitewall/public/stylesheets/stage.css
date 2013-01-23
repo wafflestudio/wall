@@ -12,19 +12,26 @@
   font-style:normal;
 }
 
-#menuBar {
+#menuWrapper {
   position:absolute;
   top:0px;
   left:0px;
-  height:100%;
+  overflow: hidden;
   width:70px;
+  height:100%;
+}
+
+#menuBar {
+  height:100%;
+  width:100px;
   background-color: #202020;
-  overflow:scroll;
+  overflow:auto;
 }
 
 .menuButton {
   /*background-color: white;*/
   height: 65px;
+  width: 65px;
   margin: 2px;
   border-bottom: 1px solid gray;
   position:relative;
@@ -72,6 +79,11 @@
 #deleteSheetButton {
   background-image:url("/assets/images/delete_white.png");
   background-size:50px;
+}
+
+#minimapButton {
+  background-image:url("/assets/images/minimap.png");
+  background-size:46px;
 }
 
 #wallmanagement {

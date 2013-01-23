@@ -65,7 +65,7 @@ class window.LinkLine extends Movable
     sheets[@from].links[@to] = this
     sheets[@to].links[@from] = this
 
-  refresh: () ->
+  refresh: ->
     fgC = @getCenter(@from)
     tgC = @getCenter(@to)
     @rotateLink(fgC.x, fgC.y, tgC.x, tgC.y)

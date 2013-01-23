@@ -4,6 +4,7 @@ class window.Minimap
   mE: null
   mM: null
   isBoxDrag: false
+  isToggled: true
   relX: 0
   relY: 0
   worldTop: 0
@@ -14,7 +15,7 @@ class window.Minimap
   minimapWidth: 0
   minimapHeight: 0
 
-  constructor: () ->
+  constructor: ->
     @mW = $('#minimapWorld')
     @mCS = $('#minimapCurrentScreen')
     @mE = $('#minimapElements')
@@ -24,19 +25,28 @@ class window.Minimap
     @minimapWidth = @mM.width()
     @minimapHeight = @mM.height()
   
-  becomeSelected: () ->
+  toggle: ->
+    if @isToggled
+      @isToggled = false
+      @mM.transition { opacity: 0 }, () => @mM.hide()
+    else
+      @isToggled = true
+      @mM.show()
+      @mM.transition { opacity: 1 }
+
+  becomeSelected: ->
     @mCS.css {
       'background-color': '#96A6D6',
       opacity: 0.5
     }
   
-  resignSelected: () ->
+  resignSelected: ->
     @mCS.css {
       'background-color': 'transparent',
       opacity: 1
     }
   
-  mlRefresh: () =>
+  mlRefresh: =>
     # moveLayer만 움직였을 경우 시트는 그대로이기 떄문에 계산을 줄일 수 있음
 
   refresh: (info = null) =>

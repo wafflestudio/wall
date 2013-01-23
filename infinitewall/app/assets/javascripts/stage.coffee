@@ -6,8 +6,6 @@ globglob = new ->
     this.rightClick = false
     this.zoomLevel = 1
 
-    this.minimapToggled = 1
-    
     this.scaleLayerXPos = 0
     this.scaleLayerYPos = 0
 
@@ -31,19 +29,19 @@ window.createSheetLink = (params, timestamp) ->
   fromSheet.setLink(params)
 
 $(window).resize ->
-  #$('#chatWindow').height ($(window).height() - glob.rightBarOffset)
   minimap.refresh()
 
-$ () ->
-
+$ ->
   window.glob = globglob
   window.wall = new Wall()
   window.minimap = new Minimap()
+  window.menu = new Menu()
   loadingSheet = null
   
+  wall.setName("testWallName")
+
   $(document).bind "contextmenu", ->
     return false
-
   
   $('#fileupload').fileupload  {
     dataType : 'json',
@@ -58,15 +56,3 @@ $ () ->
         ImageSheet.create("/assets/files/#{file.name}")
       )
   }
-
-  $('#newSheetButton').on 'click', () ->
-    if $(this).attr('rel') == 'text'
-      TextSheet.create("text")
-
-  $('#deleteSheetButton').on 'click', () ->
-    console.log glob.activeSheet
-    glob.activeSheet.socketRemove() if glob.activeSheet
-    wall.deactivateDelete()
-
-  #$('#chatWindow').height ($(window).height() - glob.rightBarOffset)
-  #$('#currentWallNameText').text "First wall"

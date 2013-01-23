@@ -16,24 +16,29 @@
 	<div contenteditable = true id = "wallPasteArea"></div>
 </div>
 
-<div id = "menuBar">
-  <a href = "#">
-    <div id = "profilePic" class = "menuButton">
-      <div id = "nicknameBox"></div>
-      <div id = "nickname">deity</div>
-    </div>
-  </a>
-  <a href = "/logout"> <div id = "logoutButton" class = "menuButton"></div> </a>
-  <div id = "chatButton" class = "menuButton"></div>
-  <div id = "folderButton" class = "menuButton"></div>
-  <div id = "newSheetButton" class = "menuButton" rel = "text"></div>
-  <div id = "deleteSheetButton" class = "menuButton"></div>
+<div id = "menuWrapper">
+  <div id = "menuBar">
+    <a href = "#">
+      <div id = "profilePic" class = "menuButton">
+        <div id = "nicknameBox"></div>
+        <div id = "nickname">deity</div>
+      </div>
+    </a>
+    <a href = "/logout"> <div id = "logoutButton" class = "menuButton"></div> </a>
+    <div class = "placeholderButton menuButton"></div>
+    <div id = "newSheetButton" class = "menuButton" rel = "text"></div>
+    <div id = "deleteSheetButton" class = "menuButton"></div>
+    <div class = "placeholderButton menuButton" class = "menuButton"></div>
+    <div id = "minimapButton" class = "menuButton"></div>
+    <div id = "chatButton" class = "menuButton"></div>
+    <div id = "folderButton" class = "menuButton"></div>
+  </div>
 </div>
 
 <div id = "rightPart">
   <div id = "infoBox"></div>
   <div id = "infoText">
-    <p id = "currentWallName">testWallName</p>
+    <p id = "currentWallName"></p>
     <p id = "zoomLevelText">100%</p>
   </div>
   <div id = "minimap">

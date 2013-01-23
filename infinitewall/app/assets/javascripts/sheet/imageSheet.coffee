@@ -33,7 +33,7 @@ class window.ImageSheet extends Sheet
       
       wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
 
-  setElement: () ->
+  setElement: ->
     @element = $($(imageTemplate).appendTo('#sheetLayer'))
     @innerElement = @element.children('.sheet')
 
@@ -45,5 +45,5 @@ class window.ImageSheet extends Sheet
     @element.children('.sheet').children('.sheetImage').css 'background', "url('#{params.content}') no-repeat"
     @element.children('.sheet').children('.sheetImage').css 'background-size', '100%'
 
-  attachHandler: () ->
+  attachHandler: ->
     @handler = new ImageSheetHandler(this)

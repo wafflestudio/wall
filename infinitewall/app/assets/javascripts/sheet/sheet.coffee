@@ -47,10 +47,10 @@ class window.Sheet extends Movable
   socketResize: (params) ->
     wallSocket.send {action : 'resize', params : $.extend(params, {id : @id})}
 
-  socketRemove: () ->
+  socketRemove: ->
     wallSocket.send {action : 'remove', params : {id : @id}}
 
-  socketSetTitle: () ->
+  socketSetTitle: ->
     wallSocket.send {action : 'setTitle', params : {id : @id, title : @element.find('.sheetTitle').html()}}
 
   socketSetLink: (to_id) ->
@@ -59,7 +59,7 @@ class window.Sheet extends Movable
   socketRemoveLink: (to_id) ->
     wallSocket.send {action : 'removeLink', params: {id: @id, to_id: to_id}}
 
-  attachHandler: () ->
+  attachHandler: ->
 
   move: (params) ->
     @tXY(params.x, params.y)
@@ -107,7 +107,7 @@ class window.Sheet extends Movable
   setTitle: (params) ->
     @element.find('.sheetTitle').html(params.title)
 
-  becomeActive: () ->
+  becomeActive: ->
     glob.activeSheet = this
     @element.find('.boxClose').show()
     @element.children('.sheet').css 'border-top', '3px solid #FF4E58'
@@ -115,9 +115,9 @@ class window.Sheet extends Movable
     @element.find('.sheetTopBar').show()
     #@element.find('.sheetTextField').focus()
     miniSheets[@id].becomeActive()
-    wall.activateDelete()
+    menu.activateDelete()
 
-  resignActive: () ->
+  resignActive: ->
     glob.activeSheet = null
     @element.find('.boxClose').hide()
     @element.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
@@ -126,12 +126,12 @@ class window.Sheet extends Movable
     @element.find('.sheetTextField').blur()
     @element.find('.sheetTitle').blur()
     miniSheets[@id].resignActive()
-    wall.deactivateDelete()
+    menu.deactivateDelete()
 
-  becomeSelected: () ->
+  becomeSelected: ->
     @element.children('.sheet').css {'background-color': '#CFD2FF'}
 
-  resignSelected: () ->
+  resignSelected: ->
     @element.children('.sheet').css {'background-color': 'white'}
 
   setLink: (params) ->
@@ -147,11 +147,11 @@ class window.Sheet extends Movable
     for id, link of @links
       link.transitionRefresh(@id, x, y, w, h)
 
-  dock: () ->
+  dock: ->
     wall.dock(this)
     @resignActive()
     @docked = true
 
-  undock: () ->
+  undock: ->
     wall.undock(this)
     @docked = false

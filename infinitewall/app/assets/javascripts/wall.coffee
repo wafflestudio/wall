@@ -1,5 +1,5 @@
 class ScaleLayer extends Movable
-  constructor: () ->
+  constructor: ->
     @element = $("#scaleLayer")
   
   setPoint: (tx, ty, x, y) ->
@@ -21,11 +21,11 @@ class ScaleLayer extends Movable
     @setZoom(isTransition, callback)
 
 class MoveLayer extends Movable
-  constructor: () ->
+  constructor: ->
     @element = $("#moveLayer")
 
 class DockLayer extends Movable
-  constructor: () ->
+  constructor: ->
     @element = $("#dockLayer")
 
 class window.Wall
@@ -46,19 +46,19 @@ class window.Wall
   yWallLast: 0
   hasMoved: false
   
-  redrawInstantly: () =>
+  redrawInstantly: =>
     @sL.redraw()
     @mL.redraw()
     for id, sheet of sheets
       sheet.redraw()
     console.log "redraw!"
 
-  redraw: () ->
+  redraw: ->
     if @redrawTimeout
       clearTimeout(@redrawTimeout)
     @redrawTimeout = setTimeout(@redrawInstantly, 400)
 
-  save: () ->
+  save: ->
     if @saveTimeout
       clearTimeout(@saveTimeout)
 
@@ -80,7 +80,10 @@ class window.Wall
   bringToTop: (sheet) ->
     $("#sheetLayer").append sheet.element
 
-  constructor: () ->
+  setName: (name) ->
+    $('#currentWallName').text(name)
+
+  constructor: ->
     @wall = $('#wall')
     @menu = $('#menuBar')
     @mL = new MoveLayer()
@@ -387,9 +390,3 @@ class window.Wall
 
     @save()
     @redraw()
-
-  activateDelete: () ->
-    $('#deleteSheetButton').css('background-image', 'url(/assets/images/delete_red.png)')
-    
-  deactivateDelete: () ->
-    $('#deleteSheetButton').css('background-image', 'url(/assets/images/delete_white.png)')

@@ -5,16 +5,16 @@ class window.MiniSheet extends Movable
     @element.attr('id', 'map_sheet' + id)
     @element.on 'mousedown', @onMouseDown
     
-  becomeActive: () =>
+  becomeActive: =>
     @element.css 'background-color', 'crimson'
 
-  resignActive: () =>
+  resignActive: =>
     @element.css 'background-color', 'black'
 
-  becomeSelected: () =>
+  becomeSelected: =>
     @element.css 'background-color', '#96A6D6'
 
-  remove: () ->
+  remove: ->
     @element.remove()
     #delete miniSheets[@id]
 
