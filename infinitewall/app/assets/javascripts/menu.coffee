@@ -16,9 +16,9 @@ class window.Menu
       if $(this).attr('rel') == 'text'
         TextSheet.create("text")
 
-    @deleteSheet.click ->
+    @deleteSheet.click =>
       glob.activeSheet.socketRemove() if glob.activeSheet
-      wall.deactivateDelete()
+      @deactivateDelete()
 
     @minimap.click -> minimap.toggle()
 

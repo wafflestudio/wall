@@ -160,8 +160,8 @@ class window.SheetHandler
   onMouseDown: (e) =>
     if e.which is 1 # left click
       @hasMoved = false
-      #wall.bringToTop(@sheet)
-      #minimap.bringToTop(miniSheets[@sheet.id])
+      wall.bringToTop(@sheet)
+      minimap.bringToTop(miniSheets[@sheet.id])
 
       @startx = @sheet.x() * glob.zoomLevel
       @starty = @sheet.y() * glob.zoomLevel

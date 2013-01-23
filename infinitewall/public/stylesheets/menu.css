@@ -1,0 +1,94 @@
+#menuWrapper {
+  position:absolute;
+  top:0px;
+  left:0px;
+  overflow: hidden;
+  width:70px;
+  height:100%;
+}
+
+#menuBar {
+  height:100%;
+  width:100px;
+  background-color: #202020;
+  overflow:auto;
+}
+
+.placeholderButton {
+  /*background-color: white;*/
+  height: 7px;
+  width: 65px;
+  margin: 2px;
+  border-bottom: 1px solid gray;
+  position:relative;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.menuButton {
+  /*background-color: white;*/
+  height: 65px;
+  width: 65px;
+  margin: 2px;
+  border-bottom: 1px solid gray;
+  position:relative;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#profilePic {
+  background-image:url("/assets/images/ssk.png");
+  background-size:65px;
+  border-radius: 3px;
+}
+
+#nicknameBox {
+  background-color: black;
+  opacity: 0.6;
+  height:16px;
+  width:100%;
+  position:absolute;
+  bottom:0px;
+}
+
+#nickname {
+  color: white;
+  height:16px;
+  width:100%;
+  position:absolute;
+  bottom:0px;
+  text-align:center;
+  line-height:20px;
+  font-size:13px;
+  font-family: "futura";
+}
+
+#logoutButton {
+  background-image:url("/assets/images/logout.png");
+  background-size:41px;
+}
+
+#newSheetButton {
+  background-image:url("/assets/images/newsheet.png");
+  background-size:50px;
+}
+
+#deleteSheetButton {
+  background-image:url("/assets/images/delete_white.png");
+  background-size:50px;
+}
+
+#minimapButton {
+  background-image:url("/assets/images/minimap.png");
+  background-size:46px;
+}
+
+#chatButton {
+  background-image:url("/assets/images/chat.png");
+  background-size:57px;
+}
+
+#folderButton {
+  background-image:url("/assets/images/wall.png");
+  background-size:54px;
+}

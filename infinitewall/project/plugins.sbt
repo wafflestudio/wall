@@ -11,4 +11,4 @@ addSbtPlugin("play" % "sbt-plugin" % "2.0-SNAPSHOT")
 
 addSbtPlugin("org.ensime" % "ensime-sbt-cmd" % "0.0.10")
 
-addSbtPlugin("net.litola" % "play-sass" % "0.1.2" from "http://cloud.github.com/downloads/jlitola/play-sass/play-sass-0.1.2.jar")
+addSbtPlugin("net.litola" % "play-sass" % "0.1.2" from "http://deity.mintengine.com/play-sass-0.1.2.jar")

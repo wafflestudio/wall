@@ -1,0 +1,21 @@
+#minimap {
+  position:absolute;
+  width:224px;
+  height:185px;
+  right:0px;
+}
+
+#minimapWorld {
+	position:absolute;
+}
+
+#minimapCurrentScreen {
+	position:absolute;
+	border:1px solid #aaa;
+}
+
+.minimapElement {
+	position:absolute;
+  background-color:black;
+	opacity:0.5;
+}
