@@ -20,6 +20,7 @@
   <div id = "menuBar">
     <a href = "#">
       <div id = "profilePic" class = "menuButton">
+        <img src ='@User.getGravatar(request.session.get("current_user").getOrElse(""))?s=65'> 
         <div id = "nicknameBox"></div>
         <div id = "nickname">deity</div>
       </div>

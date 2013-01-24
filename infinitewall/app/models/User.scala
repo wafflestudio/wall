@@ -9,6 +9,7 @@ import anorm._
 import anorm.SqlParser._
 import play.api.Play.current
 import java.util.Date
+import java.security.MessageDigest
 
 case class User(id: Pk[Long], val email: String, val hashedPW: String, val permission: Permission,
                 val nickname:Option[String], val picturePath:Option[String], val verified:Int)
@@ -28,6 +29,12 @@ object User extends ActiveRecord[User] {
           User(id, email, hashedPW, GlobalPermission(permission), nickname, picturePath, verified)
 			}
 	}
+
+  def getGravatar(email: String) = {
+    val md5 = MessageDigest.getInstance("MD5")
+    val hash = md5.digest(email.getBytes).map("%02x".format(_)).mkString
+    "http://www.gravatar.com/avatar/" + hash 
+  }
 
 	def findByEmail(email: String): Option[User] = {
 		DB.withConnection { implicit c =>

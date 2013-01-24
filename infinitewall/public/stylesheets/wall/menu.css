@@ -36,9 +36,9 @@
   background-repeat: no-repeat;
 }
 
-#profilePic {
-  background-image:url("/assets/images/ssk.png");
-  background-size:65px;
+#profilePic img{
+  /*background-image:url("/assets/images/ssk.png");*/
+  /*background-size:65px;*/
   border-radius: 3px;
 }
 
