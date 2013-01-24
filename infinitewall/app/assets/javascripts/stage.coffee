@@ -36,13 +36,21 @@ $ ->
   window.menu = new Menu()
   window.statusbar = new Statusbar()
   
-  wall.setName("testWallName")
+  #wall.setName("testWallName")
 
   $(document).bind "contextmenu", ->
     return false
   
   $('#fileupload').fileupload  {
-    dataType : 'json',
+    dataType: 'json'
+    #process: [
+      #{
+        #action: 'load'
+        #fileTypes: /^image\/(gif|jpeg|png)$/
+        #maxFileSize: 20000000
+      #}
+    #]
+    #sequentialUploads: true
     add: (e, data) ->
       $.each data.files, (index, file) ->
         text = if file.name.length > 25 then file.name.substring(0, 22) + "..." else file.name
@@ -60,8 +68,10 @@ $ ->
       #console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
     done : (e, data) ->
       $.each(data.result, (index, file) ->
-        statusbar.removeStatus(data.context.id, 500)
-        data.context = null
-        ImageSheet.create("/assets/files/#{file.name}")
+        name = if file.name.length > 25 then file.name.substring(0, 20) + "..." else file.name
+        data.context.changeText("Loading " + name, "")
+        ImageSheet.create file.name.replace(/\.[^/.]+$/, ""), "/assets/files/#{file.name}", =>
+          statusbar.removeStatus(data.context.id, 0)
+          data.context = null
       )
   }

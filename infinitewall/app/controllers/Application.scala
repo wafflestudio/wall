@@ -28,6 +28,10 @@ trait Auth {
 		request.session.get("current_user_id").getOrElse("-1").toLong
 	}
 
+	def currentUserNickname(implicit request: Request[AnyContent]): String = {
+		request.session.get("current_user_nickname").getOrElse("default")
+	}
+
 	def AuthenticatedAction(f: Request[AnyContent] => Result): Action[AnyContent] = 
 		Action { implicit request =>
 			if (request.session.get("current_user").isDefined)

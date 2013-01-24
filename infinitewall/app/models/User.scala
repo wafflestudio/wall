@@ -33,7 +33,7 @@ object User extends ActiveRecord[User] {
   def getGravatar(email: String) = {
     val md5 = MessageDigest.getInstance("MD5")
     val hash = md5.digest(email.getBytes).map("%02x".format(_)).mkString
-    "http://www.gravatar.com/avatar/" + hash 
+    "http://www.gravatar.com/avatar/" + hash + "?d=http%3A%2F%2Fdeity.mintengine.com%2Fssk.png&s=65" 
   }
 
 	def findByEmail(email: String): Option[User] = {

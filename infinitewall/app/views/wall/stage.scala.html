@@ -1,4 +1,4 @@
-@(wallId:Long, pref:WallPreference, sheets:List[Sheet], sheetlinks:List[SheetLink],timestamp:Long, chatId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(wallId:Long, wallName:String, pref:WallPreference, sheets:List[Sheet], sheetlinks:List[SheetLink],timestamp:Long, chatId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.stage("Wall ::: Infinite Wall") {
 
@@ -20,9 +20,9 @@
   <div id = "menuBar">
     <a href = "#">
       <div id = "profilePic" class = "menuButton">
-        <img src ='@User.getGravatar(request.session.get("current_user").getOrElse(""))?s=65'> 
+        <img src ='@User.getGravatar(Application.currentUser)'> 
         <div id = "nicknameBox"></div>
-        <div id = "nickname">deity</div>
+        <div id = "nickname">@Application.currentUserNickname</div>
       </div>
     </a>
     <a href = "/logout"> <div id = "logoutButton" class = "menuButton"></div> </a>
@@ -46,7 +46,7 @@
 <div id = "rightPart">
   <div id = "infoBox"></div>
   <div id = "infoText">
-    <p id = "currentWallName"></p>
+    <p id = "currentWallName">@wallName</p>
     <p id = "zoomLevelText">100%</p>
   </div>
   <div id = "minimap">
