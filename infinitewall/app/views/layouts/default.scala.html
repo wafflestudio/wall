@@ -2,7 +2,7 @@
 
 @main(title) {
 	@if(request.session.get("current_user").isDefined) {
-		<div class="pull-right well-small">Logged in as @request.session.get("current_user_nickname").getOrElse("") | <a href="@routes.Application.logout">Logout</a></div>
+		<div class="pull-right well-small">Logged in as @request.session.get("current_user").getOrElse("") | <a href="@routes.Application.logout">Logout</a></div>
 	} else {
 		<form method="POST" action="@routes.Application.authenticate" class="pull-right well-small form-inline" style="margin:0;padding:5px">
 			<ul class="nav">
