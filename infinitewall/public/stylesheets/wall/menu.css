@@ -16,7 +16,7 @@
 
 .placeholderButton {
   /*background-color: white;*/
-  height: 7px;
+  height: 0px;
   width: 65px;
   margin: 2px;
   border-bottom: 1px solid gray;

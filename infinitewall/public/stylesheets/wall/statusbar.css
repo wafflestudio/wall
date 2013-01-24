@@ -1,0 +1,31 @@
+#statusBar {
+  position:absolute;
+  left:70px;
+  top:0px;
+}
+
+.statusContainer {
+  background: rgba(0, 0, 0, 0.65);
+  border-bottom: 1px solid gray;
+  width:280px;
+  height:24px;
+}
+
+.statusText {
+  opacity:0.9;
+  color:white;
+  font-size:17px;
+	font-family:avantgarde;
+  padding-left:4px;
+  line-height:24px;
+}
+
+.statusTextRight {
+  opacity:0.9;
+  color:white;
+  font-size:17px;
+	font-family:avantgarde;
+  text-align:right;
+  padding-right:4px;
+  margin-top:-20px;
+}

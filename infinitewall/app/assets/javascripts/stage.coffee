@@ -1,5 +1,3 @@
-#variables
-
 globglob = new ->
     this.activeSheet = null
     this.hoverSheet = null
@@ -36,7 +34,7 @@ $ ->
   window.wall = new Wall()
   window.minimap = new Minimap()
   window.menu = new Menu()
-  loadingSheet = null
+  window.statusbar = new Statusbar()
   
   wall.setName("testWallName")
 
@@ -46,13 +44,14 @@ $ ->
   $('#fileupload').fileupload  {
     dataType : 'json',
     drop : (e, data) ->
-      console.log "Image dropped!"
+      $.each data.files, (index, file) ->
+        text = if file.name.length > 25 then file.name.substring(0, 22) + "..." else file.name
+        statusbar.addStatus("#{text}", "0%")
     progressall : (e, data) ->
       progress = parseInt (data.loaded / data.total * 100)
       console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
     done : (e, data) ->
       $.each(data.result, (index, file) ->
-        $(loadingSheet).trigger 'remove'
         ImageSheet.create("/assets/files/#{file.name}")
       )
   }

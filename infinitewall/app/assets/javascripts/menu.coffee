@@ -1,4 +1,5 @@
 class window.Menu
+  menubar: null
   profile: null
   logout: null
   newSheet: null
@@ -11,6 +12,8 @@ class window.Menu
     @newSheet = $('#newSheetButton')
     @deleteSheet = $('#deleteSheetButton')
     @minimap = $('#minimapButton')
+    @menubar = $('#menuBar')
+    @menubar.on 'mousedown', (e) -> e.preventDefault()
 
     @newSheet.click ->
       if $(this).attr('rel') == 'text'
