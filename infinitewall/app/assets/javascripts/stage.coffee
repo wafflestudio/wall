@@ -43,15 +43,25 @@ $ ->
   
   $('#fileupload').fileupload  {
     dataType : 'json',
-    drop : (e, data) ->
+    add: (e, data) ->
       $.each data.files, (index, file) ->
         text = if file.name.length > 25 then file.name.substring(0, 22) + "..." else file.name
-        statusbar.addStatus("#{text}", "0%")
+        data.context = statusbar.addStatus("#{text}", "0%")
+        data.submit()
+    progress : (e, data) ->
+      progress = parseInt(data.loaded / data.total * 100) + "%"
+      data.context.changeRightText(progress)
+    drop : (e, data) ->
+      #$.each data.files, (index, file) ->
+        #console.log index
     progressall : (e, data) ->
-      progress = parseInt (data.loaded / data.total * 100)
-      console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
+      #progress = parseInt (data.loaded / data.total * 100)
+      #console.log e
+      #console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
     done : (e, data) ->
       $.each(data.result, (index, file) ->
+        statusbar.removeStatus(data.context.id, 500)
+        data.context = null
         ImageSheet.create("/assets/files/#{file.name}")
       )
   }

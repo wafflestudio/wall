@@ -7,11 +7,12 @@ class window.Statusbar
     @sB = $('#statusBar')
     @statuses = new Object()
 
-  statusTemplate: (left, right = "") -> $("
-    <div class = 'statusContainer'>
-      <div class = 'statusText'>#{left}</div>
-      <div class = 'statusTextRight'>#{right}</div>
-    </div>")
-
   addStatus: (left, right = "") ->
-    @statuses[@statusID++] = @statusTemplate(left, right).appendTo(@sB)
+    @statuses[@statusID] = new Status(@statusID++, left, right)
+
+  removeStatus: (id, time = 0) ->
+    timeoutID = setTimeout(
+      =>
+        @statuses[id].remove()
+        @statuses[id] = null
+      , time)
