@@ -67,7 +67,7 @@ trait SignUp {
 					SignUpData(email, passwords._1, nickname)
 			} {
 				signupData => Some(signupData.email, ("", ""), "")
-			}.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password).isDefined)
+			}.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password, signup.nickname).isDefined)
 	}
 }
 
@@ -95,7 +95,7 @@ object Application extends Controller with Login with SignUp {
       },
       loginData => {
         val user = User.findByEmail(loginData.email).get
-        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> "newNickname")
+        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> user.nickname)
       }
     )
 

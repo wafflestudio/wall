@@ -12,7 +12,7 @@ import java.util.Date
 import java.security.MessageDigest
 
 case class User(id: Pk[Long], val email: String, val hashedPW: String, val permission: Permission,
-                val nickname:Option[String], val picturePath:Option[String], val verified:Int)
+                val nickname:String, val picturePath:Option[String], val verified:Int)
 
 object User extends ActiveRecord[User] {
 	val tableName = "User"
@@ -22,7 +22,7 @@ object User extends ActiveRecord[User] {
 			field[String]("email") ~
 			field[String]("hashedPW") ~
 			field[Int]("permission") ~
-      field[Option[String]]("nickname") ~
+      field[String]("nickname") ~
       field[Option[String]]("picture_path") ~
 			field[Int]("verified") map {
 				case id ~ email ~ hashedPW ~ permission ~ nickname ~ picturePath ~ verified =>
@@ -95,6 +95,14 @@ object User extends ActiveRecord[User] {
 			}
 			
 			foundUser
+		}
+	}
+
+	def editNickname(id: Long, nickname: String) = {
+		Logger.info(id.toString)
+		Logger.info(nickname)
+		DB.withConnection { implicit c =>
+			SQL("update User set nickname = {nickname} where id = {id}").on('id -> id, 'nickname -> nickname).executeUpdate()
 		}
 	}
 

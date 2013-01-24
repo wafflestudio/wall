@@ -12,6 +12,7 @@ GET     /logout         						controllers.Application.logout
 GET     /me        							    controllers.Account.index
 GET     /signup        							controllers.Account.signup
 POST    /users/create   						controllers.Account.createNewUser
+POST    /users/update   						controllers.Account.updateUser
 
 
 
