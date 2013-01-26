@@ -68,7 +68,7 @@ $ ->
       #console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
     done : (e, data) ->
       $.each(data.result, (index, file) ->
-        name = if file.name.length > 25 then file.name.substring(0, 20) + "..." else file.name
+        name = if file.name.length > 25 then file.name.substring(0, 18) + "..." else file.name
         data.context.changeText("Loading " + name, "")
         ImageSheet.create file.name.replace(/\.[^/.]+$/, ""), "/assets/files/#{file.name}", =>
           statusbar.removeStatus(data.context.id, 0)

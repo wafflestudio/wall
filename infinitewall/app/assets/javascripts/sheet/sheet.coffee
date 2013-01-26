@@ -10,10 +10,7 @@ class window.Sheet extends Movable
   constructor: (params) ->
     @id = params.id
     @setElement()
-    @x(params.x)
-    @y(params.y)
-    @iw(params.width)
-    @ih(params.height)
+    @xyiwh(params.x, params.y, params.width, params.height)
 
     @element.attr 'id', 'sheet' + params.id
     @links = new Object()

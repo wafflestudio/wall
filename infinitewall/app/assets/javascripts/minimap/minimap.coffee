@@ -222,7 +222,7 @@ class window.Minimap
       newMoveLayerX = -((mouseX + @worldLeft - (mCSw / @minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
       newMoveLayerY = -((mouseY + @worldTop - (mCSh / @minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
 
-      $('#moveLayer').transition {
+      wall.mL.element.transition {
         x: newMoveLayerX
         y: newMoveLayerY
       }, 200

@@ -8,19 +8,14 @@ class window.LinkLine extends Movable
   to: null
   oldTheta: 0
 
-  constructor: (from) ->
-    @id = "linkLine_" + from + "_null"
+  constructor: (fromID) ->
+    @id = "linkLine_" + fromID + "_null"
     linkTemplate = "<div id='" + @id + "' class='linkLine'></div>"
-
     @element = $($(linkTemplate).appendTo('#linkLayer'))
-    gC = @getCenter(from)
-    @element.css {position: 'absolute', top: gC.y, left: gC.x, width: 500, height: 500}
+    @from = sheets[fromID]
+
+    @xy(@from.cx(), @from.cy())
     @paper = Raphael(@id, '100%', '100%')
-    @from = from
-  
-  getCenter: (sheetID) ->
-    x: sheets[sheetID].x() + sheets[sheetID].w() / 2
-    y: sheets[sheetID].y() + sheets[sheetID].h() / 2
 
   rotateLink: (fromX, fromY, toX, toY, isTransition = false) ->
     curveX1 = (fromX + toX) / 2
@@ -42,47 +37,36 @@ class window.LinkLine extends Movable
         @line.animate {path: newline_str}, 400, 'ease'
       else
         @line.attr("path", newline_str)
-      
-    @element.css {position: 'absolute', width: bbox.width+100, height: bbox.height+100}
-    if @element.attr('top') != bbox.y
-      @element.css {top: bbox.y}
-    if @element.attr('left') != bbox.x
-      @element.css {left: bbox.x}
-
-    #TODO: different movement on transition case?
+     
+    if isTransition
+      @txywh(bbox.x, bbox.y, bbox.width + 100, bbox.height + 100)
+    else
+      @xywh(bbox.x, bbox.y, bbox.width + 100, bbox.height + 100)
 
   followMouse: (x, y) =>
-    fgC = @getCenter(@from)
     toX = x - (glob.scaleLayerXPos + wall.mL.x() * glob.zoomLevel) / glob.zoomLevel
     toY = y - (glob.scaleLayerYPos + wall.mL.y() * glob.zoomLevel) / glob.zoomLevel
-    @rotateLink(fgC.x, fgC.y, toX, toY)
+    @rotateLink(@from.cx(), @from.cy(), toX, toY)
    
   connect: (toID) =>
-    @to = toID
-    tgC = @getCenter(@to)
-    gC = @getCenter(@from)
-    @rotateLink(gC.x, gC.y, tgC.x, tgC.y)
+    @to = sheets[toID]
+    @rotateLink(@from.cx(), @from.cy(), @to.cx(), @to.cy())
 
-    @id = "linkLine_" + @from + "_" + @to
+    @id = "linkLine_" + @from.id + "_" + @to.id
     @element.attr('id', @id)
-    sheets[@from].links[@to] = this
-    sheets[@to].links[@from] = this
+    @from.links[@to.id] = this
+    @to.links[@from.id] = this
 
   refresh: ->
-    fgC = @getCenter(@from)
-    tgC = @getCenter(@to)
-    @rotateLink(fgC.x, fgC.y, tgC.x, tgC.y)
+    @rotateLink(@from.cx(), @from.cy(), @to.cx(), @to.cy())
 
   transitionRefresh: (id, x, y, w, h) ->
-    if id is @from
-      gC = @getCenter(@to)
-      @rotateLink(x + (w / 2), y + (h / 2), gC.x, gC.y, true)
+    if sheets[id] is @from
+      @rotateLink(x + (w / 2), y + (h / 2), @to.cx(), @to.cy(), true)
     else
-      gC = @getCenter(@from)
-      @rotateLink(gC.x, gC.y, x + (w / 2), y + (h / 2), true)
+      @rotateLink(@from.cx(), @from.cy(), x + (w / 2), y + (h / 2), true)
 
   remove: ->
     @line.remove()
     @paper.remove()
     @element.remove()
-
