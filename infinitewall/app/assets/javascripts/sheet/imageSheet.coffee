@@ -10,7 +10,7 @@ imageTemplate = "
   </div>"
 
 class window.ImageSheet extends Sheet
-  @create: (name, content, callback) ->
+  @create: (name = "Untitled Image", content, callback) ->
     img = new Image()
     img.src = content
     img.onload = ->
@@ -41,7 +41,7 @@ class window.ImageSheet extends Sheet
 
   constructor: (params) ->
     super(params)
-    @innerElement.children('.sheetImage').css 'background', "url('#{params.content}') no-repeat"
+    @innerElement.children('.sheetImage').css 'background-image', "url('#{params.content}')"
 
   attachHandler: ->
     @handler = new ImageSheetHandler(this)

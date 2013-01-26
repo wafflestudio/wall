@@ -38,7 +38,10 @@ class window.LinkLine extends Movable
       @line.attr("stroke", "black")
       @line.attr("stroke-width", "3")
     else
-      @line.attr("path", newline_str)
+      if isTransition
+        @line.animate {path: newline_str}, 400, 'ease'
+      else
+        @line.attr("path", newline_str)
       
     @element.css {position: 'absolute', width: bbox.width+100, height: bbox.height+100}
     if @element.attr('top') != bbox.y

@@ -86,7 +86,7 @@ class window.SheetHandler
       @sheet.becomeSelected()
     
     @onRightMouseMove.mouseMoved = true
-    @currentLink.followMouse(e.pageX / glob.zoomLevel, (e.pageY - 38) / glob.zoomLevel)
+    @currentLink.followMouse(e.pageX / glob.zoomLevel, e.pageY / glob.zoomLevel)
 
   onRightMouseUp: (e) =>
     $(document).off 'mousemove', @onRightMouseMove

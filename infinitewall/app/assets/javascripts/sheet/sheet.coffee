@@ -62,6 +62,11 @@ class window.Sheet extends Movable
   attachHandler: ->
 
   move: (params) ->
+    if this is glob.activeSheet
+      newX = wall.mL.x() + @x() - params.x
+      newY = wall.mL.y() + @y() - params.y
+      wall.mL.tXY(newX, newY)
+
     @tXY(params.x, params.y)
     @refreshLinks(params.x, params.y, @w(), @h())
     minimap.refresh {

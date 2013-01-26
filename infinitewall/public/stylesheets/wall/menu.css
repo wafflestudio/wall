@@ -30,29 +30,25 @@
   height: 65px;
   width: 65px;
   margin: 2px;
+  border-top: 1px solid gray;
   border-bottom: 1px solid gray;
   position:relative;
   background-position: center;
   background-repeat: no-repeat;
 }
 
+#profilePic {
+  height: 81px;
+  border-top: none;
+}
+
 #profilePic img{
-  /*background-image:url("/assets/images/ssk.png");*/
-  /*background-size:65px;*/
   border-radius: 3px;
   width:65px;
 }
 
-#nicknameBox {
-  background-color: black;
-  opacity: 0.6;
-  height:16px;
-  width:100%;
-  position:absolute;
-  bottom:0px;
-}
-
 #nickname {
+  border-top: 1px solid gray;
   color: white;
   height:16px;
   width:100%;

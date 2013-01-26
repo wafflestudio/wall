@@ -36,5 +36,5 @@ class window.Statusbar
     timeoutID = setTimeout(
       =>
         @statuses[id].remove()
-        @statuses[id] = null
+        delete @statuses[id]
       , time)
