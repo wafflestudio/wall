@@ -21,10 +21,10 @@ object Account extends Controller with Auth with Login {
 
     mapping("Email" -> email,
       "Password" -> tuple(
-        "main" -> text(minLength = 8),
+        "main" -> text(minLength = 8, maxLength = 80),
         "confirm" -> text
       ).verifying("password fields must be identical", t => t._1 == t._2),
-      "Nickname" -> text
+      "Nickname" -> text(maxLength = 255)
     ) {
       (email, passwords, nickname) =>
         SignUpData(email, passwords._1, nickname)
@@ -33,10 +33,10 @@ object Account extends Controller with Auth with Login {
     }.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password, signup.nickname).isDefined)
   }
 
+  // TODO: check usage
   val accountForm = Form {
-
     mapping(
-      "Nickname" -> text
+      "Nickname" -> text(maxLength = 255)
     ) {
       (nickname) =>
         AccountData(nickname)

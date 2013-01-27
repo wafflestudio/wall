@@ -35,8 +35,16 @@
       </div>
     
       <div class="main container">
+      @request.flash.get("msg").map { message =>
+          <div class="alert-success">
+              <p>
+                  <strong> @message </strong>
+              </p>
+          </div>
+
+      }
       @request.flash.get("error").map { errorMessage =>   
-        <div class="alert-message error">
+        <div class="alert-error">
             <p>
                 <strong> @errorMessage </strong>
             </p>
