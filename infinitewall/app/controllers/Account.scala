@@ -10,7 +10,6 @@ import play.api.Play.current
 import models._
 import views._
 import helpers._
-import java.io.File
 
 
 case class AccountData(val nickname:String)
@@ -74,14 +73,7 @@ object Account extends Controller with Auth with Login {
     val user = User.findById(currentUserId).get
     request.body.asMultipartFormData.map {  md =>
       md.file("ProfilePicture").map { file =>
-        val encodedFolderName = java.net.URLEncoder.encode(user.email, "UTF-8")
-        val encodedFileName = java.net.URLEncoder.encode(file.filename, "UTF-8")
-        val dir = new File("public/files/" + encodedFolderName)
-        dir.mkdirs()
-        val path = "public/files/"+ encodedFolderName + "/" + encodedFileName
-        val newFile = new File(path)
-        file.ref.moveTo(newFile, true)
-        User.setPicture(user.id.get, path)
+        User.setPicture(user.id.get, placeUserFile(user, file))
       }
       val params = md.asFormUrlEncoded
       User.update(user.id.get, params.get("Nickname").get(0))
@@ -101,20 +93,25 @@ object Account extends Controller with Auth with Login {
         val user = User.findByEmail(signupData.email).get
         request.body.asMultipartFormData.map {  md =>
           md.file("files").map { file =>
-            val encodedFolderName = java.net.URLEncoder.encode(user.email, "UTF-8")
-            val encodedFileName = java.net.URLEncoder.encode(file.filename, "UTF-8")
-            val dir = new File("public/files/" + encodedFolderName)
-            dir.mkdirs()
-            val path = "public/files/"+ encodedFolderName + "/" + encodedFileName
-            val newFile = new File(path)
-            file.ref.moveTo(newFile, true)
-            User.setPicture(user.id.get, path)
+            User.setPicture(user.id.get, placeUserFile(user, file))
           }
         }
         Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
 
       }
     )
+  }
+
+
+  private def placeUserFile(user: User, file: MultipartFormData.FilePart[TemporaryFile]) = {
+    val encodedFolderName = user.id.get.toString
+    val encodedFileName = file.filename
+    val dir = new java.io.File("public/files/" + encodedFolderName)
+    dir.mkdirs()
+    val path = "public/files/"+ encodedFolderName + "/" + encodedFileName
+    val newFile = new java.io.File(path)
+    file.ref.moveTo(newFile, true)
+    path
   }
 	
 	
