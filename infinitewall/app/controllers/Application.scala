@@ -17,6 +17,7 @@ case class LoginData(val email: String, val password: String)
 case class SignUpData(val email: String, val password: String, val nickname:String)
 case class CurrentUser(val userId: Long, val email: String)
 
+
 trait Auth {
 	self: Controller =>
 
@@ -29,7 +30,8 @@ trait Auth {
 	}
 
 	def currentUserNickname(implicit request: Request[AnyContent]): String = {
-		request.session.get("current_user_nickname").getOrElse("default")
+    // TODO: cache
+		User.findById(currentUserId).get.nickname
 	}
 
 	def AuthenticatedAction(f: Request[AnyContent] => Result): Action[AnyContent] = 
@@ -41,6 +43,16 @@ trait Auth {
 				Forbidden("You are not authorized to access this url")
 			}
 		}
+
+  def AuthenticatedAction[A](bodyParser: BodyParser[A])(f: Request[A] => Result): Action[A] =
+    Action(bodyParser) { implicit request =>
+      if (request.session.get("current_user").isDefined)
+        f(request)
+      else  {
+        Logger.info("unauthorized access:" + request.uri)
+        Forbidden("You are not authorized to access this url")
+      }
+    }
 	
 }
 
@@ -55,27 +67,8 @@ trait Login extends Auth {
 	}
 }
 
-trait SignUp {
 
-	val signupForm = Form {
-		val user2Tuple = (user: User) => (user.email, "", "")
-
-		mapping("Email" -> email,
-			"Password" -> tuple(
-				"main" -> text(minLength = 8),
-				"confirm" -> text
-			).verifying("password fields must be identical", t => t._1 == t._2),
-			"Nickname" -> text
-		) {
-				(email, passwords, nickname) =>
-					SignUpData(email, passwords._1, nickname)
-			} {
-				signupData => Some(signupData.email, ("", ""), "")
-			}.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password, signup.nickname).isDefined)
-	}
-}
-
-object Application extends Controller with Login with SignUp {
+object Application extends Controller with Login {
 
 	def index = Action { implicit request =>
 		Ok(views.html.index())
@@ -99,7 +92,7 @@ object Application extends Controller with Login with SignUp {
       },
       loginData => {
         val user = User.findByEmail(loginData.email).get
-        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> user.nickname)
+        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
       }
     )
 

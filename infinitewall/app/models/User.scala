@@ -52,7 +52,7 @@ object User extends ActiveRecord[User] {
 		}
 	}
 
-	def signup(email: String, password: String, nickname:String = "", picturePath:String = ""): Option[User] = {
+	def signup(email: String, password: String, nickname:String, picturePath:String = ""): Option[User] = {
 		DB.withConnection { implicit c =>
 			SQL(""" 
       insert into User (id, email, hashedpw, permission, nickname, picture_path) values (
@@ -105,6 +105,23 @@ object User extends ActiveRecord[User] {
 			SQL("update User set nickname = {nickname} where id = {id}").on('id -> id, 'nickname -> nickname).executeUpdate()
 		}
 	}
+
+  def setPicture(id: Long, path:String) = {
+    DB.withConnection { implicit c =>
+      SQL("update User set picture_path={path} where id={id}").
+        on('id -> id, 'path -> path).executeUpdate()
+    }
+
+
+  }
+
+  def update(id: Long, nickname:String) = {
+     DB.withConnection { implicit c =>
+      SQL("update User set nickname={nickname} where id={id}").
+        on('id -> id, 'nickname -> nickname).executeUpdate()
+    }
+   
+  }
 
 	def listGroups(id: Long) = {
 		DB.withConnection { implicit c =>

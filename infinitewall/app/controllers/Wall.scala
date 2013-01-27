@@ -110,4 +110,42 @@ object Wall extends Controller with Auth with Login {
 		models.Wall.moveTo(wallId, folderId)
 		Ok(Json.toJson("OK"))
 	}
+
+  /**  uploaded files **/
+  def uploadFile(wallId: Long) = AuthenticatedAction(parse.multipartFormData) { request =>
+
+    var fileList:Seq[JsObject] = List()
+
+    request.body.files.map { picture =>
+      import java.io.File
+      val filename = picture.filename
+      val contentType = picture.contentType
+      val newFile = new File("public/files/"+ picture.filename)
+      picture.ref.moveTo(newFile, true)
+
+      fileList = fileList :+ JsObject(Seq(
+        "name" -> JsString(filename),
+        "size" -> JsNumber(newFile.length),
+        "url" -> JsString("/assets/files/" + picture.filename),
+        "delete_url" -> JsString("/wall/file/"+wallId),
+        "delete_type" -> JsString("delete")
+      ))
+    }
+    Ok(JsArray(fileList))
+  }
+
+  def infoFile(wallId: Long) = Action {
+    // TODO: implement
+    Ok("")
+  }
+
+  def replaceFile(wallId: Long) = AuthenticatedAction { request =>
+    // TODO: implement
+    Ok("")
+  }
+
+  def deleteFile(wallId: Long) = AuthenticatedAction { request =>
+    // TODO: implement
+    Ok("")
+  }
 }
