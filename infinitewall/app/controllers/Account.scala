@@ -111,7 +111,7 @@ object Account extends Controller with Auth with Login {
             User.setPicture(user.id.get, path)
           }
         }
-        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> "newNickname")
+        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
 
       }
     )

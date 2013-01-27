@@ -30,7 +30,8 @@ trait Auth {
 	}
 
 	def currentUserNickname(implicit request: Request[AnyContent]): String = {
-		request.session.get("current_user_nickname").getOrElse("default")
+    // TODO: cache
+		User.findById(currentUserId).get.nickname
 	}
 
 	def AuthenticatedAction(f: Request[AnyContent] => Result): Action[AnyContent] = 
@@ -91,7 +92,7 @@ object Application extends Controller with Login {
       },
       loginData => {
         val user = User.findByEmail(loginData.email).get
-        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString, "current_user_nickname" -> user.nickname)
+        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
       }
     )
 
