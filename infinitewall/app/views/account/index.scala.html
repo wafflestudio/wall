@@ -4,7 +4,7 @@
 @import helpers.infiniteWall._
 
 @layouts.default("Infinite Wall") {
-
+    @**
     <script src="@routes.Assets.at("javascripts/jquery.iframe-transport.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/jquery.fileupload-fp.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/jquery.fileupload-ui.js")" type="text/javascript"></script>
@@ -21,6 +21,7 @@
     });
     });
 </script>
+    **@
 
 
 @helper.form(action = routes.Account.update, 'class -> "well form-horizontal", 'enctype -> "multipart/form-data") {
@@ -37,7 +38,7 @@
         'placeholder -> "Nickname"
     )
 
-    <!--
+    @*
     <div class="clearfix control-group  " id="ProfilePicture_field">
         <label class="control-label" for="ProfilePicture">Avatar</label>
         <div class="controls">
@@ -48,7 +49,7 @@
             <span class="help-block">Upload a image file for identifying yourself.</span>
         </div>
     </div>
-    -->
+    *@
 
 
             @inputFile(

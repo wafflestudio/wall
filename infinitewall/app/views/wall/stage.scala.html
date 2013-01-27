@@ -19,7 +19,8 @@
   <div id = "menuBar">
     <a href = "#">
       <div id = "profilePic" class = "menuButton">
-        <img src ='@User.getGravatar(Application.currentUser)'> 
+        @*** <!--<img src ='@User.getGravatar(Application.currentUser)'>--> ***@
+        <img src='@Application.currentUserPicturePath'>
         <div id = "nickname">@Application.currentUserNickname</div>
       </div>
     </a>
