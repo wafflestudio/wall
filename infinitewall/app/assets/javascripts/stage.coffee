@@ -5,8 +5,8 @@ globglob = new ->
     this.rightClick = false
     this.zoomLevel = 1
 
-    this.scaleLayerXPos = 0
-    this.scaleLayerYPos = 0
+    this.scaleLayerX = 0
+    this.scaleLayerY = 0
     this.moveID = 0
 
 window.contentTypeEnum = {

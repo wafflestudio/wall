@@ -16,7 +16,6 @@ class window.MiniSheet extends Movable
 
   remove: ->
     @element.remove()
-    #delete miniSheets[@id]
 
   onMouseDown: (e) =>
     @becomeSelected()

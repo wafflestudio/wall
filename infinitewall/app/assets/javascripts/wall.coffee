@@ -65,8 +65,8 @@ class window.Wall
 
     @saveTimeout = setTimeout(
       () =>
-        x = (glob.scaleLayerXPos + @mL.x() * glob.zoomLevel) / glob.zoomLevel
-        y = (glob.scaleLayerYPos + @mL.y() * glob.zoomLevel) / glob.zoomLevel
+        x = (glob.scaleLayerX + @mL.x() * glob.zoomLevel) / glob.zoomLevel
+        y = (glob.scaleLayerY + @mL.y() * glob.zoomLevel) / glob.zoomLevel
         zoom = glob.zoomLevel
         console.log("x: #{x}, y: #{y}, zoom: #{zoom}")
         $.post("/wall/view/#{glob.wallId}", {x:x, y:y, zoom:zoom})
@@ -159,8 +159,8 @@ class window.Wall
       @xWallLast = xWall
       @yWallLast = yWall
 
-      glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
-      glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
+      glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
+      glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
 
       #scaleLayer의 좌표를 wall의 기준으로 저장
       @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
@@ -192,8 +192,8 @@ class window.Wall
       @xWallLast = @onTouchEnd.xWall
       @yWallLast = @onTouchEnd.yWall
 
-      glob.scaleLayerXPos = @onTouchEnd.xWall - @xScaleLayer * glob.zoomLevel
-      glob.scaleLayerYPos = @onTouchEnd.yWall - @yScaleLayer * glob.zoomLevel
+      glob.scaleLayerX = @onTouchEnd.xWall - @xScaleLayer * glob.zoomLevel
+      glob.scaleLayerY = @onTouchEnd.yWall - @yScaleLayer * glob.zoomLevel
 
       @sL.set(@onTouchEnd.xWall, @onTouchEnd.yWall, xNew, yNew, true)
       minimap.refresh {isTransition: true}
@@ -257,8 +257,8 @@ class window.Wall
     @xWallLast = xWall
     @yWallLast = yWall
 
-    glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
-    glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
+    glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
+    glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
 
     #scaleLayer의 좌표를 wall의 기준으로 저장
 
@@ -285,8 +285,8 @@ class window.Wall
     @xWallLast = xWall
     @yWallLast = yWall
 
-    glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
-    glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
+    glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
+    glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
     
     console.log "#{xWall}, #{yWall}, #{xNew}, #{yNew}"
     @sL.set(xWall, yWall, xNew, yNew, true)
@@ -328,8 +328,8 @@ class window.Wall
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
     screenWidth = ($(window).width() - 225) / glob.zoomLevel
     screenHeight = ($(window).height()) / glob.zoomLevel
-    screenTop = -(glob.scaleLayerYPos + @mL.y() * glob.zoomLevel) / glob.zoomLevel
-    screenLeft = -(glob.scaleLayerXPos + @mL.x() * glob.zoomLevel) / glob.zoomLevel
+    screenTop = -(glob.scaleLayerY + @mL.y() * glob.zoomLevel) / glob.zoomLevel
+    screenLeft = -(glob.scaleLayerX + @mL.x() * glob.zoomLevel) / glob.zoomLevel
 
     sheet = glob.activeSheet
     sheetWidth = sheet.w()
@@ -375,8 +375,8 @@ class window.Wall
       mLX = @mL.x()
       mLY = @mL.y()
       
-      screenT = -(glob.scaleLayerYPos + mLY * glob.zoomLevel) / glob.zoomLevel
-      screenL = -(glob.scaleLayerXPos + mLX * glob.zoomLevel) / glob.zoomLevel
+      screenT = -(glob.scaleLayerY + mLY * glob.zoomLevel) / glob.zoomLevel
+      screenL = -(glob.scaleLayerX + mLX * glob.zoomLevel) / glob.zoomLevel
       
       sheetX = sheet.x()
       sheetY = sheet.y()
@@ -396,8 +396,8 @@ class window.Wall
       }
 
     else
-      sheetX = (glob.scaleLayerXPos + (@mL.x() + sheet.x()) * glob.zoomLevel)
-      sheetY = (glob.scaleLayerYPos + (@mL.y() + sheet.y()) * glob.zoomLevel)
+      sheetX = (glob.scaleLayerX + (@mL.x() + sheet.x()) * glob.zoomLevel)
+      sheetY = (glob.scaleLayerY + (@mL.y() + sheet.y()) * glob.zoomLevel)
 
       xWall = (sheetX - (screenW - sheetW) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
       yWall = (sheetY - (screenH - sheetH) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
@@ -412,8 +412,8 @@ class window.Wall
       @xWallLast = xWall
       @yWallLast = yWall
 
-      glob.scaleLayerXPos = xWall - @xScaleLayer * glob.zoomLevel
-      glob.scaleLayerYPos = yWall - @yScaleLayer * glob.zoomLevel
+      glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
+      glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
 
       @sL.set(xWall, yWall, xNew, yNew, true, callback)
       minimap.refresh {isTransition: true}

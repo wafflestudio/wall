@@ -4,19 +4,26 @@
   height:185px;
   right:0px;
   top:25px;
+  overflow:hidden;
 }
 
 #minimapWorld {
 	position:absolute;
+  top:0px;
+  left:0px;
 }
 
 #minimapCurrentScreen {
 	position:absolute;
+  top:0px;
+  left:0px;
 	border:1px solid #aaa;
 }
 
 .minimapElement {
 	position:absolute;
+  top:0px;
+  left:0px;
   background-color:black;
 	opacity:0.5;
 }

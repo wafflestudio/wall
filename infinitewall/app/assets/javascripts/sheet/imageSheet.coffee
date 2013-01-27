@@ -26,8 +26,8 @@ class window.ImageSheet extends Sheet
         h = 400
         w = 400 * ratio
     
-      x = (-w + ($(window).width()) / glob.zoomLevel) / 2 - (glob.scaleLayerXPos + wall.mL.x() * glob.zoomLevel) / glob.zoomLevel
-      y = (-h + ($(window).height()) / glob.zoomLevel) / 2 - (glob.scaleLayerYPos + wall.mL.y() * glob.zoomLevel) / glob.zoomLevel
+      x = (-w + ($(window).width()) / glob.zoomLevel) / 2 - (glob.scaleLayerX + wall.mL.x() * glob.zoomLevel) / glob.zoomLevel
+      y = (-h + ($(window).height()) / glob.zoomLevel) / 2 - (glob.scaleLayerY + wall.mL.y() * glob.zoomLevel) / glob.zoomLevel
       
       title = name
       

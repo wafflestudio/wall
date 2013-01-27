@@ -44,8 +44,8 @@ class window.LinkLine extends Movable
       @xywh(bbox.x, bbox.y, bbox.width + 100, bbox.height + 100)
 
   followMouse: (x, y) =>
-    toX = x - (glob.scaleLayerXPos + wall.mL.x() * glob.zoomLevel) / glob.zoomLevel
-    toY = y - (glob.scaleLayerYPos + wall.mL.y() * glob.zoomLevel) / glob.zoomLevel
+    toX = x - (glob.scaleLayerX + wall.mL.x() * glob.zoomLevel) / glob.zoomLevel
+    toY = y - (glob.scaleLayerY + wall.mL.y() * glob.zoomLevel) / glob.zoomLevel
     @rotateLink(@from.cx(), @from.cy(), toX, toY)
    
   connect: (toID) =>

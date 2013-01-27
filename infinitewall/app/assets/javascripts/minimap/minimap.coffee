@@ -1,8 +1,13 @@
-class window.Minimap
-  mW: null
-  mCS: null
+class Miniworld extends Movable
+  constructor: -> @element = $("#minimapWorld")
+
+class Miniscreen extends Movable
+  constructor: -> @element = $("#minimapCurrentScreen")
+
+class window.Minimap extends Movable
+  miniWorld: null
+  miniScreen: null
   mE: null
-  mM: null
   isBoxDrag: false
   isToggled: true
   relX: 0
@@ -11,38 +16,38 @@ class window.Minimap
   worldBottom: 0
   worldLeft: 0
   worldRight: 0
-  minimapRatio: 1
+  ratio: 1
   minimapWidth: 0
   minimapHeight: 0
 
   constructor: ->
-    @mW = $('#minimapWorld')
-    @mCS = $('#minimapCurrentScreen')
+    @element = $('#minimap')
+    @miniWorld = new Miniworld()
+    @miniScreen = new Miniscreen()
     @mE = $('#minimapElements')
-    @mM = $('#minimap')
-    @mM.on 'dblclick', @onMouseDblClick
-    @mM.on 'mousedown', @onMouseDown
-    @minimapWidth = @mM.width()
-    @minimapHeight = @mM.height()
+    @element.on 'dblclick', @onMouseDblClick
+    @element.on 'mousedown', @onMouseDown
+    @minimapWidth = @w()
+    @minimapHeight = @h()
   
   toggle: ->
     if @isToggled
       @isToggled = false
-      @mM.transition { opacity: 0 }, () => @mM.hide()
+      @element.transition { opacity: 0 }, () => @element.hide()
     else
       @isToggled = true
-      @mM.show()
-      @mM.transition { opacity: 1 }
+      @element.show()
+      @element.transition { opacity: 1 }
 
   becomeSelected: ->
-    @mCS.css {
-      'background-color': '#96A6D6',
+    @miniScreen.element.css {
+      'background-color': '#96A6D6'
       opacity: 0.5
     }
   
   resignSelected: ->
-    @mCS.css {
-      'background-color': 'transparent',
+    @miniScreen.element.css {
+      'background-color': 'transparent'
       opacity: 1
     }
   
@@ -60,8 +65,8 @@ class window.Minimap
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
     screenWidth = ($(window).width()) / glob.zoomLevel
     screenHeight = ($(window).height()) / glob.zoomLevel
-    screenLeft = -(glob.scaleLayerXPos + mLx * glob.zoomLevel) / glob.zoomLevel
-    screenTop = -(glob.scaleLayerYPos + mLy * glob.zoomLevel) / glob.zoomLevel
+    screenLeft = -(glob.scaleLayerX + mLx * glob.zoomLevel) / glob.zoomLevel
+    screenTop = -(glob.scaleLayerY + mLy * glob.zoomLevel) / glob.zoomLevel
     screenRight = screenLeft + screenWidth
     screenBottom = screenTop + screenHeight
 
@@ -88,45 +93,35 @@ class window.Minimap
 
     worldWidth = @worldRight - @worldLeft
     worldHeight = @worldBottom - @worldTop
-    ratio = 1
+    @ratio = 1
 
-    $.fn.moveFunc = if info and info.isTransition then $.fn.transition else $.fn.css
+    isTransition = if info? and info.isTransition? then info.isTransition else false
     duration = if info and info.duration then info.duration else 400
 
     if (worldWidth / worldHeight) > (@minimapWidth / @minimapHeight)
-      ratio = @minimapWidth / worldWidth
-      @mW.moveFunc {
-        width: @minimapWidth,
-        height: worldHeight * ratio,
-        top: (@minimapHeight - worldHeight * ratio) / 2,
-        left: 0
-      }, duration
+      @ratio = @minimapWidth / worldWidth
+      if isTransition
+        @miniWorld.txywh(0, (@minimapHeight - worldHeight * @ratio) / 2, @minimapWidth, worldHeight * @ratio, duration)
+      else
+        @miniWorld.xywh(0, (@minimapHeight - worldHeight * @ratio) / 2, @minimapWidth, worldHeight * @ratio)
 
     else
-      ratio = @minimapHeight / worldHeight
-      @mW.moveFunc {
-        width: worldWidth * ratio,
-        height: @minimapHeight,
-        top: 0,
-        left: (@minimapWidth - worldWidth * ratio) / 2
-      }, duration
+      @ratio = @minimapHeight / worldHeight
+      if isTransition
+        @miniWorld.txywh((@minimapWidth - worldWidth * @ratio) / 2, 0, worldWidth * @ratio, @minimapHeight, duration)
+      else
+        @miniWorld.xywh((@minimapWidth - worldWidth * @ratio) / 2, 0, worldWidth * @ratio, @minimapHeight)
 
-    @minimapRatio = ratio
-
-    @mCS.moveFunc {
-      width: screenWidth * ratio - 2,
-      height: screenHeight * ratio,
-      top: (screenTop - @worldTop) * ratio,
-      left: (screenLeft - @worldLeft) * ratio
-    }, duration
+    if isTransition
+      @miniScreen.txywh((screenLeft - @worldLeft) * @ratio, (screenTop - @worldTop) * @ratio, screenWidth * @ratio, screenHeight * @ratio, duration)
+    else
+      @miniScreen.xywh((screenLeft - @worldLeft) * @ratio, (screenTop - @worldTop) * @ratio, screenWidth * @ratio, screenHeight * @ratio)
 
     updateMiniSheet = (id, x, y, w, h) =>
-      miniSheets[id].element.moveFunc {
-        x: (x - @worldLeft) * ratio
-        y: (y - @worldTop) * ratio
-        width: w * ratio
-        height: h * ratio
-      }, duration
+      if isTransition
+        miniSheets[id].txywh((x - @worldLeft) * @ratio, (y - @worldTop) * @ratio, w * @ratio, h * @ratio, duration)
+      else
+        miniSheets[id].xywh((x - @worldLeft) * @ratio, (y - @worldTop) * @ratio, w * @ratio, h * @ratio)
 
     if info? and info.id? # socket에서 온 경우
       for id, sheet of sheets
@@ -146,39 +141,37 @@ class window.Minimap
   onMouseMove: (e) =>
     mLx = wall.mL.x()
     mLy = wall.mL.y()
-    mCSw = @mCS.width()
-    mCSh = @mCS.height()
 
-    tempX = e.pageX - @mW.offset().left
-    tempY = e.pageY - @mW.offset().top
+    tempX = e.pageX - @miniWorld.element.offset().left
+    tempY = e.pageY - @miniWorld.element.offset().top
 
-    if @isBoxDrag
+    if @isBoxDrag # 얘를 해야 박스의 코너를 잡고 움직여도 제대로 움직임
       mouseX =
-        if tempX < @relX then @relX / @minimapRatio
-        else if tempX > @mW.width() - (mCSw - @relX) then (@mW.width() - (mCSw - @relX)) / @minimapRatio
-        else tempX / @minimapRatio
+        if tempX < @relX then @relX / @ratio
+        else if tempX > @miniWorld.w() - (@miniScreen.w() - @relX) then (@miniWorld.w() - (@miniScreen.w() - @relX)) / @ratio
+        else tempX / @ratio
 
       mouseY =
-        if tempY < @relY then @relY / @minimapRatio
-        else if tempY > mW.height() - (mCSh - @relY) then (@mW.height() - (mCSh - @relY)) / @minimapRatio
-        else tempY / @minimapRatio
+        if tempY < @relY then @relY / @ratio
+        else if tempY > @miniWorld.h() - (@miniScreen.h() - @relY) then (@miniWorld.h() - (@miniScreen.h() - @relY)) / @ratio
+        else tempY / @ratio
 
-      newMoveLayerX = -((mouseX + @worldLeft - @relX / @minimapRatio) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
-      newMoveLayerY = -((mouseY + @worldTop - @relY / @minimapRatio) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
+      newMoveLayerX = -((mouseX + @worldLeft - @relX / @ratio) * glob.zoomLevel + glob.scaleLayerX) / glob.zoomLevel
+      newMoveLayerY = -((mouseY + @worldTop - @relY / @ratio) * glob.zoomLevel + glob.scaleLayerY) / glob.zoomLevel
 
     else
       mouseX =
-        if tempX < mCSw / 2 then (mCSw / 2) / @minimapRatio
-        else if tempX > @mW.width() - mCSw / 2 then (@mW.width() - mCSw / 2) / @minimapRatio
-        else tempX / @minimapRatio
+        if tempX < @miniScreen.w() / 2 then (@miniScreen.w() / 2) / @ratio
+        else if tempX > @miniWorld.w() - @miniScreen.w() / 2 then (@miniWorld.w() - @miniScreen.w() / 2) / @ratio
+        else tempX / @ratio
 
       mouseY =
-        if tempY < mCSh / 2 then (mCSh / 2) / @minimapRatio
-        else if tempY > @mW.height() - mCSh / 2 then (@mW.height() - mCSh / 2) / @minimapRatio
-        else tempY / @minimapRatio
+        if tempY < @miniScreen.h() / 2 then (@miniScreen.h() / 2) / @ratio
+        else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
+        else tempY / @ratio
 
-      newMoveLayerX = -((mouseX + @worldLeft - (mCSw / @minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
-      newMoveLayerY = -((mouseY + @worldTop - (mCSh / @minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
+      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerX) / glob.zoomLevel
+      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerY) / glob.zoomLevel
 
     wall.mL.x(newMoveLayerX)
     wall.mL.y(newMoveLayerY)
@@ -192,40 +185,32 @@ class window.Minimap
   onMouseDown: (e) =>
     mLx = wall.mL.x()
     mLy = wall.mL.y()
-    mCSx = parseInt (@mCS.css 'left')
-    mCSy = parseInt (@mCS.css 'top')
-    mCSw = @mCS.width()
-    mCSh = @mCS.height()
 
     @becomeSelected()
 
-    tempX = e.pageX - @mW.offset().left
-    tempY = e.pageY - @mW.offset().top
+    tempX = e.pageX - @miniWorld.element.offset().left
+    tempY = e.pageY - @miniWorld.element.offset().top
 
-    relX = tempX - mCSx
-    relY = tempY - mCSy
+    @relX = tempX - @miniScreen.x()
+    @relY = tempY - @miniScreen.y()
 
-    isBoxDrag = if mCSx <= tempX and tempX <= mCSx + mCSw and mCSy <= tempY and tempY <= mCSy + mCSh then true else false
+    @isBoxDrag = @miniScreen.left() <= tempX <= @miniScreen.right() and @miniScreen.top() <= tempY <= @miniScreen.bottom()
 
-    if not isBoxDrag
-
+    if not @isBoxDrag
       mouseX =
-        if tempX < mCSw / 2 then (mCSw / 2) / @minimapRatio
-        else if tempX > @mW.width() - mCSw / 2 then (@mW.width() - mCSw / 2) / @minimapRatio
-        else tempX / @minimapRatio
+        if tempX < @miniScreen.w() / 2 then (@miniScreen.w() / 2) / @ratio
+        else if tempX > @miniWorld.w() - @miniScreen.w() / 2 then (@miniWorld.w() - @miniScreen.w() / 2) / @ratio
+        else tempX / @ratio
 
       mouseY =
-        if tempY < mCSh / 2 then (mCSh / 2) / @minimapRatio
-        else if tempY > @mW.height() - mCSh / 2 then (@mW.height() - mCSh / 2) / @minimapRatio
-        else tempY / @minimapRatio
+        if tempY < @miniScreen.h() / 2 then (@miniScreen.h() / 2) / @ratio
+        else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
+        else tempY / @ratio
 
-      newMoveLayerX = -((mouseX + @worldLeft - (mCSw / @minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerXPos) / glob.zoomLevel
-      newMoveLayerY = -((mouseY + @worldTop - (mCSh / @minimapRatio) / 2) * glob.zoomLevel + glob.scaleLayerYPos) / glob.zoomLevel
+      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerX) / glob.zoomLevel
+      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerY) / glob.zoomLevel
 
-      wall.mL.element.transition {
-        x: newMoveLayerX
-        y: newMoveLayerY
-      }, 200
+      wall.mL.tXY(newMoveLayerX, newMoveLayerY, 200)
 
       @refresh {
         isTransition: true,
@@ -241,4 +226,3 @@ class window.Minimap
   onMouseDblClick = (e) ->
     console.log "Implement me!"
     return false
-

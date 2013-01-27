@@ -27,8 +27,8 @@ textTemplate = "
 
 class window.TextSheet extends Sheet
   @create: (content) ->
-    x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerXPos + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
-    y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerYPos + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+    x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerX + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
+    y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
     w = 300
     h = 300
 

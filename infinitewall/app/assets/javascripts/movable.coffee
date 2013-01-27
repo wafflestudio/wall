@@ -20,6 +20,20 @@ class window.Movable
     return parseInt(@element.css('y')) unless y?
     @element.css {y: y}
 
+  left: (l) ->
+    @x(l)
+
+  right: (r) ->
+    return @x() + @w() unless r?
+    @x(r - @w())
+
+  top: (t) ->
+    @y(t)
+
+  bottom: (b) ->
+    return @y() + @h() unless b?
+    @y(b - @h())
+
   cx: (centerX) ->
     return @x() + @w() / 2 unless centerX?
     @element.css {x: centerX - @w() / 2}
@@ -44,19 +58,19 @@ class window.Movable
     return parseInt(@innerElement.css('height')) unless h?
     @innerElement.css {height: h}
 
-  tXY: (x, y, callback) ->
+  tXY: (x, y, duration, callback) ->
     @element.transition {
       x: x
       y: y
-    }, callback
+    }, duration, callback
 
-  txywh: (x, y, w, h, callback) ->
+  txywh: (x, y, w, h, duration, callback) ->
     @element.transition {
       x: x
       y: y
       width: w
       height: h
-    }, callback
+    }, duration, callback
 
   tiWH: (w, h, callback) ->
     @innerElement.transition {
