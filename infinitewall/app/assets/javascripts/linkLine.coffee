@@ -67,6 +67,8 @@ class window.LinkLine extends Movable
       @rotateLink(@from.cx(), @from.cy(), x + (w / 2), y + (h / 2), true)
 
   remove: ->
+    console.log "remove called"
+    #@element.transition {opacity:0, scale: 1.25}, 100, =>
     @line.remove()
     @paper.remove()
     @element.remove()

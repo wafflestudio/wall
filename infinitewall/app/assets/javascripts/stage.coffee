@@ -1,11 +1,13 @@
 globglob = new ->
     this.activeSheet = null
     this.hoverSheet = null
+    this.linkFromSheet = null
     this.rightClick = false
     this.zoomLevel = 1
 
     this.scaleLayerXPos = 0
     this.scaleLayerYPos = 0
+    this.moveID = 0
 
 window.contentTypeEnum = {
   text: "text",

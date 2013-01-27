@@ -42,6 +42,9 @@
 .sheetTopBar > .sheetTitle {
   outline:none;
   height:100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .sheetTopBar > h1 {

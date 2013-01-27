@@ -7,7 +7,6 @@ class window.SheetHandler
   startWidth: 0
   startHeight: 0
   hasMoved: false
-  currentLink: null
   myTouch: 0
 
   constructor: (params) ->
@@ -86,26 +85,25 @@ class window.SheetHandler
       @sheet.becomeSelected()
     
     @onRightMouseMove.mouseMoved = true
-    @currentLink.followMouse(e.pageX / glob.zoomLevel, e.pageY / glob.zoomLevel)
+    @sheet.currentLink.followMouse(e.pageX / glob.zoomLevel, e.pageY / glob.zoomLevel)
 
   onRightMouseUp: (e) =>
     $(document).off 'mousemove', @onRightMouseMove
     $(document).off 'mouseup', @onRightMouseUp
+    clearInterval(glob.moveID)
     glob.rightClick = false
     @sheet.resignSelected()
     
     if glob.hoverSheet
       if @sheet.links[glob.hoverSheet]?
-        #@sheet.links[glob.hoverSheet].remove()
-        #delete @sheet.links[glob.hoverSheet]
         @sheet.socketRemoveLink(glob.hoverSheet)
       else if @sheet.id != glob.hoverSheet
         @sheet.socketSetLink(glob.hoverSheet)
-      @currentLink.remove()
+      @sheet.currentLink.remove()
       sheets[glob.hoverSheet].resignSelected()
     else
-      @currentLink.remove()
-    @currentLink = null
+      @sheet.currentLink.remove()
+    @sheet.currentLink = null
 
   onMouseMove: (e) =>
     if glob.activeSheet is @sheet
@@ -174,7 +172,8 @@ class window.SheetHandler
 
     else if e.which is 3 # right click
       glob.rightClick = true
-      @currentLink = new LinkLine(@sheet.id)
+      glob.linkFromSheet = @sheet
+      @sheet.currentLink = new LinkLine(@sheet.id)
       @onRightMouseMove.mouseMoved = false
       $(document).on 'mousemove', @onRightMouseMove
       $(document).on 'mouseup', @onRightMouseUp
@@ -231,5 +230,5 @@ class window.SheetHandler
 
   onMouseLeave: (e) =>
     glob.hoverSheet = null
-    if not @currentLink
+    if not @sheet.currentLink
       @sheet.resignSelected()

@@ -1,5 +1,6 @@
 class window.Sheet extends Movable
   links: null
+  currentLink: null
   docked: false
 
   @create: (content) ->
@@ -89,18 +90,15 @@ class window.Sheet extends Movable
 
   remove: (params) ->
     for id, link of @links
-      link.element.transition {opacity:0, scale: 1.25}, =>
-        link.remove()
+      link.remove()
     @links = null
 
     @element.transition {opacity: 0, scale : 1.25}, =>
       @element.remove()
       miniSheets[@id].remove()
       glob.activeSheet = null
-      #miniSheets[@id] = null
-      #sheets[@id] = null
-      #memory is leaking!
-      #minimap.refresh() 함수에서 징징댐
+      delete sheets[@id]
+      delete miniSheets[@id]
     
     @element.off 'mousemove'
     @element.off 'mouseup'
