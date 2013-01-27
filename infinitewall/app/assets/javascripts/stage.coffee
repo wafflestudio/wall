@@ -7,7 +7,7 @@ globglob = new ->
 
     this.scaleLayerX = 0
     this.scaleLayerY = 0
-    this.moveID = 0
+    this.moveID = null
 
 window.contentTypeEnum = {
   text: "text",

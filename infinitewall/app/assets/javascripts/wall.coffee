@@ -95,7 +95,6 @@ class window.Wall
     @wall.on 'mousedown', @onMouseDown
     @wall.on 'touchstart', @onTouchStart
     @wall.on 'mousewheel', @onMouseWheel
-    @hoverLayers.on 'hover', @onRightMouseHover
   
   onTouchStart: (e) =>
     len = e.originalEvent.touches.length
@@ -295,33 +294,6 @@ class window.Wall
     @redraw()
     @save()
     return false
-
-  onRightMouseHover: (e) =>
-    return unless glob.rightClick # 시트에서 우클릭으로 링크가 나가는 경우에만.. 
-
-    if e.type is "mouseleave"
-      clearInterval(glob.moveID)
-    else
-      offset = 5
-      hoverArea = e.currentTarget.id
-
-      # 뭔가 followMouse에서 버그가 있는듯.. 
-      switch hoverArea
-        when "hoverBottom"
-          moveFunc = => wall.mL.y(wall.mL.y() - offset / glob.zoomLevel)
-        when "hoverTop"
-          moveFunc = => wall.mL.y(wall.mL.y() + offset / glob.zoomLevel)
-        when "hoverLeft"
-          moveFunc = => wall.mL.x(wall.mL.x() + offset / glob.zoomLevel)
-        when "hoverRight"
-          moveFunc = => wall.mL.x(wall.mL.x() - offset / glob.zoomLevel)
-
-      timedMove = =>
-        moveFunc()
-        #glob.linkFromSheet.currentLink.followMouse(e.pageX / glob.zoomLevel, e.pageY / glob.zoomLevel)
-        minimap.refresh()
-
-      glob.moveID = setInterval timedMove, 30
 
   revealSheet: ->
 

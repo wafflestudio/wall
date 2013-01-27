@@ -81,16 +81,39 @@ class window.SheetHandler
     return false
 
   onRightMouseMove: (e) =>
-    if @onRightMouseMove.mouseMoved is false
-      @sheet.becomeSelected()
-    
+    @sheet.becomeSelected() if not @onRightMouseMove.mouseMoved
     @onRightMouseMove.mouseMoved = true
     @sheet.currentLink.followMouse(e.pageX / glob.zoomLevel, e.pageY / glob.zoomLevel)
+
+    offset = 10
+
+    if e.pageY > $(window).height() - 70
+      moveFunc = => wall.mL.y(wall.mL.y() - offset / glob.zoomLevel)
+    else if e.pageY < 70
+      moveFunc = => wall.mL.y(wall.mL.y() + offset / glob.zoomLevel)
+    else if e.pageX > $(window).width() - 70
+      moveFunc = => wall.mL.x(wall.mL.x() - offset / glob.zoomLevel)
+    else if e.pageX < 140
+      moveFunc = => wall.mL.x(wall.mL.x() + offset / glob.zoomLevel)
+    else
+      clearInterval(glob.moveID)
+      glob.moveID = null
+      return
+
+    timedMove = =>
+      moveFunc()
+      #glob.linkFromSheet.currentLink.followMouse(e.pageX / glob.zoomLevel, e.pageY / glob.zoomLevel)
+      minimap.refresh()
+    
+    glob.moveID = setInterval(timedMove, 30) unless glob.moveID?
+
+    #console.log e
 
   onRightMouseUp: (e) =>
     $(document).off 'mousemove', @onRightMouseMove
     $(document).off 'mouseup', @onRightMouseUp
     clearInterval(glob.moveID)
+    glob.moveID = null
     glob.rightClick = false
     @sheet.resignSelected()
     
