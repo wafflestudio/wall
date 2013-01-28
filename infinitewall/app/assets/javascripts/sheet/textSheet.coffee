@@ -10,8 +10,7 @@ Operation = modules.Operation
 CharWithState = modules.CharWithState
 StringWithState = modules.StringWithState
 
-textTemplate = "
-  <div class='sheetBox' tabindex='-1'>
+textTemplate = "<div class='sheetBox' tabindex='-1'>
     <div class='sheet' contentType='text'>
       <div class='sheetTopBar'>
         <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>

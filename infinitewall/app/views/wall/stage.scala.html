@@ -18,9 +18,9 @@
 <div id = "menuWrapper">
   <div id = "menuBar">
     <a href = "/me">
-      <div id = "profilePic" class = "menuButton">
+      <div id = "profileButton" class = "menuButton">
         @*** <!--<img src ='@User.getGravatar(Application.currentUser)'>--> ***@
-        <img src='@Application.currentUserPicturePath'>
+        <div id = "profilePic" style="background-image:url(@Application.currentUserPicturePath)"></div>
         <div id = "nickname">@Application.currentUserNickname</div>
       </div>
     </a>

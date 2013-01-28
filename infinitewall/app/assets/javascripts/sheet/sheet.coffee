@@ -155,3 +155,8 @@ class window.Sheet extends Movable
   undock: ->
     wall.undock(this)
     @docked = false
+
+  glow: ->
+    temp = @innerElement.css('box-shadow')
+    @innerElement.animate({'box-shadow': '0px 0px 30px 20px #FF9F88'})
+    
