@@ -52,6 +52,8 @@ class window.Wall
     @mL.redraw()
     for id, sheet of sheets
       sheet.redraw()
+      for linkid, link of sheet.links
+        link.redraw()
     console.log "redraw!"
 
   redraw: ->

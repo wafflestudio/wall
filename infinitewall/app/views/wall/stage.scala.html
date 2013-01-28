@@ -2,7 +2,7 @@
 
 @layouts.stage("Wall ::: Infinite Wall") {
 
-<input id="fileupload" type="file" name="files[]" data-url="/wall/file" multiple>
+<input id="fileupload" type="file" name="files[]" data-url="/wall/file/@wallId" multiple>
 
 <div id = "wall">
   <div id = "scaleLayer">
@@ -17,7 +17,7 @@
 
 <div id = "menuWrapper">
   <div id = "menuBar">
-    <a href = "#">
+    <a href = "/me">
       <div id = "profilePic" class = "menuButton">
         @*** <!--<img src ='@User.getGravatar(Application.currentUser)'>--> ***@
         <img src='@Application.currentUserPicturePath'>
@@ -25,7 +25,11 @@
       </div>
     </a>
     <a href = "/logout"> <div id = "logoutButton" class = "menuButton"></div> </a>
-    <div id = "newSheetButton" class = "menuButton" rel = "text"></div>
+    <div id = "newSheetButton" class = "menuButton"> </div>
+    <div id = "newSheetContainer">
+      <div id = "newTextSheetButton" class = "menuButton newSheetButtons" rel = "text"></div>
+      <div id = "newImageSheetButton" class = "menuButton newSheetButtons" rel = "image"> </div>
+    </div>
     <div id = "deleteSheetButton" class = "menuButton"></div>
     <div id = "minimapButton" class = "menuButton"></div>
     <div id = "chatButton" class = "menuButton"></div>

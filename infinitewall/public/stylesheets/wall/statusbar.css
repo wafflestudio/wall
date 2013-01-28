@@ -18,6 +18,10 @@
 	font-family:avantgarde;
   padding-left:4px;
   line-height:24px;
+  width: 275px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .statusTextRight {

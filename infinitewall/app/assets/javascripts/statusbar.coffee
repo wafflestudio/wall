@@ -10,8 +10,15 @@ class Status
       <div class = 'statusTextRight'>#{right}</div>
     </div>").appendTo('#statusBar')
 
+    @element.children(".statusText").width("225px") if right
+
   changeLeftText: (left) -> @element.children('.statusText').text(left)
-  changeRightText: (right) -> @element.children('.statusTextRight').text(right)
+  changeRightText: (right) ->
+    @element.children('.statusTextRight').text(right)
+    if right
+      @element.children('.statusText').width("225px")
+    else
+      @element.children('.statusText').width("275px") # 빈 스트링이 들어오면 길게 함
 
   changeText: (left, right) ->
     @changeLeftText(left)
@@ -38,3 +45,11 @@ class window.Statusbar
         @statuses[id].remove()
         delete @statuses[id]
       , time)
+
+  instantStatus: (left, right = "", time = 1000) ->
+    if typeof right is "number"
+      time = right
+      right = ""
+
+    @addStatus(left, right)
+    @removeStatus(@statusID - 1, time)

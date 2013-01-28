@@ -54,14 +54,21 @@ $ ->
     #]
     #sequentialUploads: true
     add: (e, data) ->
+      #console.log e
+      #if e.handleObj.origType is "change"
+      #if @isDrop
+
       $.each data.files, (index, file) ->
-        text = if file.name.length > 25 then file.name.substring(0, 22) + "..." else file.name
-        data.context = statusbar.addStatus("#{text}", "0%")
+        data.context = statusbar.addStatus("#{file.name}", "0%")
         data.submit()
+    change: (e, data) ->
+      statusbar.instantStatus("Hint: Drag and dropping works! :)", 3500)
+      console.log "change dammit"
+
     progress : (e, data) ->
       progress = parseInt(data.loaded / data.total * 100) + "%"
       data.context.changeRightText(progress)
-    drop : (e, data) ->
+    drop :(e, data) ->
       #$.each data.files, (index, file) ->
         #console.log index
     progressall : (e, data) ->
@@ -70,8 +77,7 @@ $ ->
       #console.log progress + "%, " + data.bitrate / (8 * 1024 * 1024)
     done : (e, data) ->
       $.each(data.result, (index, file) ->
-        name = if file.name.length > 25 then file.name.substring(0, 18) + "..." else file.name
-        data.context.changeText("Loading " + name, "")
+        data.context.changeText("Loading " + file.name, "")
         ImageSheet.create file.name.replace(/\.[^/.]+$/, ""), "/assets/files/#{file.name}", =>
           statusbar.removeStatus(data.context.id, 0)
           data.context = null

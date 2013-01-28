@@ -30,14 +30,7 @@ class window.Minimap extends Movable
     @minimapWidth = @w()
     @minimapHeight = @h()
   
-  toggle: ->
-    if @isToggled
-      @isToggled = false
-      @element.transition { opacity: 0 }, () => @element.hide()
-    else
-      @isToggled = true
-      @element.show()
-      @element.transition { opacity: 1 }
+  toggle: -> @element.fadeToggle()
 
   becomeSelected: ->
     @miniScreen.element.css {

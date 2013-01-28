@@ -70,6 +70,21 @@
   background-size:50px;
 }
 
+#newSheetContainer {
+  display:none;
+}
+
+#newTextSheetButton {
+  background-image:url("/assets/images/textsheet.png");
+  background-size:54px;
+}
+
+#newImageSheetButton {
+  background-image:url("/assets/images/imagesheet.png");
+  background-size:67px;
+}
+
+
 #deleteSheetButton {
   background-image:url("/assets/images/delete_white.png");
   background-size:50px;
