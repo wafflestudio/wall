@@ -4,8 +4,7 @@ class Status
 
   constructor: (id, left, right = "") ->
     @id = id
-    @element = $("
-    <div class = 'statusContainer'>
+    @element = $("<div class = 'statusContainer'>
       <div class = 'statusText'>#{left}</div>
       <div class = 'statusTextRight'>#{right}</div>
     </div>").appendTo('#statusBar')

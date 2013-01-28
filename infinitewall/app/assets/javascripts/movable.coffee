@@ -14,11 +14,11 @@ class window.Movable
 
   x: (x) ->
     return parseInt(@element.css('x')) unless x?
-    @element.css {x: x}
+    @element.css {x: parseInt(x)}
 
   y: (y) ->
     return parseInt(@element.css('y')) unless y?
-    @element.css {y: y}
+    @element.css {y: parseInt(y)}
 
   left: (l) ->
     @x(l)
@@ -36,84 +36,81 @@ class window.Movable
 
   cx: (centerX) ->
     return @x() + @w() / 2 unless centerX?
-    @element.css {x: centerX - @w() / 2}
+    @element.css {x: parseInt(centerX - @w() / 2)}
 
   cy: (centerY) ->
     return @y() + @h() / 2 unless centerY?
-    @element.css {y: centerY - @h() / 2}
+    @element.css {y: parseInt(centerY - @h() / 2)}
 
   w: (w) ->
     return parseInt(@element.css('width')) unless w?
-    @element.css {width: w}
+    @element.css {width: parseInt(w)}
 
   h: (h) ->
     return parseInt(@element.css('height')) unless h?
-    @element.css {height: h}
+    @element.css {height: parseInt(h)}
   
   iw: (w) ->
     return parseInt(@innerElement.css('width')) unless w?
-    @innerElement.css {width: w}
+    @innerElement.css {width: parseInt(w)}
 
   ih: (h) ->
     return parseInt(@innerElement.css('height')) unless h?
-    @innerElement.css {height: h}
+    @innerElement.css {height: parseInt(h)}
 
   tXY: (x, y, duration, callback) ->
     @element.transition {
-      x: x
-      y: y
+      x: parseInt(x)
+      y: parseInt(y)
     }, duration, callback
 
   txywh: (x, y, w, h, duration, callback) ->
     @element.transition {
-      x: x
-      y: y
-      width: w
-      height: h
+      x: parseInt(x)
+      y: parseInt(y)
+      width: parseInt(w)
+      height: parseInt(h)
     }, duration, callback
 
   tiWH: (w, h, callback) ->
     @innerElement.transition {
-      width: w
-      height: h
+      width: parseInt(w)
+      height: parseInt(h)
     }, callback
 
   xy: (x, y) ->
     @element.css {
-      x: x
-      y: y
+      x: parseInt(x)
+      y: parseInt(y)
     }
 
   wh: (w, h) ->
     @element.css {
-      width: w
-      height: h
+      width: parseInt(w)
+      height: parseInt(h)
     }
 
   iwh: (w, h) ->
     @innerElement.css {
-      width: w
-      height: h
+      width: parseInt(w)
+      height: parseInt(h)
     }
 
   xywh: (x, y, w, h) ->
     @element.css {
-      x: x
-      y: y
-      width: w
-      height: h
+      x: parseInt(x)
+      y: parseInt(y)
+      width: parseInt(w)
+      height: parseInt(h)
     }
 
   xyiwh: (x, y, w, h) ->
     @element.css {
-      x: x
-      y: y
+      x: parseInt(x)
+      y: parseInt(y)
     }
 
     @innerElement.css {
-      width: w
-      height: h
+      width: parseInt(w)
+      height: parseInt(h)
     }
- 
-  redraw: ->
-    @element.redraw2d()
