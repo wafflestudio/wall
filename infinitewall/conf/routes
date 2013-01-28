@@ -15,7 +15,6 @@ POST    /users/create   						controllers.Account.createNewUser
 POST    /users/update   						controllers.Account.update
 
 
-
 # Chat routes available only for testing
 # GET     /chat                       controllers.Chat.index
 # GET     /chat/:roomId               controllers.Chat.room(roomId:Long)
@@ -48,6 +47,9 @@ POST    /file                 					controllers.File.upload
 GET     /file                 					controllers.File.info
 PUT     /file                 					controllers.File.replace
 DELETE  /file                 					controllers.File.delete
+
+GET		/dropbox/authorize						controllers.Dropbox.authorize
+GET		/dropbox/callback						controllers.Dropbox.callback
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               			controllers.Assets.at(path="/public", file)

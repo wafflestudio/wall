@@ -11,7 +11,6 @@ import models._
 import views._
 import helpers._
 
-
 case class AccountData(val nickname:String)
 
 object Account extends Controller with Auth with Login {
@@ -113,6 +112,4 @@ object Account extends Controller with Auth with Login {
     file.ref.moveTo(newFile, true)
     path
   }
-	
-	
 }

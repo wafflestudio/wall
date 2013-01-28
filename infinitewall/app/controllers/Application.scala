@@ -105,7 +105,4 @@ object Application extends Controller with Login {
 	def logout = AuthenticatedAction { implicit request =>
 		Redirect(routes.Application.index).withNewSession
 	}
-
-
-
 }
