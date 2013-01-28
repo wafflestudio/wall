@@ -4,9 +4,9 @@ class ScaleLayer extends Movable
   
   setPoint: (tx, ty, x, y) ->
     @element.css {
-      transformOrigin: tx + 'px ' + ty + 'px'
-      x: x
-      y: y
+      transformOrigin: parseInt(tx) + 'px ' + parseInt(ty) + 'px'
+      x: parseInt(x)
+      y: parseInt(y)
     }
 
   setZoom: (isTransition = false, callback) ->
@@ -47,20 +47,6 @@ class window.Wall
   yWallLast: 0
   hasMoved: false
   
-  redrawInstantly: =>
-    @sL.redraw()
-    @mL.redraw()
-    for id, sheet of sheets
-      sheet.redraw()
-      for linkid, link of sheet.links
-        link.redraw()
-    console.log "redraw!"
-
-  redraw: ->
-    if @redrawTimeout
-      clearTimeout(@redrawTimeout)
-    @redrawTimeout = setTimeout(@redrawInstantly, 400)
-
   save: ->
     if @saveTimeout
       clearTimeout(@saveTimeout)
@@ -204,7 +190,6 @@ class window.Wall
       @onTouchEnd.lastTouch = t
 
     @save()
-    @redraw()
 
   onMouseMove: (e) =>
     @mL.x((@startx + e.pageX - @deltax) / glob.zoomLevel)
@@ -215,7 +200,6 @@ class window.Wall
   onMouseUp: =>
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
-    @redraw()
     @save()
 
     if glob.activeSheet and not @hasMoved
@@ -265,7 +249,6 @@ class window.Wall
 
     @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
     minimap.refresh()
-    @redraw()
     @save()
     return false
 
@@ -293,7 +276,6 @@ class window.Wall
     @sL.set(xWall, yWall, xNew, yNew, true)
     minimap.refresh {isTransition: true}
 
-    @redraw()
     @save()
     return false
 
@@ -336,7 +318,6 @@ class window.Wall
         mLx: diffX + mLX,
         mLy: diffY + mLY
       }
-      @redraw()
       @save()
 
   toCenter: (sheet, callback) ->
@@ -393,4 +374,3 @@ class window.Wall
       minimap.refresh {isTransition: true}
 
     @save()
-    @redraw()

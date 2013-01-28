@@ -37,14 +37,19 @@
   background-repeat: no-repeat;
 }
 
-#profilePic {
-  height: 81px;
+#profileButton {
+  height: 82px;
   border-top: none;
 }
 
-#profilePic img{
+#profilePic {
+  background-size: cover;
+  height: 65px;
+  width: 65px;
+  background-position: center;
+  background-repeat: no-repeat;
   border-radius: 3px;
-  width:65px;
+
 }
 
 #nickname {
@@ -75,11 +80,13 @@
 }
 
 #newTextSheetButton {
+  margin-top: 0;
   background-image:url("/assets/images/textsheet.png");
   background-size:54px;
 }
 
 #newImageSheetButton {
+  margin-bottom: 0;
   background-image:url("/assets/images/imagesheet.png");
   background-size:67px;
 }
@@ -87,7 +94,7 @@
 
 #deleteSheetButton {
   background-image:url("/assets/images/delete_white.png");
-  background-size:50px;
+  background-size:51px;
 }
 
 #minimapButton {
@@ -102,5 +109,5 @@
 
 #folderButton {
   background-image:url("/assets/images/wall.png");
-  background-size:54px;
+  background-size:55px;
 }

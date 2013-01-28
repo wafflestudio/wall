@@ -1,5 +1,4 @@
-imageTemplate = "
-  <div class='sheetBox' tabindex='-1'>
+imageTemplate = "<div class='sheetBox' tabindex='-1'>
     <div class='sheet' contentType='image'>
       <div class='sheetTopBar'>
         <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
