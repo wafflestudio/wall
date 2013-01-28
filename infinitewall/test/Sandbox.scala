@@ -18,4 +18,22 @@ class HelloWorldSpec extends Specification {
       "Hello world" must endWith("world")
     }
   }
+
+
+  // fake application test
+
+  "User model" should {
+
+    "be retrieved by id" in {
+      running(FakeApplication()) {
+        val Some(admin) = models.User.findById(1000)
+
+        admin.email must equalTo("admin@infinitewall.com")
+        //macintosh. must beSome.which(dateIs(_, "1984-01-24"))
+      }
+    }
+  }
+
+
+  // fake request
 }
