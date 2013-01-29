@@ -9,8 +9,16 @@ class ScaleLayer extends Movable
       y: parseInt(y)
     }
 
-  setZoom: (isTransition = false, callback) ->
-    $('#zoomLevelText').text ("#{parseInt(glob.zoomLevel * 100)}%")
+  setZoomText: (percentage) ->
+    $('#zoomLevelText').text ("#{percentage}%")
+
+  setZoom: (isTransition = false, setText = true, callback) ->
+    if typeof setText is "function"
+      callback = setText
+      setText = true
+
+    @setZoomText(parseInt(glob.zoomLevel * 100)) if setText
+
     if isTransition
       @element.transition {scale: glob.zoomLevel}, callback
     else
@@ -232,7 +240,7 @@ class window.Wall
     delta /= 2.5
     tempDelta = if Math.abs(delta) < 0.15 then delta else (delta / Math.abs(delta)) * 0.15
     glob.zoomLevel += tempDelta
-    glob.zoomLevel = if glob.zoomLevel < 0.2 then 0.2 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
+    glob.zoomLevel = if glob.zoomLevel < 0.2 then 0.2 else (if glob.zoomLevel > 1 then 1 else Math.round(glob.zoomLevel * 100) / 100)
         
     xNew = (xWall - @xScaleLayer) / glob.zoomLevel
     yNew = (yWall - @yScaleLayer) / glob.zoomLevel
@@ -260,6 +268,7 @@ class window.Wall
     @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
     @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
     
+    tempZoom = glob.zoomLevel
     glob.zoomLevel = if glob.zoomLevel is 1 then 0.2 else 1
    
     if glob.zoomLevel is 1
@@ -272,8 +281,13 @@ class window.Wall
     glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
     glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
     
-    console.log "#{xWall}, #{yWall}, #{xNew}, #{yNew}"
-    @sL.set(xWall, yWall, xNew, yNew, true)
+    $("#zoomBar").width(tempZoom)
+    $("#zoomBar").animate {width: glob.zoomLevel}, {step: (now) => @sL.setZoomText(Math.round(now * 100))}
+
+    # transform3d의 scale값을 매번 가져올 수 없기때문에 쓰는 꼼수..
+    # jquery.transit에서 step function을 받는 패치가 나오면 고쳐도 될듯
+
+    @sL.set(xWall, yWall, xNew, yNew, true, false)
     minimap.refresh {isTransition: true}
 
     @save()

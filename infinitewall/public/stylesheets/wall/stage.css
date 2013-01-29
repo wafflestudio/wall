@@ -16,6 +16,10 @@
   display: none;
 }
 
+#zoomBar {
+  display: none;
+}
+
 #wallmanagement {
 	margin:7px;
 	display:none;  
