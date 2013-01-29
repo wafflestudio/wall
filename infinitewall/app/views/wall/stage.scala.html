@@ -20,7 +20,6 @@
   <div id = "menuBar">
     <a href = "/me">
       <div id = "profileButton" class = "menuButton">
-        @*** <!--<img src ='@User.getGravatar(Application.currentUser)'>--> ***@
         <div id = "profilePic" style="background-image:url(@Application.currentUserPicturePath)"></div>
         <div id = "nickname">@Application.currentUserNickname</div>
       </div>
@@ -30,11 +29,13 @@
     <div id = "newSheetContainer">
       <div id = "newTextSheetButton" class = "menuButton newSheetButtons" rel = "text"></div>
       <div id = "newImageSheetButton" class = "menuButton newSheetButtons" rel = "image"> </div>
+      <div id = "newVideoSheetButton" class = "menuButton newSheetButtons" rel = "video"> </div>
     </div>
     <div id = "deleteSheetButton" class = "menuButton"></div>
     <div id = "minimapButton" class = "menuButton"></div>
     <div id = "chatButton" class = "menuButton"></div>
     <div id = "folderButton" class = "menuButton"></div>
+    <div id = "tellButton" class = "menuButton"></div>
     <div class = "placeholderButton"></div>
   </div>
 </div>
@@ -49,8 +50,8 @@
   </div>
   <div id = "minimap">
     <div id = "minimapWorld">
-      <div id = "minimapElements"></div>
-      <div id = "minimapCurrentScreen"></div>
+      <div id = "miniMoveLayer"></div>
+      <div id = "miniScreen"></div>
     </div>
   </div>
 </div>

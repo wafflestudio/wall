@@ -54,10 +54,6 @@ $ ->
     #]
     #sequentialUploads: true
     add: (e, data) ->
-      #console.log e
-      #if e.handleObj.origType is "change"
-      #if @isDrop
-
       $.each data.files, (index, file) ->
         data.context = statusbar.addStatus("#{file.name}", "0%")
         data.submit()

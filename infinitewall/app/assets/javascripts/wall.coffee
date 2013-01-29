@@ -12,17 +12,14 @@ class ScaleLayer extends Movable
   setZoomText: (percentage) ->
     $('#zoomLevelText').text ("#{percentage}%")
 
-  setZoom: (isTransition = false, setText = true, callback) ->
-    if typeof setText is "function"
-      callback = setText
-      setText = true
-
-    @setZoomText(parseInt(glob.zoomLevel * 100)) if setText
-
+  setZoom: (isTransition = false, callback) ->
     if isTransition
+      $("#zoomBar").width(@element.css("scale") * 100)
+      $("#zoomBar").animate {width: glob.zoomLevel * 100}, {step: (now) => @setZoomText(Math.round(now))}
       @element.transition {scale: glob.zoomLevel}, callback
     else
       @element.css {scale: glob.zoomLevel}
+      @setZoomText(parseInt(glob.zoomLevel * 100))
 
   set: (tx, ty, x, y, isTransition = false, callback) ->
     @setPoint(tx, ty, x, y)
@@ -281,13 +278,10 @@ class window.Wall
     glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
     glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
     
-    $("#zoomBar").width(tempZoom)
-    $("#zoomBar").animate {width: glob.zoomLevel}, {step: (now) => @sL.setZoomText(Math.round(now * 100))}
-
     # transform3d의 scale값을 매번 가져올 수 없기때문에 쓰는 꼼수..
     # jquery.transit에서 step function을 받는 패치가 나오면 고쳐도 될듯
 
-    @sL.set(xWall, yWall, xNew, yNew, true, false)
+    @sL.set(xWall, yWall, xNew, yNew, true)
     minimap.refresh {isTransition: true}
 
     @save()
@@ -325,7 +319,7 @@ class window.Wall
       mLX = @mL.x()
       mLY = @mL.y()
       
-      @mL.tXY(diffX + mLX, diffY + mLY)
+      @mL.txy(diffX + mLX, diffY + mLY)
       
       minimap.refresh {
         isTransition: true,
@@ -356,7 +350,7 @@ class window.Wall
       diffX = translateX - sheetX
       diffY = translateY - sheetY
       
-      @mL.tXY(diffX + mLX, diffY + mLY, callback)
+      @mL.txy(diffX + mLX, diffY + mLY, callback)
 
       minimap.refresh {
         isTransition: true,

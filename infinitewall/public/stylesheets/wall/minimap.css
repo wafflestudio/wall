@@ -13,14 +13,14 @@
   left:0px;
 }
 
-#minimapCurrentScreen {
+#miniScreen {
 	position:absolute;
   top:0px;
   left:0px;
 	border:1px solid #aaa;
 }
 
-.minimapElement {
+.miniSheet {
 	position:absolute;
   top:0px;
   left:0px;

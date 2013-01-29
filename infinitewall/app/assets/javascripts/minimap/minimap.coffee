@@ -2,7 +2,7 @@ class Miniworld extends Movable
   constructor: -> @element = $("#minimapWorld")
 
 class Miniscreen extends Movable
-  constructor: -> @element = $("#minimapCurrentScreen")
+  constructor: -> @element = $("#miniScreen")
 
 class window.Minimap extends Movable
   miniWorld: null
@@ -24,7 +24,7 @@ class window.Minimap extends Movable
     @element = $('#minimap')
     @miniWorld = new Miniworld()
     @miniScreen = new Miniscreen()
-    @mE = $('#minimapElements')
+    @mML = $('#miniMoveLayer')
     @element.on 'dblclick', @onMouseDblClick
     @element.on 'mousedown', @onMouseDown
     @minimapWidth = @w()
@@ -44,16 +44,9 @@ class window.Minimap extends Movable
       opacity: 1
     }
   
-  mlRefresh: =>
-    # moveLayer만 움직였을 경우 시트는 그대로이기 떄문에 계산을 줄일 수 있음
-
-  refresh: (info = null) =>
-    if !info or !info.mLx and !info.mLy
-      mLx = wall.mL.x()
-      mLy = wall.mL.y()
-    else
-      mLx = info.mLx
-      mLy = info.mLy
+  refresh: (info = {}) =>
+    mLx = info.mLx || wall.mL.x()
+    mLy = info.mLy || wall.mL.y()
 
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
     screenWidth = ($(window).width()) / glob.zoomLevel
@@ -74,7 +67,7 @@ class window.Minimap extends Movable
       @worldTop = sheetY if sheetY < @worldTop
       @worldBottom = sheetY + sheetH if sheetY + sheetH > @worldBottom
     
-    if info? and info.id? # socket에서 온 경우
+    if info.id? # socket에서 온 경우
       for id, sheet of sheets
         if parseInt(id) is info.id
           updateWorld(info.x, info.y, info.w, info.h)
@@ -88,8 +81,8 @@ class window.Minimap extends Movable
     worldHeight = @worldBottom - @worldTop
     @ratio = 1
 
-    isTransition = if info? and info.isTransition? then info.isTransition else false
-    duration = if info and info.duration then info.duration else 400
+    isTransition = info.isTransition || false
+    duration = info.duration || 400
 
     if (worldWidth / worldHeight) > (@minimapWidth / @minimapHeight)
       @ratio = @minimapWidth / worldWidth
@@ -116,7 +109,7 @@ class window.Minimap extends Movable
       else
         miniSheets[id].xywh((x - @worldLeft) * @ratio, (y - @worldTop) * @ratio, w * @ratio, h * @ratio)
 
-    if info? and info.id? # socket에서 온 경우
+    if info.id? # socket에서 온 경우
       for id, sheet of sheets
         if parseInt(id) is info.id
           updateMiniSheet(id, info.x, info.y, info.w, info.h)
@@ -127,7 +120,7 @@ class window.Minimap extends Movable
         updateMiniSheet(id, sheet.x(), sheet.y(), sheet.w(), sheet.h())
 
   bringToTop: (miniSheet) ->
-    @mE.append miniSheet.element
+    @mML.append miniSheet.element
 
   #기준좌표는 minimapWorld의 origin
 
@@ -203,7 +196,7 @@ class window.Minimap extends Movable
       newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerX) / glob.zoomLevel
       newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerY) / glob.zoomLevel
 
-      wall.mL.tXY(newMoveLayerX, newMoveLayerY, 200)
+      wall.mL.txy(newMoveLayerX, newMoveLayerY, 200)
 
       @refresh {
         isTransition: true,

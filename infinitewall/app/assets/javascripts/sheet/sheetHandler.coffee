@@ -215,6 +215,7 @@ class window.SheetHandler
   onResizeTouchEnd: (e) =>
     $(document).off 'touchmove', @onResizeTouchMove
     $(document).off 'touchend', @onResizeTouchEnd
+
     @sheet.socketResize {
       width: @sheet.iw()
       height: @sheet.ih()
@@ -237,6 +238,7 @@ class window.SheetHandler
   onResizeMouseUp: (e) =>
     $(document).off 'mousemove', @onResizeMouseMove
     $(document).off 'mouseup', @onResizeMouseUp
+
     @sheet.socketResize {
       width: @sheet.iw(),
       height: @sheet.ih()

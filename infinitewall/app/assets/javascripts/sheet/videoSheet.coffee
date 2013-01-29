@@ -12,12 +12,12 @@ class window.VideoSheet extends Sheet
   @create: (name = "Untitled Video", content, callback) ->
 
   setElement: ->
-    @element = $($(imageTemplate).appendTo('#sheetLayer'))
+    @element = $($(videoTemplate).appendTo('#sheetLayer'))
     @innerElement = @element.children('.sheet')
 
   constructor: (params) ->
     super(params)
-    @innerElement.children('.sheetVideo').css 'background-image', "url('#{params.content}')"
+    @innerElement.children('.sheetVideo').html(params.content)
 
   attachHandler: ->
     @handler = new VideoSheetHandler(this)

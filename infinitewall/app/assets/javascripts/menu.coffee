@@ -3,10 +3,11 @@ class window.Menu
     @profile = $('#profilePic')
     @logoff = $('#logoutButton')
     @newSheet = $('#newSheetButton')
-    @newSheetContainer = $("#newSheetContainer")
+    @newSheetContainer = $('#newSheetContainer')
     @newSheetButtons = $('.newSheetButtons')
     @deleteSheet = $('#deleteSheetButton')
     @minimap = $('#minimapButton')
+    @tellButton = $('#tellButton')
     @menubar = $('#menuBar')
     @menubar.on 'mousedown', (e) -> e.preventDefault()
 
@@ -16,10 +17,16 @@ class window.Menu
           TextSheet.create("text")
         when 'image'
           $("#fileupload").click()
+        when 'video'
+          new VideoSheet()
+          console.log "videovideo"
 
     @deleteSheet.click =>
       glob.activeSheet.socketRemove() if glob.activeSheet
       @deactivateDelete()
+
+    @tellButton.click -> glob.activeSheet.glow()
+
 
     @newSheet.click => @newSheetContainer.slideToggle(300)
     @minimap.click -> minimap.toggle()

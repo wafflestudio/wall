@@ -1,8 +1,9 @@
 class window.MiniSheet extends Movable
-  constructor: (id) ->
-    @id = id
-    @element = $($('<div class = "minimapElement"></div>').appendTo('#minimapElements'))
-    @element.attr('id', 'map_sheet' + id)
+  constructor: (params) ->
+    @id = params.id
+    @element = $($('<div class = "miniSheet"></div>').appendTo('#miniMoveLayer'))
+    #@xywh(params.x, params.y, params.width, params.height)
+    @element.attr('id', 'map_sheet' + @id)
     @element.on 'mousedown', @onMouseDown
     
   becomeActive: =>

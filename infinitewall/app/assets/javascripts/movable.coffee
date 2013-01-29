@@ -58,7 +58,7 @@ class window.Movable
     return parseInt(@innerElement.css('height')) unless h?
     @innerElement.css {height: Math.round(h)}
 
-  tXY: (x, y, duration, callback) ->
+  txy: (x, y, duration, callback) ->
     @element.transition {
       x: Math.round(x)
       y: Math.round(y)

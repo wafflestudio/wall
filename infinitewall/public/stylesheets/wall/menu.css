@@ -86,9 +86,14 @@
 }
 
 #newImageSheetButton {
-  margin-bottom: 0;
   background-image:url("/assets/images/imagesheet.png");
   background-size:67px;
+}
+
+#newVideoSheetButton {
+  margin-bottom: 0;
+  background-image:url("/assets/images/videosheet.png");
+  background-size:64px;
 }
 
 

@@ -34,8 +34,7 @@ class window.Sheet extends Movable
     .html(params.title)
     @attachHandler()
     
-    newMiniSheet = new MiniSheet(@id)
-    window.miniSheets[@id] = newMiniSheet
+    window.miniSheets[@id] = new MiniSheet(params)
     window.sheets[params.id] = this
     minimap.refresh()
    
@@ -60,13 +59,14 @@ class window.Sheet extends Movable
   attachHandler: ->
 
   move: (params) ->
-    if this is glob.activeSheet
+    if this is glob.activeSheet # 내가 이 시트를 보고있는데 누가 이걸 움직인다면
       newX = wall.mL.x() + @x() - params.x
       newY = wall.mL.y() + @y() - params.y
-      wall.mL.tXY(newX, newY)
+      wall.mL.txy(newX, newY)
 
-    @tXY(params.x, params.y)
+    @txy(params.x, params.y)
     @refreshLinks(params.x, params.y, @w(), @h())
+
     minimap.refresh {
       id: params.id
       x: params.x
@@ -157,6 +157,13 @@ class window.Sheet extends Movable
     @docked = false
 
   glow: ->
-    temp = @innerElement.css('box-shadow')
-    @innerElement.animate({'box-shadow': '0px 0px 30px 20px #FF9F88'})
-    
+    temp = "3px 4px 4px 2px #888"
+    blur = 40 / glob.zoomLevel
+    spread = 30 / glob.zoomLevel
+    console.log "#{blur}, #{spread}"
+    @innerElement.animate {'box-shadow': "0px 0px #{150 / glob.zoomLevel}px 20px #FF9F88"}, =>
+    @innerElement.animate {'box-shadow': temp}, =>
+    @innerElement.animate {'box-shadow': "0px 0px #{150 / glob.zoomLevel}px 20px #FF9F88"}, =>
+    @innerElement.animate {'box-shadow': temp}, =>
+    @innerElement.animate {'box-shadow': "0px 0px #{150 / glob.zoomLevel}px 20px #FF9F88"}, =>
+    @innerElement.animate {'box-shadow': temp}
