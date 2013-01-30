@@ -16,6 +16,9 @@ class ScaleLayer extends Movable
     if isTransition
       $("#zoomBar").width(@element.css("scale") * 100)
       $("#zoomBar").animate {width: glob.zoomLevel * 100}, {step: (now) => @setZoomText(Math.round(now))}
+      # transform3d의 scale값을 매번 가져올 수 없기때문에 쓰는 꼼수..
+      # jquery.transit에서 step function을 받는 패치가 나오면 고쳐도 될듯
+
       @element.transition {scale: glob.zoomLevel}, callback
     else
       @element.css {scale: glob.zoomLevel}
@@ -258,14 +261,15 @@ class window.Wall
     return false
 
   onMouseDblClick: (e) =>
-    console.log "suspicious"
+    return false unless e.eventPhase is 2
+    # 월을 바로 눌렀을때만 되고 bubbling해서 올라오는건 못하게
+
     xWall = e.pageX - @wall.offset().left
     yWall = e.pageY - @wall.offset().top
 
     @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
     @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
     
-    tempZoom = glob.zoomLevel
     glob.zoomLevel = if glob.zoomLevel is 1 then 0.2 else 1
    
     if glob.zoomLevel is 1
@@ -278,9 +282,6 @@ class window.Wall
     glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
     glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
     
-    # transform3d의 scale값을 매번 가져올 수 없기때문에 쓰는 꼼수..
-    # jquery.transit에서 step function을 받는 패치가 나오면 고쳐도 될듯
-
     @sL.set(xWall, yWall, xNew, yNew, true)
     minimap.refresh {isTransition: true}
 

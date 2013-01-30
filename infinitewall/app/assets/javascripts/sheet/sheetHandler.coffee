@@ -38,6 +38,7 @@ class window.SheetHandler
     @sheet.x((@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / glob.zoomLevel)
     @sheet.y((@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / glob.zoomLevel)
     @hasMoved = true
+    e.preventDefault()
       
   onTouchEnd: (e) =>
     $(document).off 'touchmove', @onTouchMove
