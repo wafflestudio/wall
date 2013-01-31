@@ -1,5 +1,3 @@
-#linkTemplate = "<div class='linkLine'></div>"
-
 class window.LinkLine extends Movable
   paper: null
   line: null
@@ -10,12 +8,11 @@ class window.LinkLine extends Movable
 
   constructor: (fromID) ->
     @id = "linkLine_" + fromID + "_null"
-    linkTemplate = "<div id='" + @id + "' class='linkLine'></div>"
-    @element = $($(linkTemplate).appendTo('#linkLayer'))
-    @from = sheets[fromID]
-
-    @xy(@from.cx(), @from.cy())
+    @element = $($("<div id='" + @id + "' class='linkLine'></div>").appendTo('#linkLayer'))
     @paper = Raphael(@id, '100%', '100%')
+    @from = sheets[fromID]
+    @x(@from.cx())
+    @y(@from.cy())
 
   rotateLink: (fromX, fromY, toX, toY, isTransition = false) ->
     curveX1 = (fromX + toX) / 2

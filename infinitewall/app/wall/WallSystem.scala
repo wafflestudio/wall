@@ -295,6 +295,7 @@ class WallActor(wallId: Long) extends Actor {
 					  SheetLink.create(a.id, a.to_id, wallId)
 					case a: RemoveLinkAction =>
 					  SheetLink.remove(a.id, a.to_id, wallId)
+					  SheetLink.remove(a.to_id, a.id, wallId)
 
 				}
         

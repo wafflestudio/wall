@@ -90,6 +90,7 @@ class window.Sheet extends Movable
 
   remove: (params) ->
     for id, link of @links
+      #link.socketRemoveLink()
       link.remove()
     @links = null
 

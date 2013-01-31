@@ -78,24 +78,6 @@ class window.Movable
       height: Math.round(h)
     }, callback
 
-  xy: (x, y) ->
-    @element.css {
-      x: Math.round(x)
-      y: Math.round(y)
-    }
-
-  wh: (w, h) ->
-    @element.css {
-      width: Math.round(w)
-      height: Math.round(h)
-    }
-
-  iwh: (w, h) ->
-    @innerElement.css {
-      width: Math.round(w)
-      height: Math.round(h)
-    }
-
   xywh: (x, y, w, h) ->
     @element.css {
       x: Math.round(x)
@@ -114,3 +96,6 @@ class window.Movable
       width: Math.round(w)
       height: Math.round(h)
     }
+
+  isTransitioning: ->
+    Boolean(@element.queue().length)

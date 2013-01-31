@@ -75,7 +75,7 @@ class window.Wall
     @bringToTop(sheet)
 
   bringToTop: (sheet) ->
-    $("#sheetLayer").append sheet.element
+    #$("#sheetLayer").append sheet.element
 
   setName: (name) ->
     $('#currentWallName').text(name)
@@ -225,7 +225,6 @@ class window.Wall
     e.preventDefault()
     
   onMouseWheel: (e, delta, deltaX, deltaY) =>
-
     xWall = e.pageX - @wall.offset().left
     yWall = e.pageY - @wall.offset().top
 
@@ -291,10 +290,10 @@ class window.Wall
   revealSheet: ->
 
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
-    screenWidth = ($(window).width() - 225) / glob.zoomLevel
+    screenWidth = ($(window).width() - 70) / glob.zoomLevel
     screenHeight = ($(window).height()) / glob.zoomLevel
     screenTop = -(glob.scaleLayerY + @mL.y() * glob.zoomLevel) / glob.zoomLevel
-    screenLeft = -(glob.scaleLayerX + @mL.x() * glob.zoomLevel) / glob.zoomLevel
+    screenLeft = -(glob.scaleLayerX - 70 + @mL.x() * glob.zoomLevel) / glob.zoomLevel
 
     sheet = glob.activeSheet
     sheetWidth = sheet.w()
@@ -317,21 +316,17 @@ class window.Wall
       if (sheetY + sheetHeight > screenTop + screenHeight)
         diffY = screenTop + screenHeight - (sheetY + sheetHeight + offset)
        
-      mLX = @mL.x()
-      mLY = @mL.y()
-      
-      @mL.txy(diffX + mLX, diffY + mLY)
-      
+      @mL.txy(diffX + @mL.x(), diffY + @mL.y())
+
       minimap.refresh {
-        isTransition: true,
-        mLx: diffX + mLX,
-        mLy: diffY + mLY
+        isTransition: true
+        mLx: diffX + @mL.x()
+        mLy: diffY + @mL.y()
       }
+
       @save()
 
   toCenter: (sheet, callback) ->
-    sheetW = sheet.w()
-    sheetH = sheet.h()
     screenW = $(window).width() - 70
     screenH = $(window).height()
 
@@ -342,14 +337,11 @@ class window.Wall
       screenT = -(glob.scaleLayerY + mLY * glob.zoomLevel) / glob.zoomLevel
       screenL = -(glob.scaleLayerX + mLX * glob.zoomLevel) / glob.zoomLevel
       
-      sheetX = sheet.x()
-      sheetY = sheet.y()
+      translateX = screenL + (screenW - sheet.w()) / 2
+      translateY = screenT + (screenH - sheet.h()) / 2
 
-      translateX = screenL + (screenW - sheetW) / 2
-      translateY = screenT + (screenH - sheetH) / 2
-
-      diffX = translateX - sheetX
-      diffY = translateY - sheetY
+      diffX = translateX - sheet.x()
+      diffY = translateY - sheet.y()
       
       @mL.txy(diffX + mLX, diffY + mLY, callback)
 
@@ -363,8 +355,8 @@ class window.Wall
       sheetX = (glob.scaleLayerX + (@mL.x() + sheet.x()) * glob.zoomLevel)
       sheetY = (glob.scaleLayerY + (@mL.y() + sheet.y()) * glob.zoomLevel)
 
-      xWall = (sheetX - (screenW - sheetW) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
-      yWall = (sheetY - (screenH - sheetH) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
+      xWall = (sheetX - (screenW - sheet.w()) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
+      yWall = (sheetY - (screenH - sheet.h()) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
 
       @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
       @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel

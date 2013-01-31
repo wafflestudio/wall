@@ -17,9 +17,9 @@ class window.SheetHandler
     @sheet.element.on 'touchstart', @onTouchStart
     @sheet.element.on 'mouseenter', @onMouseEnter
     @sheet.element.on 'mouseleave', @onMouseLeave
+    @sheet.element.on 'dblclick', @onMouseDblClick
   
   onTouchStart: (e) =>
-    console.log "touchstart"
     wall.bringToTop(@sheet)
     minimap.bringToTop(miniSheets[@sheet.id])
 
@@ -38,6 +38,8 @@ class window.SheetHandler
     @sheet.x((@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / glob.zoomLevel)
     @sheet.y((@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / glob.zoomLevel)
     @hasMoved = true
+    for id, link of @sheet.links
+      link.refresh()
     e.preventDefault()
       
   onTouchEnd: (e) =>
@@ -136,45 +138,28 @@ class window.SheetHandler
       @sheet.y((@starty + e.pageY - @deltay) / glob.zoomLevel)
       @hasMoved = true
       minimap.refresh()
-      
+
       for id, link of @sheet.links
         link.refresh()
    
   onMouseUp: (e) =>
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
-    d = new Date()
-    t = d.getTime()
 
     if @hasMoved
       @sheet.socketMove {
-        x: (@startx + e.pageX - @deltax) / glob.zoomLevel,
+        x: (@startx + e.pageX - @deltax) / glob.zoomLevel
         y: (@starty + e.pageY - @deltay) / glob.zoomLevel
       }
       @sheet.element.find('.sheetTextField').blur()
       @sheet.element.find('.sheetTitle').blur()
     else
-      @onMouseUp.lastClick = @onMouseUp.lastClick || 0
+      if glob.activeSheet and glob.activeSheet isnt @sheet
+        glob.activeSheet.resignActive()
 
-      if t - @onMouseUp.lastClick < 300
-        console.log "doubleClick!"
-        if glob.activeSheet
-          if glob.activeSheet isnt @sheet
-            glob.activeSheet.resignActive()
-            @sheet.becomeActive()
+      @sheet.becomeActive()
+      wall.revealSheet()
 
-        wall.toCenter(@sheet)
-
-      else
-        if glob.activeSheet
-          if glob.activeSheet isnt @sheet
-            glob.activeSheet.resignActive()
-            @sheet.becomeActive()
-        else
-          @sheet.becomeActive()
-        wall.revealSheet()
-
-    @onMouseUp.lastClick = t
     return false
 
   onMouseDown: (e) =>
@@ -202,6 +187,13 @@ class window.SheetHandler
       return false
 
     e.stopPropagation()
+
+  onMouseDblClick: (e) =>
+    if glob.activeSheet and glob.activeSheet isnt @sheet
+      glob.activeSheet.resignActive()
+
+    @sheet.becomeActive()
+    wall.toCenter(@sheet) unless wall.mL.isTransitioning()
 
   onResizeTouchStart: (e) =>
     $(document).on 'touchmove', @onResizeTouchMove
