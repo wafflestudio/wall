@@ -28,14 +28,14 @@
 	width:100%;
 	height:25px;
   position:absolute;
-  background-color:black;
-	opacity:0.5;
+  background-color:rgba(0, 0, 0, 0.5);
 	color:white;
   display:none;
 }
 
 .sheet[contentType='image'] > .sheetTopBar > .sheetTitle {
   margin:-2px 9px;
+  opacity: 0.75;
 }
 
 .sheetTopBar > .sheetTitle {
@@ -53,10 +53,29 @@
   margin: 0
 }
 
-.sheetText {
+.sheet[contentType='text'] > .sheetText {
 	padding-top:4px;
 	width:100%;
 	height:100%;
+}
+
+.sheet[contentType='image'] > .sheetText {
+  position:absolute;
+  bottom:0px;
+  background-color:rgba(0, 0, 0, 0.5);
+	width:100%;
+  min-height:25px;
+  max-height:35%;
+  text-overflow:ellipsis;
+  overflow:hidden;
+  display: none;
+}
+
+.sheet[contentType='image'] > .sheetText > .sheetTextField {
+  color:white;
+  line-height:25px;
+  padding-left:5px;
+  opacity:0.75;
 }
 
 .sheetTextField {
@@ -73,7 +92,7 @@
 }
 
 .sheetImage {
-	background-size:100%;
+  background-size:cover;
 	width:100%;
 	height:100%;
 }

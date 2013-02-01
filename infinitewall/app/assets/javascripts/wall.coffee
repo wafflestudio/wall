@@ -206,6 +206,7 @@ class window.Wall
     minimap.refresh()
 
   onMouseUp: =>
+    glob.leftClick = false
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
     @save()
@@ -214,6 +215,7 @@ class window.Wall
       glob.activeSheet.resignActive()
   
   onMouseDown: (e) =>
+    glob.leftClick = true
     @hasMoved = false
     @startx = @mL.x() * glob.zoomLevel
     @starty = @mL.y() * glob.zoomLevel
@@ -225,6 +227,7 @@ class window.Wall
     e.preventDefault()
     
   onMouseWheel: (e, delta, deltaX, deltaY) =>
+    return if glob.leftClick
     xWall = e.pageX - @wall.offset().left
     yWall = e.pageY - @wall.offset().top
 

@@ -10,6 +10,7 @@ class window.Menu
     @tellButton = $('#tellButton')
     @menubar = $('#menuBar')
     @menubar.on 'mousedown', (e) -> e.preventDefault()
+    @menubar.css('x', 0) # ios에서 메뉴바 찌그러지는거 막음
 
     @newSheetButtons.click ->
       switch $(this).attr('rel')
@@ -26,7 +27,6 @@ class window.Menu
       @deactivateDelete()
 
     @tellButton.click -> glob.activeSheet.glow()
-
 
     @newSheet.click => @newSheetContainer.slideToggle(300)
     @minimap.click -> minimap.toggle()

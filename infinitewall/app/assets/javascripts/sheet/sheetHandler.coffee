@@ -131,7 +131,7 @@ class window.SheetHandler
     @sheet.currentLink = null
 
   onMouseMove: (e) =>
-    if glob.activeSheet is @sheet
+    if glob.activeSheet is @sheet and @sheet.contentType is contentTypeEnum.text
       return false
     else
       @sheet.x((@startx + e.pageX - @deltax) / glob.zoomLevel)
@@ -143,6 +143,7 @@ class window.SheetHandler
         link.refresh()
    
   onMouseUp: (e) =>
+    glob.leftClick = false
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
 
@@ -164,6 +165,7 @@ class window.SheetHandler
 
   onMouseDown: (e) =>
     if e.which is 1 # left click
+      glob.leftClick = true
       @hasMoved = false
       wall.bringToTop(@sheet)
       minimap.bringToTop(miniSheets[@sheet.id])
