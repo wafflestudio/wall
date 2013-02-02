@@ -2,6 +2,7 @@ globglob = new ->
     this.activeSheet = null
     this.hoverSheet = null
     this.linkFromSheet = null
+    this.leftClick = false
     this.rightClick = false
     this.zoomLevel = 1
 

@@ -4,6 +4,10 @@ imageTemplate = "<div class='sheetBox' tabindex='-1'>
         <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
       </div>
       <div class='sheetImage'></div>
+      <div class='sheetText'>
+        <div class='sheetTextField' contenteditable='true'>
+        </div>
+      </div>
       <div class='resizeHandle'></div>
     </div>
   </div>"
@@ -44,3 +48,13 @@ class window.ImageSheet extends Sheet
 
   attachHandler: ->
     @handler = new ImageSheetHandler(this)
+
+  becomeActive: ->
+    super()
+    @innerElement.find('.sheetTopBar').show()
+    @innerElement.find('.sheetText').show()
+
+  resignActive: ->
+    super()
+    @innerElement.find('.sheetTopBar').hide()
+    @innerElement.find('.sheetText').hide()

@@ -5,9 +5,7 @@ class window.Sheet extends Movable
 
   @create: (content) ->
     #interface for random creation
-
   setElement: (params) ->
-
   constructor: (params) ->
     @id = params.id
     @setElement()
@@ -24,11 +22,11 @@ class window.Sheet extends Movable
         curTitle = msg.substr(0, msg.length - 1) if curTitle.charAt(curTitle.length - 1) is '\n'
         if prevTitle isnt curTitle
           @socketSetTitle()
-          @element.find('.sheetTitle').blur()
+          @innerElement.find('.sheetTitle').blur()
           prevTitle = curTitle
           return false
     .focusout (e) =>
-      curTitle = @element.find('.sheetTitle').html()
+      curTitle = @innerElement.find('.sheetTitle').html()
       @socketSetTitle() if prevTitle isnt curTitle
       prevTitle = curTitle
     .html(params.title)
@@ -37,6 +35,9 @@ class window.Sheet extends Movable
     window.miniSheets[@id] = new MiniSheet(params)
     window.sheets[params.id] = this
     minimap.refresh()
+
+  type: ->
+    @element.attr('contentType')
    
   socketMove: (params) ->
     wallSocket.send {action : 'move', params : $.extend(params, {id : @id})}
@@ -110,30 +111,26 @@ class window.Sheet extends Movable
 
   becomeActive: ->
     glob.activeSheet = this
-    @element.find('.boxClose').show()
-    @element.children('.sheet').css 'border-top', '3px solid #FF4E58'
-    @element.children('.sheet').css 'margin-top', '-3px'
-    @element.find('.sheetTopBar').show()
+    @innerElement.css 'border-top', '3px solid #FF4E58'
+    @innerElement.css 'margin-top', '-3px'
     #@element.find('.sheetTextField').focus()
     miniSheets[@id].becomeActive()
     menu.activateDelete()
 
   resignActive: ->
     glob.activeSheet = null
-    @element.find('.boxClose').hide()
-    @element.children('.sheet[contentType="image"]').children('.sheetTopBar').hide()
-    @element.children('.sheet').css 'border-top', ''
-    @element.children('.sheet').css 'margin-top', ''
+    @innerElement.css 'border-top', ''
+    @innerElement.css 'margin-top', ''
     @element.find('.sheetTextField').blur()
     @element.find('.sheetTitle').blur()
     miniSheets[@id].resignActive()
     menu.deactivateDelete()
 
   becomeSelected: ->
-    @element.children('.sheet').css {'background-color': '#CFD2FF'}
+    @innerElement.css {'background-color': '#CFD2FF'}
 
   resignSelected: ->
-    @element.children('.sheet').css {'background-color': 'white'}
+    @innerElement.css {'background-color': 'white'}
 
   setLink: (params) ->
     @newLinkLine = new LinkLine(@id)
