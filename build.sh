@@ -17,10 +17,6 @@ play compile
 
 # run tests
 play test
-for jsfile in test/integration/phantomjs/*.js
-do
-	phantomjs $jsfile
-done
 
 # kill previous server process
 if [ -e RUNNING_PID ]; then
@@ -43,11 +39,19 @@ fi
 
 # start the server
 play stage
-nohup target/start &
+nohup target/start&
 
 # for more detailed configuration:
 #target/start -Dconfig.file=/full/path/to/conf/application-prod.conf
 
+sleep 10
+
 # apply any possible evolution scripts
 curl -X GET localhost:9000/@evolutions/apply/default > /dev/null
+
+# run phantomjs integration tests
+for jsfile in test/integration/phantomjs/*.js
+do
+	phantomjs $jsfile
+done
 
