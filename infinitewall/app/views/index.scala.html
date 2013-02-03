@@ -1,7 +1,7 @@
 @()(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.default("Walls ::: Infinite Wall") {
-	<h1> Welcome to Infinite Wall </h1>
+
 	@if(request.session.get("current_user").isDefined)  {
         <p><a href="/wall">Walls</a></p>
 		<p><a href="/group">Manage Groups</a></p>
