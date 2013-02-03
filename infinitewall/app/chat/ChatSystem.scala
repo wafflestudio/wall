@@ -108,7 +108,8 @@ class ChatRoomActor(roomId: Long) extends Actor {
 		}
 
 		case NotifyJoin(userId) => {
-			notifyAll("join", userId, "has entered the room")
+      val nickname = User.findById(userId).get.nickname
+			notifyAll("join", userId, "has entered")
 		}
 
 		case Talk(userId, text) => {
@@ -123,26 +124,32 @@ class ChatRoomActor(roomId: Long) extends Actor {
 					Some(p)
 			}
 			ChatRoom.removeUser(roomId, userId)
-			notifyAll("quit", userId, "has left the room")
+			notifyAll("quit", userId, "has left")
 		}
 
 	}
 
 	def notifyAll(kind: String, userId: Long, message: String) {
 
-		val username = User.findById(userId).get.email
-		val users = ChatRoom.listUsers(roomId)
+    val user = User.findById(userId)
+    val username = user.get.email
+    val nickname = user.get.nickname
+		/*val users = ChatRoom.listUsers(roomId)*/
 
 		val msg = JsObject(
 			Seq(
 				"kind" -> JsString(kind),
 				"username" -> JsString(username),
+        "nickname" -> JsString(nickname),
 				"message" -> JsString(message),
 				"users" -> JsArray(
-					connections.map(i => JsString(User.findById(i._1).get.email))
-				)
-			)
-		)
+					connections.map(i => { 
+            val user = User.findById(i._1)
+            JsObject(Seq(
+                "email" -> JsString(user.get.email),
+                "nickname" -> JsString(user.get.nickname),
+                "picture" -> JsString(user.get.picturePath.getOrElse(""))
+                ))}))))
 
 		logMessage(kind, userId, message)
 

@@ -46,7 +46,7 @@
 <div id = "rightPart">
   <div id = "infoText">
     <p id = "currentWallName">@wallName</p>
-    <p id = "zoomLevelText">100%</p>
+    <p id = "zoomText">100%</p>
   </div>
   <div id = "minimap">
     <div id = "minimapWorld">
@@ -56,24 +56,20 @@
   </div>
 </div>
 
-<!--
 <div id = "chatWindow">
-  <div id = "chat-userlist">
-    <ul id = "users" class = "unstyled">
-    </ul>
-  </div>
-  <div id = "log">
-  </div>
+  <div id = "chatUsers"> </div>
+  <div id = "chatLog"> </div>
   <div id = "chatInputContainer">
-    <textarea id = "talk"></textarea>
+    <textarea id = "chatInput"></textarea>
   </div>
 </div>
+
+<!--
 <div id = "wallmanagement">
   <div id = "folder-test">
   </div>
 </div>
 -->
-
 
 <script type = "text/javascript">
 
@@ -88,79 +84,42 @@
 
   })
 
-  // initialize wall socket/events
-  var wallSocket = new WallSocket("@routes.Wall.sync(wallId, timestamp).webSocketURL()", @timestamp)
-  wallSocket.on('receivedAction', function(detail, isMine, timestamp) {
-    isMine = isMine || false
-    var sheet = sheets[detail.params.id];
-
-    if(isMine && detail.action == "alterText")
-      sheet.alterText(detail.params, true, timestamp)
-    else if(detail.action == "create")
-      createSheet(detail.id, detail.params, timestamp);
-    else if(!isMine && detail.action == "move")
-      sheet.move(detail.params);
-    else if(!isMine && detail.action == "resize")
-      sheet.resize(detail.params);
-    else if(detail.action == "remove")
-      sheet.remove(detail.params);
-    // deprecated:
-    // else if(detail.action == "setText")
-    //   sheet.setText(detail.params);
-    else if(detail.action == "alterText")
-      sheet.alterText(detail.params, false, timestamp)
-    else if(!isMine && detail.action == "setTitle")
-      sheet.setTitle(detail.params);
-    else if(detail.action == "setLink")
-      sheet.setLink(detail.params);
-    else if(detail.action == "removeLink")
-      sheet.removeLink(detail.params)
-  })
-
-  // initialize current stage
   $(function() {
+    var webSocketURL = "@routes.Wall.sync(wallId, timestamp).webSocketURL()"
+    var chatURL = "@routes.Chat.establish(chatId, 999).webSocketURL()"
+
+    window.stage = new Stage(@wallId, @timestamp, webSocketURL, chatURL)
+    wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
+
     var sheetData = []
+    var sheetlinkData = []
 
     @sheets.map { sheet => 
       sheetData.push(@Html(sheet.toJson()))
     }
 
+    @sheetlinks.map { sheetlink => 
+      sheetlinkData.push(@Html(sheetlink.toJson()))
+    }
+
     for(var i = 0; i < sheetData.length; i++)  {	
       var sheet = sheetData[i]
       console.log(sheet)
-      createSheet(sheet.id, sheet, @timestamp)
-    }
-
-    var sheetlinkData = []
-
-    @sheetlinks.map { sheetlink => 
-      sheetlinkData.push(@Html(sheetlink.toJson()))
+      stage.createSheet(sheet.id, sheet, @timestamp)
     }
 
     for(var i = 0; i < sheetlinkData.length; i++)  {	
       var sheetlink = sheetlinkData[i]
       console.log(sheetlink)
-      createSheetLink(sheetlink, @timestamp)
+      stage.createSheetLink(sheetlink, @timestamp)
     }
-
-
-    glob.zoomLevel = @pref.zoom;
-    glob.wallId = @wallId;
-    wall.sL.setZoom()
-		wall.mL.x(@pref.panX)
-    wall.mL.y(@pref.panY)
-    minimap.refresh()
 
     $.getJSON('/tree', function(data) {
       // folder test
       var fv = new FolderView(data);
       fv.appendTo($('#folder-test'))
-
     })
 
-    // initialize chat socket
-    var chatSocket = new ChatSocket("@routes.Chat.establish(chatId, 999).webSocketURL()")
-    
     // wall ready
     $(document).trigger("wallready")
   })

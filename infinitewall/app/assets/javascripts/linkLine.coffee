@@ -10,7 +10,7 @@ class window.LinkLine extends Movable
     @id = "linkLine_" + fromID + "_null"
     @element = $($("<div id='" + @id + "' class='linkLine'></div>").appendTo('#linkLayer'))
     @paper = Raphael(@id, '100%', '100%')
-    @from = sheets[fromID]
+    @from = stage.sheets[fromID]
     @x(@from.cx())
     @y(@from.cy())
 
@@ -41,12 +41,12 @@ class window.LinkLine extends Movable
       @xywh(bbox.x, bbox.y, bbox.width + 100, bbox.height + 100)
 
   followMouse: (x, y) =>
-    toX = x - (glob.scaleLayerX + wall.mL.x() * glob.zoomLevel) / glob.zoomLevel
-    toY = y - (glob.scaleLayerY + wall.mL.y() * glob.zoomLevel) / glob.zoomLevel
+    toX = x - (stage.scaleLayerX + wall.mL.x() * stage.zoom) / stage.zoom
+    toY = y - (stage.scaleLayerY + wall.mL.y() * stage.zoom) / stage.zoom
     @rotateLink(@from.cx(), @from.cy(), toX, toY)
    
   connect: (toID) =>
-    @to = sheets[toID]
+    @to = stage.sheets[toID]
     @rotateLink(@from.cx(), @from.cy(), @to.cx(), @to.cy())
 
     @id = "linkLine_" + @from.id + "_" + @to.id
@@ -58,7 +58,7 @@ class window.LinkLine extends Movable
     @rotateLink(@from.cx(), @from.cy(), @to.cx(), @to.cy())
 
   transitionRefresh: (id, x, y, w, h) ->
-    if sheets[id] is @from
+    if stage.sheets[id] is @from
       @rotateLink(x + (w / 2), y + (h / 2), @to.cx(), @to.cy(), true)
     else
       @rotateLink(@from.cx(), @from.cy(), x + (w / 2), y + (h / 2), true)

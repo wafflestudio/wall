@@ -1,3 +1,29 @@
+class MiniSheet extends Movable
+  constructor: (params) ->
+    @id = params.id
+    @element = $($('<div class = "miniSheet"></div>').appendTo('#miniMoveLayer'))
+    #@xywh(params.x, params.y, params.width, params.height)
+    @element.attr('id', 'map_sheet' + @id)
+    @element.on 'mousedown', @onMouseDown
+    
+  becomeActive: =>
+    @element.css 'background-color', 'crimson'
+
+  resignActive: =>
+    @element.css 'background-color', 'black'
+
+  becomeSelected: =>
+    @element.css 'background-color', '#96A6D6'
+
+  remove: ->
+    @element.remove()
+
+  onMouseDown: (e) =>
+    @becomeSelected()
+    sheet = stage.sheets[@id]
+    wall.toCenter(sheet, @resignActive)
+    return false
+
 class Miniworld extends Movable
   constructor: -> @element = $("#minimapWorld")
 
@@ -30,6 +56,8 @@ class window.Minimap extends Movable
     @element.on 'touchstart', @onTouchStart
     @minimapWidth = @w()
     @minimapHeight = @h()
+
+  createMiniSheet: (params) -> new MiniSheet(params)
   
   toggle: -> @element.fadeToggle()
 
@@ -50,10 +78,10 @@ class window.Minimap extends Movable
     mLy = info.mLy || wall.mL.y()
 
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
-    screenWidth = ($(window).width()) / glob.zoomLevel
-    screenHeight = ($(window).height()) / glob.zoomLevel
-    screenLeft = -(glob.scaleLayerX + mLx * glob.zoomLevel) / glob.zoomLevel
-    screenTop = -(glob.scaleLayerY + mLy * glob.zoomLevel) / glob.zoomLevel
+    screenWidth = ($(window).width()) / stage.zoom
+    screenHeight = ($(window).height()) / stage.zoom
+    screenLeft = -(stage.scaleLayerX + mLx * stage.zoom) / stage.zoom
+    screenTop = -(stage.scaleLayerY + mLy * stage.zoom) / stage.zoom
     screenRight = screenLeft + screenWidth
     screenBottom = screenTop + screenHeight
 
@@ -69,13 +97,13 @@ class window.Minimap extends Movable
       @worldBottom = sheetY + sheetH if sheetY + sheetH > @worldBottom
     
     if info.id? # socket에서 온 경우
-      for id, sheet of sheets
+      for id, sheet of stage.sheets
         if parseInt(id) is info.id
           updateWorld(info.x, info.y, info.w, info.h)
         else
           updateWorld(sheet.x(), sheet.y(), sheet.w(), sheet.h())
     else
-      for id, sheet of sheets
+      for id, sheet of stage.sheets
         updateWorld(sheet.x(), sheet.y(), sheet.w(), sheet.h())
 
     worldWidth = @worldRight - @worldLeft
@@ -106,18 +134,18 @@ class window.Minimap extends Movable
 
     updateMiniSheet = (id, x, y, w, h) =>
       if isTransition
-        miniSheets[id].txywh((x - @worldLeft) * @ratio, (y - @worldTop) * @ratio, w * @ratio, h * @ratio, duration)
+        stage.miniSheets[id].txywh((x - @worldLeft) * @ratio, (y - @worldTop) * @ratio, w * @ratio, h * @ratio, duration)
       else
-        miniSheets[id].xywh((x - @worldLeft) * @ratio, (y - @worldTop) * @ratio, w * @ratio, h * @ratio)
+        stage.miniSheets[id].xywh((x - @worldLeft) * @ratio, (y - @worldTop) * @ratio, w * @ratio, h * @ratio)
 
     if info.id? # socket에서 온 경우
-      for id, sheet of sheets
+      for id, sheet of stage.sheets
         if parseInt(id) is info.id
           updateMiniSheet(id, info.x, info.y, info.w, info.h)
         else
           updateMiniSheet(id, sheet.x(), sheet.y(), sheet.w(), sheet.h())
     else
-      for id, sheet of sheets
+      for id, sheet of stage.sheets
         updateMiniSheet(id, sheet.x(), sheet.y(), sheet.w(), sheet.h())
 
   bringToTop: (miniSheet) ->
@@ -140,8 +168,8 @@ class window.Minimap extends Movable
         else if tempY > @miniWorld.h() - (@miniScreen.h() - @relY) then (@miniWorld.h() - (@miniScreen.h() - @relY)) / @ratio
         else tempY / @ratio
 
-      newMoveLayerX = -((mouseX + @worldLeft - @relX / @ratio) * glob.zoomLevel + glob.scaleLayerX) / glob.zoomLevel
-      newMoveLayerY = -((mouseY + @worldTop - @relY / @ratio) * glob.zoomLevel + glob.scaleLayerY) / glob.zoomLevel
+      newMoveLayerX = -((mouseX + @worldLeft - @relX / @ratio) * stage.zoom + stage.scaleLayerX) / stage.zoom
+      newMoveLayerY = -((mouseY + @worldTop - @relY / @ratio) * stage.zoom + stage.scaleLayerY) / stage.zoom
 
     else
       mouseX =
@@ -154,8 +182,8 @@ class window.Minimap extends Movable
         else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
         else tempY / @ratio
 
-      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerX) / glob.zoomLevel
-      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerY) / glob.zoomLevel
+      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
+      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
 
     wall.mL.x(newMoveLayerX)
     wall.mL.y(newMoveLayerY)
@@ -189,8 +217,8 @@ class window.Minimap extends Movable
         else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
         else tempY / @ratio
 
-      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerX) / glob.zoomLevel
-      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerY) / glob.zoomLevel
+      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
+      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
 
       wall.mL.txy(newMoveLayerX, newMoveLayerY, 200)
 
@@ -227,8 +255,8 @@ class window.Minimap extends Movable
         else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
         else tempY / @ratio
 
-      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerX) / glob.zoomLevel
-      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * glob.zoomLevel + glob.scaleLayerY) / glob.zoomLevel
+      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
+      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
 
       wall.mL.txy(newMoveLayerX, newMoveLayerY, 200)
 

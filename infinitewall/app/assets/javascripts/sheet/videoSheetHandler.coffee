@@ -17,8 +17,8 @@ class window.VideoSheetHandler extends SheetHandler
     #ratio = @imgWidth / @imgHeight
 
     #if Math.abs(dX / dY) > ratio
-      #@sheet.iw((@startWidth + dX) / glob.zoomLevel)
-      #@sheet.ih((@startHeight + dX / ratio) / glob.zoomLevel)
+      #@sheet.iw((@startWidth + dX) / stage.zoom)
+      #@sheet.ih((@startHeight + dX / ratio) / stage.zoom)
     #else
-      #@sheet.iw((@startWidth + dY * ratio) / glob.zoomLevel)
-      #@sheet.ih((@startHeight + dY) / glob.zoomLevel)
+      #@sheet.iw((@startWidth + dY * ratio) / stage.zoom)
+      #@sheet.ih((@startHeight + dY) / stage.zoom)

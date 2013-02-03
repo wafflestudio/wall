@@ -30,6 +30,12 @@ object User extends ActiveRecord[User] {
 			}
 	}
 
+  def getPicturePath(userId: Long) = {
+    findById(userId).get.picturePath.getOrElse(getGravatarById(userId)).replaceFirst("public/", "/assets/")
+  }
+
+  def getGravatarById(userId: Long) = getGravatar(findById(userId).get.email)
+
   def getGravatar(email: String) = {
     val md5 = MessageDigest.getInstance("MD5")
     val hash = md5.digest(email.getBytes).map("%02x".format(_)).mkString

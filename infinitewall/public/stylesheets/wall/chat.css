@@ -11,7 +11,7 @@
 	border:1px dotted gray;
 }
 
-#chat-userlist {
+#chatUsers {
 	position:relative;
 	top:-80px;
 	height:80px;
@@ -21,14 +21,14 @@
   font-size:15px;
 }
 
-#log {
+#chatLog {
 	position:relative;
 	top : -80px;
 	height:100%;
 	overflow-y:auto;
 }
 
-#log p {
+#chatLog p {
 	font-family:Helvetica;
 }
 
@@ -46,7 +46,7 @@
 	border-top:1px dotted gray;
 }
 
-#talk {
+#chatInput {
 	position:absolute;
 	top:0px;
 	left:0px;
