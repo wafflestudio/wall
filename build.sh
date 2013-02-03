@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# build (optionally) play itself
 if [ $USER == "jenkins_slave" ]; then
 	export PATH="$HOME/bin":"$HOME/bin/scala/bin":"`pwd`/Play20":$PATH
 
@@ -10,10 +11,43 @@ if [ $USER == "jenkins_slave" ]; then
 fi
 
 cd infinitewall
+
+# compile
 play compile
+
+# run tests
 play test
 for jsfile in test/integration/phantomjs/*.js
 do
 	phantomjs $jsfile
 done
-exit 1
+
+# kill previous server process
+if [ -e RUNNING_PID ]; then
+	kill `cat RUNNING_PID`
+fi
+# DO it again in more general form for verification
+ps aux | grep play | awk '{ print $2 }' | xargs -I {} kill {}
+
+if [ -e infinitewall.h2.db ]; then
+	echo "H2 database already exists."
+else
+	echo "Creating symbolic links to H2 database"
+	if [ -n $INFINITEWALL_H2_PATH ]; then
+		ln -s $INFINITEWALL_H2_PATH/infinitewall.h2.db infinitewall.h2.db
+		ln -s $INFINITEWALL_H2_PATH/infinitewall.trace.db infinitewall.trace.db
+		ln -s $INFINITEWALL_H2_PATH/infinitewall.lock.db infinitewall.lock.db
+	fi
+fi
+
+
+# start the server
+play stage
+nohup target/start &
+
+# for more detailed configuration:
+#target/start -Dconfig.file=/full/path/to/conf/application-prod.conf
+
+# apply any possible evolution scripts
+curl -X GET localhost:9000/@evolutions/apply/default > /dev/null
+
