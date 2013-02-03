@@ -33,6 +33,11 @@ else
 	fi
 fi
 
+# use existing files
+if [ $USER == "jenkins_slave" ]; then
+	rm -rf public/files
+	ln -s /home/jenkins_slave/infinitewall/public/files public/files
+fi
 
 # run tests
 play test
