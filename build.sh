@@ -15,9 +15,6 @@ cd infinitewall
 # compile
 play compile
 
-# run tests
-play test
-
 # kill previous server process
 if [ -e RUNNING_PID ]; then
 	kill `cat RUNNING_PID`
@@ -36,6 +33,9 @@ else
 	fi
 fi
 
+
+# run tests
+play test
 
 # start the server
 play stage
