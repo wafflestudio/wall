@@ -39,7 +39,7 @@ fi
 
 # start the server
 play stage
-nohup target/start&
+BUILD_ID=0 nohup target/start -Dhttp.port=9000 > log.log 2>&1 &
 
 # for more detailed configuration:
 #target/start -Dconfig.file=/full/path/to/conf/application-prod.conf
