@@ -28,7 +28,7 @@ object Dropbox extends Controller {
 		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
 		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX);
 
-        val info = session.getAuthInfo("http://127.0.0.1:9000/dropbox/callback");
+        val info = session.getAuthInfo("http://182.162.143.140:9000/dropbox/callback");
 		val requestTokenPair = info.requestTokenPair
 
 		Redirect(info.url).withSession(request.session + ("request_key" -> requestTokenPair.key) +  ("request_secret" -> requestTokenPair.secret))
