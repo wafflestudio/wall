@@ -36,8 +36,8 @@ object Dropbox extends Controller {
 	
 	// get access_token and set access_token to session	
 	def callback() = Action { request =>
-		val uid: String = request.queryString("uid").first
-		val oauthToken: String = request.queryString("oauth_token").first
+		val uid: String = request.queryString("uid").head
+		val oauthToken: String = request.queryString("oauth_token").head
 
 		val conf = ConfigFactory.load()
 		val dropboxAppKey = conf.getString("dropbox.app_key")
@@ -95,7 +95,7 @@ object Dropbox extends Controller {
 		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
         val dropboxApi = new DropboxAPI(session)
 
-		var path: String = request.queryString("path").first
+		var path: String = request.queryString("path").head
 
 		val entry = dropboxApi.metadata(path, 100, null, true, null)
 		//https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
