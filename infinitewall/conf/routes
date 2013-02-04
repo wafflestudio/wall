@@ -52,6 +52,8 @@ GET		/dropbox/authorize						controllers.Dropbox.authorize
 GET		/dropbox/callback						controllers.Dropbox.callback
 GET		/dropbox/account/info					controllers.Dropbox.account
 GET		/dropbox/metadata						controllers.Dropbox.metadata
+GET		/dropbox/shares							controllers.Dropbox.shares
+GET		/dropbox/media							controllers.Dropbox.media
 GET		/dropbox/files							controllers.Dropbox.downloadFiles
 POST	/dropbox/files							controllers.Dropbox.uploadFiles
 

@@ -135,6 +135,60 @@ object Dropbox extends Controller {
 		Ok(entryElement)
 	}
 
+	def shares() = Action { request =>
+		val conf = ConfigFactory.load()
+		val dropboxAppKey = conf.getString("dropbox.app_key")
+		val dropboxAppSecret = conf.getString("dropbox.app_secret")
+		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+
+		val accessKey: String = request.session.get("access_key").getOrElse("")
+		val accessSecret: String = request.session.get("access_secret").getOrElse("")
+		val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+
+		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
+        val dropboxApi = new DropboxAPI(session)
+
+		var path: String = request.queryString("path").first
+
+		val link = dropboxApi.share(path)
+		//https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
+
+		var json: JsObject = JsObject(Seq(
+			"path" -> JsString(path),
+			"size" -> JsString(link.url),
+			"expires" -> JsString(link.expires.toString)
+		))
+
+		Ok(json)
+	}
+
+	def media() = Action { request =>
+		val conf = ConfigFactory.load()
+		val dropboxAppKey = conf.getString("dropbox.app_key")
+		val dropboxAppSecret = conf.getString("dropbox.app_secret")
+		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+
+		val accessKey: String = request.session.get("access_key").getOrElse("")
+		val accessSecret: String = request.session.get("access_secret").getOrElse("")
+		val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+
+		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
+        val dropboxApi = new DropboxAPI(session)
+
+		var path: String = request.queryString("path").first
+
+		val link = dropboxApi.media(path, false)
+		//https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
+
+		var json: JsObject = JsObject(Seq(
+			"path" -> JsString(path),
+			"size" -> JsString(link.url),
+			"expires" -> JsString(link.expires.toString)
+		))
+
+		Ok(json)
+	}
+
 	// /files (GET)
 	def downloadFiles() = Action { request =>
 		val conf = ConfigFactory.load()
