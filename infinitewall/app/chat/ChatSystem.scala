@@ -17,6 +17,7 @@ import models.User
 import models.ChatLog
 import models.ChatRoom
 import java.sql.Timestamp
+import collection.mutable.HashMap
 
 case class Join(userId: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
@@ -134,29 +135,47 @@ class ChatRoomActor(roomId: Long) extends Actor {
     val user = User.findById(userId)
     val username = user.get.email
     val nickname = user.get.nickname
-		/*val users = ChatRoom.listUsers(roomId)*/
 
-		val msg = JsObject(
-			Seq(
-				"kind" -> JsString(kind),
-				"username" -> JsString(username),
-        "nickname" -> JsString(nickname),
-				"message" -> JsString(message),
-				"users" -> JsArray(
-					connections.map(i => { 
-            val user = User.findById(i._1)
-            JsObject(Seq(
-                "email" -> JsString(user.get.email),
-                "nickname" -> JsString(user.get.nickname),
-                "picture" -> JsString(user.get.picturePath.getOrElse(""))
-                ))}))))
+    val msg = kind match {
+      case "talk" => 
+        JsObject(Seq(
+          "kind" -> JsString(kind),
+          "username" -> JsString(username),
+          "message" -> JsString(message)))
+
+      case "join" =>
+        JsObject( Seq(
+          "kind" -> JsString(kind),
+          "username" -> JsString(username),
+          "nickname" -> JsString(nickname),
+          "picture" -> JsString(user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/")),
+          "users" -> JsArray(
+            connections.map(i => { 
+              val user = User.findById(i._1)
+              JsObject(Seq(
+                  "email" -> JsString(user.get.email),
+                  "nickname" -> JsString(user.get.nickname),
+                  "picture" -> JsString(user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/"))
+                  ))}))))
+
+      case "quit" => 
+        JsObject( Seq(
+          "kind" -> JsString(kind),
+          "username" -> JsString(username),
+          "users" -> JsArray(
+            connections.map(i => { 
+              val user = User.findById(i._1)
+              JsObject(Seq(
+                  "email" -> JsString(user.get.email),
+                  "nickname" -> JsString(user.get.nickname),
+                  "picture" -> JsString(user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/"))
+                  ))}))))
+    }
 
 		logMessage(kind, userId, message)
 
 		connections.foreach {
 			case (_, producer) => producer.push(msg)
 		}
-
 	}
-
 }

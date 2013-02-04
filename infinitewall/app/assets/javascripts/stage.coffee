@@ -22,7 +22,7 @@ class window.Stage
       when @contentTypeEnum.image then new ImageSheet($.extend(params, {id : id}))
 
   createSheetLink: (params, timestamp) ->
-    sheets[params.from_id].setLink(params)
+    @sheets[params.from_id].setLink(params)
 
   constructor: (wallId, timestamp, wallSocketURL, chatURL) ->
     window.wall = new Wall()
@@ -30,7 +30,7 @@ class window.Stage
     window.menu = new Menu()
     window.statusbar = new Statusbar()
     window.wallSocket = new WallSocket(wallSocketURL, timestamp)
-    window.chatSocket = new ChatSocket(chatURL)
+    window.chat = new Chat(chatURL)
     @wallId = wallId
 
     $(document).bind "contextmenu", -> return false
