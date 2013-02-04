@@ -8,14 +8,14 @@ clipboard = {
 #handlers
 copyHandler = (wall) ->
   onKeyDown = (e) ->
-    element = glob.currentSheet
+    element = stage.currentSheet
     if (($.client.os == "Mac" && e.which == 67 && e.metaKey) || ($.client.os != "Mac" && e.which == 67 && e.ctrlKey))
       $(element).trigger('copy')
     else if (($.client.os == "Mac" && e.which == 88 && e.metaKey) || ($.client.os != "Mac" && e.which == 88 && e.ctrlKey))
       $(element).trigger('cut')
 
   onCutAndCopy = (e) ->
-    element = glob.currentSheet
+    element = stage.currentSheet
     console.log('on copy/cut')
     if ($("*:focus").is(".sheetTitle") || $("*:focus").is(".sheetTextField"))
       return

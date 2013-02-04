@@ -23,10 +23,10 @@ class window.Menu
           console.log "videovideo"
 
     @deleteSheet.click =>
-      glob.activeSheet.socketRemove() if glob.activeSheet
+      stage.activeSheet.socketRemove() if stage.activeSheet
       @deactivateDelete()
 
-    @tellButton.click -> glob.activeSheet.glow()
+    @tellButton.click -> stage.activeSheet.glow()
 
     @newSheet.click => @newSheetContainer.slideToggle(300)
     @minimap.click -> minimap.toggle()

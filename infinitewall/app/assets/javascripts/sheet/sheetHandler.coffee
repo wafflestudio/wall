@@ -21,13 +21,13 @@ class window.SheetHandler
   
   onTouchStart: (e) =>
     wall.bringToTop(@sheet)
-    minimap.bringToTop(miniSheets[@sheet.id])
+    minimap.bringToTop(stage.miniSheets[@sheet.id])
 
     @myTouch = e.originalEvent.touches.length - 1
     
     @hasMoved = false
-    @startx = @sheet.x() * glob.zoomLevel
-    @starty = @sheet.y() * glob.zoomLevel
+    @startx = @sheet.x() * stage.zoom
+    @starty = @sheet.y() * stage.zoom
     @deltax = e.originalEvent.touches[@myTouch].pageX
     @deltay = e.originalEvent.touches[@myTouch].pageY
     $(document).on 'touchmove', @onTouchMove
@@ -35,8 +35,8 @@ class window.SheetHandler
     e.stopPropagation()
 
   onTouchMove: (e) =>
-    @sheet.x((@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / glob.zoomLevel)
-    @sheet.y((@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / glob.zoomLevel)
+    @sheet.x((@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom)
+    @sheet.y((@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom)
     @hasMoved = true
     for id, link of @sheet.links
       link.refresh()
@@ -62,18 +62,18 @@ class window.SheetHandler
       @onTouchEnd.lastTouch = @onTouchEnd.lastTouch || 0
 
       if t - @onTouchEnd.lastTouch < 300
-        if glob.activeSheet
-          if glob.activeSheet isnt @sheet
-            glob.activeSheet.resignActive()
+        if stage.activeSheet
+          if stage.activeSheet isnt @sheet
+            stage.activeSheet.resignActive()
             @sheet.becomeActive()
 
         wall.toCenter(@sheet)
         @onTouchEnd.lastTouch = 0
 
       else
-        if glob.activeSheet
-          if glob.activeSheet isnt @sheet
-            glob.activeSheet.resignActive()
+        if stage.activeSheet
+          if stage.activeSheet isnt @sheet
+            stage.activeSheet.resignActive()
             @sheet.becomeActive()
         else
           @sheet.becomeActive()
@@ -85,57 +85,57 @@ class window.SheetHandler
   onRightMouseMove: (e) =>
     @sheet.becomeSelected() if not @onRightMouseMove.mouseMoved
     @onRightMouseMove.mouseMoved = true
-    @sheet.currentLink.followMouse(e.pageX / glob.zoomLevel, e.pageY / glob.zoomLevel)
+    @sheet.currentLink.followMouse(e.pageX / stage.zoom, e.pageY / stage.zoom)
 
     offset = 10
 
     if e.pageY > $(window).height() - 70
-      moveFunc = => wall.mL.y(wall.mL.y() - offset / glob.zoomLevel)
+      moveFunc = => wall.mL.y(wall.mL.y() - offset / stage.zoom)
     else if e.pageY < 70
-      moveFunc = => wall.mL.y(wall.mL.y() + offset / glob.zoomLevel)
+      moveFunc = => wall.mL.y(wall.mL.y() + offset / stage.zoom)
     else if e.pageX > $(window).width() - 70
-      moveFunc = => wall.mL.x(wall.mL.x() - offset / glob.zoomLevel)
+      moveFunc = => wall.mL.x(wall.mL.x() - offset / stage.zoom)
     else if e.pageX < 140
-      moveFunc = => wall.mL.x(wall.mL.x() + offset / glob.zoomLevel)
+      moveFunc = => wall.mL.x(wall.mL.x() + offset / stage.zoom)
     else
-      clearInterval(glob.moveID)
-      glob.moveID = null
+      clearInterval(stage.moveID)
+      stage.moveID = null
       return
 
     timedMove = =>
       moveFunc()
-      #glob.linkFromSheet.currentLink.followMouse(e.pageX / glob.zoomLevel, e.pageY / glob.zoomLevel)
+      #stage.linkFromSheet.currentLink.followMouse(e.pageX / stage.zoom, e.pageY / stage.zoom)
       minimap.refresh()
     
-    glob.moveID = setInterval(timedMove, 30) unless glob.moveID?
+    stage.moveID = setInterval(timedMove, 30) unless stage.moveID?
 
     #console.log e
 
   onRightMouseUp: (e) =>
     $(document).off 'mousemove', @onRightMouseMove
     $(document).off 'mouseup', @onRightMouseUp
-    clearInterval(glob.moveID)
-    glob.moveID = null
-    glob.rightClick = false
+    clearInterval(stage.moveID)
+    stage.moveID = null
+    stage.rightClick = false
     @sheet.resignSelected()
     
-    if glob.hoverSheet
-      if @sheet.links[glob.hoverSheet]?
-        @sheet.socketRemoveLink(glob.hoverSheet)
-      else if @sheet.id != glob.hoverSheet
-        @sheet.socketSetLink(glob.hoverSheet)
+    if stage.hoverSheet
+      if @sheet.links[stage.hoverSheet]?
+        @sheet.socketRemoveLink(stage.hoverSheet)
+      else if @sheet.id != stage.hoverSheet
+        @sheet.socketSetLink(stage.hoverSheet)
       @sheet.currentLink.remove()
-      sheets[glob.hoverSheet].resignSelected()
+      stage.sheets[stage.hoverSheet].resignSelected()
     else
       @sheet.currentLink.remove()
     @sheet.currentLink = null
 
   onMouseMove: (e) =>
-    if glob.activeSheet is @sheet and @sheet.contentType is contentTypeEnum.text
+    if stage.activeSheet is @sheet and @sheet.contentType is contentTypeEnum.text
       return false
     else
-      @sheet.x((@startx + e.pageX - @deltax) / glob.zoomLevel)
-      @sheet.y((@starty + e.pageY - @deltay) / glob.zoomLevel)
+      @sheet.x((@startx + e.pageX - @deltax) / stage.zoom)
+      @sheet.y((@starty + e.pageY - @deltay) / stage.zoom)
       @hasMoved = true
       minimap.refresh()
 
@@ -143,20 +143,20 @@ class window.SheetHandler
         link.refresh()
    
   onMouseUp: (e) =>
-    glob.leftClick = false
+    stage.leftClick = false
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
 
     if @hasMoved
       @sheet.socketMove {
-        x: (@startx + e.pageX - @deltax) / glob.zoomLevel
-        y: (@starty + e.pageY - @deltay) / glob.zoomLevel
+        x: (@startx + e.pageX - @deltax) / stage.zoom
+        y: (@starty + e.pageY - @deltay) / stage.zoom
       }
       @sheet.element.find('.sheetTextField').blur()
       @sheet.element.find('.sheetTitle').blur()
     else
-      if glob.activeSheet and glob.activeSheet isnt @sheet
-        glob.activeSheet.resignActive()
+      if stage.activeSheet and stage.activeSheet isnt @sheet
+        stage.activeSheet.resignActive()
 
       @sheet.becomeActive()
       wall.revealSheet()
@@ -165,13 +165,13 @@ class window.SheetHandler
 
   onMouseDown: (e) =>
     if e.which is 1 # left click
-      glob.leftClick = true
+      stage.leftClick = true
       @hasMoved = false
       wall.bringToTop(@sheet)
-      minimap.bringToTop(miniSheets[@sheet.id])
+      minimap.bringToTop(stage.miniSheets[@sheet.id])
 
-      @startx = @sheet.x() * glob.zoomLevel
-      @starty = @sheet.y() * glob.zoomLevel
+      @startx = @sheet.x() * stage.zoom
+      @starty = @sheet.y() * stage.zoom
 
       @deltax = e.pageX
       @deltay = e.pageY
@@ -180,8 +180,8 @@ class window.SheetHandler
       $(document).on 'mouseup', @onMouseUp
 
     else if e.which is 3 # right click
-      glob.rightClick = true
-      glob.linkFromSheet = @sheet
+      stage.rightClick = true
+      stage.linkFromSheet = @sheet
       @sheet.currentLink = new LinkLine(@sheet.id)
       @onRightMouseMove.mouseMoved = false
       $(document).on 'mousemove', @onRightMouseMove
@@ -191,8 +191,8 @@ class window.SheetHandler
     e.stopPropagation()
 
   onMouseDblClick: (e) =>
-    if glob.activeSheet and glob.activeSheet isnt @sheet
-      glob.activeSheet.resignActive()
+    if stage.activeSheet and stage.activeSheet isnt @sheet
+      stage.activeSheet.resignActive()
 
     @sheet.becomeActive()
     wall.toCenter(@sheet) unless wall.mL.isTransitioning()
@@ -201,8 +201,8 @@ class window.SheetHandler
     $(document).on 'touchmove', @onResizeTouchMove
     $(document).on 'touchend', @onResizeTouchEnd
     console.log "resizetouchstart"
-    @startWidth = @sheet.iw() * glob.zoomLevel
-    @startHeight = @sheet.ih() * glob.zoomLevel
+    @startWidth = @sheet.iw() * stage.zoom
+    @startHeight = @sheet.ih() * stage.zoom
     @deltax = e.originalEvent.pageX
     @deltay = e.originalEvent.pageY
     return false
@@ -220,8 +220,8 @@ class window.SheetHandler
   onResizeMouseDown: (e) =>
     $(document).on 'mousemove', @onResizeMouseMove
     $(document).on 'mouseup', @onResizeMouseUp
-    @startWidth = @sheet.iw() * glob.zoomLevel
-    @startHeight = @sheet.ih() * glob.zoomLevel
+    @startWidth = @sheet.iw() * stage.zoom
+    @startHeight = @sheet.ih() * stage.zoom
     @deltax = e.pageX
     @deltay = e.pageY
     return false
@@ -241,11 +241,11 @@ class window.SheetHandler
     minimap.refresh()
 
   onMouseEnter: (e) =>
-    if glob.rightClick
-      glob.hoverSheet = @sheet.id
+    if stage.rightClick
+      stage.hoverSheet = @sheet.id
       @sheet.becomeSelected()
 
   onMouseLeave: (e) =>
-    glob.hoverSheet = null
+    stage.hoverSheet = null
     if not @sheet.currentLink
       @sheet.resignSelected()

@@ -4,7 +4,8 @@
 
 update User set nickname = 'infiniteWall' where email = 'wall@wall.com';
 update User set nickname = '' where nickname is null;
-alter table User alter column nickname varchar(255) default '' NOT NULL;
+alter table User alter column  nickname varchar(255) default '' NOT NULL;
+
 
 
 # --- !Downs

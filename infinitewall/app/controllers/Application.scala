@@ -35,7 +35,7 @@ trait Auth {
 	}
 
   def currentUserPicturePath(implicit request: Request[AnyContent]) = {
-    User.findById(currentUserId).get.picturePath.getOrElse(User.getGravatar(currentUser)).replaceFirst("public/","/assets/")
+    User.getPicturePath(currentUserId)
   }
 
 	def AuthenticatedAction(f: Request[AnyContent] => Result): Action[AnyContent] = 

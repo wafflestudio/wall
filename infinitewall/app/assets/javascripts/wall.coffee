@@ -10,19 +10,19 @@ class ScaleLayer extends Movable
     }
 
   setZoomText: (percentage) ->
-    $('#zoomLevelText').text ("#{percentage}%")
+    $('#zoomText').text ("#{percentage}%")
 
   setZoom: (isTransition = false, callback) ->
     if isTransition
       $("#zoomBar").width(@element.css("scale") * 100)
-      $("#zoomBar").animate {width: glob.zoomLevel * 100}, {step: (now) => @setZoomText(Math.round(now))}
+      $("#zoomBar").animate {width: stage.zoom * 100}, {step: (now) => @setZoomText(Math.round(now))}
       # transform3d의 scale값을 매번 가져올 수 없기때문에 쓰는 꼼수..
       # jquery.transit에서 step function을 받는 패치가 나오면 고쳐도 될듯
 
-      @element.transition {scale: glob.zoomLevel}, callback
+      @element.transition {scale: stage.zoom}, callback
     else
-      @element.css {scale: glob.zoomLevel}
-      @setZoomText(parseInt(glob.zoomLevel * 100))
+      @element.css {scale: stage.zoom}
+      @setZoomText(parseInt(stage.zoom * 100))
 
   set: (tx, ty, x, y, isTransition = false, callback) ->
     @setPoint(tx, ty, x, y)
@@ -61,11 +61,11 @@ class window.Wall
 
     @saveTimeout = setTimeout(
       () =>
-        x = (glob.scaleLayerX + @mL.x() * glob.zoomLevel) / glob.zoomLevel
-        y = (glob.scaleLayerY + @mL.y() * glob.zoomLevel) / glob.zoomLevel
-        zoom = glob.zoomLevel
+        x = (stage.scaleLayerX + @mL.x() * stage.zoom) / stage.zoom
+        y = (stage.scaleLayerY + @mL.y() * stage.zoom) / stage.zoom
+        zoom = stage.zoom
         console.log("x: #{x}, y: #{y}, zoom: #{zoom}")
-        $.post("/wall/view/#{glob.wallId}", {x:x, y:y, zoom:zoom})
+        $.post("/wall/view/#{stage.wallId}", {x:x, y:y, zoom:zoom})
     ,1000)
   
   dock: (sheet) ->
@@ -76,9 +76,13 @@ class window.Wall
 
   bringToTop: (sheet) ->
     #$("#sheetLayer").append sheet.element
-
-  setName: (name) ->
-    $('#currentWallName').text(name)
+  
+  loadPref: (zoom, panX, panY) ->
+    stage.zoom = zoom
+    wall.sL.setZoom()
+    wall.mL.x(panX)
+    wall.mL.y(panY)
+    minimap.refresh()
 
   constructor: ->
     @wall = $('#wall')
@@ -94,8 +98,8 @@ class window.Wall
   
   onTouchStart: (e) =>
     len = e.originalEvent.touches.length
-    @startx = @mL.x() * glob.zoomLevel
-    @starty = @mL.y() * glob.zoomLevel
+    @startx = @mL.x() * stage.zoom
+    @starty = @mL.y() * stage.zoom
     
     if len is 1
       @hasMoved = false
@@ -112,7 +116,7 @@ class window.Wall
       xlen = e.originalEvent.touches[0].pageX - e.originalEvent.touches[1].pageX
       ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY
       @startlen = Math.sqrt(xlen * xlen + ylen * ylen)
-      @startzoom = glob.zoomLevel
+      @startzoom = stage.zoom
 
     $(document).on 'touchmove', @onTouchMove
     $(document).on 'touchend', @onTouchEnd
@@ -122,8 +126,8 @@ class window.Wall
     @hasMoved = true
     
     if e.originalEvent.touches.length is 1
-      @mL.x((@startx + e.originalEvent.pageX - @deltax) / glob.zoomLevel)
-      @mL.y((@starty + e.originalEvent.pageY - @deltay) / glob.zoomLevel)
+      @mL.x((@startx + e.originalEvent.pageX - @deltax) / stage.zoom)
+      @mL.y((@starty + e.originalEvent.pageY - @deltay) / stage.zoom)
     else # 터치가 2개 이상, pinch-to-zoom / 중점 기준으로 움직이게
       x = e.originalEvent.pageX
       y = e.originalEvent.pageY
@@ -137,25 +141,25 @@ class window.Wall
       
       #xWall, yWall은 wall의 (0,0)을 origin으로 본 마우스 커서 위치
 
-      @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
-      @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
+      @xScaleLayer += (xWall - @xWallLast) / stage.zoom
+      @yScaleLayer += (yWall - @yWallLast) / stage.zoom
       
       #xWall - xWallLast는 저번과 현재의 마우스 좌표 차이 
       #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
      
-      glob.zoomLevel = @startzoom * Math.sqrt(xlen * xlen + ylen * ylen) / @startlen
-      glob.zoomLevel = if glob.zoomLevel < 0.2 then 0.2 else (if glob.zoomLevel > 1 then 1 else glob.zoomLevel)
+      stage.zoom = @startzoom * Math.sqrt(xlen * xlen + ylen * ylen) / @startlen
+      stage.zoom = if stage.zoom < 0.2 then 0.2 else (if stage.zoom > 1 then 1 else stage.zoom)
           
-      xNew = (xWall - @xScaleLayer) / glob.zoomLevel
-      yNew = (yWall - @yScaleLayer) / glob.zoomLevel
+      xNew = (xWall - @xScaleLayer) / stage.zoom
+      yNew = (yWall - @yScaleLayer) / stage.zoom
 
       #xNew, yNew는 wall기준 mouse위치와 scaleLayer기준 mouseLayer 의 차..
       
       @xWallLast = xWall
       @yWallLast = yWall
 
-      glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
-      glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
+      stage.scaleLayerX = xWall - @xScaleLayer * stage.zoom
+      stage.scaleLayerY = yWall - @yScaleLayer * stage.zoom
 
       #scaleLayer의 좌표를 wall의 기준으로 저장
       @sL.set(@xScaleLayer, @yScaleLayer, xNew, yNew)
@@ -165,8 +169,8 @@ class window.Wall
     $(document).off 'touchmove', @onTouchMove
     $(document).off 'touchend', @onTouchEnd
     
-    if glob.activeSheet and not @hasMoved
-      glob.activeSheet.resignActive()
+    if stage.activeSheet and not @hasMoved
+      stage.activeSheet.resignActive()
 
     minimap.refresh()
     
@@ -176,19 +180,19 @@ class window.Wall
     @onTouchEnd.lastTouch = @onTouchEnd.lastTouch || 0
 
     if t - @onTouchEnd.lastTouch < 300
-      @xScaleLayer += (@onTouchEnd.xWall - @xWallLast) / glob.zoomLevel
-      @yScaleLayer += (@onTouchEnd.yWall - @yWallLast) / glob.zoomLevel
-      glob.zoomLevel = if glob.zoomLevel is 1 then 0.2 else 1
+      @xScaleLayer += (@onTouchEnd.xWall - @xWallLast) / stage.zoom
+      @yScaleLayer += (@onTouchEnd.yWall - @yWallLast) / stage.zoom
+      stage.zoom = if stage.zoom is 1 then 0.2 else 1
      
-      if glob.zoomLevel is 1
-        xNew = (@onTouchEnd.xWall - @xScaleLayer) / glob.zoomLevel
-        yNew = (@onTouchEnd.yWall - @yScaleLayer) / glob.zoomLevel
+      if stage.zoom is 1
+        xNew = (@onTouchEnd.xWall - @xScaleLayer) / stage.zoom
+        yNew = (@onTouchEnd.yWall - @yScaleLayer) / stage.zoom
       
       @xWallLast = @onTouchEnd.xWall
       @yWallLast = @onTouchEnd.yWall
 
-      glob.scaleLayerX = @onTouchEnd.xWall - @xScaleLayer * glob.zoomLevel
-      glob.scaleLayerY = @onTouchEnd.yWall - @yScaleLayer * glob.zoomLevel
+      stage.scaleLayerX = @onTouchEnd.xWall - @xScaleLayer * stage.zoom
+      stage.scaleLayerY = @onTouchEnd.yWall - @yScaleLayer * stage.zoom
 
       @sL.set(@onTouchEnd.xWall, @onTouchEnd.yWall, xNew, yNew, true)
       minimap.refresh {isTransition: true}
@@ -200,25 +204,25 @@ class window.Wall
     @save()
 
   onMouseMove: (e) =>
-    @mL.x((@startx + e.pageX - @deltax) / glob.zoomLevel)
-    @mL.y((@starty + e.pageY - @deltay) / glob.zoomLevel)
+    @mL.x((@startx + e.pageX - @deltax) / stage.zoom)
+    @mL.y((@starty + e.pageY - @deltay) / stage.zoom)
     @hasMoved = true
     minimap.refresh()
 
   onMouseUp: =>
-    glob.leftClick = false
+    stage.leftClick = false
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
     @save()
 
-    if glob.activeSheet and not @hasMoved
-      glob.activeSheet.resignActive()
+    if stage.activeSheet and not @hasMoved
+      stage.activeSheet.resignActive()
   
   onMouseDown: (e) =>
-    glob.leftClick = true
+    stage.leftClick = true
     @hasMoved = false
-    @startx = @mL.x() * glob.zoomLevel
-    @starty = @mL.y() * glob.zoomLevel
+    @startx = @mL.x() * stage.zoom
+    @starty = @mL.y() * stage.zoom
     @deltax = e.pageX
     @deltay = e.pageY
 
@@ -227,33 +231,33 @@ class window.Wall
     e.preventDefault()
     
   onMouseWheel: (e, delta, deltaX, deltaY) =>
-    return if glob.leftClick
+    return if stage.leftClick
     xWall = e.pageX - @wall.offset().left
     yWall = e.pageY - @wall.offset().top
 
     #xWall, yWall은 wall의 (0,0)을 origin으로 본 마우스 커서 위치
 
-    @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
-    @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
+    @xScaleLayer += (xWall - @xWallLast) / stage.zoom
+    @yScaleLayer += (yWall - @yWallLast) / stage.zoom
     
     #xWall - xWallLast는 저번과 현재의 마우스 좌표 차이 
     #xScaleLayer, yScaleLayer는 scaleLayer의 (0,0)을 origin 으로 본 마우스의 좌표이며, 이는 transformOrigin의 좌표가 됨
     
     delta /= 2.5
     tempDelta = if Math.abs(delta) < 0.15 then delta else (delta / Math.abs(delta)) * 0.15
-    glob.zoomLevel += tempDelta
-    glob.zoomLevel = if glob.zoomLevel < 0.2 then 0.2 else (if glob.zoomLevel > 1 then 1 else Math.round(glob.zoomLevel * 100) / 100)
+    stage.zoom += tempDelta
+    stage.zoom = if stage.zoom < 0.2 then 0.2 else (if stage.zoom > 1 then 1 else Math.round(stage.zoom * 100) / 100)
         
-    xNew = (xWall - @xScaleLayer) / glob.zoomLevel
-    yNew = (yWall - @yScaleLayer) / glob.zoomLevel
+    xNew = (xWall - @xScaleLayer) / stage.zoom
+    yNew = (yWall - @yScaleLayer) / stage.zoom
     
     #xNew, yNew는 wall기준 mouse위치와 scaleLayer기준 mouseLayer 의 차..
     
     @xWallLast = xWall
     @yWallLast = yWall
 
-    glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
-    glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
+    stage.scaleLayerX = xWall - @xScaleLayer * stage.zoom
+    stage.scaleLayerY = yWall - @yScaleLayer * stage.zoom
 
     #scaleLayer의 좌표를 wall의 기준으로 저장
 
@@ -269,20 +273,20 @@ class window.Wall
     xWall = e.pageX - @wall.offset().left
     yWall = e.pageY - @wall.offset().top
 
-    @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
-    @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
+    @xScaleLayer += (xWall - @xWallLast) / stage.zoom
+    @yScaleLayer += (yWall - @yWallLast) / stage.zoom
     
-    glob.zoomLevel = if glob.zoomLevel is 1 then 0.2 else 1
+    stage.zoom = if stage.zoom is 1 then 0.2 else 1
    
-    if glob.zoomLevel is 1
-      xNew = (xWall - @xScaleLayer) / glob.zoomLevel
-      yNew = (yWall - @yScaleLayer) / glob.zoomLevel
+    if stage.zoom is 1
+      xNew = (xWall - @xScaleLayer) / stage.zoom
+      yNew = (yWall - @yScaleLayer) / stage.zoom
      
     @xWallLast = xWall
     @yWallLast = yWall
 
-    glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
-    glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
+    stage.scaleLayerX = xWall - @xScaleLayer * stage.zoom
+    stage.scaleLayerY = yWall - @yScaleLayer * stage.zoom
     
     @sL.set(xWall, yWall, xNew, yNew, true)
     minimap.refresh {isTransition: true}
@@ -293,12 +297,12 @@ class window.Wall
   revealSheet: ->
 
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
-    screenWidth = ($(window).width() - 70) / glob.zoomLevel
-    screenHeight = ($(window).height()) / glob.zoomLevel
-    screenTop = -(glob.scaleLayerY + @mL.y() * glob.zoomLevel) / glob.zoomLevel
-    screenLeft = -(glob.scaleLayerX - 70 + @mL.x() * glob.zoomLevel) / glob.zoomLevel
+    screenWidth = ($(window).width() - 70) / stage.zoom
+    screenHeight = ($(window).height()) / stage.zoom
+    screenTop = -(stage.scaleLayerY + @mL.y() * stage.zoom) / stage.zoom
+    screenLeft = -(stage.scaleLayerX - 70 + @mL.x() * stage.zoom) / stage.zoom
 
-    sheet = glob.activeSheet
+    sheet = stage.activeSheet
     sheetWidth = sheet.w()
     sheetHeight = sheet.h()
     sheetX = sheet.x()
@@ -333,12 +337,12 @@ class window.Wall
     screenW = $(window).width() - 70
     screenH = $(window).height()
 
-    if glob.zoomLevel is 1
+    if stage.zoom is 1
       mLX = @mL.x()
       mLY = @mL.y()
       
-      screenT = -(glob.scaleLayerY + mLY * glob.zoomLevel) / glob.zoomLevel
-      screenL = -(glob.scaleLayerX + mLX * glob.zoomLevel) / glob.zoomLevel
+      screenT = -(stage.scaleLayerY + mLY * stage.zoom) / stage.zoom
+      screenL = -(stage.scaleLayerX + mLX * stage.zoom) / stage.zoom
       
       translateX = screenL + (screenW - sheet.w()) / 2
       translateY = screenT + (screenH - sheet.h()) / 2
@@ -355,24 +359,24 @@ class window.Wall
       }
 
     else
-      sheetX = (glob.scaleLayerX + (@mL.x() + sheet.x()) * glob.zoomLevel)
-      sheetY = (glob.scaleLayerY + (@mL.y() + sheet.y()) * glob.zoomLevel)
+      sheetX = (stage.scaleLayerX + (@mL.x() + sheet.x()) * stage.zoom)
+      sheetY = (stage.scaleLayerY + (@mL.y() + sheet.y()) * stage.zoom)
 
-      xWall = (sheetX - (screenW - sheet.w()) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
-      yWall = (sheetY - (screenH - sheet.h()) * (glob.zoomLevel / 2)) / (1 - glob.zoomLevel)
+      xWall = (sheetX - (screenW - sheet.w()) * (stage.zoom / 2)) / (1 - stage.zoom)
+      yWall = (sheetY - (screenH - sheet.h()) * (stage.zoom / 2)) / (1 - stage.zoom)
 
-      @xScaleLayer += (xWall - @xWallLast) / glob.zoomLevel
-      @yScaleLayer += (yWall - @yWallLast) / glob.zoomLevel
+      @xScaleLayer += (xWall - @xWallLast) / stage.zoom
+      @yScaleLayer += (yWall - @yWallLast) / stage.zoom
       
-      glob.zoomLevel = 1
-      xNew = (xWall - @xScaleLayer) / glob.zoomLevel
-      yNew = (yWall - @yScaleLayer) / glob.zoomLevel
+      stage.zoom = 1
+      xNew = (xWall - @xScaleLayer) / stage.zoom
+      yNew = (yWall - @yScaleLayer) / stage.zoom
       
       @xWallLast = xWall
       @yWallLast = yWall
 
-      glob.scaleLayerX = xWall - @xScaleLayer * glob.zoomLevel
-      glob.scaleLayerY = yWall - @yScaleLayer * glob.zoomLevel
+      stage.scaleLayerX = xWall - @xScaleLayer * stage.zoom
+      stage.scaleLayerY = yWall - @yScaleLayer * stage.zoom
 
       @sL.set(xWall, yWall, xNew, yNew, true, callback)
       minimap.refresh {isTransition: true}

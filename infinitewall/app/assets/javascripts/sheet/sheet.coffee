@@ -32,8 +32,8 @@ class window.Sheet extends Movable
     .html(params.title)
     @attachHandler()
     
-    window.miniSheets[@id] = new MiniSheet(params)
-    window.sheets[params.id] = this
+    stage.miniSheets[@id] = minimap.createMiniSheet(params)
+    stage.sheets[params.id] = this
     minimap.refresh()
 
   type: ->
@@ -60,7 +60,7 @@ class window.Sheet extends Movable
   attachHandler: ->
 
   move: (params) ->
-    if this is glob.activeSheet # 내가 이 시트를 보고있는데 누가 이걸 움직인다면
+    if this is stage.activeSheet # 내가 이 시트를 보고있는데 누가 이걸 움직인다면
       newX = wall.mL.x() + @x() - params.x
       newY = wall.mL.y() + @y() - params.y
       wall.mL.txy(newX, newY)
@@ -97,10 +97,10 @@ class window.Sheet extends Movable
 
     @element.transition {opacity: 0, scale : 1.25}, =>
       @element.remove()
-      miniSheets[@id].remove()
-      glob.activeSheet = null
-      delete sheets[@id]
-      delete miniSheets[@id]
+      stage.miniSheets[@id].remove()
+      stage.activeSheet = null
+      delete stage.sheets[@id]
+      delete stage.miniSheets[@id]
     
     @element.off 'mousemove'
     @element.off 'mouseup'
@@ -110,20 +110,20 @@ class window.Sheet extends Movable
     @element.find('.sheetTitle').html(params.title)
 
   becomeActive: ->
-    glob.activeSheet = this
+    stage.activeSheet = this
     @innerElement.css 'border-top', '3px solid #FF4E58'
     @innerElement.css 'margin-top', '-3px'
     #@element.find('.sheetTextField').focus()
-    miniSheets[@id].becomeActive()
+    stage.miniSheets[@id].becomeActive()
     menu.activateDelete()
 
   resignActive: ->
-    glob.activeSheet = null
+    stage.activeSheet = null
     @innerElement.css 'border-top', ''
     @innerElement.css 'margin-top', ''
     @element.find('.sheetTextField').blur()
     @element.find('.sheetTitle').blur()
-    miniSheets[@id].resignActive()
+    stage.miniSheets[@id].resignActive()
     menu.deactivateDelete()
 
   becomeSelected: ->
@@ -139,7 +139,7 @@ class window.Sheet extends Movable
   removeLink: (params) ->
     @links[params.to_id].remove()
     delete @links[params.to_id]
-    delete sheets[params.to_id].links[params.from_id]
+    delete stage.sheets[params.to_id].links[params.from_id]
 
   refreshLinks: (x, y, w, h) ->
     for id, link of @links
@@ -156,12 +156,12 @@ class window.Sheet extends Movable
 
   glow: ->
     temp = "3px 4px 4px 2px #888"
-    blur = 40 / glob.zoomLevel
-    spread = 30 / glob.zoomLevel
+    blur = 40 / stage.zoom
+    spread = 30 / stage.zoom
     console.log "#{blur}, #{spread}"
-    @innerElement.animate {'box-shadow': "0px 0px #{150 / glob.zoomLevel}px 20px #FF9F88"}, =>
+    @innerElement.animate {'box-shadow': "0px 0px #{150 / stage.zoom}px 20px #FF9F88"}, =>
     @innerElement.animate {'box-shadow': temp}, =>
-    @innerElement.animate {'box-shadow': "0px 0px #{150 / glob.zoomLevel}px 20px #FF9F88"}, =>
+    @innerElement.animate {'box-shadow': "0px 0px #{150 / stage.zoom}px 20px #FF9F88"}, =>
     @innerElement.animate {'box-shadow': temp}, =>
-    @innerElement.animate {'box-shadow': "0px 0px #{150 / glob.zoomLevel}px 20px #FF9F88"}, =>
+    @innerElement.animate {'box-shadow': "0px 0px #{150 / stage.zoom}px 20px #FF9F88"}, =>
     @innerElement.animate {'box-shadow': temp}

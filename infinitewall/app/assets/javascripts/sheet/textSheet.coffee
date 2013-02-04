@@ -26,8 +26,8 @@ textTemplate = "<div class='sheetBox' tabindex='-1'>
 
 class window.TextSheet extends Sheet
   @create: (content) ->
-    x = Math.random() * ($(window).width() - 225) * 0.9 / glob.zoomLevel - (glob.scaleLayerX + (parseInt ($('#moveLayer').css 'x')) * glob.zoomLevel) / glob.zoomLevel
-    y = Math.random() * ($(window).height() - 74) * 0.9 / glob.zoomLevel - (glob.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * glob.zoomLevel) / glob.zoomLevel
+    x = Math.random() * ($(window).width() - 225) * 0.9 / stage.zoom - (stage.scaleLayerX + (parseInt ($('#moveLayer').css 'x')) * stage.zoom) / stage.zoom
+    y = Math.random() * ($(window).height() - 74) * 0.9 / stage.zoom - (stage.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * stage.zoom) / stage.zoom
     w = 300
     h = 300
 
