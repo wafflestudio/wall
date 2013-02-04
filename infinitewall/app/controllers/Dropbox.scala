@@ -155,7 +155,7 @@ object Dropbox extends Controller {
 
 		var json: JsObject = JsObject(Seq(
 			"path" -> JsString(path),
-			"size" -> JsString(link.url),
+			"url" -> JsString(link.url),
 			"expires" -> JsString(link.expires.toString)
 		))
 
@@ -182,7 +182,7 @@ object Dropbox extends Controller {
 
 		var json: JsObject = JsObject(Seq(
 			"path" -> JsString(path),
-			"size" -> JsString(link.url),
+			"url" -> JsString(link.url),
 			"expires" -> JsString(link.expires.toString)
 		))
 
