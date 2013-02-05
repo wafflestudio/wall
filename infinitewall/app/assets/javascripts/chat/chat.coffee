@@ -11,7 +11,7 @@ class window.Chat
     @chatLog = $('#chatLog')
     @userList = $('#chatUsers')
     @chatInput = $('#chatInput')
-    @chatInput.on 'keyup', => @sendMessage() if event.keyCode is 13
+    @chatInput.on 'keyup', (event) => @sendMessage() if event.keyCode is 13
 
   toggle: -> @chatWindow.fadeToggle()
 

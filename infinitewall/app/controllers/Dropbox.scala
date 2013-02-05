@@ -148,7 +148,7 @@ object Dropbox extends Controller {
 		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
         val dropboxApi = new DropboxAPI(session)
 
-		var path: String = request.queryString("path").first
+		var path: String = request.queryString("path").head
 
 		val link = dropboxApi.share(path)
 		//https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
@@ -175,7 +175,7 @@ object Dropbox extends Controller {
 		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
         val dropboxApi = new DropboxAPI(session)
 
-		var path: String = request.queryString("path").first
+		var path: String = request.queryString("path").head
 
 		val link = dropboxApi.media(path, false)
 		//https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
