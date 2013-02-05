@@ -1,4 +1,5 @@
 class window.Stage
+  currentUser: null
   activeSheet: null
   hoverSheet: null
   linkFromSheet: null
@@ -24,7 +25,7 @@ class window.Stage
   createSheetLink: (params, timestamp) ->
     @sheets[params.from_id].setLink(params)
 
-  constructor: (wallId, timestamp, wallSocketURL, chatURL) ->
+  constructor: (wallId, timestamp, currentUser, wallSocketURL, chatURL) ->
     window.wall = new Wall()
     window.minimap = new Minimap()
     window.menu = new Menu()
@@ -32,6 +33,7 @@ class window.Stage
     window.wallSocket = new WallSocket(wallSocketURL, timestamp)
     window.chat = new Chat(chatURL)
     @wallId = wallId
+    @currentUser = currentUser
 
     $(document).bind "contextmenu", -> return false
     $(window).resize -> minimap.refresh()

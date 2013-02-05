@@ -88,7 +88,7 @@
     var webSocketURL = "@routes.Wall.sync(wallId, timestamp).webSocketURL()"
     var chatURL = "@routes.Chat.establish(chatId, 999).webSocketURL()"
 
-    window.stage = new Stage(@wallId, @timestamp, webSocketURL, chatURL)
+    window.stage = new Stage(@wallId, @timestamp, "@Application.currentUser", webSocketURL, chatURL)
     wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
 
     var sheetData = []

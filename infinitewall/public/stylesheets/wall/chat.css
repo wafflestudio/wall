@@ -37,8 +37,57 @@
 	font-family:Helvetica;
 }
 
-.chatMessage {
+.messageText {
 	word-wrap:break-word;
+}
+
+.messageContainer {
+  overflow: hidden;
+  padding: 2px 5px 2px 0px;
+}
+
+.isNotMine > .messageProfilePicContainer {
+  float:left;
+}
+
+.isMine > .messageProfilePicContainer {
+  float:right;
+}
+
+.isNotMine > .messageRest {
+  margin-left: 40px;
+}
+
+.isMine > .messageRest {
+  margin-right: 40px;
+}
+
+.isMine > .messageRest > .messageText {
+  text-align: right;
+}
+
+.infoContainer {
+  background-color: rgba(0, 0, 0, 0.7);
+  margin: 1px 0px;
+}
+
+.infoMessage {
+  color: white;
+  text-align: center;
+}
+
+.infoWho {
+  font-weight: bold;
+}
+.messageProfilePic {
+  width: 35px;
+  height: 35px;
+  background-size: cover;
+  background-position: center;
+}
+
+.messageNickname {
+  display: none;
 }
 
 #chatInputContainer {

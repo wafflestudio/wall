@@ -11,7 +11,7 @@ class window.Chat
     @chatLog = $('#chatLog')
     @userList = $('#chatUsers')
     @chatInput = $('#chatInput')
-    @chatInput.on 'keyup', => @sendMessage() if event.keyCode is 13
+    @chatInput.on 'keyup', (event) => @sendMessage() if event.keyCode is 13
 
   toggle: -> @chatWindow.fadeToggle()
 
@@ -35,17 +35,15 @@ class window.Chat
         @socket.close()
         return
       
-      newMessage = $("<div class = 'chatMessage'><p></p></div>")
-
       switch data.kind
         when "join"
-          newMessage.children('p').text data.nickname + " has joined." unless @users[data.username]?
+          newMessage = @infoMaker(data.nickname, "has joined") unless @users[data.username]?
           @refreshUser(data.users)
         when "quit"
-          newMessage.children('p').text @users[data.username].nickname + " has left." if @users[data.username].sessionCount is 1
+          newMessage = @infoMaker(@users[data.username].nickname, " has left") if @users[data.username].sessionCount is 1
           @refreshUser(data.users)
-        when "talk" then newMessage.children('p').text @users[data.username].nickname + ": " + data.message
-
+        when "talk" then newMessage = @messageMaker(@users[data.username], data.message)
+        
       @chatLog.append newMessage
       @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 200
   
@@ -65,6 +63,28 @@ class window.Chat
 
   addUser: (user) ->
     @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(#{user.picture})'> </div>")
+
+  messageMaker: (user, message) ->
+    owner = if user.email is stage.currentUser then "isMine" else "isNotMine"
+    $("<div class = 'messageContainer'>
+        <div class = 'messageDiv #{owner}'>
+          <div class = 'messageProfilePicContainer'>
+            <div class = 'messageProfilePic' style = 'background-image:url(#{user.picture})'></div>
+          </div>
+          <div class = 'messageRest'>
+            <div class = 'messageNickname'>#{user.nickname}</div>
+            <div class = 'messageText'>#{message}</div>
+          </div>
+        </div>
+      </div>")
+
+  infoMaker: (who, message) ->
+    $("<div class = 'infoContainer'>
+        <div class = 'infoMessage'>
+          <span class = 'infoWho'>#{who}</span>
+          <span class = 'infoMessage'>#{message}</span>
+        </div>
+      </div>")
 
   #userQuit: (user) ->
     #if users[user.email].sessionCount is 1
