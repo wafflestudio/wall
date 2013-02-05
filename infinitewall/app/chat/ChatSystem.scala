@@ -17,7 +17,6 @@ import models.User
 import models.ChatLog
 import models.ChatRoom
 import java.sql.Timestamp
-import collection.mutable.HashMap
 
 case class Join(userId: Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
