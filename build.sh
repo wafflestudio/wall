@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# build (optionally) play itself
+if [ $USER == "jenkins_slave" ]; then
+	export PATH="$HOME/bin":"$HOME/bin/scala/bin":"`pwd`/Play20":$PATH
+
+	cd Play20/framework
+	set
+	./build publish-local
+	cd -
+fi
+
 cd infinitewall
 
 # compile
