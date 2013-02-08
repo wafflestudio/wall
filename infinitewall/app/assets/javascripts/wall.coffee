@@ -32,6 +32,9 @@ class MoveLayer extends Movable
   constructor: ->
     @element = $("#moveLayer")
 
+  stopTransitioning: ->
+    @element.clearQueue()
+
 class DockLayer extends Movable
   constructor: ->
     @element = $("#dockLayer")

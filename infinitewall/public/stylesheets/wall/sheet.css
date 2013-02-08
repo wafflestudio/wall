@@ -64,8 +64,8 @@
   bottom:0px;
   background-color:rgba(0, 0, 0, 0.5);
 	width:100%;
-  min-height:25px;
-  max-height:35%;
+  height: auto;
+  max-height: 100px;
   text-overflow:ellipsis;
   overflow:hidden;
   display: none;
@@ -76,6 +76,11 @@
   line-height:25px;
   padding-left:5px;
   opacity:0.75;
+}
+
+.sheet[contentType='text'] > .sheetText > .sheetTextField {
+  font-size: 17px;
+
 }
 
 .sheetTextField {

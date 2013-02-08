@@ -122,7 +122,7 @@ class window.SheetHandler
     if stage.hoverSheet
       if @sheet.links[stage.hoverSheet]?
         @sheet.socketRemoveLink(stage.hoverSheet)
-      else if @sheet.id != stage.hoverSheet
+      else if @sheet.id isnt stage.hoverSheet
         @sheet.socketSetLink(stage.hoverSheet)
       @sheet.currentLink.remove()
       stage.sheets[stage.hoverSheet].resignSelected()
@@ -131,7 +131,7 @@ class window.SheetHandler
     @sheet.currentLink = null
 
   onMouseMove: (e) =>
-    if stage.activeSheet is @sheet and @sheet.contentType is contentTypeEnum.text
+    if stage.activeSheet is @sheet and @sheet.contentType is stage.contentTypeEnum.text
       return false
     else
       @sheet.x((@startx + e.pageX - @deltax) / stage.zoom)
@@ -195,7 +195,9 @@ class window.SheetHandler
       stage.activeSheet.resignActive()
 
     @sheet.becomeActive()
-    wall.toCenter(@sheet) unless wall.mL.isTransitioning()
+    wall.mL.stopTransitioning()
+    minimap.stopTransitioning()
+    wall.toCenter(@sheet)
 
   onResizeTouchStart: (e) =>
     $(document).on 'touchmove', @onResizeTouchMove

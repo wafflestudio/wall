@@ -51,11 +51,16 @@ class window.Minimap extends Movable
     @miniWorld = new Miniworld()
     @miniScreen = new Miniscreen()
     @mML = $('#miniMoveLayer')
-    @element.on 'dblclick', @onMouseDblClick
     @element.on 'mousedown', @onMouseDown
     @element.on 'touchstart', @onTouchStart
     @minimapWidth = @w()
     @minimapHeight = @h()
+
+  stopTransitioning: ->
+    @miniWorld.element.clearQueue()
+    @miniScreen.element.clearQueue()
+
+    minisheet.element.clearQueue() for id, minisheet of stage.miniSheets
 
   createMiniSheet: (params) -> new MiniSheet(params)
   
@@ -198,36 +203,35 @@ class window.Minimap extends Movable
   onMouseDown: (e) =>
     @becomeSelected()
 
+    stage.zoom = 1
+    wall.sL.setZoom()
     tempX = e.pageX - @miniWorld.element.offset().left
     tempY = e.pageY - @miniWorld.element.offset().top
 
     @relX = tempX - @miniScreen.x()
     @relY = tempY - @miniScreen.y()
 
-    @isBoxDrag = @miniScreen.left() <= tempX <= @miniScreen.right() and @miniScreen.top() <= tempY <= @miniScreen.bottom()
+    mouseX =
+      if tempX < @miniScreen.w() / 2 then (@miniScreen.w() / 2) / @ratio
+      else if tempX > @miniWorld.w() - @miniScreen.w() / 2 then (@miniWorld.w() - @miniScreen.w() / 2) / @ratio
+      else tempX / @ratio
 
-    if not @isBoxDrag
-      mouseX =
-        if tempX < @miniScreen.w() / 2 then (@miniScreen.w() / 2) / @ratio
-        else if tempX > @miniWorld.w() - @miniScreen.w() / 2 then (@miniWorld.w() - @miniScreen.w() / 2) / @ratio
-        else tempX / @ratio
+    mouseY =
+      if tempY < @miniScreen.h() / 2 then (@miniScreen.h() / 2) / @ratio
+      else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
+      else tempY / @ratio
 
-      mouseY =
-        if tempY < @miniScreen.h() / 2 then (@miniScreen.h() / 2) / @ratio
-        else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
-        else tempY / @ratio
+    newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
+    newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
 
-      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
-      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
+    wall.mL.txy(newMoveLayerX, newMoveLayerY, 200)
 
-      wall.mL.txy(newMoveLayerX, newMoveLayerY, 200)
-
-      @refresh {
-        isTransition: true
-        mLx: newMoveLayerX
-        mLy: newMoveLayerY
-        duration: 200
-      }
+    @refresh {
+      isTransition: true
+      mLx: newMoveLayerX
+      mLy: newMoveLayerY
+      duration: 200
+    }
 
     $(document).on 'mousemove', @onMouseMove
     $(document).on 'mouseup', @onMouseUp
@@ -274,12 +278,7 @@ class window.Minimap extends Movable
   onTouchMove: (e) =>
     return false
 
-
   onTouchEnd: (e) =>
     @resignSelected()
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
-
-  onMouseDblClick: (e) ->
-    console.log "Implement me!"
-    return false

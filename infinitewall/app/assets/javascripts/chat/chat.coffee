@@ -11,20 +11,18 @@ class window.Chat
     @chatLog = $('#chatLog')
     @userList = $('#chatUsers')
     @chatInput = $('#chatInput')
-    @chatInput.on 'keyup', (event) => @sendMessage() if event.keyCode is 13
+    @chatInput.textareaAutoExpand()
+    @chatInput.on 'keydown', (event) =>
+      if event.keyCode is 13 and !event.shiftKey and @chatInput.val().replace(/\s/g, '').length > 0
+        @sendMessage()
 
   toggle: -> @chatWindow.fadeToggle()
 
   sendMessage: =>
       msg = @chatInput.val()
-      msg = msg.substr(0, msg.length - 1) if msg.charAt(msg.length - 1) is '\n'
-      
-      if msg.length is 0 or /^(\s)+$/.test(msg)
-        @chatInput.val("")
-        return
-        
-      @socket.send JSON.stringify({text: msg})
+      #msg = msg.substr(0, msg.length - 1) if msg.charAt(msg.length - 1) is '\n'
       @chatInput.val("")
+      @socket.send JSON.stringify({text: msg})
 
   onReceive: (e) =>
       data = JSON.parse(e.data)
@@ -45,7 +43,7 @@ class window.Chat
         when "talk" then newMessage = @messageMaker(@users[data.username], data.message)
         
       @chatLog.append newMessage
-      @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 200
+      @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 150
   
   onError: (e) ->
     console.log(e)
@@ -73,7 +71,7 @@ class window.Chat
           </div>
           <div class = 'messageRest'>
             <div class = 'messageNickname'>#{user.nickname}</div>
-            <div class = 'messageText'>#{message}</div>
+            <span class = 'messageText'>#{message}</span>
           </div>
         </div>
       </div>")
