@@ -53,7 +53,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 	}
 	
 	def findOrCreateForWall(wallId: Long) = {
-		DB.withTransaction { implicit c =>
+		DB.withConnection { implicit c =>
 			val maybeChatRoom = SQL("select ChatRoom.* from ChatRoomForWall as crfw, ChatRoom where crfw.chatroom_id = ChatRoom.id and crfw.wall_id = {wallId}").on('wallId -> wallId).
 				as(ChatRoom.simple.singleOpt)
 				
