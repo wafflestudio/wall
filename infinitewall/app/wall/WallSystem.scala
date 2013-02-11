@@ -149,7 +149,7 @@ class WallActor(wallId: Long) extends Actor {
 	var recentRecords = List[Record]()
 	// shutdown timer activated when no connection is left to the actor
 	var shutdownTimer: Option[akka.actor.Cancellable] = None
-	
+
 	def prevLogs(timestamp: Long) = WallLog.list(wallId, timestamp)
 	def logMessage(kind: String, basetimestamp: Long, userId: Long, message: String) = WallLog.create(kind, wallId, basetimestamp, userId, message)
 
@@ -269,7 +269,7 @@ class WallActor(wallId: Long) extends Actor {
 					case a: AlterTextAction =>
 						// simulate consolidation of records after timestamp
 						val records = recentRecords.filter(r => r.sheetId == a.id && r.timestamp > a.timestamp)
-						var pending = a.operations // all mine with > a.timestamp	
+						var pending = a.operations // all mine with > a.timestamp
 						assert(pending.size - 1 == records.filter(_.conn == origin).size,
 							"pending:" + (pending.size - 1) + " record:" + records.filter(_.conn == origin).size)
 						records.map { r =>
@@ -291,7 +291,7 @@ class WallActor(wallId: Long) extends Actor {
 						val (baseText, resultText) = Sheet.alterText(a.id, alteredAction.from, alteredAction.length, alteredAction.content)
 						val newAction = AlterTextAction(a.userId, a.timestamp, a.id, List(OperationWithState(alteredAction, a.operations.last.msgId)))
 						val timestamp = notifyAll("action", action.timestamp, action.userId, origin, newAction.singleJson.toString)
-						
+
 						recentRecords = recentRecords :+ Record(timestamp, a.id, baseText, resultText, alteredAction, origin)
 
 					case a: SetLinkAction =>
@@ -301,7 +301,7 @@ class WallActor(wallId: Long) extends Actor {
 					  SheetLink.remove(a.to_id, a.id, wallId)
 
 				}
-        
+
 
 				action match {
 					case a: AlterTextAction =>
