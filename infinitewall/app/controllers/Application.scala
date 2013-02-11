@@ -41,23 +41,27 @@ trait Auth {
 
 	def AuthenticatedAction(f: Request[AnyContent] => Result): Action[AnyContent] = 
 		Action { implicit request =>
-			if (request.session.get("current_user").isDefined)
+			if (isSessionTokenValid && request.session.get("current_user").isDefined)
 				f(request)
 			else  {
 				Logger.info("unauthorized access:" + request.uri)
-				Forbidden("You are not authorized to access this url")
+				Forbidden("You are not authorized to access this url").withNewSession
 			}
 		}
 
   def AuthenticatedAction[A](bodyParser: BodyParser[A])(f: Request[A] => Result): Action[A] =
     Action(bodyParser) { implicit request =>
-      if (request.session.get("current_user").isDefined)
+      if (isSessionTokenValid && request.session.get("current_user").isDefined)
         f(request)
       else  {
         Logger.info("unauthorized access:" + request.uri)
-        Forbidden("You are not authorized to access this url")
+        Forbidden("You are not authorized to access this url").withNewSession
       }
     }
+
+  def isSessionTokenValid[A](implicit request:Request[A]) = {
+    request.session.get("session_token").isDefined && request.session.get("session_token").get == ActiveRecord.sessionToken
+  }
 	
 }
 
@@ -97,7 +101,7 @@ object Application extends Controller with Login {
       },
       loginData => {
         val user = User.findByEmail(loginData.email).get
-        Redirect(routes.Application.index).withSession("current_user" -> user.email, "current_user_id" -> user.id.toString)
+        Redirect(routes.Application.index).withSession("session_token" -> ActiveRecord.sessionToken, "current_user" -> user.email, "current_user_id" -> user.id.toString)
       }
     )
 

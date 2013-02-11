@@ -1,5 +1,4 @@
 package models
-import com.sun.crypto.provider.BlowfishCipher
 import org.mindrot.jbcrypt.BCrypt
 import play.api.Logger
 import utils.Mailer
