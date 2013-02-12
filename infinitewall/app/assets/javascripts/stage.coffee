@@ -3,6 +3,7 @@ class window.Stage
   activeSheet: null
   hoverSheet: null
   linkFromSheet: null
+  stickyMenu: null
   leftClick: false
   rightClick: false
   zoom: 1
@@ -34,6 +35,7 @@ class window.Stage
     window.chat = new Chat(chatURL)
     @wallId = wallId
     @currentUser = currentUser
+    @stickyMenu = $("#stickyMenu")
 
     $(document).bind "contextmenu", -> return false
     $(window).resize -> minimap.refresh()

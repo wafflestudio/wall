@@ -111,26 +111,24 @@ class window.Sheet extends Movable
 
   becomeActive: ->
     stage.activeSheet = this
-    @innerElement.css 'border-top', '3px solid #FF4E58'
-    @innerElement.css 'margin-top', '-3px'
+    @innerElement.addClass("activeSheet")
     #@element.find('.sheetTextField').focus()
     stage.miniSheets[@id].becomeActive()
     menu.activateDelete()
 
   resignActive: ->
     stage.activeSheet = null
-    @innerElement.css 'border-top', ''
-    @innerElement.css 'margin-top', ''
+    @innerElement.removeClass("activeSheet")
     @element.find('.sheetTextField').blur()
     @element.find('.sheetTitle').blur()
     stage.miniSheets[@id].resignActive()
     menu.deactivateDelete()
 
   becomeSelected: ->
-    @innerElement.css {'background-color': '#CFD2FF'}
+    @innerElement.addClass("selectedSheet")
 
   resignSelected: ->
-    @innerElement.css {'background-color': 'white'}
+    @innerElement.removeClass("selectedSheet")
 
   setLink: (params) ->
     @newLinkLine = new LinkLine(@id)

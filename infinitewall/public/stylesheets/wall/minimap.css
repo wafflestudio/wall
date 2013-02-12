@@ -36,3 +36,16 @@
   background-color:black;
 	opacity:0.5;
 }
+
+.activeMiniSheet {
+  background-color: crimson;
+}
+
+.selectedMiniSheet {
+  background-color: #96A6D6;
+}
+
+.selectedMiniScreen {
+  background-color: #96A6D6 !important;
+  opacity: 0.5;
+}

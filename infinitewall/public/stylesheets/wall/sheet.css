@@ -10,7 +10,7 @@
 }
 
 .sheet[contentType='text']{
-	background-color:white;
+  background-color:white;
 	padding:2px 11px 44px 11px;
 }
 
@@ -80,7 +80,6 @@
 
 .sheet[contentType='text'] > .sheetText > .sheetTextField {
   font-size: 17px;
-
 }
 
 .sheetTextField {
@@ -114,3 +113,11 @@
 	cursor:se-resize;
 }
 
+.activeSheet {
+  border-top: 3px solid #FF4E58;
+  margin-top: -3px
+}
+
+.selectedSheet {
+  background-color: #CFD2FF !important;
+}

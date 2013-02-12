@@ -7,13 +7,16 @@ class MiniSheet extends Movable
     @element.on 'mousedown', @onMouseDown
     
   becomeActive: =>
-    @element.css 'background-color', 'crimson'
+    @element.addClass("activeMiniSheet")
 
   resignActive: =>
-    @element.css 'background-color', 'black'
+    @element.removeClass("activeMiniSheet")
 
   becomeSelected: =>
-    @element.css 'background-color', '#96A6D6'
+    @element.addClass("selectedMiniSheet")
+
+  resignSelected: =>
+    @element.removeClass("selectedMiniSheet")
 
   remove: ->
     @element.remove()
@@ -21,7 +24,7 @@ class MiniSheet extends Movable
   onMouseDown: (e) =>
     @becomeSelected()
     sheet = stage.sheets[@id]
-    wall.toCenter(sheet, @resignActive)
+    wall.toCenter(sheet, @resignSelected)
     return false
 
 class Miniworld extends Movable
@@ -29,6 +32,12 @@ class Miniworld extends Movable
 
 class Miniscreen extends Movable
   constructor: -> @element = $("#miniScreen")
+
+  becomeSelected: ->
+    @element.addClass("selectedMiniScreen")
+  
+  resignSelected: ->
+    @element.removeClass("selectedMiniScreen")
 
 class window.Minimap extends Movable
   miniWorld: null
@@ -66,18 +75,6 @@ class window.Minimap extends Movable
   
   toggle: -> @element.fadeToggle()
 
-  becomeSelected: ->
-    @miniScreen.element.css {
-      'background-color': '#96A6D6'
-      opacity: 0.5
-    }
-  
-  resignSelected: ->
-    @miniScreen.element.css {
-      'background-color': 'transparent'
-      opacity: 1
-    }
-  
   refresh: (info = {}) =>
     mLx = info.mLx || wall.mL.x()
     mLy = info.mLy || wall.mL.y()
@@ -196,12 +193,12 @@ class window.Minimap extends Movable
     e.preventDefault()
 
   onMouseUp: (e) =>
-    @resignSelected()
+    @miniScreen.resignSelected()
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
 
   onMouseDown: (e) =>
-    @becomeSelected()
+    @miniScreen.becomeSelected()
 
     stage.zoom = 1
     wall.sL.setZoom()
@@ -238,7 +235,7 @@ class window.Minimap extends Movable
     return false
 
   onTouchStart: (e) ->
-    @becomeSelected()
+    @miniScreen.becomeSelected()
 
     tempX = e.originalEvent.pageX - @miniWorld.element.offset().left
     tempY = e.originalEvent.pageY - @miniWorld.element.offset().top
@@ -279,6 +276,6 @@ class window.Minimap extends Movable
     return false
 
   onTouchEnd: (e) =>
-    @resignSelected()
+    @miniScreen.resignSelected()
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
