@@ -54,7 +54,7 @@ object WallPreference extends ActiveRecord[WallPreference] {
 	}
 	
 	def findOrCreate(userId: Long, wallId: Long) = {
-		DB.withTransaction { implicit c =>
+		DB.withConnection { implicit c =>
 			val maybePref = SQL("select * from WallPreference where user_id = {userId} and wall_id = {wallId}").on(
 			'userId -> userId, 'wallId -> wallId).as(WallPreference.simple.singleOpt)
 				

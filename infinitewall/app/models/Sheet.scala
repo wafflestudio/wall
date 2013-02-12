@@ -101,7 +101,7 @@ object Sheet extends ActiveRecord[Sheet] {
 	}
 
     def createInit(x: Double, y:Double, width:Double, height:Double, title: String, contentType: String, content: String, wallId:Long) = {
-        DB.withTransaction { implicit c =>
+        DB.withConnection { implicit c =>
           contentType match {
             case "text" =>
               val id = create(x, y, width, height, title, ContentType.TextType, wallId)

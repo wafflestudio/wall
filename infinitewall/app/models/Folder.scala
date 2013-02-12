@@ -24,7 +24,7 @@ object Folder extends ActiveRecord[Folder] {
 	}
 	
 	def create(name:String, userId:Long, parentId:Option[Long] = None) = {
-		DB.withTransaction { implicit c =>
+		DB.withConnection { implicit c =>
 			val id = SQL("select next value for folder_seq").as(scalar[Long].single)
 			
 			parentId match { 

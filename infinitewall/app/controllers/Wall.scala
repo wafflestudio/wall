@@ -54,7 +54,7 @@ object Wall extends Controller with Auth with Login {
 			case Some(w) =>
 				if (models.Wall.isValid(wallId, currentUserId)) {
 					val chatRoomId = ChatRoom.findOrCreateForWall(wallId)
-					val (timestamp, sheets, sheetlinks) = DB.withTransaction { implicit c =>
+					val (timestamp, sheets, sheetlinks) = DB.withConnection { implicit c =>
 						(WallLog.timestamp(wallId), Sheet.findByWallId(wallId), SheetLink.findByWallId(wallId))
 					}
 					val pref = WallPreference.findOrCreate(currentUserId, wallId)

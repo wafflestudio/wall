@@ -152,7 +152,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
           "nickname" -> JsString(nickname),
           "picture" -> JsString(user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/")),
           "users" -> JsArray(
-            connections.map(i => { 
+            connections.map(i => {
               val user = User.findById(i._1)
               JsObject(Seq(
                   "email" -> JsString(user.get.email),
@@ -165,7 +165,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
           "kind" -> JsString(kind),
           "username" -> JsString(username),
           "users" -> JsArray(
-            connections.map(i => { 
+            connections.map(i => {
               val user = User.findById(i._1)
               JsObject(Seq(
                   "email" -> JsString(user.get.email),
