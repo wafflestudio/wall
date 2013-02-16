@@ -2,6 +2,7 @@ class window.Stage
   currentUser: null
   activeSheet: null
   hoverSheet: null
+  draggingSheet: null
   linkFromSheet: null
   stickyMenu: null
   leftClick: false

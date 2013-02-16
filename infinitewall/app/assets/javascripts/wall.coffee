@@ -39,13 +39,27 @@ class DockLayer extends Movable
   constructor: ->
     @element = $("#dockLayer")
 
+class DeleteLayer extends Movable
+  constructor: ->
+    @element = $("#removeLayer")
+    @element.on 'proximity', {max : 100}, (e, proximity, distance) ->
+      return unless stage.draggingSheet?
+
+      if proximity is 1
+        $(@).addClass("activatedRemove")
+      else
+        $(@).removeClass("activatedRemove")
+        $(@).css { opacity: 0.3 + proximity * 0.7 }
+  
+  reset: ->
+    @element.removeClass("activatedRemove")
+    @element.css {opacity: 0.3}
+
 class window.Wall
   wall: null
   mL: null
   sL: null
   dL: null
-  menu: null
-  hoverLayers: null
   deltax: 0
   deltay: 0
   startx: 0
@@ -89,33 +103,33 @@ class window.Wall
 
   constructor: ->
     @wall = $('#wall')
-    @menu = $('#menuBar')
-    @hoverLayers = $('.hoverStrip')
     @mL = new MoveLayer()
     @sL = new ScaleLayer()
     @dL = new DockLayer()
+    @removeLayer = new DeleteLayer()
     @wall.on 'dblclick', @onMouseDblClick
     @wall.on 'mousedown', @onMouseDown
     @wall.on 'touchstart', @onTouchStart
     @wall.on 'mousewheel', @onMouseWheel
-  
+
   onTouchStart: (e) =>
+    console.log e
     len = e.originalEvent.touches.length
     @startx = @mL.x() * stage.zoom
     @starty = @mL.y() * stage.zoom
     
     if len is 1
       @hasMoved = false
-      @deltax = e.originalEvent.pageX
-      @deltay = e.originalEvent.pageY
-      
-      @onTouchEnd.xWall = e.originalEvent.pageX - @wall.offset().left
-      @onTouchEnd.yWall = e.originalEvent.pageY - @wall.offset().top
+      @deltax = e.originalEvent.touches[0].pageX
+      @deltay = e.originalEvent.touches[0].pageY
+
+      @onTouchEnd.xWall = @deltax - @wall.offset().left
+      @onTouchEnd.yWall = @deltay - @wall.offset().top
     else # 첫번쨰 이후의 터치일 경우
       $(document).off 'touchmove', @onTouchMove
       $(document).off 'touchend', @onTouchEnd
-      @deltax = e.originalEvent.pageX
-      @deltay = e.originalEvent.pageY
+      @deltax = (e.originalEvent.touches[0].pageX + e.originalEvent.touches[1].pageX) / 2
+      @deltay = (e.originalEvent.touches[0].pageY + e.originalEvent.touches[1].pageY) / 2
       xlen = e.originalEvent.touches[0].pageX - e.originalEvent.touches[1].pageX
       ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY
       @startlen = Math.sqrt(xlen * xlen + ylen * ylen)
@@ -129,12 +143,14 @@ class window.Wall
     @hasMoved = true
     
     if e.originalEvent.touches.length is 1
-      @mL.x((@startx + e.originalEvent.pageX - @deltax) / stage.zoom)
-      @mL.y((@starty + e.originalEvent.pageY - @deltay) / stage.zoom)
+      @mL.x((@startx + e.originalEvent.touches[0].pageX - @deltax) / stage.zoom)
+      @mL.y((@starty + e.originalEvent.touches[0].pageY - @deltay) / stage.zoom)
     else # 터치가 2개 이상, pinch-to-zoom / 중점 기준으로 움직이게
-      x = e.originalEvent.pageX
-      y = e.originalEvent.pageY
-      #그냥 이렇게 하면 따로 계산 안해도 중간 좌표값이 나오는듯
+      x = e.originalEvent.touches[0].pageX
+      y = e.originalEvent.touches[0].pageY
+      #x = e.originalEvent.pageX
+      #y = e.originalEvent.pageY
+      #중간 값 찾는 알고리즘 써야
       
       xlen = e.originalEvent.touches[0].pageX - e.originalEvent.touches[1].pageX
       ylen = e.originalEvent.touches[0].pageY - e.originalEvent.touches[1].pageY

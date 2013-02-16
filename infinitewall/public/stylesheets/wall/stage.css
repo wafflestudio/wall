@@ -88,6 +88,22 @@
   height:1px;
 }
 
+#removeLayer {
+  position:absolute;
+  left:70px;
+  bottom:0px;
+  width:80px;
+  height:80px;
+  background-color: black;
+  border-top-right-radius: 80px;
+  opacity: 0.3;
+}
+
+.activatedRemove {
+  background-color: red !important;
+  opacity: 1;
+}
+
 .linkLine {
   position: absolute;
   top:0;

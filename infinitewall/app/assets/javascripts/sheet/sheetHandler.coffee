@@ -144,6 +144,8 @@ class window.SheetHandler
    
   onMouseUp: (e) =>
     stage.leftClick = false
+    stage.draggingSheet = null
+    wall.removeLayer.reset()
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
 
@@ -166,6 +168,7 @@ class window.SheetHandler
   onMouseDown: (e) =>
     if e.which is 1 # left click
       stage.leftClick = true
+      stage.draggingSheet = @sheet
       @hasMoved = false
       wall.bringToTop(@sheet)
       minimap.bringToTop(stage.miniSheets[@sheet.id])
