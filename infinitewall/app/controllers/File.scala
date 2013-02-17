@@ -13,9 +13,11 @@ import models._
 import views._
 import helpers._
 import play.api.libs.json._
+import org.apache.commons.codec.digest.DigestUtils
 
 object File extends Controller {
-	
+
+  /*
 	def upload = Action(parse.multipartFormData) { request =>
 		
 		var fileList:Seq[JsObject] = List()
@@ -23,30 +25,44 @@ object File extends Controller {
 		request.body.files.map { picture =>
 			import java.io.File
 			val filename = picture.filename
+      val savedFilename = DigestUtils.sha1Hex(1.toString)
+
 			val contentType = picture.contentType
-			val newFile = new File("public/files/"+ picture.filename)
+			val newFile = new File("public/files/sheet/" + picture.filename)
 			picture.ref.moveTo(newFile, true)
 			
 			fileList = fileList :+ JsObject(Seq(
 					"name" -> JsString(filename),
 					"size" -> JsNumber(newFile.length),
-					"url" -> JsString("/assets/files/" + picture.filename),
+					"url" -> JsString("/upload/" + picture.filename),
 					"delete_url" -> JsString("/file"),
 					"delete_type" -> JsString("delete")
 			))
 		}
 		Ok(JsArray(fileList))
 	}
-	
-	def info = Action {
+
+  def info = Action {
 		Ok("")
 	}
-	
+
 	def replace = Action {
 		Ok("")
 	}
-	
+
 	def delete = Action {
 		Ok("")
 	}
+	*/
+
+  def serve(filePath: String) = Action {
+    Logger.info("serving file : " + filePath)
+    Ok.sendFile(content = new java.io.File("public/files/" + filePath), inline=true)
+  }
+
+
+	
+
+
+
 }

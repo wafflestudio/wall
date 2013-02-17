@@ -43,10 +43,10 @@ POST    /group/:groupId/addWall      			controllers.Group.addWall_Post(groupId:L
 GET  	/group/:groupId/addWall/:wallId	   		controllers.Group.addWall_Get(groupId:Long, wallId:Long)
 GET  	/group/:groupId/removeWall/:wallId     	controllers.Group.removeWall(groupId:Long, wallId:Long)
 
-POST    /file                 					controllers.File.upload
-GET     /file                 					controllers.File.info
-PUT     /file                 					controllers.File.replace
-DELETE  /file                 					controllers.File.delete
+#POST    /file                 					controllers.File.upload
+#GET     /file                 					controllers.File.info
+#PUT     /file                 					controllers.File.replace
+#DELETE  /file                 					controllers.File.delete
 
 GET		/dropbox/authorize						controllers.Dropbox.authorize
 GET		/dropbox/callback						controllers.Dropbox.callback
@@ -59,3 +59,4 @@ POST	/dropbox/files							controllers.Dropbox.uploadFiles
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               			controllers.Assets.at(path="/public", file)
+GET     /upload/*file               			controllers.File.serve(file)
