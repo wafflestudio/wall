@@ -25,9 +25,12 @@ package object infiniteWall {
 		def apply(elements: FieldElements) = views.html.forms.defaultFieldConstructor(elements)
 	}
 
+
   import com.github.theon.uri.Uri._
   def encodeURIComponent(str:String) = {
     parseUri(str).toString
   }
+
+
 
 }

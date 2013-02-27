@@ -107,8 +107,8 @@ object Account extends Controller with Auth with Login {
     val encodedFileName = file.filename
     val dir = new java.io.File("public/files/" + encodedFolderName)
     dir.mkdirs()
-    val path = "public/files/"+ encodedFolderName + "/" + encodedFileName
-    val newFile = new java.io.File(path)
+    val path = encodedFolderName + "/" + encodedFileName
+    val newFile = new java.io.File("public/files/" + path)
     file.ref.moveTo(newFile, true)
     path
   }

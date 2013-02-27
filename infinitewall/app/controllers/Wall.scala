@@ -19,7 +19,10 @@ import models.SheetLink
 import play.api.db.DB
 import models.WallPreference
 import models.ResourceTree
+import scala.util.Success
+import scala.util.Failure
 import models.RootFolder
+import org.apache.commons.codec.digest.DigestUtils
 
 object Wall extends Controller with Auth with Login {
 
@@ -86,6 +89,11 @@ object Wall extends Controller with Auth with Login {
 		}
 	}
 
+
+  def syncHttp(wallId: Long, timestamp: Long = 0) = Action {
+    Ok("")
+  }
+
 	def delete(id: Long) = AuthenticatedAction { implicit request =>
 		models.Wall.deleteByUserId(currentUserId, id)
 		Ok(Json.toJson("OK"))
@@ -111,26 +119,31 @@ object Wall extends Controller with Auth with Login {
 		Ok(Json.toJson("OK"))
 	}
 
+
+
   /**  uploaded files **/
   def uploadFile(wallId: Long) = AuthenticatedAction(parse.multipartFormData) { request =>
+    // FIXME: use more functional approach using val and foldleft
+    var fileList:Seq[JsObject] =
+      request.body.files.foldLeft[Seq[JsObject]](List()) { (fileList, picture) =>
+        // FIXME: make use of content type
+        val contentType = picture.contentType
 
-    var fileList:Seq[JsObject] = List()
-
-    request.body.files.map { picture =>
-      import java.io.File
-      val filename = picture.filename
-      val contentType = picture.contentType
-      val newFile = new File("public/files/"+ picture.filename)
-      picture.ref.moveTo(newFile, true)
-
-      fileList = fileList :+ JsObject(Seq(
-        "name" -> JsString(filename),
-        "size" -> JsNumber(newFile.length),
-        "url" -> JsString("/assets/files/" + picture.filename),
-        "delete_url" -> JsString("/wall/file/"+wallId),
-        "delete_type" -> JsString("delete")
-      ))
-    }
+        utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
+          case Success(pair) =>
+            val (filename, file) = pair
+            fileList :+ JsObject(Seq(
+              "name" -> JsString(filename),
+              "size" -> JsNumber(file.length),
+              "url" -> JsString("/assets/files/" + filename),
+              "delete_url" -> JsString("/wall/file/"+wallId),
+              "delete_type" -> JsString("delete")
+            ))
+          case Failure(_) =>
+            // TODO: add message? that a file upload failed
+            fileList
+        }
+      }
     Ok(JsArray(fileList))
   }
 

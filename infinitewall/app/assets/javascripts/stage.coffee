@@ -55,7 +55,7 @@ class window.Stage
       done : (e, data) ->
         $.each(data.result, (index, file) ->
           data.context.changeText("Loading " + file.name, "")
-          ImageSheet.create file.name.replace(/\.[^/.]+$/, ""), "/assets/files/#{file.name}", =>
+          ImageSheet.create file.name.replace(/\.[^/.]+$/, ""), "/upload/#{file.name}", =>
             statusbar.removeStatus(data.context.id, 0)
             data.context = null
         )

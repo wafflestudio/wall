@@ -21,7 +21,6 @@ case class SheetLink(id: Pk[Long], from_id:Long, to_id: Long, wall_id: Long) {
 		).toString()
 	}
 
-
 }
 
 

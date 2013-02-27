@@ -5,6 +5,28 @@ import anorm.SqlParser._
 import play.api.Play.current
 import play.api.db.DB
 import java.sql.Timestamp
+import org.apache.commons.codec.digest.DigestUtils
+
+case class ActiveRecordRow(timestamp:Timestamp)
+
+object ActiveRecord extends ActiveRecord[ActiveRecordRow] {
+  val tableName = "activerecord"
+  val simple = {
+    field[Timestamp]("initialized_timestamp") map {
+      case timestamp =>  ActiveRecordRow(timestamp)
+    }
+  }
+
+  lazy val timestamp = {
+    DB.withConnection { implicit c =>
+      SQL("select * from " + tableName).as(simple.single).timestamp
+    }
+  }
+
+  lazy val sessionToken = {
+    DigestUtils.sha1Hex(timestamp.toString)
+  }
+}
 
 abstract class ActiveRecord[T] {
 	val tableName: String

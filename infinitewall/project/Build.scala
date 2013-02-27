@@ -15,6 +15,7 @@ object ApplicationBuild extends Build {
 		/*"com.typesafe" %% "play-plugins-mailer" % "2.0.2",*/
 		"commons-lang" % "commons-lang" % "2.6",
 		"org.apache.commons" % "commons-email" % "1.2",
+    "commons-codec" % "commons-codec" % "1.7",
     "com.github.theon" %% "scala-uri" % "0.3.2",
 		"org.mindrot" % "jbcrypt" % "0.3m")
 

@@ -9,7 +9,7 @@ import org.h2.Driver
 object Environment extends GlobalSettings {
 
 	override def onStart(app: Application) {
-	// 
+    Logger.info("ActiveRecord initialized at: " + ActiveRecord.timestamp.toString)
 	}
 
 }
