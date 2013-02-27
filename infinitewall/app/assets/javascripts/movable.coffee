@@ -3,6 +3,7 @@ class window.Movable
   element: null
   innerElement: null
   handler: null
+  timer: 0
 
   constructor: (params) ->
   
@@ -19,6 +20,19 @@ class window.Movable
   y: (y) ->
     return parseInt(@element.css('y')) unless y?
     @element.css {y: Math.round(y)}
+
+  smoothmove: (endx, endy) ->
+    clearTimeout(@timer)
+    @timer = setInterval (=>
+      if @x() - endx < 2 and @y() - endy < 2
+        @x(endx)
+        @y(endy)
+        clearTimeout(@timer)
+
+      interx = 0.9 * @x() + 0.1 * endx
+      intery = 0.9 * @y() + 0.1 * endy
+      @x(interx)
+      @y(intery)), 5
 
   left: (l) ->
     @x(l)

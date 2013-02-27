@@ -187,8 +187,10 @@ class window.Minimap extends Movable
       newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
       newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
 
-    wall.mL.x(newMoveLayerX)
-    wall.mL.y(newMoveLayerY)
+    wall.mL.smoothmove(newMoveLayerX, newMoveLayerY)
+
+    #wall.mL.x(newMoveLayerX)
+    #wall.mL.y(newMoveLayerY)
     @refresh()
     e.preventDefault()
 
