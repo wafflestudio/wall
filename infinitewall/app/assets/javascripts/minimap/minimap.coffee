@@ -189,8 +189,6 @@ class window.Minimap extends Movable
 
     wall.mL.smoothmove(newMoveLayerX, newMoveLayerY)
 
-    #wall.mL.x(newMoveLayerX)
-    #wall.mL.y(newMoveLayerY)
     @refresh()
     e.preventDefault()
 

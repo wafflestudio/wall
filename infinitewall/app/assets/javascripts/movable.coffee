@@ -24,7 +24,7 @@ class window.Movable
   smoothmove: (endx, endy) ->
     clearTimeout(@timer)
     @timer = setInterval (=>
-      if @x() - endx < 2 and @y() - endy < 2
+      if Math.abs(@x() - endx) < 2 and Math.abs(@y() - endy) < 2
         @x(endx)
         @y(endy)
         clearTimeout(@timer)
