@@ -18,10 +18,12 @@ import play.api.data.validation.Constraints._
 
 object Chat extends Controller with Login {
 
-  //	val createForm = Form(
-  //		"title" -> nonEmptyText
-  //	)
-  /*
+// /* For development purpose. Not for production use: */
+//
+//	val createForm = Form(
+//		"title" -> nonEmptyText
+//	)
+/*
 	def index = AuthenticatedAction { implicit request =>
 		val rooms = ChatRoom.list()
 		Ok(views.html.chat.index(rooms))
