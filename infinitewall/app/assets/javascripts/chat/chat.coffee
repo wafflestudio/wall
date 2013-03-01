@@ -39,8 +39,8 @@ class window.Chat
           if data.users?
             @refreshUser(data.users)
         when "quit"
-          newMessage = @infoMaker(@users[data.username].nickname, " has left") if @users[data.username].sessionCount is 1
-          @refreshUser(data.users)
+          newMessage = @infoMaker(@users[data.username].nickname, " has left") if @users[data.username]?.sessionCount is 1
+          @refreshUser(data.users) if data.users
         when "talk" then newMessage = @messageMaker(@users[data.username], data.message)
         
       @chatLog.append newMessage
@@ -64,14 +64,14 @@ class window.Chat
     @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(#{user.picture})'> </div>")
 
   messageMaker: (user, message) ->
-    owner = if user.email is stage.currentUser then "isMine" else "isNotMine"
+    owner = if user?.email is stage.currentUser then "isMine" else "isNotMine"
     $("<div class = 'messageContainer'>
         <div class = 'messageDiv #{owner}'>
           <div class = 'messageProfilePicContainer'>
-            <div class = 'messageProfilePic' style = 'background-image:url(#{user.picture})'></div>
+            <div class = 'messageProfilePic' style = 'background-image:url(#{user?.picture ? ""})'></div>
           </div>
           <div class = 'messageRest'>
-            <div class = 'messageNickname'>#{user.nickname}</div>
+            <div class = 'messageNickname'>#{user?.nickname ? "???"}</div>
             <span class = 'messageText'>#{message}</span>
           </div>
         </div>

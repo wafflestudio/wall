@@ -21,7 +21,7 @@
   <div id = "menuBar">
     <a href = "/me">
       <div id = "profileButton" class = "menuButton">
-        <div id = "profilePic" style="background-image:url(@helpers.infiniteWall.encodeURIComponent("/upload/"+Application.currentUserPicturePath))"></div>
+        <div id = "profilePic" style="background-image:url(@Application.currentUserPicturePath)"></div>
         <div id = "nickname">@Application.currentUserNickname</div>
       </div>
     </a>
