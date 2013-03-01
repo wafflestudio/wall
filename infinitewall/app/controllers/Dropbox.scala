@@ -20,206 +20,207 @@ import play.api.libs.json._
 
 object Dropbox extends Controller {
 
-	// get request_token, secret(=oauth_token, secret) and generate access_token
-	def authorize() = Action { request =>
-		val conf = ConfigFactory.load()
-		val dropboxAppKey = conf.getString("dropbox.app_key")
-		val dropboxAppSecret = conf.getString("dropbox.app_secret")
-		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
-		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX);
+  // get request_token, secret(=oauth_token, secret) and generate access_token
+  def authorize() = Action { request =>
+    val conf = ConfigFactory.load()
+    val dropboxAppKey = conf.getString("dropbox.app_key")
+    val dropboxAppSecret = conf.getString("dropbox.app_secret")
+    val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX);
 
-        val info = session.getAuthInfo("http://" + request.host + "/dropbox/callback");
-		val requestTokenPair = info.requestTokenPair
+    val info = session.getAuthInfo("http://" + request.host + "/dropbox/callback");
+    val requestTokenPair = info.requestTokenPair
 
-		Redirect(info.url).withSession(request.session + ("request_key" -> requestTokenPair.key) +  ("request_secret" -> requestTokenPair.secret))
-	}
-	
-	// get access_token and set access_token to session	
-	def callback() = Action { request =>
-		val uid: String = request.queryString("uid").head
-		val oauthToken: String = request.queryString("oauth_token").head
+    Redirect(info.url).withSession(request.session + ("request_key" -> requestTokenPair.key) + ("request_secret" -> requestTokenPair.secret))
+  }
 
-		val conf = ConfigFactory.load()
-		val dropboxAppKey = conf.getString("dropbox.app_key")
-		val dropboxAppSecret = conf.getString("dropbox.app_secret")
-		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
-		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX);
+  // get access_token and set access_token to session	
+  def callback() = Action { request =>
+    val uid: String = request.queryString("uid").head
+    val oauthToken: String = request.queryString("oauth_token").head
 
-		var accessKey: String = request.session.get("access_key").getOrElse("")
-		var accessSecret: String = request.session.get("access_secret").getOrElse("")
+    val conf = ConfigFactory.load()
+    val dropboxAppKey = conf.getString("dropbox.app_key")
+    val dropboxAppSecret = conf.getString("dropbox.app_secret")
+    val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX);
 
-		var accessTokenPair: AccessTokenPair = null
-		if(accessKey == "" && accessSecret == "") {
-			val requestKey: String = request.session.get("request_key").getOrElse("")
-			val requestSecret: String = request.session.get("request_secret").getOrElse("")
+    var accessKey: String = request.session.get("access_key").getOrElse("")
+    var accessSecret: String = request.session.get("access_secret").getOrElse("")
 
-			session.retrieveWebAccessToken(new RequestTokenPair(requestKey, requestSecret))
+    var accessTokenPair: AccessTokenPair = null
+    if (accessKey == "" && accessSecret == "") {
+      val requestKey: String = request.session.get("request_key").getOrElse("")
+      val requestSecret: String = request.session.get("request_secret").getOrElse("")
 
-			accessTokenPair = session.getAccessTokenPair
-		} else {
-			accessTokenPair = new AccessTokenPair(accessKey, accessSecret)
-		}
+      session.retrieveWebAccessToken(new RequestTokenPair(requestKey, requestSecret))
 
-		Redirect(routes.Account.index).withSession(request.session + ("access_key" -> accessTokenPair.key) + ("access_secret" -> accessTokenPair.secret))
-	}
+      accessTokenPair = session.getAccessTokenPair
+    }
+    else {
+      accessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+    }
 
-	// /account/info
-	def account() = Action { request =>
-		val conf = ConfigFactory.load()
-		val dropboxAppKey = conf.getString("dropbox.app_key")
-		val dropboxAppSecret = conf.getString("dropbox.app_secret")
-		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+    Redirect(routes.Account.index).withSession(request.session + ("access_key" -> accessTokenPair.key) + ("access_secret" -> accessTokenPair.secret))
+  }
 
-		val accessKey: String = request.session.get("access_key").getOrElse("")
-		val accessSecret: String = request.session.get("access_secret").getOrElse("")
-		val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+  // /account/info
+  def account() = Action { request =>
+    val conf = ConfigFactory.load()
+    val dropboxAppKey = conf.getString("dropbox.app_key")
+    val dropboxAppSecret = conf.getString("dropbox.app_secret")
+    val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
 
-		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
-        val dropboxApi = new DropboxAPI(session)
-		val account = dropboxApi.accountInfo()
+    val accessKey: String = request.session.get("access_key").getOrElse("")
+    val accessSecret: String = request.session.get("access_secret").getOrElse("")
+    val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-		Ok("Name: " + account.displayName)
-	}
-	
-	// /metadata
-	def metadata() = Action { request =>
-		val conf = ConfigFactory.load()
-		val dropboxAppKey = conf.getString("dropbox.app_key")
-		val dropboxAppSecret = conf.getString("dropbox.app_secret")
-		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
+    val dropboxApi = new DropboxAPI(session)
+    val account = dropboxApi.accountInfo()
 
-		val accessKey: String = request.session.get("access_key").getOrElse("")
-		val accessSecret: String = request.session.get("access_secret").getOrElse("")
-		val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+    Ok("Name: " + account.displayName)
+  }
 
-		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
-        val dropboxApi = new DropboxAPI(session)
+  // /metadata
+  def metadata() = Action { request =>
+    val conf = ConfigFactory.load()
+    val dropboxAppKey = conf.getString("dropbox.app_key")
+    val dropboxAppSecret = conf.getString("dropbox.app_secret")
+    val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
 
-		var path: String = request.queryString("path").head
+    val accessKey: String = request.session.get("access_key").getOrElse("")
+    val accessSecret: String = request.session.get("access_secret").getOrElse("")
+    val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-		val entry = dropboxApi.metadata(path, 100, null, true, null)
-		//https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
+    val dropboxApi = new DropboxAPI(session)
 
-		var contents: Seq[JsObject] = List()
-		entry.contents.toList.map { e =>
-			contents = contents :+ JsObject(Seq(
-				"size" -> JsString(e.size),
-				"hash" -> JsString(e.hash),
-				"bytes" -> JsNumber(e.bytes),
-				"thumb_exists" -> JsBoolean(e.thumbExists),
-				"rev" -> JsString(e.rev),
-				"modified" -> JsString(e.modified),
-				"path" -> JsString(e.path),
-				"is_dir" -> JsBoolean(e.isDir),
-				"icon" -> JsString(e.icon),
-				"root" -> JsString(e.root),
-				"revision" -> JsString(e.rev)
-			))
-		}
+    var path: String = request.queryString("path").head
 
-		var entryElement: JsObject = JsObject(Seq(
-			"size" -> JsString(entry.size),
-			"hash" -> JsString(entry.hash),
-			"bytes" -> JsNumber(entry.bytes),
-			"thumb_exists" -> JsBoolean(entry.thumbExists),
-			"rev" -> JsString(entry.rev),
-			"modified" -> JsString(entry.modified),
-			"path" -> JsString(entry.path),
-			"is_dir" -> JsBoolean(entry.isDir),
-			"icon" -> JsString(entry.icon),
-			"root" -> JsString(entry.root),
-			"contents" -> JsArray(contents),
-			"revision" -> JsString(entry.rev)
-		   ))
+    val entry = dropboxApi.metadata(path, 100, null, true, null)
+    //https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
 
-		Ok(entryElement)
-	}
+    var contents: Seq[JsObject] = List()
+    entry.contents.toList.map { e =>
+      contents = contents :+ JsObject(Seq(
+        "size" -> JsString(e.size),
+        "hash" -> JsString(e.hash),
+        "bytes" -> JsNumber(e.bytes),
+        "thumb_exists" -> JsBoolean(e.thumbExists),
+        "rev" -> JsString(e.rev),
+        "modified" -> JsString(e.modified),
+        "path" -> JsString(e.path),
+        "is_dir" -> JsBoolean(e.isDir),
+        "icon" -> JsString(e.icon),
+        "root" -> JsString(e.root),
+        "revision" -> JsString(e.rev)
+      ))
+    }
 
-	def shares() = Action { request =>
-		val conf = ConfigFactory.load()
-		val dropboxAppKey = conf.getString("dropbox.app_key")
-		val dropboxAppSecret = conf.getString("dropbox.app_secret")
-		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+    var entryElement: JsObject = JsObject(Seq(
+      "size" -> JsString(entry.size),
+      "hash" -> JsString(entry.hash),
+      "bytes" -> JsNumber(entry.bytes),
+      "thumb_exists" -> JsBoolean(entry.thumbExists),
+      "rev" -> JsString(entry.rev),
+      "modified" -> JsString(entry.modified),
+      "path" -> JsString(entry.path),
+      "is_dir" -> JsBoolean(entry.isDir),
+      "icon" -> JsString(entry.icon),
+      "root" -> JsString(entry.root),
+      "contents" -> JsArray(contents),
+      "revision" -> JsString(entry.rev)
+    ))
 
-		val accessKey: String = request.session.get("access_key").getOrElse("")
-		val accessSecret: String = request.session.get("access_secret").getOrElse("")
-		val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+    Ok(entryElement)
+  }
 
-		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
-        val dropboxApi = new DropboxAPI(session)
+  def shares() = Action { request =>
+    val conf = ConfigFactory.load()
+    val dropboxAppKey = conf.getString("dropbox.app_key")
+    val dropboxAppSecret = conf.getString("dropbox.app_secret")
+    val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
 
-		var path: String = request.queryString("path").head
+    val accessKey: String = request.session.get("access_key").getOrElse("")
+    val accessSecret: String = request.session.get("access_secret").getOrElse("")
+    val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-		val link = dropboxApi.share(path)
-		//https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
+    val dropboxApi = new DropboxAPI(session)
 
-		var json: JsObject = JsObject(Seq(
-			"path" -> JsString(path),
-			"url" -> JsString(link.url),
-			"expires" -> JsString(link.expires.toString)
-		))
+    var path: String = request.queryString("path").head
 
-		Ok(json)
-	}
+    val link = dropboxApi.share(path)
+    //https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
 
-	def media() = Action { request =>
-		val conf = ConfigFactory.load()
-		val dropboxAppKey = conf.getString("dropbox.app_key")
-		val dropboxAppSecret = conf.getString("dropbox.app_secret")
-		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+    var json: JsObject = JsObject(Seq(
+      "path" -> JsString(path),
+      "url" -> JsString(link.url),
+      "expires" -> JsString(link.expires.toString)
+    ))
 
-		val accessKey: String = request.session.get("access_key").getOrElse("")
-		val accessSecret: String = request.session.get("access_secret").getOrElse("")
-		val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+    Ok(json)
+  }
 
-		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
-        val dropboxApi = new DropboxAPI(session)
+  def media() = Action { request =>
+    val conf = ConfigFactory.load()
+    val dropboxAppKey = conf.getString("dropbox.app_key")
+    val dropboxAppSecret = conf.getString("dropbox.app_secret")
+    val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
 
-		var path: String = request.queryString("path").head
+    val accessKey: String = request.session.get("access_key").getOrElse("")
+    val accessSecret: String = request.session.get("access_secret").getOrElse("")
+    val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-		val link = dropboxApi.media(path, false)
-		//https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
+    val dropboxApi = new DropboxAPI(session)
 
-		var json: JsObject = JsObject(Seq(
-			"path" -> JsString(path),
-			"url" -> JsString(link.url),
-			"expires" -> JsString(link.expires.toString)
-		))
+    var path: String = request.queryString("path").head
 
-		Ok(json)
-	}
+    val link = dropboxApi.media(path, false)
+    //https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
 
-	// /files (GET)
-	def downloadFiles() = Action { request =>
-		val conf = ConfigFactory.load()
-		val dropboxAppKey = conf.getString("dropbox.app_key")
-		val dropboxAppSecret = conf.getString("dropbox.app_secret")
-		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+    var json: JsObject = JsObject(Seq(
+      "path" -> JsString(path),
+      "url" -> JsString(link.url),
+      "expires" -> JsString(link.expires.toString)
+    ))
 
-		val accessKey: String = request.session.get("access_key").getOrElse("")
-		val accessSecret: String = request.session.get("access_secret").getOrElse("")
-		val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+    Ok(json)
+  }
 
-		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
-        val dropboxApi = new DropboxAPI(session)
+  // /files (GET)
+  def downloadFiles() = Action { request =>
+    val conf = ConfigFactory.load()
+    val dropboxAppKey = conf.getString("dropbox.app_key")
+    val dropboxAppSecret = conf.getString("dropbox.app_secret")
+    val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
 
-		Ok("Success")
-	}
+    val accessKey: String = request.session.get("access_key").getOrElse("")
+    val accessSecret: String = request.session.get("access_secret").getOrElse("")
+    val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-	// /files (POST)
-	def uploadFiles() = Action { request =>
-		val conf = ConfigFactory.load()
-		val dropboxAppKey = conf.getString("dropbox.app_key")
-		val dropboxAppSecret = conf.getString("dropbox.app_secret")
-		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
+    val dropboxApi = new DropboxAPI(session)
 
-		val accessKey: String = request.session.get("access_key").getOrElse("")
-		val accessSecret: String = request.session.get("access_secret").getOrElse("")
-		val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+    Ok("Success")
+  }
 
-		val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
-        val dropboxApi = new DropboxAPI(session)
+  // /files (POST)
+  def uploadFiles() = Action { request =>
+    val conf = ConfigFactory.load()
+    val dropboxAppKey = conf.getString("dropbox.app_key")
+    val dropboxAppSecret = conf.getString("dropbox.app_secret")
+    val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
 
-		Ok("Success")
-	}
+    val accessKey: String = request.session.get("access_key").getOrElse("")
+    val accessSecret: String = request.session.get("access_secret").getOrElse("")
+    val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
+
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
+    val dropboxApi = new DropboxAPI(session)
+
+    Ok("Success")
+  }
 }

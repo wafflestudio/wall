@@ -57,12 +57,7 @@ object File extends Controller {
 
   def serve(filePath: String) = Action {
     Logger.info("serving file : " + filePath)
-    Ok.sendFile(content = new java.io.File("public/files/" + filePath), inline=true)
+    Ok.sendFile(content = new java.io.File("public/files/" + filePath), inline = true)
   }
-
-
-	
-
-
 
 }

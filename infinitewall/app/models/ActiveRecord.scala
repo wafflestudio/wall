@@ -7,13 +7,13 @@ import play.api.db.DB
 import java.sql.Timestamp
 import org.apache.commons.codec.digest.DigestUtils
 
-case class ActiveRecordRow(timestamp:Timestamp)
+case class ActiveRecordRow(timestamp: Timestamp)
 
 object ActiveRecord extends ActiveRecord[ActiveRecordRow] {
   val tableName = "activerecord"
   val simple = {
     field[Timestamp]("initialized_timestamp") map {
-      case timestamp =>  ActiveRecordRow(timestamp)
+      case timestamp => ActiveRecordRow(timestamp)
     }
   }
 
@@ -29,33 +29,33 @@ object ActiveRecord extends ActiveRecord[ActiveRecordRow] {
 }
 
 abstract class ActiveRecord[T] {
-	val tableName: String
-	
-	def field[Type](fieldName:String)(implicit extractor: anorm.Column[Type]) = get[Type](tableName + "." + fieldName)(extractor)
+  val tableName: String
 
-	def simple: anorm.RowParser[T]
+  def field[Type](fieldName: String)(implicit extractor: anorm.Column[Type]) = get[Type](tableName + "." + fieldName)(extractor)
 
-	implicit def rowToTimestamp: anorm.Column[Timestamp] = Column.nonNull { (value, meta) =>
-		val MetaDataItem(qualified, nullable, clazz) = meta
-		value match {
-			case timestamp: Timestamp => Right(timestamp)
-			case _ => Left(TypeDoesNotMatch("Cannot convert " + value + ":" + value.asInstanceOf[AnyRef].getClass + " to java.sql.Timestamp for column " + qualified))
-		}
-	}
+  def simple: anorm.RowParser[T]
 
-	def timestampParser = scalar[Timestamp]
+  implicit def rowToTimestamp: anorm.Column[Timestamp] = Column.nonNull { (value, meta) =>
+    val MetaDataItem(qualified, nullable, clazz) = meta
+    value match {
+      case timestamp: Timestamp => Right(timestamp)
+      case _ => Left(TypeDoesNotMatch("Cannot convert " + value + ":" + value.asInstanceOf[AnyRef].getClass + " to java.sql.Timestamp for column " + qualified))
+    }
+  }
 
-	def findById(id: Long): Option[T] = {
-		DB.withConnection { implicit c =>
-			SQL("select * from " + tableName + " where id = {id}").on('id -> id).as(simple.singleOpt)
-		}
-	}
+  def timestampParser = scalar[Timestamp]
 
-	def delete(id: Long) = {
-		DB.withConnection { implicit c =>
-			SQL("delete from " + tableName + " where id = {id}").on(
-				'id -> id
-			).executeUpdate()
-		}
-	}
+  def findById(id: Long): Option[T] = {
+    DB.withConnection { implicit c =>
+      SQL("select * from " + tableName + " where id = {id}").on('id -> id).as(simple.singleOpt)
+    }
+  }
+
+  def delete(id: Long) = {
+    DB.withConnection { implicit c =>
+      SQL("delete from " + tableName + " where id = {id}").on(
+        'id -> id
+      ).executeUpdate()
+    }
+  }
 }

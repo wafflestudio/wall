@@ -11,7 +11,7 @@ import models._
 import views._
 import helpers._
 
-case class AccountData(val nickname:String)
+case class AccountData(val nickname: String)
 
 object Account extends Controller with Auth with Login {
 
@@ -25,11 +25,11 @@ object Account extends Controller with Auth with Login {
       ).verifying("password fields must be identical", t => t._1 == t._2),
       "Nickname" -> text(maxLength = 255)
     ) {
-      (email, passwords, nickname) =>
-        SignUpData(email, passwords._1, nickname)
-    } {
-      signupData => Some(signupData.email, ("", ""), "")
-    }.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password, signup.nickname).isDefined)
+        (email, passwords, nickname) =>
+          SignUpData(email, passwords._1, nickname)
+      } {
+        signupData => Some(signupData.email, ("", ""), "")
+      }.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password, signup.nickname).isDefined)
   }
 
   // TODO: check usage
@@ -37,20 +37,18 @@ object Account extends Controller with Auth with Login {
     mapping(
       "Nickname" -> text(maxLength = 255)
     ) {
-      (nickname) =>
-        AccountData(nickname)
-    } {
-      accountData => Some(accountData.nickname)
-    }
+        (nickname) =>
+          AccountData(nickname)
+      } {
+        accountData => Some(accountData.nickname)
+      }
   }
 
-
-	
-	def index = AuthenticatedAction { implicit request =>
+  def index = AuthenticatedAction { implicit request =>
     val user = User.findById(currentUserId).get
     val filledForm = accountForm.fill(AccountData(user.nickname))
-		Ok(views.html.account.index(filledForm))
-	}
+    Ok(views.html.account.index(filledForm))
+  }
 
   def signup = Action { implicit request =>
     Ok(views.html.account.signup(signupForm))
@@ -66,11 +64,10 @@ object Account extends Controller with Auth with Login {
     Ok("")
   }
 
-
   def update = AuthenticatedAction { implicit request =>
 
     val user = User.findById(currentUserId).get
-    request.body.asMultipartFormData.map {  md =>
+    request.body.asMultipartFormData.map { md =>
       md.file("ProfilePicture").map { file =>
         User.setPicture(user.id.get, placeUserFile(user, file))
       }
@@ -81,7 +78,6 @@ object Account extends Controller with Auth with Login {
     Redirect(routes.Account.index).flashing("msg" -> "Successfully updated")
   }
 
-
   def createNewUser = Action { implicit request =>
     signupForm.bindFromRequest.fold(
       formWithErrors => {
@@ -90,7 +86,7 @@ object Account extends Controller with Auth with Login {
       },
       signupData => {
         val user = User.findByEmail(signupData.email).get
-        request.body.asMultipartFormData.map {  md =>
+        request.body.asMultipartFormData.map { md =>
           md.file("files").map { file =>
             User.setPicture(user.id.get, placeUserFile(user, file))
           }
@@ -100,7 +96,6 @@ object Account extends Controller with Auth with Login {
       }
     )
   }
-
 
   private def placeUserFile(user: User, file: MultipartFormData.FilePart[TemporaryFile]) = {
     val encodedFolderName = user.id.get.toString
