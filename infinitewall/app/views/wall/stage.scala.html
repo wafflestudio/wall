@@ -95,12 +95,15 @@
   })
 
   $(function() {
+    // open sockets
     var webSocketURL = "@routes.Wall.sync(wallId, timestamp).webSocketURL()"
     var chatURL = "@routes.Chat.establish(chatId, 999).webSocketURL()"
 
+    // prepare stage
     window.stage = new Stage(@wallId, @timestamp, "@Application.currentUser", webSocketURL, chatURL)
     wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
 
+    // place sheets
     var sheetData = []
     var sheetlinkData = []
 
@@ -118,6 +121,7 @@
       stage.createSheet(sheet.id, sheet, @timestamp)
     }
 
+    // place sheet links
     for(var i = 0; i < sheetlinkData.length; i++)  {	
       var sheetlink = sheetlinkData[i]
       console.log(sheetlink)

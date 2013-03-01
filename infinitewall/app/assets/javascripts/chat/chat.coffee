@@ -36,7 +36,8 @@ class window.Chat
       switch data.kind
         when "join"
           newMessage = @infoMaker(data.nickname, "has joined") unless @users[data.username]?
-          @refreshUser(data.users)
+          if data.users?
+            @refreshUser(data.users)
         when "quit"
           newMessage = @infoMaker(@users[data.username].nickname, " has left") if @users[data.username].sessionCount is 1
           @refreshUser(data.users)

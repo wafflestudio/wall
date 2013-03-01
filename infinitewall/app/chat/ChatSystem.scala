@@ -2,7 +2,6 @@ package chat
 
 import play.api.libs.iteratee._
 import akka.actor._
-import play.api.libs.concurrent._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import akka.pattern.ask
@@ -26,7 +25,7 @@ case class Quit(userId: Long, producer: Enumerator[JsValue])
 case class Talk(userId: Long, text: String)
 case class NotifyJoin(userId: Long)
 
-case class Connected(enumerator: Enumerator[JsValue])
+case class Connected(enumerator: Enumerator[JsValue], prev:Enumerator[JsValue])
 case class CannotConnect(msg: String)
 
 case class Message(kind: String, username: String, text: String)
@@ -52,7 +51,7 @@ object ChatSystem {
 		val joinResult = room(roomId) ? Join(userId)
 
 		joinResult.map {
-			case Connected(producer) =>
+			case Connected(producer, prev) =>
 				// Create an Iteratee to consume the feed
 				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
 					room(roomId) ! Talk(userId, (event \ "text").as[String])
@@ -60,7 +59,7 @@ object ChatSystem {
 					room(roomId) ! Quit(userId, producer)
 				}
 
-				(consumer, producer)
+				(consumer, prev >>> producer)
 
 			case CannotConnect(error) =>
 
@@ -103,10 +102,10 @@ class ChatRoomActor(roomId: Long) extends Actor {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
 			}
 			else {
-				prev.map { jsval => producer.push(jsval) }
 				connections = connections :+ (userId, producer)
+
 				ChatRoom.addUser(roomId, userId)
-				sender ! Connected(producer)
+				sender ! Connected(producer, prev)
 			}
 		}
 
