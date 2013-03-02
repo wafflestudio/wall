@@ -49,14 +49,12 @@ object WallLog extends ActiveRecord[WallLog] {
 
   implicit def walllog2Json(walllog: WallLogWithEmail): JsValue = {
 
-    JsObject(
-      Seq(
-        "kind" -> JsString(walllog.kind),
-        "username" -> JsString(walllog.email),
-        "detail" -> JsString(walllog.message),
-        "timestamp" -> JsNumber(walllog.time),
-        "basetimestamp" -> JsNumber(walllog.basetime)
-      )
+    Json.obj(
+      "kind" -> walllog.kind,
+      "username" -> walllog.email,
+      "detail" -> walllog.message,
+      "timestamp" -> walllog.time,
+      "basetimestamp" -> walllog.basetime
     )
   }
 

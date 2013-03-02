@@ -253,7 +253,7 @@ class WallActor(wallId: Long) extends Actor {
     // Create Action
     case Action(detail, c: CreateAction, origin) =>
       val sheetId = Sheet.createInit(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId)
-      notifyAll("action", c.timestamp, c.userId, (detail.as[JsObject] ++ JsObject(Seq("id" -> JsNumber(sheetId)))).toString, origin)
+      notifyAll("action", c.timestamp, c.userId, (detail.as[JsObject] ++ Json.obj("id" -> sheetId)).toString, origin)
     // Other Action
     case Action(detail, action: ActionDetailWithId, origin) =>
       Sheet.findById(action.id) map { sheet =>

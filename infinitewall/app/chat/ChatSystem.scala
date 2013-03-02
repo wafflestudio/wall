@@ -69,7 +69,7 @@ object ChatSystem {
         val consumer = Done[JsValue, Unit]((), Input.EOF)
 
         // Send an error and close the socket
-        val producer = Enumerator[JsValue](JsObject(Seq("error" -> JsString(error)))).andThen(Enumerator.enumInput(Input.EOF))
+        val producer = Enumerator[JsValue](Json.obj("error" -> error)).andThen(Enumerator.enumInput(Input.EOF))
 
         (consumer, producer)
 
