@@ -92,7 +92,7 @@ object User extends ActiveRecord[User] {
     DB.withConnection { implicit c =>
       val (date, time) = tenMinutesAgo
       val foundUser = SQL("""select * from User where verification_token = {token}
-				and verification_toke_date >= {date} and verification_token_time >= {time}""").
+        and verification_toke_date >= {date} and verification_token_time >= {time}""").
         on('token -> token, 'date -> date, 'time -> time).as(User.simple.singleOpt)
 
       foundUser.map { user =>

@@ -48,11 +48,11 @@ object Wall extends ActiveRecord[Wall] {
       val id = SQL("select next value for wall_seq").as(scalar[Long].single)
 
       SQL(""" 
-				insert into Wall (id, name, user_id, is_reference, folder_id) values (
-					{id},
-					{name}, {userId}, {isReference}, {folderId}
-				)
-			""").on(
+        insert into Wall (id, name, user_id, is_reference, folder_id) values (
+          {id},
+          {name}, {userId}, {isReference}, {folderId}
+        )
+      """).on(
         'id -> id,
         'name -> name,
         'userId -> userId,
