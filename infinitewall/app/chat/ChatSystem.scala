@@ -139,40 +139,41 @@ class ChatRoomActor(roomId: Long) extends Actor {
 
     val msg = kind match {
       case "talk" =>
-        JsObject(Seq(
-          "kind" -> JsString(kind),
-          "username" -> JsString(username),
-          "message" -> JsString(message)))
+        Json.obj(
+          "kind" -> kind,
+          "username" -> username,
+          "message" -> message
+        )
 
       case "join" =>
-        JsObject(Seq(
-          "kind" -> JsString(kind),
-          "username" -> JsString(username),
-          "nickname" -> JsString(nickname),
-          "picture" -> JsString(user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/")),
-          "users" -> JsArray(
+        Json.obj(
+          "kind" -> kind,
+          "username" -> username,
+          "nickname" -> nickname,
+          "picture" -> user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/"),
+          "users" -> Json.arr(
             connections.map(i => {
               val user = User.findById(i._1)
-              JsObject(Seq(
-                "email" -> JsString(user.get.email),
-                "nickname" -> JsString(user.get.nickname),
-                "picture" -> JsString(user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/"))
-              ))
-            }))))
+              Json.obj(
+                "email" -> user.get.email,
+                "nickname" -> user.get.nickname,
+                "picture" -> user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/")
+              )
+            })))
 
       case "quit" =>
-        JsObject(Seq(
-          "kind" -> JsString(kind),
-          "username" -> JsString(username),
-          "users" -> JsArray(
+        Json.obj(
+          "kind" -> kind,
+          "username" -> username,
+          "users" -> Json.arr(
             connections.map(i => {
               val user = User.findById(i._1)
-              JsObject(Seq(
-                "email" -> JsString(user.get.email),
-                "nickname" -> JsString(user.get.nickname),
-                "picture" -> JsString(user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/"))
-              ))
-            }))))
+              Json.obj(
+                "email" -> user.get.email,
+                "nickname" -> user.get.nickname,
+                "picture" -> user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/")
+              )
+            })))
     }
 
     logMessage(kind, userId, message)

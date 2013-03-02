@@ -10,7 +10,7 @@ sealed trait ActionDetail {
 	val timestamp:Long
 	
 	def json = {
-		JsObject(Seq("timestamp" -> JsNumber(timestamp)))
+		Json.obj("timestamp" -> timestamp)
 	}
 }
 
@@ -18,7 +18,7 @@ sealed trait ActionDetailWithId extends ActionDetail {
 	val id:Long
 	
 	override def json = {
-		super.json ++ JsObject(Seq("params" -> JsObject(Seq("id" -> JsNumber(id)))))
+		super.json ++ Json.obj("params" -> Json.obj("id" -> id))
 	}
 }
 
@@ -47,15 +47,15 @@ case class AlterTextAction(userId:Long, timestamp:Long, id:Long, operations:List
 	
 	def singleJson = {
 		val last = operations.last
-		JsObject(Seq("action" -> JsString("alterText"), 
-				"params" -> JsObject(Seq(
-					"from" -> JsNumber(last.op.from), 
-					"length" -> JsNumber(last.op.length), 
-					"content" -> JsString(last.op.content), 
-					"msgId" -> JsNumber(last.msgId),
-					"id" -> JsNumber(id)
-				))
-			))
+		Json.obj("action" -> "alterText", 
+				"params" -> Json.obj(
+					"from" -> last.op.from, 
+					"length" -> last.op.length, 
+					"content" -> last.op.content, 
+					"msgId" -> last.msgId,
+					"id" -> id
+				)
+			)
 	}
 }
 case class SetLinkAction(userId:Long, timestamp:Long, id:Long, to_id:Long) extends ActionDetailWithId

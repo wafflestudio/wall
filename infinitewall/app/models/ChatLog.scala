@@ -46,13 +46,12 @@ object ChatLog extends ActiveRecord[ChatLog] {
   }
 
   implicit def chatlog2Json(chatlog: ChatLogWithEmail): JsValue = {
-    JsObject(
-      Seq(
-        "kind" -> JsString(chatlog.kind),
-        "username" -> JsString(chatlog.email),
-        "message" -> JsString(chatlog.message)
-      )
+    Json.obj(
+      "kind" -> chatlog.kind,
+      "username" -> chatlog.email,
+      "message" -> chatlog.message
     )
+    
   }
 
   def create(kind: String, roomId: Long, userId: Long, message: String) = {

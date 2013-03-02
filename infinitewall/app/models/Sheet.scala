@@ -38,17 +38,15 @@ class TextSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Doubl
   title: String, wallId: Long) extends Sheet(id, x, y, width, height, title, ContentType.TextType, wallId) {
 
   def toJson() = {
-    JsObject(
-      Seq(
-        "id" -> JsNumber(id.get),
-        "x" -> JsNumber(x),
-        "y" -> JsNumber(y),
-        "width" -> JsNumber(width),
-        "height" -> JsNumber(height),
-        "title" -> JsString(escapeHtml(title)),
-        "content" -> JsString(TextContent.findBySheetId(id.get).content),
-        "contentType" -> JsString("text")
-      )
+    Json.obj(
+      "id" -> id.get,
+      "x" -> x,
+      "y" -> y,
+      "width" -> width,
+      "height" -> height,
+      "title" -> escapeHtml(title),
+      "content" -> TextContent.findBySheetId(id.get).content,
+      "contentType" -> "text"
     ).toString()
   }
 }
@@ -57,18 +55,16 @@ class ImageSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Doub
   title: String, wallId: Long) extends Sheet(id, x, y, width, height, title, ContentType.ImageType, wallId) {
 
   def toJson() = {
-    JsObject(
-      Seq(
-        "id" -> JsNumber(id.get),
-        "x" -> JsNumber(x),
-        "y" -> JsNumber(y),
-        "width" -> JsNumber(width),
-        "height" -> JsNumber(height),
-        "title" -> JsString(escapeHtml(title)),
-        "content" -> JsString(ImageContent.findBySheetId(id.get).url),
-        "contentType" -> JsString("image")
-      )
-    ).toString()
+    Json.obj(
+      "id" -> id.get,
+      "x" -> x,
+      "y" -> y,
+      "width" -> width,
+      "height" -> height,
+      "title" -> escapeHtml(title),
+      "content" -> ImageContent.findBySheetId(id.get).url,
+      "contentType" -> "image"
+    ).toString
   }
 }
 

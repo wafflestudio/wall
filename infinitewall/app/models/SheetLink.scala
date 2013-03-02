@@ -11,13 +11,11 @@ import org.apache.commons.lang.StringEscapeUtils._
 
 case class SheetLink(id: Pk[Long], from_id: Long, to_id: Long, wall_id: Long) {
   def toJson() = {
-    JsObject(
-      Seq(
-        "id" -> JsNumber(id.get),
-        "from_id" -> JsNumber(from_id),
-        "to_id" -> JsNumber(to_id),
-        "wall_id" -> JsNumber(wall_id)
-      )
+    Json.obj(
+      "id" -> id.get,
+      "from_id" -> from_id,
+      "to_id" -> to_id,
+      "wall_id" -> wall_id
     ).toString()
   }
 

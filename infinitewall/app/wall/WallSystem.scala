@@ -69,14 +69,14 @@ object WallSystem {
 				// A finished Iteratee sending EOF
 				val consumer = Done[JsValue, Unit]((), Input.EOF)
 				// Send an error and close the socket
-				val producer = Enumerator[JsValue](JsObject(Seq("error" -> JsString(error)))).andThen(Enumerator.enumInput(Input.EOF))
+				val producer = Enumerator[JsValue](Json.obj("error" -> error)).andThen(Enumerator.enumInput(Input.EOF))
 
 				(consumer, producer)
 			case msg @ _ =>
 				// A finished Iteratee sending EOF
 				val consumer = Done[JsValue, Unit]((), Input.EOF)
 				// Send an error and close the socket
-				val producer = Enumerator[JsValue](JsObject(Seq("error" -> JsString("error")))).andThen(Enumerator.enumInput(Input.EOF))
+				val producer = Enumerator[JsValue](Json.obj("error" -> "error")).andThen(Enumerator.enumInput(Input.EOF))
 				Logger.info("Unhandled message:" + msg.toString)
 				(consumer, producer)
 
@@ -324,13 +324,11 @@ class WallActor(wallId: Long) extends Actor {
 
 		val username = User.findById(userId).get.email
 		val logId = logMessage(kind, basetimestamp, userId, detail)
-		val msg = JsObject(
-			Seq(
-				"kind" -> JsString(kind),
-				"username" -> JsString(username),
-				"detail" -> JsString(detail),
-				"timestamp" -> JsNumber(logId)
-			)
+		val msg = Json.obj(
+			"kind" -> kind,
+			"username" -> username,
+			"detail" -> detail,
+			"timestamp" -> logId
 		)
 
 		// notify all producers
@@ -339,9 +337,9 @@ class WallActor(wallId: Long) extends Actor {
 				producers.map { producerPair =>
 					val producer = producerPair._1
 					if (producer == origin)
-						producer.push(msg ++ JsObject(Seq("mine" -> JsBoolean(true), "timestamp" -> JsNumber(logId))))
+						producer.push(msg ++ Json.obj("mine" -> true, "timestamp" -> logId))
 					else
-						producer.push(msg ++ JsObject(Seq("timestamp" -> JsNumber(logId))))
+						producer.push(msg ++ Json.obj("timestamp" -> logId))
 				}
 		}
 

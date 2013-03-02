@@ -103,35 +103,35 @@ object Dropbox extends Controller {
 
     var contents: Seq[JsObject] = List()
     entry.contents.toList.map { e =>
-      contents = contents :+ JsObject(Seq(
-        "size" -> JsString(e.size),
-        "hash" -> JsString(e.hash),
-        "bytes" -> JsNumber(e.bytes),
-        "thumb_exists" -> JsBoolean(e.thumbExists),
-        "rev" -> JsString(e.rev),
-        "modified" -> JsString(e.modified),
-        "path" -> JsString(e.path),
-        "is_dir" -> JsBoolean(e.isDir),
-        "icon" -> JsString(e.icon),
-        "root" -> JsString(e.root),
-        "revision" -> JsString(e.rev)
-      ))
+      contents = contents :+ Json.obj(
+        "size" -> e.size,
+        "hash" -> e.hash,
+        "bytes" -> e.bytes,
+        "thumb_exists" -> e.thumbExists,
+        "rev" -> e.rev,
+        "modified" -> e.modified,
+        "path" -> e.path,
+        "is_dir" -> e.isDir,
+        "icon" -> e.icon,
+        "root" -> e.root,
+        "revision" -> e.rev
+      )
     }
 
-    var entryElement: JsObject = JsObject(Seq(
-      "size" -> JsString(entry.size),
-      "hash" -> JsString(entry.hash),
-      "bytes" -> JsNumber(entry.bytes),
-      "thumb_exists" -> JsBoolean(entry.thumbExists),
-      "rev" -> JsString(entry.rev),
-      "modified" -> JsString(entry.modified),
-      "path" -> JsString(entry.path),
-      "is_dir" -> JsBoolean(entry.isDir),
-      "icon" -> JsString(entry.icon),
-      "root" -> JsString(entry.root),
-      "contents" -> JsArray(contents),
-      "revision" -> JsString(entry.rev)
-    ))
+    var entryElement: JsObject = Json.obj(
+      "size" -> entry.size,
+      "hash" -> entry.hash,
+      "bytes" -> entry.bytes,
+      "thumb_exists" -> entry.thumbExists,
+      "rev" -> entry.rev,
+      "modified" -> entry.modified,
+      "path" -> entry.path,
+      "is_dir" -> entry.isDir,
+      "icon" -> entry.icon,
+      "root" -> entry.root,
+      "contents" -> Json.arr(contents),
+      "revision" -> entry.rev
+    )
 
     Ok(entryElement)
   }
@@ -154,11 +154,11 @@ object Dropbox extends Controller {
     val link = dropboxApi.share(path)
     //https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
 
-    var json: JsObject = JsObject(Seq(
-      "path" -> JsString(path),
-      "url" -> JsString(link.url),
-      "expires" -> JsString(link.expires.toString)
-    ))
+    var json = Json.obj(
+      "path" -> path,
+      "url" -> link.url,
+      "expires" -> link.expires.toString
+    )
 
     Ok(json)
   }
@@ -181,11 +181,11 @@ object Dropbox extends Controller {
     val link = dropboxApi.media(path, false)
     //https://github.com/jberkel/sbt-dropbox-plugin/blob/master/src/main/scala/sbtdropbox/DropboxAPI.scala
 
-    var json: JsObject = JsObject(Seq(
-      "path" -> JsString(path),
-      "url" -> JsString(link.url),
-      "expires" -> JsString(link.expires.toString)
-    ))
+    var json = Json.obj(
+      "path" -> path,
+      "url" -> link.url,
+      "expires" -> link.expires.toString
+    )
 
     Ok(json)
   }

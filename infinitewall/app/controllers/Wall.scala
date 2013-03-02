@@ -38,10 +38,10 @@ object Wall extends Controller with Auth with Login {
 			case root: models.RootFolder =>
 				JsArray(tree.children.map(resourceTree2Json(_)))
 			case folder: models.Folder =>
-				JsObject(Seq("type" -> JsString("folder"), "id" -> JsNumber(folder.id.get), "name" -> JsString(folder.name),
-					"children" -> JsArray(tree.children.map(resourceTree2Json(_)))))
+				Json.obj("type" -> "folder", "id" -> folder.id.get, "name" -> folder.name,
+					"children" -> Json.arr(tree.children.map(resourceTree2Json(_))))
 			case wall: models.Wall =>
-				JsObject(Seq("type" -> JsString("wall"), "id" -> JsNumber(wall.id.get), "name" -> JsString(wall.name)))
+				Json.obj("type" -> "wall", "id" -> wall.id.get, "name" -> wall.name)
 		}
 	}
 
@@ -132,13 +132,13 @@ object Wall extends Controller with Auth with Login {
         utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
           case Success(pair) =>
             val (filename, file) = pair
-            fileList :+ JsObject(Seq(
-              "name" -> JsString(filename),
-              "size" -> JsNumber(file.length),
-              "url" -> JsString("/assets/files/" + filename),
-              "delete_url" -> JsString("/wall/file/"+wallId),
-              "delete_type" -> JsString("delete")
-            ))
+            fileList :+ Json.obj(
+              "name" -> filename,
+              "size" -> file.length,
+              "url" -> ("/assets/files/" + filename),
+              "delete_url" -> ("/wall/file/"+wallId),
+              "delete_type" -> "delete"
+            )
           case Failure(_) =>
             // TODO: add message? that a file upload failed
             fileList
