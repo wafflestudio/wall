@@ -108,11 +108,24 @@ class ChatRoomActor(roomId: Long) extends Actor {
         val producer = Enumerator.imperative[JsValue](onStart = () => self ! NotifyJoin(userId, connectionId))
         // previous messages
         val prev = Enumerator(prevMessages(0).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
-        // TODO: add latest user list in welcome message
+        
         // welcome message with connection id
         val welcome:Enumerator[JsValue] = Enumerator(Json.obj(
           "kind" -> "welcome",
-          "connectionId" -> connectionId
+          "connectionId" -> connectionId,
+          "users" -> Json.arr(
+          connections.map { connection => 
+            User.findById(connection._1).map { user =>
+              Json.obj(
+                "userId" -> user.id.get,
+                "connectionId" -> connection._3,
+                "email" -> user.email,
+                "nickname" -> user.nickname,
+                "picture" -> user.picturePath.getOrElse("").replaceFirst("public/", "/assets/")
+              )
+            }
+          })
+        
         ))
         
         connections = connections :+ (userId, producer, connectionId)
@@ -167,19 +180,6 @@ class ChatRoomActor(roomId: Long) extends Actor {
           "nickname" -> nickname,
           "picture" -> user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/")
         )
-        val users = Json.obj("users" -> Json.arr(
-          connections.map(i => {
-            val user = User.findById(i._1)
-            Json.obj(
-              "email" -> user.get.email,
-              "nickname" -> user.get.nickname,
-              "picture" -> user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/")
-            )
-          })))
-        
-        // TODO: users + joinMsg only for the needed connections 
-        (joinMsg ++ users)
-
       case "quit" =>
         Json.obj(
           "kind" -> kind,

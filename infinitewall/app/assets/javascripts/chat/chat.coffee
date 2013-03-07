@@ -13,6 +13,7 @@ class window.Chat
     @chatInput = $('#chatInput')
     @chatInput.textareaAutoExpand()
     @connectionId = -1
+    @status = "DISCONNECTED"
     
 
   toggle: -> @chatWindow.fadeToggle()
@@ -31,36 +32,49 @@ class window.Chat
         console.log('disconnected: ' + data.error)
         @socket.close()
         return
-      
+
       switch data.kind
         when "welcome"
-          @connectionId = data.connectionId
-          console.log('connected with connection id ' + @connectionId)
-          # TODO: prevent having duplicate event handlers registered
-          # now sending message is available
-          @chatInput.on 'keydown', (event) =>
-            if event.keyCode is 13 and !event.shiftKey and @chatInput.val().replace(/\s/g, '').length > 0
-              @sendMessage()
+          @setUsers(data.users)
+
+          if @status == "DISCONNECTED"
+            @connectionId = data.connectionId
+            console.log('connected with connection id ' + @connectionId)
+            # now sending message is available
+            @chatInput.on 'keydown', (event) =>
+              if event.keyCode is 13 and !event.shiftKey and @chatInput.val().replace(/\s/g, '').length > 0
+                @sendMessage()
+
+          @status = "CONNECTED"
+
         when "join"
-          newMessage = @infoMaker(data.nickname, "has joined") unless @users[data.username]?
-          if data.users?
-            @refreshUser(data.users)
+          if not @users[data.username]?
+            @users[data.username] = {username: data.username, nickname: data.nickname, picture: data.picture}
+            newMessage = @infoMaker(data.nickname, "has joined")
+          if @status == "CONNECTED"
+            @users[data.username]?.sessionCount ++
         when "quit"
-          newMessage = @infoMaker(@users[data.username].nickname, " has left") if @users[data.username]?.sessionCount is 1
-          @refreshUser(data.users) if data.users
+          @users[data.username]?.sessionCount --
+          if @users[data.username]?.sessionCount is 0
+            newMessage = @infoMaker(@users[data.username].nickname, " has left") 
+          
         when "talk" then newMessage = @messageMaker(@users[data.username], data.message)
         
-      @chatLog.append newMessage
+      @chatLog.append newMessage if newMessage?
       @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 150
   
   onError: (e) ->
+    # TODO: add reconnection
     console.log(e)
-  
-  refreshUser: (data) ->
+
+  setUsers: (users) ->
+    # clear all existing users
     @users = {}
     @userList.html('')
-    @userJoin(user) for user in data
-    @addUser(user) for email, user of @users
+    for user in users
+      @users[user.email] ||= user
+      @users[user.email].sessionCount ||= 0
+      @users[user.email].sessionCount ++
 
   userJoin: (user) ->
     user.sessionCount = 0
