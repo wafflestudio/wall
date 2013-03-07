@@ -84,7 +84,7 @@ object Wall extends Controller with Auth with Login {
 				WallSystem.establish(wallId, userId.toLong, timestamp)
 			case None =>
 				val consumer = Done[JsValue, Unit]((), Input.EOF)
-				val producer = Enumerator[JsValue](JsObject(Seq("error" -> JsString("Unauthorized")))).andThen(Enumerator.enumInput(Input.EOF))
+				val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
 				Promise.pure(consumer, producer)
 		}
 	}

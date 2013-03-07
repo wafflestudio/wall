@@ -12,9 +12,8 @@ class window.Chat
     @userList = $('#chatUsers')
     @chatInput = $('#chatInput')
     @chatInput.textareaAutoExpand()
-    @chatInput.on 'keydown', (event) =>
-      if event.keyCode is 13 and !event.shiftKey and @chatInput.val().replace(/\s/g, '').length > 0
-        @sendMessage()
+    @connectionId = -1
+    
 
   toggle: -> @chatWindow.fadeToggle()
 
@@ -22,7 +21,7 @@ class window.Chat
       msg = @chatInput.val()
       #msg = msg.substr(0, msg.length - 1) if msg.charAt(msg.length - 1) is '\n'
       @chatInput.val("")
-      @socket.send JSON.stringify({text: msg})
+      @socket.send JSON.stringify({connectionId:@connectionId, text: msg})
 
   onReceive: (e) =>
       data = JSON.parse(e.data)
@@ -34,6 +33,14 @@ class window.Chat
         return
       
       switch data.kind
+        when "welcome"
+          @connectionId = data.connectionId
+          console.log('connected with connection id ' + @connectionId)
+          # TODO: prevent having duplicate event handlers registered
+          # now sending message is available
+          @chatInput.on 'keydown', (event) =>
+            if event.keyCode is 13 and !event.shiftKey and @chatInput.val().replace(/\s/g, '').length > 0
+              @sendMessage()
         when "join"
           newMessage = @infoMaker(data.nickname, "has joined") unless @users[data.username]?
           if data.users?
