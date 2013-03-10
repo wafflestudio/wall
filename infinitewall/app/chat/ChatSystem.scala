@@ -163,31 +163,37 @@ class ChatRoomActor(roomId: Long) extends Actor {
     val username = user.get.email
     val nickname = user.get.nickname
 
-    val msg = kind match {
+    val msg:JsValue = kind match {
       case "talk" =>
         Json.obj(
           "kind" -> kind,
-          "connectionId" -> connectionId,
           "username" -> username,
-          "message" -> message
+          "message" -> message,
+          "connectionId" -> connectionId
         )
 
-      case "join" =>
-        val joinMsg = Json.obj(
+      case "join" =>  
+        val connectionCountForUser = connections.count(_._1 == userId)
+        
+        Json.obj(
           "kind" -> kind,
           "username" -> username,
-          "connectionId" -> connectionId,
           "nickname" -> nickname,
+          "message" -> Json.obj("nickname" -> nickname, "numConnections" -> connectionCountForUser).toString,
+          "connectionId" -> connectionId,
           "picture" -> user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/")
         )
       case "quit" =>
+        val connectionCountForUser = connections.count(_._1 == userId)
+        
         Json.obj(
           "kind" -> kind,
-          "username" -> username
+          "username" -> username,
+          "message" -> Json.obj("numConnections" -> connectionCountForUser).toString
         )
     }
 
-    logMessage(kind, userId, message)
+    logMessage(kind, userId, (msg \ "message").as[String])
 
     connections.foreach {
       case (_, producer,_) => producer.push(msg)

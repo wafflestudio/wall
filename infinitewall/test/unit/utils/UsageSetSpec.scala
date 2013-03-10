@@ -6,6 +6,8 @@ import play.api.test.Helpers._
 import utils.UsageSet
 
 class UsageSetSpec extends Specification {
+  sequential 
+  
   "UsageSet" should {
     
     val set = new UsageSet(5)

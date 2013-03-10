@@ -14,7 +14,6 @@ class window.Chat
     @chatInput.textareaAutoExpand()
     @connectionId = -1
     @status = "DISCONNECTED"
-    
 
   toggle: -> @chatWindow.fadeToggle()
 
@@ -48,17 +47,31 @@ class window.Chat
           @status = "CONNECTED"
 
         when "join"
-          if not @users[data.username]?
-            @users[data.username] = {username: data.username, nickname: data.nickname, picture: data.picture}
-            newMessage = @infoMaker(data.nickname, "has joined")
+          detail = JSON.parse(data.message)
+          numConnections = detail.numConnections
+            
+          if numConnections == 1
+            @users[data.username] = {username: data.username, nickname: data.nickname || detail.nickname, picture: data.picture}
+            newMessage = @infoHtml(data.nickname || detail.nickname , " has joined")
+          else
+            newMessage = @infoHtml(data.nickname || detail.nickname, " added new connection")
+
           if @status == "CONNECTED"
-            @users[data.username]?.sessionCount ++
+            @users[data.username].sessionCount = numConnections
+
         when "quit"
-          @users[data.username]?.sessionCount --
-          if @users[data.username]?.sessionCount is 0
-            newMessage = @infoMaker(@users[data.username].nickname, " has left") 
+          detail = JSON.parse(data.message)
+          numConnections = detail.numConnections
+          if numConnections == 0
+            newMessage = @infoHtml(@users[data.username].nickname || detail.nickname, " has left") 
+            delete @users[data.username]
+          else
+            newMessage = @infoHtml(@users[data.username].nickname || detail.nickname, " removed a connection") 
+
+          if @status == "CONNECTED"
+            @users[data.username].sessionCount = numConnections
           
-        when "talk" then newMessage = @messageMaker(@users[data.username], data.message)
+        when "talk" then newMessage = @messageHtml(@users[data.username], data.message)
         
       @chatLog.append newMessage if newMessage?
       @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 150
@@ -74,17 +87,12 @@ class window.Chat
     for user in users
       @users[user.email] ||= user
       @users[user.email].sessionCount ||= 0
-      @users[user.email].sessionCount ++
-
-  userJoin: (user) ->
-    user.sessionCount = 0
-    @users[user.email] = user unless @users[user.email]?
-    @users[user.email].sessionCount++
+      @users[user.email].sessionCount += 1
 
   addUser: (user) ->
     @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(#{user.picture})'> </div>")
 
-  messageMaker: (user, message) ->
+  messageHtml: (user, message) ->
     owner = if user?.email is stage.currentUser then "isMine" else "isNotMine"
     $("<div class = 'messageContainer'>
         <div class = 'messageDiv #{owner}'>
@@ -98,7 +106,7 @@ class window.Chat
         </div>
       </div>")
 
-  infoMaker: (who, message) ->
+  infoHtml: (who, message) ->
     $("<div class = 'infoContainer'>
         <div class = 'infoMessage'>
           <span class = 'infoWho'>#{who}</span>

@@ -6,6 +6,7 @@ target
 tmp
 public/files
 RUNNING_PID
+public/coverage
 
 dist
 infinitewall.h2.db

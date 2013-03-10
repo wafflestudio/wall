@@ -22,9 +22,9 @@ object ApplicationBuild extends Build {
 
 	val main = play.Project(appName, appVersion, appDependencies).settings(
 		// Add your own project settings here
-		coffeescriptOptions := Seq("native", "coffee -p"),
-		parallelExecution in ScctPlugin.ScctTest := false).settings(
+		coffeescriptOptions := Seq("native", "coffee -p")
+		).settings(
             ScctPlugin.instrumentSettings : _*
-		)
+		).settings(parallelExecution in ScctPlugin.ScctTest := false)
 
 }
