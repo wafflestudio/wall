@@ -109,12 +109,13 @@ class ChatRoomActor(roomId: Long) extends Actor {
         // previous messages
         val prev = Enumerator(prevMessages(0).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
         
+        connections = connections :+ (userId, producer, connectionId)
+    
         // welcome message with connection id
         val welcome:Enumerator[JsValue] = Enumerator(Json.obj(
           "kind" -> "welcome",
           "connectionId" -> connectionId,
-          "users" -> Json.arr(
-          connections.map { connection => 
+          "users" -> connections.flatMap { connection => 
             User.findById(connection._1).map { user =>
               Json.obj(
                 "userId" -> user.id.get,
@@ -124,12 +125,10 @@ class ChatRoomActor(roomId: Long) extends Actor {
                 "picture" -> user.picturePath.getOrElse("").replaceFirst("public/", "/assets/")
               )
             }
-          })
+          }
         
         ))
-        
-        connections = connections :+ (userId, producer, connectionId)
-
+     
         ChatRoom.addUser(roomId, userId)
         sender ! Connected(producer, prev >>> welcome)
       }

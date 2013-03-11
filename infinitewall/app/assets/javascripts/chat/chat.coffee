@@ -35,6 +35,7 @@ class window.Chat
       switch data.kind
         when "welcome"
           @setUsers(data.users)
+          @refreshUserList()
 
           if @status == "DISCONNECTED"
             @connectionId = data.connectionId
@@ -47,30 +48,13 @@ class window.Chat
           @status = "CONNECTED"
 
         when "join"
-          detail = JSON.parse(data.message)
-          numConnections = detail.numConnections
-            
-          if numConnections == 1
-            @users[data.username] = {username: data.username, nickname: data.nickname || detail.nickname, picture: data.picture}
-            newMessage = @infoHtml(data.nickname || detail.nickname , " has joined")
-          else
-            newMessage = @infoHtml(data.nickname || detail.nickname, " added new connection")
-
-          if @status == "CONNECTED"
-            @users[data.username].sessionCount = numConnections
+          @addConnection(data)
+          @refreshUserList()
 
         when "quit"
-          detail = JSON.parse(data.message)
-          numConnections = detail.numConnections
-          if numConnections == 0
-            newMessage = @infoHtml(@users[data.username].nickname || detail.nickname, " has left") 
-            delete @users[data.username]
-          else
-            newMessage = @infoHtml(@users[data.username].nickname || detail.nickname, " removed a connection") 
-
-          if @status == "CONNECTED"
-            @users[data.username].sessionCount = numConnections
-          
+          @removeConnection(data)
+          @refreshUserList()
+ 
         when "talk" then newMessage = @messageHtml(@users[data.username], data.message)
         
       @chatLog.append newMessage if newMessage?
@@ -83,14 +67,43 @@ class window.Chat
   setUsers: (users) ->
     # clear all existing users
     @users = {}
-    @userList.html('')
+    
     for user in users
       @users[user.email] ||= user
       @users[user.email].sessionCount ||= 0
       @users[user.email].sessionCount += 1
+      
+    
+  addConnection: (data) ->
+    detail = JSON.parse(data.message)
+    numConnections = detail.numConnections
+      
+    if numConnections == 1
+      @users[data.username] = {username: data.username, nickname: data.nickname || detail.nickname, picture: data.picture}
+      newMessage = @infoHtml(data.nickname || detail.nickname , " has joined")
+    else
+      newMessage = @infoHtml(data.nickname || detail.nickname, " added new connection")
 
-  addUser: (user) ->
-    @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(#{user.picture})'> </div>")
+    if @status == "CONNECTED"
+      @users[data.username].sessionCount = numConnections
+
+  removeConnection: (data) ->
+    detail = JSON.parse(data.message)
+    numConnections = detail.numConnections
+    if numConnections == 0
+      newMessage = @infoHtml(@users[data.username].nickname || detail.nickname, " has left") 
+      delete @users[data.username]
+    else
+      newMessage = @infoHtml(@users[data.username].nickname || detail.nickname, " removed a connection") 
+
+    if @status == "CONNECTED"
+      @users[data.username].sessionCount = numConnections
+
+  refreshUserList: () ->
+    @userList.html('')
+    for email,user of @users
+      @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(#{user.picture})'> </div>")
+
 
   messageHtml: (user, message) ->
     owner = if user?.email is stage.currentUser then "isMine" else "isNotMine"
