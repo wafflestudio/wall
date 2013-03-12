@@ -180,7 +180,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
           "nickname" -> nickname,
           "message" -> Json.obj("nickname" -> nickname, "numConnections" -> connectionCountForUser).toString,
           "connectionId" -> connectionId,
-          "picture" -> user.get.picturePath.getOrElse("").replaceFirst("public/", "/assets/")
+          "picture" -> User.getPicturePath(userId) // TODO: need optimization
         )
       case "quit" =>
         val connectionCountForUser = connections.count(_._1 == userId)
