@@ -104,13 +104,17 @@ class window.Chat
     for email,user of @users
       @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(#{user.picture})'> </div>")
 
+    $('.messageContainer .messageProfilePic').each (i, el) =>
+      $(el).css('background-image', "url(#{@users[$(el).data('userid')].picture})")
+
+
 
   messageHtml: (user, message) ->
     owner = if user?.email is stage.currentUser then "isMine" else "isNotMine"
     $("<div class = 'messageContainer'>
         <div class = 'messageDiv #{owner}'>
           <div class = 'messageProfilePicContainer'>
-            <div class = 'messageProfilePic' style = 'background-image:url(#{user?.picture ? ""})'></div>
+            <div class = 'messageProfilePic' data-userid ='#{user.username}' style = 'background-image:url(#{user?.picture ? ""})'></div>
           </div>
           <div class = 'messageRest'>
             <div class = 'messageNickname'>#{user?.nickname ? "???"}</div>
