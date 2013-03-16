@@ -30,7 +30,7 @@ case class NotifyJoin(userId: Long, connectionId:Int)
 case class Connected(enumerator: Enumerator[JsValue], prev: Enumerator[JsValue])
 case class CannotConnect(msg: String)
 
-case class Message(kind: String, username: String, text: String)
+case class Message(kind: String, email: String, text: String)
 
 object ChatSystem {
 
@@ -112,6 +112,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
         connections = connections :+ (userId, producer, connectionId)
     
         // welcome message with connection id
+        Logger.info(connections.toString)
         val welcome:Enumerator[JsValue] = Enumerator(Json.obj(
           "kind" -> "welcome",
           "connectionId" -> connectionId,
@@ -159,14 +160,15 @@ class ChatRoomActor(roomId: Long) extends Actor {
   def notifyAll(kind: String, userId: Long, connectionId: Int, message: String) {
 
     val user = User.findById(userId)
-    val username = user.get.email
+    val email = user.get.email
     val nickname = user.get.nickname
 
     val msg:JsValue = kind match {
       case "talk" =>
         Json.obj(
+          "userId" -> userId,
           "kind" -> kind,
-          "username" -> username,
+          "email" -> email,
           "message" -> message,
           "connectionId" -> connectionId
         )
@@ -176,7 +178,8 @@ class ChatRoomActor(roomId: Long) extends Actor {
         
         Json.obj(
           "kind" -> kind,
-          "username" -> username,
+          "userId" -> userId,
+          "email" -> email,
           "nickname" -> nickname,
           "message" -> Json.obj("nickname" -> nickname, "numConnections" -> connectionCountForUser).toString,
           "connectionId" -> connectionId,
@@ -186,8 +189,9 @@ class ChatRoomActor(roomId: Long) extends Actor {
         val connectionCountForUser = connections.count(_._1 == userId)
         
         Json.obj(
+          "userId" -> userId,
           "kind" -> kind,
-          "username" -> username,
+          "email" -> email,
           "message" -> Json.obj("numConnections" -> connectionCountForUser).toString
         )
     }

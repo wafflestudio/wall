@@ -8,7 +8,7 @@ import java.sql.Timestamp
 import play.api.libs.json._
 
 case class ChatLog(id: Pk[Long], kind: String, message: String, time: Long, roomId: Long, userId: Long)
-case class ChatLogWithEmail(id: Pk[Long], kind: String, message: String, time: Long, roomId: Long, email: String)
+case class ChatLogWithEmail(id: Pk[Long], kind: String, message: String, time: Long, roomId: Long, userId: Long, email: String)
 
 object ChatLog extends ActiveRecord[ChatLog] {
 
@@ -30,9 +30,10 @@ object ChatLog extends ActiveRecord[ChatLog] {
       field[String]("message") ~
       field[Long]("time") ~
       field[Long]("chatroom_id") ~
+      field[Long]("user_id") ~
       get[String]("User.email") ~
       field[String]("kind") map {
-        case id ~ message ~ time ~ roomId ~ email ~ kind => ChatLogWithEmail(id, kind, message, time, roomId, email)
+        case id ~ message ~ time ~ roomId ~ userId ~ email ~ kind => ChatLogWithEmail(id, kind, message, time, roomId, userId, email)
       }
   }
 
@@ -47,8 +48,9 @@ object ChatLog extends ActiveRecord[ChatLog] {
 
   implicit def chatlog2Json(chatlog: ChatLogWithEmail): JsValue = {
     Json.obj(
+      "userId" -> chatlog.userId,
       "kind" -> chatlog.kind,
-      "username" -> chatlog.email,
+      "email" -> chatlog.email,
       "message" -> chatlog.message
     )
     

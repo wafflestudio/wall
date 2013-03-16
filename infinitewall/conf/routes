@@ -3,60 +3,61 @@
 # ~~~~
 
 # Home page
-GET     /                      			  	   	controllers.Application.index
-GET     /about  			                    controllers.Application.about
-GET     /contact           			 	        controllers.Application.contact
+GET      /                                    controllers.Application.index
+GET      /about                               controllers.Application.about
+GET      /contact                             controllers.Application.contact
 
-POST    /authenticate   						controllers.Application.authenticate
-GET     /logout         						controllers.Application.logout
-GET     /me        							    controllers.Account.index
-GET     /signup        							controllers.Account.signup
-POST    /users/create   						controllers.Account.createNewUser
-POST    /users/update   						controllers.Account.update
+POST     /authenticate                        controllers.Application.authenticate
+GET      /logout                              controllers.Application.logout
+GET      /me                                  controllers.Account.index
+GET      /signup                              controllers.Account.signup
+POST     /users/create                        controllers.Account.createNewUser
+POST     /users/update                        controllers.Account.update
+GET      /users/:userId/profile               controllers.File.serveUserProfilePicture(userId: Long )
 
 
 # Chat routes available only for testing
 # GET     /chat                       controllers.Chat.index
 # GET     /chat/:roomId               controllers.Chat.room(roomId:Long)
 # POST    /chat/create                controllers.Chat.create
-GET     /chat/establish/:roomId/:timestamp     controllers.Chat.establish(roomId:Long, timestamp:Long)
+GET      /chat/establish/:roomId/:timestamp   controllers.Chat.establish(roomId:Long, timestamp:Long)
 
-GET     /wall                       			controllers.Wall.index
-GET     /tree                       			controllers.Wall.tree
-GET     /wall/:wallId               			controllers.Wall.stage(wallId:Long)
-POST    /wall/create                			controllers.Wall.create
-GET     /wall/sync/:wallId/:timestamp     		controllers.Wall.sync(wallId:Long, timestamp:Long)
-POST    /wall/view/:wallId        				controllers.Wall.setView(wallId:Long)
+GET      /wall                                controllers.Wall.index
+GET      /tree                                controllers.Wall.tree
+GET      /wall/:wallId                        controllers.Wall.stage(wallId:Long)
+POST     /wall/create                         controllers.Wall.create
+GET      /wall/sync/:wallId/:timestamp        controllers.Wall.sync(wallId:Long, timestamp:Long)
+POST     /wall/view/:wallId                   controllers.Wall.setView(wallId:Long)
 
-POST    /wall/file/:wallId                 		controllers.Wall.uploadFile(wallId:Long)
-GET     /wall/file/:wallId                	    controllers.Wall.infoFile(wallId:Long)
-PUT     /wall/file/:wallId                	    controllers.Wall.replaceFile(wallId:Long)
-DELETE  /wall/file/:wallId                	    controllers.Wall.deleteFile(wallId:Long)
+POST     /wall/file/:wallId                   controllers.Wall.uploadFile(wallId:Long)
+GET      /wall/file/:wallId                   controllers.Wall.infoFile(wallId:Long)
+PUT      /wall/file/:wallId                   controllers.Wall.replaceFile(wallId:Long)
+DELETE   /wall/file/:wallId                   controllers.Wall.deleteFile(wallId:Long)
 
-GET     /group                       			controllers.Group.index
-GET     /group/:groupId              			controllers.Group.show(groupId:Long)
-POST    /group/create                			controllers.Group.create
-POST    /group/:groupId/addUser      			controllers.Group.addUser(groupId:Long)
-GET  	/group/:groupId/removeUser/:userId      controllers.Group.removeUser(groupId:Long, userId:Long)
-POST    /group/:groupId/createWall      		controllers.Group.createWall(groupId:Long)
-POST    /group/:groupId/addWall      			controllers.Group.addWall_Post(groupId:Long)
-GET  	/group/:groupId/addWall/:wallId	   		controllers.Group.addWall_Get(groupId:Long, wallId:Long)
-GET  	/group/:groupId/removeWall/:wallId     	controllers.Group.removeWall(groupId:Long, wallId:Long)
+GET      /group                               controllers.Group.index
+GET      /group/:groupId                      controllers.Group.show(groupId:Long)
+POST     /group/create                        controllers.Group.create
+POST     /group/:groupId/addUser              controllers.Group.addUser(groupId:Long)
+GET      /group/:groupId/removeUser/:userId   controllers.Group.removeUser(groupId:Long, userId:Long)
+POST     /group/:groupId/createWall           controllers.Group.createWall(groupId:Long)
+POST     /group/:groupId/addWall              controllers.Group.addWall_Post(groupId:Long)
+GET      /group/:groupId/addWall/:wallId      controllers.Group.addWall_Get(groupId:Long, wallId:Long)
+GET      /group/:groupId/removeWall/:wallId   controllers.Group.removeWall(groupId:Long, wallId:Long)
 
 #POST    /file                 					controllers.File.upload
 #GET     /file                 					controllers.File.info
 #PUT     /file                 					controllers.File.replace
 #DELETE  /file                 					controllers.File.delete
 
-GET		/dropbox/authorize						controllers.Dropbox.authorize
-GET		/dropbox/callback						controllers.Dropbox.callback
-GET		/dropbox/account/info					controllers.Dropbox.account
-GET		/dropbox/metadata						controllers.Dropbox.metadata
-GET		/dropbox/shares							controllers.Dropbox.shares
-GET		/dropbox/media							controllers.Dropbox.media
-GET		/dropbox/files							controllers.Dropbox.downloadFiles
-POST	/dropbox/files							controllers.Dropbox.uploadFiles
+GET      /dropbox/authorize                   controllers.Dropbox.authorize
+GET      /dropbox/callback                    controllers.Dropbox.callback
+GET      /dropbox/account/info                controllers.Dropbox.account
+GET      /dropbox/metadata                    controllers.Dropbox.metadata
+GET      /dropbox/shares                      controllers.Dropbox.shares
+GET      /dropbox/media                       controllers.Dropbox.media
+GET      /dropbox/files                       controllers.Dropbox.downloadFiles
+POST     /dropbox/files                       controllers.Dropbox.uploadFiles
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               			controllers.Assets.at(path="/public", file)
-GET     /upload/*file               			controllers.File.serve(file)
+GET      /assets/*file                        controllers.Assets.at(path="/public", file)
+GET      /upload/*file                        controllers.File.serve(file)

@@ -59,5 +59,11 @@ object File extends Controller {
     Logger.info("serving file : " + filePath)
     Ok.sendFile(content = new java.io.File("public/files/" + filePath), inline = true)
   }
+  
+  def serveUserProfilePicture(userId: Long) = Action {
+    val url = User.getPictureOrGravatarUrl(userId)
+    
+    Redirect(url)
+  }
 
 }

@@ -36,11 +36,7 @@ class window.Chat
         when "welcome"
           @setUsers(data.users)
           @refreshUserList()
-
-          # update all picture in previous logs
-          $('.messageContainer .messageProfilePic').each (i, el) =>
-            $(el).css('background-image', "url('#{@users[$(el).data('userid')]?.picture}')")
-
+      
           if @status == "DISCONNECTED"
             @connectionId = data.connectionId
             console.log('connected with connection id ' + @connectionId)
@@ -59,7 +55,7 @@ class window.Chat
           @removeConnection(data)
           @refreshUserList()
  
-        when "talk" then newMessage = @messageHtml(@users[data.username], data.message)
+        when "talk" then newMessage = @messageHtml(@users[data.email], data.message)
         
       @chatLog.append newMessage if newMessage?
       @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 150
@@ -76,45 +72,45 @@ class window.Chat
       @users[user.email] ||= user
       @users[user.email].sessionCount ||= 0
       @users[user.email].sessionCount += 1
-      
+    
     
   addConnection: (data) ->
     detail = JSON.parse(data.message)
     numConnections = detail.numConnections
       
     if numConnections == 1
-      @users[data.username] = {username: data.username, nickname: data.nickname || detail.nickname, picture: data.picture}
+      @users[data.email] = {userId:data.userId, email: data.email, nickname: data.nickname || detail.nickname, picture: data.picture}
       newMessage = @infoHtml(data.nickname || detail.nickname , " has joined")
     else
       newMessage = @infoHtml(data.nickname || detail.nickname, " added new connection")
 
     if @status == "CONNECTED"
-      @users[data.username].sessionCount = numConnections
+      @users[data.email].sessionCount = numConnections
 
   removeConnection: (data) ->
     detail = JSON.parse(data.message)
     numConnections = detail.numConnections
     if numConnections == 0
-      newMessage = @infoHtml(@users[data.username].nickname || detail.nickname, " has left") 
-      delete @users[data.username]
+      newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " has left") 
+      delete @users[data.email]
     else
-      newMessage = @infoHtml(@users[data.username].nickname || detail.nickname, " removed a connection") 
+      newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " removed a connection") 
 
     if @status == "CONNECTED"
-      @users[data.username].sessionCount = numConnections
+      @users[data.email].sessionCount = numConnections
 
   refreshUserList: () ->
     @userList.html('')
+    console.log(@users)
     for email,user of @users
-      @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(#{user.picture})'> </div>")
-
+      @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(/users/#{user.userId}/profile)'> </div>")
 
   messageHtml: (user, message) ->
     owner = if user?.email is stage.currentUser then "isMine" else "isNotMine"
     $("<div class = 'messageContainer'>
         <div class = 'messageDiv #{owner}'>
           <div class = 'messageProfilePicContainer'>
-            <div class = 'messageProfilePic' data-userid ='#{user.username}' style = 'background-image:url(#{user?.picture ? ""})'></div>
+            <div class = 'messageProfilePic' data-userid ='#{user.email}' style = 'background-image:url(/users/#{user.userId}/profile)'></div>
           </div>
           <div class = 'messageRest'>
             <div class = 'messageNickname'>#{user?.nickname ? "???"}</div>
