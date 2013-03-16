@@ -29,13 +29,22 @@ object User extends ActiveRecord[User] {
       }
   }
 
-  def getPicturePath(userId: Long) = {
-    findById(userId).get.picturePath.getOrElse(getGravatarById(userId)).replaceFirst("public/", "/assets/")
+  def getPictureUrl(userId: Long) = {
+    findById(userId).get.picturePath.getOrElse(getGravatar(userId)).replaceFirst("public/", "/assets/")
+  }
+  
+  def getPictureOrGravatarUrl(userId: Long) = {
+    val url = User.getPictureUrl(userId)
+    
+    if (url.startsWith("http://") || url.startsWith("https://"))
+      url
+    else
+      helpers.infiniteWall.encodeURIComponent("/upload/" + url)
   }
 
-  def getGravatarById(userId: Long) = getGravatar(findById(userId).get.email)
+  def getGravatar(userId: Long) = getGravatarByEmail(findById(userId).get.email)
 
-  def getGravatar(email: String) = {
+  def getGravatarByEmail(email: String) = {
     val md5 = MessageDigest.getInstance("MD5")
     val hash = md5.digest(email.getBytes).map("%02x".format(_)).mkString
     "http://www.gravatar.com/avatar/" + hash + "?d=http%3A%2F%2Fdeity.mintengine.com%2Fssk.png&s=65"

@@ -35,12 +35,7 @@ trait Auth {
   }
 
   def currentUserPicturePath(implicit request: Request[AnyContent]) = {
-    val url = User.getPicturePath(currentUserId)
-    Logger.info(url)
-    if (url.startsWith("http://") || url.startsWith("https://"))
-      url
-    else
-      helpers.infiniteWall.encodeURIComponent("/upload/" + url)
+    User.getPictureOrGravatarUrl(currentUserId)
   }
 
   def AuthenticatedAction(f: Request[AnyContent] => Result): Action[AnyContent] =

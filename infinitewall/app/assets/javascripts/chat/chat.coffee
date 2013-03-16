@@ -37,6 +37,10 @@ class window.Chat
           @setUsers(data.users)
           @refreshUserList()
 
+          # update all picture in previous logs
+          $('.messageContainer .messageProfilePic').each (i, el) =>
+            $(el).css('background-image', "url('#{@users[$(el).data('userid')].picture}')")
+
           if @status == "DISCONNECTED"
             @connectionId = data.connectionId
             console.log('connected with connection id ' + @connectionId)
@@ -104,8 +108,7 @@ class window.Chat
     for email,user of @users
       @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(#{user.picture})'> </div>")
 
-    $('.messageContainer .messageProfilePic').each (i, el) =>
-      $(el).css('background-image', "url(#{@users[$(el).data('userid')].picture})")
+    
 
 
 

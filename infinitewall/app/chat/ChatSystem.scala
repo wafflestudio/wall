@@ -122,7 +122,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
                 "connectionId" -> connection._3,
                 "email" -> user.email,
                 "nickname" -> user.nickname,
-                "picture" -> user.picturePath.getOrElse("").replaceFirst("public/", "/assets/")
+                "picture" -> User.getPictureOrGravatarUrl(userId)
               )
             }
           }
@@ -180,7 +180,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
           "nickname" -> nickname,
           "message" -> Json.obj("nickname" -> nickname, "numConnections" -> connectionCountForUser).toString,
           "connectionId" -> connectionId,
-          "picture" -> User.getPicturePath(userId) // TODO: need optimization
+          "picture" -> User.getPictureOrGravatarUrl(userId) // TODO: need optimization
         )
       case "quit" =>
         val connectionCountForUser = connections.count(_._1 == userId)
