@@ -39,7 +39,7 @@ class window.Chat
 
           # update all picture in previous logs
           $('.messageContainer .messageProfilePic').each (i, el) =>
-            $(el).css('background-image', "url('#{@users[$(el).data('userid')].picture}')")
+            $(el).css('background-image', "url('#{@users[$(el).data('userid')]?.picture}')")
 
           if @status == "DISCONNECTED"
             @connectionId = data.connectionId
@@ -107,9 +107,6 @@ class window.Chat
     @userList.html('')
     for email,user of @users
       @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(#{user.picture})'> </div>")
-
-    
-
 
 
   messageHtml: (user, message) ->
