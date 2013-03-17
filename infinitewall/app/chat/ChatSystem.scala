@@ -22,7 +22,7 @@ import akka.util.Timeout
 import scala.collection.mutable.BitSet
 import utils.UsageSet
 
-case class Join(userId: Long)
+case class Join(userId: Long, timestamp:Long)
 case class Quit(userId: Long, producer: Enumerator[JsValue])
 case class Talk(userId: Long, connectionId:Int, text: String)
 case class NotifyJoin(userId: Long, connectionId:Int)
@@ -50,7 +50,7 @@ object ChatSystem {
 
   def establish(roomId: Long, userId: Long, timestamp: Long): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
-    val joinResult = room(roomId) ? Join(userId)
+    val joinResult = room(roomId) ? Join(userId, timestamp)
 
     joinResult.map {
       case Connected(producer, prev) =>
@@ -96,7 +96,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
 
   def receive = {
 
-    case Join(userId) => {
+    case Join(userId, timestamp) => {
      
       if (false /* maximum connection per user constraint here*/ ) {
         sender ! CannotConnect("You have reached your maximum number of connections.")
@@ -107,7 +107,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
         // Create an Enumerator to write to this socket
         val producer = Enumerator.imperative[JsValue](onStart = () => self ! NotifyJoin(userId, connectionId))
         // previous messages
-        val prev = Enumerator(prevMessages(0).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
+        val prev = Enumerator(prevMessages(timestamp).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
         
         connections = connections :+ (userId, producer, connectionId)
     
@@ -122,8 +122,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
                 "userId" -> user.id.get,
                 "connectionId" -> connection._3,
                 "email" -> user.email,
-                "nickname" -> user.nickname,
-                "picture" -> User.getPictureOrGravatarUrl(userId)
+                "nickname" -> user.nickname
               )
             }
           }
@@ -162,12 +161,12 @@ class ChatRoomActor(roomId: Long) extends Actor {
     val user = User.findById(userId)
     val email = user.get.email
     val nickname = user.get.nickname
-
+    
     val msg:JsValue = kind match {
       case "talk" =>
         Json.obj(
-          "userId" -> userId,
           "kind" -> kind,
+          "userId" -> userId,
           "email" -> email,
           "message" -> message,
           "connectionId" -> connectionId
@@ -182,24 +181,23 @@ class ChatRoomActor(roomId: Long) extends Actor {
           "email" -> email,
           "nickname" -> nickname,
           "message" -> Json.obj("nickname" -> nickname, "numConnections" -> connectionCountForUser).toString,
-          "connectionId" -> connectionId,
-          "picture" -> User.getPictureOrGravatarUrl(userId) // TODO: need optimization
+          "connectionId" -> connectionId
         )
       case "quit" =>
         val connectionCountForUser = connections.count(_._1 == userId)
         
         Json.obj(
-          "userId" -> userId,
           "kind" -> kind,
+          "userId" -> userId,
           "email" -> email,
           "message" -> Json.obj("numConnections" -> connectionCountForUser).toString
         )
     }
-
-    logMessage(kind, userId, (msg \ "message").as[String])
+    
+    val timestamp = logMessage(kind, userId, (msg \ "message").as[String])
 
     connections.foreach {
-      case (_, producer,_) => producer.push(msg)
+      case (_, producer,_) => producer.push(msg.as[JsObject] ++ Json.obj("timestamp" -> timestamp))
     }
   }
 }

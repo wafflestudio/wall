@@ -1,68 +1,63 @@
-class window.Chat
-  users: {}
-
+class window.Chat extends PersistentWebsocket
+  
   constructor: (url) ->
-    WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
-    @socket = new WS(url)
-    @socket.onmessage = @onReceive
-    @socket.onerror = @onError
-    @socket.onclose = @onError
+    super(url)
+    
     @chatWindow = $('#chatWindow')
     @chatLog = $('#chatLog')
     @userList = $('#chatUsers')
     @chatInput = $('#chatInput')
     @chatInput.textareaAutoExpand()
     @connectionId = -1
-    @status = "DISCONNECTED"
+    @ready = false
+    @users =  {}
+    @scope = "[CHAT]"
+    
+  onReceive: (e) =>
+    data = JSON.parse(e.data)
+    console.log(@scope, data)
+    @timestamp = data.timestamp if data.timestamp?
+
+    if data.error
+      console.log(@scope, 'Disconnecting from an unknown error: ' + data.error)
+      @close()
+      return
+
+    switch data.kind
+      when "welcome"
+        @setUsers(data.users)
+        @refreshUserList()
+    
+        if not @ready
+          @connectionId = data.connectionId
+          console.log(@scope, 'chat connected with connection id ' + @connectionId)
+          # now sending message is available
+          @chatInput.on 'keydown', (event) =>
+            if event.keyCode is 13 and !event.shiftKey and @chatInput.val().replace(/\s/g, '').length > 0
+              @sendCurrentMessage()
+
+        @ready = true
+
+      when "join"
+        @addConnection(data)
+        @refreshUserList()
+
+      when "quit"
+        @removeConnection(data)
+        @refreshUserList()
+
+      when "talk" then newMessage = @messageHtml(@users[data.email], data.message)
+      
+    @chatLog.append newMessage if newMessage?
+    @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 150
+  
+  sendCurrentMessage: ->
+    msg = @chatInput.val()
+    #msg = msg.substr(0, msg.length - 1) if msg.charAt(msg.length - 1) is '\n'
+    @chatInput.val("")
+    @send JSON.stringify({connectionId:@connectionId, text: msg})
 
   toggle: -> @chatWindow.fadeToggle()
-
-  sendMessage: =>
-      msg = @chatInput.val()
-      #msg = msg.substr(0, msg.length - 1) if msg.charAt(msg.length - 1) is '\n'
-      @chatInput.val("")
-      @socket.send JSON.stringify({connectionId:@connectionId, text: msg})
-
-  onReceive: (e) =>
-      data = JSON.parse(e.data)
-      console.log data
-
-      if data.error
-        console.log('disconnected: ' + data.error)
-        @socket.close()
-        return
-
-      switch data.kind
-        when "welcome"
-          @setUsers(data.users)
-          @refreshUserList()
-      
-          if @status == "DISCONNECTED"
-            @connectionId = data.connectionId
-            console.log('connected with connection id ' + @connectionId)
-            # now sending message is available
-            @chatInput.on 'keydown', (event) =>
-              if event.keyCode is 13 and !event.shiftKey and @chatInput.val().replace(/\s/g, '').length > 0
-                @sendMessage()
-
-          @status = "CONNECTED"
-
-        when "join"
-          @addConnection(data)
-          @refreshUserList()
-
-        when "quit"
-          @removeConnection(data)
-          @refreshUserList()
- 
-        when "talk" then newMessage = @messageHtml(@users[data.email], data.message)
-        
-      @chatLog.append newMessage if newMessage?
-      @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 150
-  
-  onError: (e) ->
-    # TODO: add reconnection
-    console.log(e)
 
   setUsers: (users) ->
     # clear all existing users
@@ -79,29 +74,32 @@ class window.Chat
     numConnections = detail.numConnections
       
     if numConnections == 1
-      @users[data.email] = {userId:data.userId, email: data.email, nickname: data.nickname || detail.nickname, picture: data.picture}
+      @users[data.email] = {userId:data.userId, email: data.email, nickname: data.nickname || detail.nickname}
       newMessage = @infoHtml(data.nickname || detail.nickname , " has joined")
     else
       newMessage = @infoHtml(data.nickname || detail.nickname, " added new connection")
 
-    if @status == "CONNECTED"
+    if @ready
       @users[data.email].sessionCount = numConnections
 
   removeConnection: (data) ->
     detail = JSON.parse(data.message)
     numConnections = detail.numConnections
+
+    if not @users[data.email]?
+      @users[data.email] = {userId:data.userId, email: data.email, nickname: data.nickname || detail.nickname}
+      
     if numConnections == 0
       newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " has left") 
-      delete @users[data.email]
     else
       newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " removed a connection") 
 
-    if @status == "CONNECTED"
-      @users[data.email].sessionCount = numConnections
+      if @ready
+        @users[data.email].sessionCount = numConnections
 
   refreshUserList: () ->
     @userList.html('')
-    console.log(@users)
+    #console.log("[CHAT]", @users)
     for email,user of @users
       @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(/users/#{user.userId}/profile)'> </div>")
 
@@ -126,9 +124,3 @@ class window.Chat
           <span class = 'infoMessage'>#{message}</span>
         </div>
       </div>")
-
-  #userQuit: (user) ->
-    #if users[user.email].sessionCount is 1
-      #delete users[user.email]
-    #else
-      #users[user.email].sessionCount--

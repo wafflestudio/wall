@@ -48,6 +48,7 @@ object ChatLog extends ActiveRecord[ChatLog] {
 
   implicit def chatlog2Json(chatlog: ChatLogWithEmail): JsValue = {
     Json.obj(
+      "timestamp" -> chatlog.id.get, 
       "userId" -> chatlog.userId,
       "kind" -> chatlog.kind,
       "email" -> chatlog.email,

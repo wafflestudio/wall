@@ -14,7 +14,7 @@ User List
 	<script type="text/javascript">
 
 	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-	var chatSocket = new WS("@routes.Chat.establish(roomId, 999).webSocketURL()")
+	var chatSocket = new WS("@routes.Chat.establish(roomId).webSocketURL()")
 
 	function onReceive(e) {
 		var data = JSON.parse(e.data);

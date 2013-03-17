@@ -18,12 +18,12 @@ import play.api.data.validation.Constraints._
 
 object Chat extends Controller with Login {
 
-// /* For development purpose. Not for production use: */
-//
-//	val createForm = Form(
-//		"title" -> nonEmptyText
-//	)
-/*
+  // /* For development purpose. Not for production use: */
+  //
+  //	val createForm = Form(
+  //		"title" -> nonEmptyText
+  //	)
+  /*
 	def index = AuthenticatedAction { implicit request =>
 		val rooms = ChatRoom.list()
 		Ok(views.html.chat.index(rooms))
@@ -44,18 +44,19 @@ object Chat extends Controller with Login {
 		Ok("")
 	}
 */
-  def establish(roomId: Long, timestamp: Long = 0) =
-    WebSocket.async[JsValue] { request =>
+  def establish(roomId: Long) = WebSocket.async[JsValue] { implicit request =>
+    val params = request.queryString
+    val timestamp = params.get("timestamp").getOrElse(Seq("999"))(0).toLong
 
-      request.session.get("current_user_id") match {
-        case Some(id) =>
-          ChatSystem.establish(roomId, id.toLong, timestamp)
-        case None =>
-          val consumer = Done[JsValue, Unit]((), Input.EOF)
-          val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
+    request.session.get("current_user_id") match {
+      case Some(id) =>
+        ChatSystem.establish(roomId, id.toLong, timestamp)
+      case None =>
+        val consumer = Done[JsValue, Unit]((), Input.EOF)
+        val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
 
-          Promise.pure(consumer, producer)
-      }
+        Promise.pure(consumer, producer)
     }
+  }
 
 }
