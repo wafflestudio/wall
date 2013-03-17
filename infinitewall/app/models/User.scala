@@ -9,6 +9,8 @@ import anorm.SqlParser._
 import play.api.Play.current
 import java.util.Date
 import java.security.MessageDigest
+import org.h2.jdbc.JdbcSQLException
+import scala.util.Try
 
 case class User(id: Pk[Long], val email: String, val hashedPW: String, val permission: Permission,
   val nickname: String, val picturePath: Option[String], val verified: Int)
@@ -68,23 +70,26 @@ object User extends ActiveRecord[User] {
 
   def signup(email: String, password: String, nickname: String, picturePath: String = ""): Option[User] = {
     DB.withConnection { implicit c =>
-      SQL(""" 
-      insert into User (id, email, hashedpw, permission, nickname, picture_path) values (
-        (select next value for user_seq),
-        {email}, {hashedPW}, {permission}, {nickname}, {picturePath}
-      )
-    """).on(
-        'email -> email,
-        'hashedPW -> hashedPW(password),
-        'permission -> GlobalPermission.NormalUser.id,
-        'nickname -> nickname,
-        'picturePath -> picturePath
-      ).executeUpdate()
-    }
-
-    findByEmail(email).map { user =>
-      Mailer.sendVerification(user)
-      user
+      Try {
+        
+        SQL(""" 
+        insert into User (id, email, hashedpw, permission, nickname, picture_path) values (
+          (select next value for user_seq),
+          {email}, {hashedPW}, {permission}, {nickname}, {picturePath}
+        )
+      """).on(
+          'email -> email,
+          'hashedPW -> hashedPW(password),
+          'permission -> GlobalPermission.NormalUser.id,
+          'nickname -> nickname,
+          'picturePath -> picturePath
+        ).executeUpdate()
+      }
+    }.toOption.flatMap { id => 
+      findByEmail(email).map { user =>
+        Mailer.sendVerification(user)
+        user
+      }
     }
   }
 
