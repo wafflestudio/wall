@@ -10,6 +10,9 @@ class window.Movable
 
   constructor: (params) ->
 
+  #i 는 안에 들어있는 element에 대한것
+  #c 는 중심의 좌표
+  
   @define 'x'
     get: -> parseInt(@element.css('x'))
     set: (value) -> @element.css {x: Math.round(value)}

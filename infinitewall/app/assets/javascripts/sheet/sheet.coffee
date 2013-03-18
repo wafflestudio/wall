@@ -112,7 +112,6 @@ class window.Sheet extends Movable
   becomeActive: ->
     stage.activeSheet = this
     @innerElement.addClass("activeSheet")
-    #@element.find('.sheetTextField').focus()
     stage.miniSheets[@id].becomeActive()
     menu.activateDelete()
 

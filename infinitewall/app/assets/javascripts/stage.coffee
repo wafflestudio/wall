@@ -18,6 +18,7 @@ class window.Stage
     text: "text"
     image: "image"
   }
+  zCount: 1
 
   createSheet: (id, params, timestamp) ->
     switch params.contentType

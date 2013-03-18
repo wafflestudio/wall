@@ -6,38 +6,25 @@ class MiniSheet extends Movable
     @element.attr('id', 'map_sheet' + @id)
     @element.on 'mousedown', @onMouseDown
     
-  becomeActive: =>
-    @element.addClass("activeMiniSheet")
-
-  resignActive: =>
-    @element.removeClass("activeMiniSheet")
-
-  becomeSelected: =>
-    @element.addClass("selectedMiniSheet")
-
-  resignSelected: =>
-    @element.removeClass("selectedMiniSheet")
-
-  remove: ->
-    @element.remove()
-
   onMouseDown: (e) =>
     @becomeSelected()
     sheet = stage.sheets[@id]
     wall.center(sheet, @resignSelected)
     return false
 
+  becomeActive: => @element.addClass("activeMiniSheet")
+  resignActive: => @element.removeClass("activeMiniSheet")
+  becomeSelected: => @element.addClass("selectedMiniSheet")
+  resignSelected: => @element.removeClass("selectedMiniSheet")
+  remove: -> @element.remove()
+
 class Miniworld extends Movable
   constructor: -> @element = $("#minimapWorld")
 
 class Miniscreen extends Movable
   constructor: -> @element = $("#miniScreen")
-
-  becomeSelected: ->
-    @element.addClass("selectedMiniScreen")
-  
-  resignSelected: ->
-    @element.removeClass("selectedMiniScreen")
+  becomeSelected: -> @element.addClass("selectedMiniScreen")
+  resignSelected: -> @element.removeClass("selectedMiniScreen")
 
 class window.Minimap extends Movable
   miniWorld: null
@@ -92,21 +79,18 @@ class window.Minimap extends Movable
     @worldLeft = screenLeft
     @worldRight = screenRight
     
-    updateWorld = (sheetX, sheetY, sheetW, sheetH) =>
-      @worldLeft = sheetX if sheetX < @worldLeft
-      @worldRight = sheetX + sheetW if sheetX + sheetW > @worldRight
-      @worldTop = sheetY if sheetY < @worldTop
-      @worldBottom = sheetY + sheetH if sheetY + sheetH > @worldBottom
+    updateWorld = (info) =>
+      @worldLeft = info.x if info.x < @worldLeft
+      @worldRight = info.x + info.w if info.x + info.w > @worldRight
+      @worldTop = info.y if info.y < @worldTop
+      @worldBottom = info.y + info.h if info.y + info.h > @worldBottom
     
     if info.id? # socket에서 온 경우
       for id, sheet of stage.sheets
-        if parseInt(id) is info.id
-          updateWorld(info.x, info.y, info.w, info.h)
-        else
-          updateWorld(sheet.x, sheet.y, sheet.w, sheet.h)
+        if parseInt(id) is info.id then updateWorld(info) else updateWorld(sheet)
     else
       for id, sheet of stage.sheets
-        updateWorld(sheet.x, sheet.y, sheet.w, sheet.h)
+        updateWorld(sheet)
 
     worldWidth = @worldRight - @worldLeft
     worldHeight = @worldBottom - @worldTop
@@ -134,24 +118,20 @@ class window.Minimap extends Movable
     else
       @miniScreen.xywh((screenLeft - @worldLeft) * @ratio, (screenTop - @worldTop) * @ratio, screenWidth * @ratio, screenHeight * @ratio)
 
-    updateMiniSheet = (id, x, y, w, h) =>
+    updateMiniSheet = (id, info) =>
       if isTransition
-        stage.miniSheets[id].txywh((x - @worldLeft) * @ratio, (y - @worldTop) * @ratio, w * @ratio, h * @ratio, duration)
+        stage.miniSheets[id].txywh((info.x - @worldLeft) * @ratio, (info.y - @worldTop) * @ratio, info.w * @ratio, info.h * @ratio, duration)
       else
-        stage.miniSheets[id].xywh((x - @worldLeft) * @ratio, (y - @worldTop) * @ratio, w * @ratio, h * @ratio)
+        stage.miniSheets[id].xywh((info.x - @worldLeft) * @ratio, (info.y - @worldTop) * @ratio, info.w * @ratio, info.h * @ratio)
 
     if info.id? # socket에서 온 경우
       for id, sheet of stage.sheets
-        if parseInt(id) is info.id
-          updateMiniSheet(id, info.x, info.y, info.w, info.h)
-        else
-          updateMiniSheet(id, sheet.x, sheet.y, sheet.w, sheet.h)
+        if parseInt(id) is info.id then updateMiniSheet(id, info) else updateMiniSheet(id, sheet)
     else
       for id, sheet of stage.sheets
-        updateMiniSheet(id, sheet.x, sheet.y, sheet.w, sheet.h)
+        updateMiniSheet(id, sheet)
 
-  bringToTop: (miniSheet) ->
-    @mML.append miniSheet.element
+  bringToTop: (miniSheet) -> @mML.append miniSheet.element
 
   #기준좌표는 minimapWorld의 origin
 

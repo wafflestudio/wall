@@ -73,9 +73,7 @@ class window.Wall
   hasMoved: false
   
   save: ->
-    if @saveTimeout
-      clearTimeout(@saveTimeout)
-
+    clearTimeout(@saveTimeout) if @saveTimeout
     @saveTimeout = setTimeout(
       () =>
         x = (stage.scaleLayerX + @mL.x * stage.zoom) / stage.zoom
@@ -85,14 +83,17 @@ class window.Wall
         $.post("/wall/view/#{stage.wallId}", {x:x, y:y, zoom:zoom})
     ,1000)
   
-  dock: (sheet) ->
-    @dL.element.append sheet.element
-
-  undock: (sheet) ->
-    @bringToTop(sheet)
+  dock: (sheet) -> @dL.element.append sheet.element
+  undock: (sheet) -> @bringToTop(sheet)
 
   bringToTop: (sheet) ->
-    #$("#sheetLayer").append sheet.element
+    sheet.element.css("z-index", stage.zCount++)
+    setTimeout(
+      () ->
+        $("#sheetLayer").append sheet.element
+        sheet.element.css("z-index", "")
+        stage.zCount = 1
+      , 500)
   
   loadPref: (zoom, panX, panY) ->
     stage.zoom = zoom
