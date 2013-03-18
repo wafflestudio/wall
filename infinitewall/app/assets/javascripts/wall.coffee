@@ -78,8 +78,8 @@ class window.Wall
 
     @saveTimeout = setTimeout(
       () =>
-        x = (stage.scaleLayerX + @mL.x() * stage.zoom) / stage.zoom
-        y = (stage.scaleLayerY + @mL.y() * stage.zoom) / stage.zoom
+        x = (stage.scaleLayerX + @mL.x * stage.zoom) / stage.zoom
+        y = (stage.scaleLayerY + @mL.y * stage.zoom) / stage.zoom
         zoom = stage.zoom
         console.log("x: #{x}, y: #{y}, zoom: #{zoom}")
         $.post("/wall/view/#{stage.wallId}", {x:x, y:y, zoom:zoom})
@@ -96,9 +96,9 @@ class window.Wall
   
   loadPref: (zoom, panX, panY) ->
     stage.zoom = zoom
-    wall.sL.setZoom()
-    wall.mL.x(panX)
-    wall.mL.y(panY)
+    @sL.setZoom()
+    @mL.x = panX
+    @mL.y = panY
     minimap.refresh()
 
   constructor: ->
@@ -115,8 +115,8 @@ class window.Wall
   onTouchStart: (e) =>
     console.log e
     len = e.originalEvent.touches.length
-    @startx = @mL.x() * stage.zoom
-    @starty = @mL.y() * stage.zoom
+    @startx = @mL.x * stage.zoom
+    @starty = @mL.y * stage.zoom
     
     if len is 1
       @hasMoved = false
@@ -143,8 +143,8 @@ class window.Wall
     @hasMoved = true
     
     if e.originalEvent.touches.length is 1
-      @mL.x((@startx + e.originalEvent.touches[0].pageX - @deltax) / stage.zoom)
-      @mL.y((@starty + e.originalEvent.touches[0].pageY - @deltay) / stage.zoom)
+      @mL.x = (@startx + e.originalEvent.touches[0].pageX - @deltax) / stage.zoom
+      @mL.y = (@starty + e.originalEvent.touches[0].pageY - @deltay) / stage.zoom
     else # 터치가 2개 이상, pinch-to-zoom / 중점 기준으로 움직이게
       x = e.originalEvent.touches[0].pageX
       y = e.originalEvent.touches[0].pageY
@@ -223,8 +223,8 @@ class window.Wall
     @save()
 
   onMouseMove: (e) =>
-    @mL.x((@startx + e.pageX - @deltax) / stage.zoom)
-    @mL.y((@starty + e.pageY - @deltay) / stage.zoom)
+    @mL.x = (@startx + e.pageX - @deltax) / stage.zoom
+    @mL.y = (@starty + e.pageY - @deltay) / stage.zoom
     @hasMoved = true
     minimap.refresh()
 
@@ -238,10 +238,11 @@ class window.Wall
       stage.activeSheet.resignActive()
   
   onMouseDown: (e) =>
+    console.log e.pageX, e.pageY
     stage.leftClick = true
     @hasMoved = false
-    @startx = @mL.x() * stage.zoom
-    @starty = @mL.y() * stage.zoom
+    @startx = @mL.x * stage.zoom
+    @starty = @mL.y * stage.zoom
     @deltax = e.pageX
     @deltay = e.pageY
 
@@ -318,14 +319,18 @@ class window.Wall
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
     screenWidth = ($(window).width() - 70) / stage.zoom
     screenHeight = ($(window).height()) / stage.zoom
-    screenTop = -(stage.scaleLayerY + @mL.y() * stage.zoom) / stage.zoom
-    screenLeft = -(stage.scaleLayerX - 70 + @mL.x() * stage.zoom) / stage.zoom
+    screenTop = -(stage.scaleLayerY + @mL.y * stage.zoom) / stage.zoom
+    screenLeft = -(stage.scaleLayerX - 70 + @mL.x * stage.zoom) / stage.zoom
 
     sheet = stage.activeSheet
-    sheetWidth = sheet.w()
-    sheetHeight = sheet.h()
-    sheetX = sheet.x()
-    sheetY = sheet.y()
+    sheetWidth = sheet.w
+    sheetHeight = sheet.h
+    sheetX = sheet.x
+    sheetY = sheet.y
+
+    return if sheetWidth > screenWidth or sheetHeight > screenHeight
+    
+    #일단은 이렇게 해둠..
 
     if ((sheetX < screenLeft) or (sheetX + sheetWidth > screenLeft + screenWidth) or (sheetY < screenTop) or (sheetY + sheetHeight > screenTop + screenHeight))
       
@@ -342,32 +347,42 @@ class window.Wall
       if (sheetY + sheetHeight > screenTop + screenHeight)
         diffY = screenTop + screenHeight - (sheetY + sheetHeight + offset)
        
-      @mL.txy(diffX + @mL.x(), diffY + @mL.y())
+      @mL.txy(diffX + @mL.x, diffY + @mL.y)
 
       minimap.refresh {
         isTransition: true
-        mLx: diffX + @mL.x()
-        mLy: diffY + @mL.y()
+        mLx: diffX + @mL.x
+        mLy: diffY + @mL.y
       }
 
       @save()
 
-  toCenter: (sheet, callback) ->
+  center: (info, callback) ->
+    if info instanceof Sheet
+      x = info.x
+      y = info.y
+      w = info.w
+      h = info.h
+    else
+      x = info.x
+      y = info.y
+      w = h = 0
+
     screenW = $(window).width() - 70
     screenH = $(window).height()
 
     if stage.zoom is 1
-      mLX = @mL.x()
-      mLY = @mL.y()
+      mLX = @mL.x
+      mLY = @mL.y
       
       screenT = -(stage.scaleLayerY + mLY * stage.zoom) / stage.zoom
       screenL = -(stage.scaleLayerX + mLX * stage.zoom) / stage.zoom
       
-      translateX = screenL + (screenW - sheet.w()) / 2
-      translateY = screenT + (screenH - sheet.h()) / 2
+      translateX = screenL + (screenW - w) / 2
+      translateY = screenT + (screenH - h) / 2
 
-      diffX = translateX - sheet.x()
-      diffY = translateY - sheet.y()
+      diffX = translateX - x
+      diffY = translateY - y
       
       @mL.txy(diffX + mLX, diffY + mLY, callback)
 
@@ -378,11 +393,11 @@ class window.Wall
       }
 
     else
-      sheetX = (stage.scaleLayerX + (@mL.x() + sheet.x()) * stage.zoom)
-      sheetY = (stage.scaleLayerY + (@mL.y() + sheet.y()) * stage.zoom)
+      sheetX = (stage.scaleLayerX + (@mL.x + x) * stage.zoom)
+      sheetY = (stage.scaleLayerY + (@mL.y + y) * stage.zoom)
 
-      xWall = (sheetX - (screenW - sheet.w()) * (stage.zoom / 2)) / (1 - stage.zoom)
-      yWall = (sheetY - (screenH - sheet.h()) * (stage.zoom / 2)) / (1 - stage.zoom)
+      xWall = (sheetX - (screenW - w) * (stage.zoom / 2)) / (1 - stage.zoom)
+      yWall = (sheetY - (screenH - h) * (stage.zoom / 2)) / (1 - stage.zoom)
 
       @xScaleLayer += (xWall - @xWallLast) / stage.zoom
       @yScaleLayer += (yWall - @yWallLast) / stage.zoom

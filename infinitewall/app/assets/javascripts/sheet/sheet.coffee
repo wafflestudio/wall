@@ -61,29 +61,29 @@ class window.Sheet extends Movable
 
   move: (params) ->
     if this is stage.activeSheet # 내가 이 시트를 보고있는데 누가 이걸 움직인다면
-      newX = wall.mL.x() + @x() - params.x
-      newY = wall.mL.y() + @y() - params.y
+      newX = wall.mL.x + @x - params.x
+      newY = wall.mL.y + @y - params.y
       wall.mL.txy(newX, newY)
 
     @txy(params.x, params.y)
-    @refreshLinks(params.x, params.y, @w(), @h())
+    @refreshLinks(params.x, params.y, @w, @h)
 
     minimap.refresh {
       id: params.id
       x: params.x
       y: params.y
-      w: @w()
-      h: @h()
+      w: @w
+      h: @h
       isTransition: true
     }
 
   resize: (params) ->
     @tiWH(params.width, params.height)
-    @refreshLinks(@x(), @y(), params.width, params.height)
+    @refreshLinks(@x, @y, params.width, params.height)
     minimap.refresh {
       id: params.id
-      x: @x()
-      y: @y()
+      x: @x
+      y: @y
       w: params.width
       h: params.height
       isTransition: true

@@ -24,7 +24,7 @@ class MiniSheet extends Movable
   onMouseDown: (e) =>
     @becomeSelected()
     sheet = stage.sheets[@id]
-    wall.toCenter(sheet, @resignSelected)
+    wall.center(sheet, @resignSelected)
     return false
 
 class Miniworld extends Movable
@@ -62,8 +62,8 @@ class window.Minimap extends Movable
     @mML = $('#miniMoveLayer')
     @element.on 'mousedown', @onMouseDown
     @element.on 'touchstart', @onTouchStart
-    @minimapWidth = @w()
-    @minimapHeight = @h()
+    @minimapWidth = @w
+    @minimapHeight = @h
 
   stopTransitioning: ->
     @miniWorld.element.clearQueue()
@@ -76,8 +76,8 @@ class window.Minimap extends Movable
   toggle: -> @element.fadeToggle()
 
   refresh: (info = {}) =>
-    mLx = info.mLx || wall.mL.x()
-    mLy = info.mLy || wall.mL.y()
+    mLx = info.mLx || wall.mL.x
+    mLy = info.mLy || wall.mL.y
 
     #좌표는 moveLayer의 기준에서 본 wall의 좌표!
     screenWidth = ($(window).width()) / stage.zoom
@@ -103,10 +103,10 @@ class window.Minimap extends Movable
         if parseInt(id) is info.id
           updateWorld(info.x, info.y, info.w, info.h)
         else
-          updateWorld(sheet.x(), sheet.y(), sheet.w(), sheet.h())
+          updateWorld(sheet.x, sheet.y, sheet.w, sheet.h)
     else
       for id, sheet of stage.sheets
-        updateWorld(sheet.x(), sheet.y(), sheet.w(), sheet.h())
+        updateWorld(sheet.x, sheet.y, sheet.w, sheet.h)
 
     worldWidth = @worldRight - @worldLeft
     worldHeight = @worldBottom - @worldTop
@@ -145,10 +145,10 @@ class window.Minimap extends Movable
         if parseInt(id) is info.id
           updateMiniSheet(id, info.x, info.y, info.w, info.h)
         else
-          updateMiniSheet(id, sheet.x(), sheet.y(), sheet.w(), sheet.h())
+          updateMiniSheet(id, sheet.x, sheet.y, sheet.w, sheet.h)
     else
       for id, sheet of stage.sheets
-        updateMiniSheet(id, sheet.x(), sheet.y(), sheet.w(), sheet.h())
+        updateMiniSheet(id, sheet.x, sheet.y, sheet.w, sheet.h)
 
   bringToTop: (miniSheet) ->
     @mML.append miniSheet.element
@@ -162,12 +162,12 @@ class window.Minimap extends Movable
     if @isBoxDrag # 얘를 해야 박스의 코너를 잡고 움직여도 제대로 움직임
       mouseX =
         if tempX < @relX then @relX / @ratio
-        else if tempX > @miniWorld.w() - (@miniScreen.w() - @relX) then (@miniWorld.w() - (@miniScreen.w() - @relX)) / @ratio
+        else if tempX > @miniWorld.w - (@miniScreen.w - @relX) then (@miniWorld.w - (@miniScreen.w - @relX)) / @ratio
         else tempX / @ratio
 
       mouseY =
         if tempY < @relY then @relY / @ratio
-        else if tempY > @miniWorld.h() - (@miniScreen.h() - @relY) then (@miniWorld.h() - (@miniScreen.h() - @relY)) / @ratio
+        else if tempY > @miniWorld.h - (@miniScreen.h - @relY) then (@miniWorld.h - (@miniScreen.h - @relY)) / @ratio
         else tempY / @ratio
 
       newMoveLayerX = -((mouseX + @worldLeft - @relX / @ratio) * stage.zoom + stage.scaleLayerX) / stage.zoom
@@ -175,19 +175,21 @@ class window.Minimap extends Movable
 
     else
       mouseX =
-        if tempX < @miniScreen.w() / 2 then (@miniScreen.w() / 2) / @ratio
-        else if tempX > @miniWorld.w() - @miniScreen.w() / 2 then (@miniWorld.w() - @miniScreen.w() / 2) / @ratio
+        if tempX < @miniScreen.w / 2 then (@miniScreen.w / 2) / @ratio
+        else if tempX > @miniWorld.w - @miniScreen.w / 2 then (@miniWorld.w - @miniScreen.w / 2) / @ratio
         else tempX / @ratio
 
       mouseY =
-        if tempY < @miniScreen.h() / 2 then (@miniScreen.h() / 2) / @ratio
-        else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
+        if tempY < @miniScreen.h / 2 then (@miniScreen.h / 2) / @ratio
+        else if tempY > @miniWorld.h - @miniScreen.h / 2 then (@miniWorld.h - @miniScreen.h / 2) / @ratio
         else tempY / @ratio
 
-      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
-      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
+      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
+      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
 
     wall.mL.smoothmove(newMoveLayerX, newMoveLayerY)
+    #wall.mL.x = newMoveLayerX
+    #wall.mL.y = newMoveLayerY
 
     @refresh()
     e.preventDefault()
@@ -199,27 +201,31 @@ class window.Minimap extends Movable
 
   onMouseDown: (e) =>
     @miniScreen.becomeSelected()
+    clearTimeout(wall.mL.timer)
 
-    stage.zoom = 1
-    wall.sL.setZoom()
+    #stage.zoom = 1
+    #wall.sL.setZoom()
+
     tempX = e.pageX - @miniWorld.element.offset().left
     tempY = e.pageY - @miniWorld.element.offset().top
 
-    @relX = tempX - @miniScreen.x()
-    @relY = tempY - @miniScreen.y()
+    @relX = tempX - @miniScreen.x
+    @relY = tempY - @miniScreen.y
 
     mouseX =
-      if tempX < @miniScreen.w() / 2 then (@miniScreen.w() / 2) / @ratio
-      else if tempX > @miniWorld.w() - @miniScreen.w() / 2 then (@miniWorld.w() - @miniScreen.w() / 2) / @ratio
+      if tempX < @miniScreen.w / 2 then (@miniScreen.w / 2) / @ratio
+      else if tempX > @miniWorld.w - @miniScreen.w / 2 then (@miniWorld.w - @miniScreen.w / 2) / @ratio
       else tempX / @ratio
 
     mouseY =
-      if tempY < @miniScreen.h() / 2 then (@miniScreen.h() / 2) / @ratio
-      else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
+      if tempY < @miniScreen.h / 2 then (@miniScreen.h / 2) / @ratio
+      else if tempY > @miniWorld.h - @miniScreen.h / 2 then (@miniWorld.h - @miniScreen.h / 2) / @ratio
       else tempY / @ratio
 
-    newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
-    newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
+    newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
+    newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
+
+    #wall.center({x: newMoveLayerX, y: newMoveLayerY})
 
     wall.mL.txy(newMoveLayerX, newMoveLayerY, 200)
 
@@ -240,24 +246,24 @@ class window.Minimap extends Movable
     tempX = e.originalEvent.pageX - @miniWorld.element.offset().left
     tempY = e.originalEvent.pageY - @miniWorld.element.offset().top
 
-    @relX = tempX - @miniScreen.x()
-    @relY = tempY - @miniScreen.y()
+    @relX = tempX - @miniScreen.x
+    @relY = tempY - @miniScreen.y
 
-    @isBoxDrag = @miniScreen.left() <= tempX <= @miniScreen.right() and @miniScreen.top() <= tempY <= @miniScreen.bottom()
+    @isBoxDrag = @miniScreen.left <= tempX <= @miniScreen.right and @miniScreen.top <= tempY <= @miniScreen.bottom
 
     if not @isBoxDrag
       mouseX =
-        if tempX < @miniScreen.w() / 2 then (@miniScreen.w() / 2) / @ratio
-        else if tempX > @miniWorld.w() - @miniScreen.w() / 2 then (@miniWorld.w() - @miniScreen.w() / 2) / @ratio
+        if tempX < @miniScreen.w / 2 then (@miniScreen.w / 2) / @ratio
+        else if tempX > @miniWorld.w - @miniScreen.w / 2 then (@miniWorld.w - @miniScreen.w / 2) / @ratio
         else tempX / @ratio
 
       mouseY =
-        if tempY < @miniScreen.h() / 2 then (@miniScreen.h() / 2) / @ratio
-        else if tempY > @miniWorld.h() - @miniScreen.h() / 2 then (@miniWorld.h() - @miniScreen.h() / 2) / @ratio
+        if tempY < @miniScreen.h / 2 then (@miniScreen.h / 2) / @ratio
+        else if tempY > @miniWorld.h - @miniScreen.h / 2 then (@miniWorld.h - @miniScreen.h / 2) / @ratio
         else tempY / @ratio
 
-      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w() / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
-      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h() / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
+      newMoveLayerX = -((mouseX + @worldLeft - (@miniScreen.w / @ratio) / 2) * stage.zoom + stage.scaleLayerX) / stage.zoom
+      newMoveLayerY = -((mouseY + @worldTop - (@miniScreen.h / @ratio) / 2) * stage.zoom + stage.scaleLayerY) / stage.zoom
 
       wall.mL.txy(newMoveLayerX, newMoveLayerY, 200)
 

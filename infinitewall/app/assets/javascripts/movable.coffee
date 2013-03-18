@@ -1,3 +1,6 @@
+Function::define = (prop, desc) ->
+  Object.defineProperty this.prototype, prop, desc
+
 class window.Movable
   id: null
   element: null
@@ -6,20 +9,56 @@ class window.Movable
   timer: 0
 
   constructor: (params) ->
-  
-  # 규칙 =>
-  # 아무것도 안붙으면 @element의 값들의 애니메이션 없는 getter + setter
-  # i가 붙으면 @innerElement의 값들에 대한 애니메이션 없는 getter + setter
+
+  @define 'x'
+    get: -> parseInt(@element.css('x'))
+    set: (value) -> @element.css {x: Math.round(value)}
+
+  @define 'y'
+    get: -> parseInt(@element.css('y'))
+    set: (value) -> @element.css {y: Math.round(value)}
+
+  @define 'w'
+    get: -> parseInt(@element.css('width'))
+    set: (value) -> @element.css {width: Math.round(value)}
+
+  @define 'h'
+    get: -> parseInt(@element.css('height'))
+    set: (value) -> @element.css {height: Math.round(value)}
+
+  @define 'iw'
+    get: -> parseInt(@innerElement.css('width'))
+    set: (value) -> @innerElement.css {width: Math.round(value)}
+
+  @define 'ih'
+    get: -> parseInt(@innerElement.css('height'))
+    set: (value) -> @innerElement.css {height: Math.round(value)}
+
+  @define 'left'
+    get: -> @x
+    set: (value) -> @x = value
+
+  @define 'right'
+    get: -> @x + @w
+    set: (value) -> @x = value - @w
+
+  @define 'top'
+    get: -> @y
+    set: (value) -> @y = value
+
+  @define 'bottom'
+    get: -> @y + @h
+    set: (value) -> @y = value - @h
+
+  @define 'cx'
+    get: -> @x + @w / 2
+    set: (value) -> @element.css {x: Math.round(value - @w / 2)}
+
+  @define 'cy'
+    get: -> @y + @h / 2
+    set: (value) -> @element.css {y: Math.round(value - @h / 2)}
+
   # t가 붙으면 transition animation이 됨
-  # c는 center value => 사각형의 정 중앙을 뜻함
-
-  x: (x) ->
-    return parseInt(@element.css('x')) unless x?
-    @element.css {x: Math.round(x)}
-
-  y: (y) ->
-    return parseInt(@element.css('y')) unless y?
-    @element.css {y: Math.round(y)}
 
   smoothmove: (endx, endy) ->
     clearTimeout(@timer)
@@ -33,44 +72,6 @@ class window.Movable
       intery = 0.9 * @y() + 0.1 * endy
       @x(interx)
       @y(intery)), 5
-
-  left: (l) ->
-    @x(l)
-
-  right: (r) ->
-    return @x() + @w() unless r?
-    @x(r - @w())
-
-  top: (t) ->
-    @y(t)
-
-  bottom: (b) ->
-    return @y() + @h() unless b?
-    @y(b - @h())
-
-  cx: (centerX) ->
-    return @x() + @w() / 2 unless centerX?
-    @element.css {x: Math.round(centerX - @w() / 2)}
-
-  cy: (centerY) ->
-    return @y() + @h() / 2 unless centerY?
-    @element.css {y: Math.round(centerY - @h() / 2)}
-
-  w: (w) ->
-    return parseInt(@element.css('width')) unless w?
-    @element.css {width: Math.round(w)}
-
-  h: (h) ->
-    return parseInt(@element.css('height')) unless h?
-    @element.css {height: Math.round(h)}
-  
-  iw: (w) ->
-    return parseInt(@innerElement.css('width')) unless w?
-    @innerElement.css {width: Math.round(w)}
-
-  ih: (h) ->
-    return parseInt(@innerElement.css('height')) unless h?
-    @innerElement.css {height: Math.round(h)}
 
   txy: (x, y, duration, callback) ->
     @element.transition {

@@ -26,8 +26,8 @@ class window.SheetHandler
     @myTouch = e.originalEvent.touches.length - 1
     
     @hasMoved = false
-    @startx = @sheet.x() * stage.zoom
-    @starty = @sheet.y() * stage.zoom
+    @startx = @sheet.x * stage.zoom
+    @starty = @sheet.y * stage.zoom
     @deltax = e.originalEvent.touches[@myTouch].pageX
     @deltay = e.originalEvent.touches[@myTouch].pageY
     $(document).on 'touchmove', @onTouchMove
@@ -35,8 +35,8 @@ class window.SheetHandler
     e.stopPropagation()
 
   onTouchMove: (e) =>
-    @sheet.x((@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom)
-    @sheet.y((@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom)
+    @sheet.x = (@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom
+    @sheet.y = (@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom
     @hasMoved = true
     for id, link of @sheet.links
       link.refresh()
@@ -52,8 +52,8 @@ class window.SheetHandler
 
     if @hasMoved
       @sheet.socketMove {
-        x: @sheet.x()
-        y: @sheet.y()
+        x: @sheet.x
+        y: @sheet.y
       }
       @sheet.element.find('.sheetTextField').blur()
       @sheet.element.find('.sheetTitle').blur()
@@ -67,7 +67,7 @@ class window.SheetHandler
             stage.activeSheet.resignActive()
             @sheet.becomeActive()
 
-        wall.toCenter(@sheet)
+        wall.center(@sheet)
         @onTouchEnd.lastTouch = 0
 
       else
@@ -90,13 +90,13 @@ class window.SheetHandler
     offset = 10
 
     if e.pageY > $(window).height() - 70
-      moveFunc = => wall.mL.y(wall.mL.y() - offset / stage.zoom)
+      moveFunc = => wall.mL.y = (wall.mL.y - offset / stage.zoom)
     else if e.pageY < 70
-      moveFunc = => wall.mL.y(wall.mL.y() + offset / stage.zoom)
+      moveFunc = => wall.mL.y = (wall.mL.y + offset / stage.zoom)
     else if e.pageX > $(window).width() - 70
-      moveFunc = => wall.mL.x(wall.mL.x() - offset / stage.zoom)
+      moveFunc = => wall.mL.x = (wall.mL.x - offset / stage.zoom)
     else if e.pageX < 140
-      moveFunc = => wall.mL.x(wall.mL.x() + offset / stage.zoom)
+      moveFunc = => wall.mL.x = (wall.mL.x + offset / stage.zoom)
     else
       clearInterval(stage.moveID)
       stage.moveID = null
@@ -134,8 +134,8 @@ class window.SheetHandler
     if stage.activeSheet is @sheet and @sheet.contentType is stage.contentTypeEnum.text
       return false
     else
-      @sheet.x((@startx + e.pageX - @deltax) / stage.zoom)
-      @sheet.y((@starty + e.pageY - @deltay) / stage.zoom)
+      @sheet.x = (@startx + e.pageX - @deltax) / stage.zoom
+      @sheet.y = (@starty + e.pageY - @deltay) / stage.zoom
       @hasMoved = true
       minimap.refresh()
 
@@ -173,8 +173,8 @@ class window.SheetHandler
       wall.bringToTop(@sheet)
       minimap.bringToTop(stage.miniSheets[@sheet.id])
 
-      @startx = @sheet.x() * stage.zoom
-      @starty = @sheet.y() * stage.zoom
+      @startx = @sheet.x * stage.zoom
+      @starty = @sheet.y * stage.zoom
 
       @deltax = e.pageX
       @deltay = e.pageY
@@ -200,14 +200,14 @@ class window.SheetHandler
     @sheet.becomeActive()
     wall.mL.stopTransitioning()
     minimap.stopTransitioning()
-    wall.toCenter(@sheet)
+    wall.center(@sheet)
 
   onResizeTouchStart: (e) =>
     $(document).on 'touchmove', @onResizeTouchMove
     $(document).on 'touchend', @onResizeTouchEnd
     console.log "resizetouchstart"
-    @startWidth = @sheet.iw() * stage.zoom
-    @startHeight = @sheet.ih() * stage.zoom
+    @startWidth = @sheet.iw * stage.zoom
+    @startHeight = @sheet.ih * stage.zoom
     @deltax = e.originalEvent.pageX
     @deltay = e.originalEvent.pageY
     return false
@@ -217,16 +217,16 @@ class window.SheetHandler
     $(document).off 'touchend', @onResizeTouchEnd
 
     @sheet.socketResize {
-      width: @sheet.iw()
-      height: @sheet.ih()
+      width: @sheet.iw
+      height: @sheet.ih
     }
     minimap.refresh()
 
   onResizeMouseDown: (e) =>
     $(document).on 'mousemove', @onResizeMouseMove
     $(document).on 'mouseup', @onResizeMouseUp
-    @startWidth = @sheet.iw() * stage.zoom
-    @startHeight = @sheet.ih() * stage.zoom
+    @startWidth = @sheet.iw * stage.zoom
+    @startHeight = @sheet.ih * stage.zoom
     @deltax = e.pageX
     @deltay = e.pageY
     return false
@@ -240,8 +240,8 @@ class window.SheetHandler
     $(document).off 'mouseup', @onResizeMouseUp
 
     @sheet.socketResize {
-      width: @sheet.iw(),
-      height: @sheet.ih()
+      width: @sheet.iw
+      height: @sheet.ih
     }
     minimap.refresh()
 
