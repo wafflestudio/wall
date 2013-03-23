@@ -87,13 +87,13 @@ class window.Wall
   undock: (sheet) -> @bringToTop(sheet)
 
   bringToTop: (sheet) ->
-    sheet.element.css("z-index", stage.zCount++)
-    setTimeout(
-      () ->
-        $("#sheetLayer").append sheet.element
-        sheet.element.css("z-index", "")
-        stage.zCount = 1
-      , 500)
+    #sheet.element.css("z-index", stage.zCount++)
+    #setTimeout(
+      #() ->
+        #$("#sheetLayer").append sheet.element
+        #sheet.element.css("z-index", "")
+        #stage.zCount = 1
+      #, 500)
   
   loadPref: (zoom, panX, panY) ->
     stage.zoom = zoom
