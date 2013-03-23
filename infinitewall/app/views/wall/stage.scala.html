@@ -97,7 +97,7 @@
   $(function() {
     // open sockets
     var webSocketURL = "@routes.Wall.sync(wallId, timestamp).webSocketURL()"
-    var chatURL = "@routes.Chat.establish(chatId, 999).webSocketURL()"
+    var chatURL = "@routes.Chat.establish(chatId).webSocketURL()"
 
     // prepare stage
     window.stage = new Stage(@wallId, @timestamp, "@Application.currentUser", webSocketURL, chatURL)
