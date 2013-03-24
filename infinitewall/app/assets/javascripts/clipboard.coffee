@@ -110,7 +110,7 @@ pasteHandler = (element) ->
       contentType = clipboard.data.contentType
       content = clipboard.data.content
 
-      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title,contentType:contentType, content:content}})
+      wallSocket.sendAction({action:"create", params:{x:x, y:y, width:w, height:h, title:title,contentType:contentType, content:content}})
 
       #state to false
       clipboard.state = false

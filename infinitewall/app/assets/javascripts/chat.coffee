@@ -1,7 +1,7 @@
 class window.Chat extends PersistentWebsocket
   
   constructor: (url) ->
-    super(url)
+    super(url, "CHAT")
     
     @chatWindow = $('#chatWindow')
     @chatLog = $('#chatLog')
@@ -11,7 +11,6 @@ class window.Chat extends PersistentWebsocket
     @connectionId = -1
     @ready = false
     @users =  {}
-    @scope = "[CHAT]"
     
   onReceive: (e) =>
     data = JSON.parse(e.data)

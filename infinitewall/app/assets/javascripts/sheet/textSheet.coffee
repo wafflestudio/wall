@@ -33,7 +33,7 @@ class window.TextSheet extends Sheet
 
     title = "Untitled Text"
 
-    wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}})
+    wallSocket.sendAction({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}})
 
   setElement: ->
     @element = $($(textTemplate).appendTo('#sheetLayer'))
@@ -185,8 +185,8 @@ class window.TextSheet extends Sheet
         @msgId++
         operation.msgId = @msgId
         @pending.push(operation)
-        wallSocket.send({action:"alterText", timestamp:@timestamp, params:{id:@id, operations:@pending}})
-        #for test: #wallSocket.sendDelayed({action:"alterText", timestamp:@timestamp, params:{id:@id, operations:@pending}}, 2000)
+        wallSocket.sendAction({action:"alterText", timestamp:@timestamp, params:{id:@id, operations:@pending}})
+        #for test: #wallSocket.sendActionDelayed({action:"alterText", timestamp:@timestamp, params:{id:@id, operations:@pending}}, 2000)
 
     # activate focus event handlers:
     $(textfield).focusin ()=>

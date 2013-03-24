@@ -40,22 +40,22 @@ class window.Sheet extends Movable
     @element.attr('contentType')
    
   socketMove: (params) ->
-    wallSocket.send {action : 'move', params : $.extend(params, {id : @id})}
+    wallSocket.sendAction {action : 'move', params : $.extend(params, {id : @id})}
 
   socketResize: (params) ->
-    wallSocket.send {action : 'resize', params : $.extend(params, {id : @id})}
+    wallSocket.sendAction {action : 'resize', params : $.extend(params, {id : @id})}
 
   socketRemove: ->
-    wallSocket.send {action : 'remove', params : {id : @id}}
+    wallSocket.sendAction {action : 'remove', params : {id : @id}}
 
   socketSetTitle: ->
-    wallSocket.send {action : 'setTitle', params : {id : @id, title : @element.find('.sheetTitle').html()}}
+    wallSocket.sendAction {action : 'setTitle', params : {id : @id, title : @element.find('.sheetTitle').html()}}
 
   socketSetLink: (to_id) ->
-    wallSocket.send {action : 'setLink', params: {id: @id, to_id: to_id}}
+    wallSocket.sendAction {action : 'setLink', params: {id: @id, to_id: to_id}}
     
   socketRemoveLink: (to_id) ->
-    wallSocket.send {action : 'removeLink', params: {id: @id, to_id: to_id}}
+    wallSocket.sendAction {action : 'removeLink', params: {id: @id, to_id: to_id}}
 
   attachHandler: ->
 

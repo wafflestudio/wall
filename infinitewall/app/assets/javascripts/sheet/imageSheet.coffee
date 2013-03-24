@@ -34,7 +34,7 @@ class window.ImageSheet extends Sheet
       
       title = name
       
-      wallSocket.send({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
+      wallSocket.sendAction({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
       if typeof callback is "function"
         callback()
 

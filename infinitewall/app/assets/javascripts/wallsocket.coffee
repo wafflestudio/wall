@@ -1,29 +1,22 @@
-class window.WallSocket extends EventDispatcher
+class window.WallSocket extends window.PersistentWebsocket
   constructor: (url, timestamp) ->
-    super()
+    super(url, "WALL", timestamp)
 
-    WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
-    @socket = new WS(url)
-    @socket.onmessage = @onReceive
-    @socket.onerror = @onError
-    @socket.onclose = @onClose
-    @timestamp = timestamp
-    @receivedTimestamp = timestamp
+    @receivedTimestamp = @timestamp
     @on 'receivedAction', @onReceivedAction
     console.info("wall socket initialized to ts:#{timestamp}")
   
-  send: (msg) ->
+  sendAction: (msg) ->
     msg.timestamp = @timestamp unless msg.timestamp?
-    @socket.send(JSON.stringify(msg))
+    @send(JSON.stringify(msg))
 
-  sendDelayed: (msg, delay) ->
+  # only for debug
+  sendActionDelayed: (msg, delay) ->
     msg.timestamp = @timestamp unless msg.timestamp?
     json = JSON.stringify(msg)
     console.log("will send:" + json)
-    setTimeout (=> @socket.send(json)), delay
+    setTimeout (=> @sendAction(json)), delay
 
-  close: =>
-    @socket.close
 
   onReceive: (e) =>
     data = JSON.parse(e.data)
@@ -39,15 +32,8 @@ class window.WallSocket extends EventDispatcher
       @timestamp = data.timestamp
       detail = JSON.parse(data.detail)
       @trigger('receivedAction', detail, data.mine, data.timestamp)
-      @send({action:'ack'})
+      @sendAction({action:'ack'})
       
-  onError: (e) =>
-    console.log("error", e)
-    @trigger('error', e)
-
-  onClose: (e) =>
-    console.log("close", e)
-    @trigger('close', e)
 
   onReceivedAction: (detail, isMine, timestamp) =>
     isMine = isMine || false

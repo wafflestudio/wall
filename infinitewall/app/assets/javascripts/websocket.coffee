@@ -1,14 +1,18 @@
+# required for extending:
+# @timestamp
+# @url
+# @scope
+
+
 class window.PersistentWebsocket extends EventDispatcher
   
 
-  constructor: (url) ->
+  constructor: (@url, scope = "WS", @timestamp = 999) ->
     super()
     @WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
     @status = "TRYING"
-    @url = url
     @numRetry = 0
-    @timestamp = 999
-    @scope = "[WS]"
+    @scope = "[#{scope}]"
     @buffer = [] # emergency buffer
 
     @connect()
@@ -33,6 +37,8 @@ class window.PersistentWebsocket extends EventDispatcher
   close: ()->
     @socket.close()
 
+
+  # @override
   onReceive: (e) =>
     data = JSON.parse(e.data)
     console.log(@scope, data)
@@ -61,6 +67,7 @@ class window.PersistentWebsocket extends EventDispatcher
     setTimeout(@connect, Math.pow(2, @numRetry) * 1000)
     @numRetry += 1 if @numRetry < 5
     console.warn(@scope, "connection closed: ", e, "Retrying connection")
+    @trigger('close', e)
 
   onError: (e) =>
     if @status == "TRYING"
@@ -69,3 +76,5 @@ class window.PersistentWebsocket extends EventDispatcher
       #@numRetry += 1 if @numRetry < 5
     else
       console.error(@scope, "chat connection caught error: ", e)
+      
+    @trigger('error', e)
