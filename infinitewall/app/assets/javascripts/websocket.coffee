@@ -1,7 +1,8 @@
-class window.PersistentWebsocket
+class window.PersistentWebsocket extends EventDispatcher
   
 
   constructor: (url) ->
+    super()
     @WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
     @status = "TRYING"
     @url = url
@@ -44,8 +45,10 @@ class window.PersistentWebsocket
     console.info(@scope, "connection established: ", e)
     if @buffer.length > 0
       console.info(@scope, "sending #{@buffer.length} pending messages")
-      for msg in @buffer
-        @socket.send(msg)
+      while @buffer.length > 0
+        @socket.send(@buffer[0])
+        @buffer.shift()
+      
 
   onClose: (e) =>
     @status = "TRYING"
