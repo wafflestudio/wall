@@ -47,7 +47,6 @@ class window.PersistentWebsocket extends EventDispatcher
     @status = "CONNECTED"
     @numRetry = 0
     @socket.onmessage = @onReceive
-    @socket.onclose = @onClose
     console.info(@scope, "connection established: ", e)
     @trigger('open', e)
     if @buffer.length > 0

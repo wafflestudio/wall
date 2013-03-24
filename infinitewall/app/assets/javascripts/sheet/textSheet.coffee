@@ -112,9 +112,10 @@ class window.TextSheet extends Sheet
       # save selection
       selection.refresh()
       ranges = selection.getAllRanges()
+
       if ranges.length == 0
         console.warn('no available selection or cursor')
-        return [-1,-1]
+        return null
 
       range = ranges[0]
       backwards = selection.isBackwards()
@@ -174,6 +175,9 @@ class window.TextSheet extends Sheet
 
       currentRange = @getRange()
 
+      if not currentRange
+        return
+
       if !savedRange or savedRange[0] != currentRange[0] or savedRange[1] != currentRange[1]
         #console.log('selection changed', savedRange, "->", currentRange)
         savedRange = currentRange
@@ -204,8 +208,14 @@ class window.TextSheet extends Sheet
       $(textfield).on 'focusout', deactivate
 
     # activate key event handlers
-    $(textfield).on 'keyup', ()=>
+    #$(textfield).on 'keyup', (e)=>
+    #  console.log('[TEXT]', "keyup - keyCode: #{e.keyCode} charCode: #{e.charCode} which: #{e.which}", e)
+      
+    # activate key event handlers
+    $(textfield).on 'keypress', (e)=>
+      #console.log('[TEXT]', "keypress - keyCode: #{e.keyCode} charCode: #{e.charCode} which: #{e.which}", e)
       @detectChangeAndUpdate()
+
 
     # check for any update by the browser
     $(()=>

@@ -4,7 +4,7 @@ class window.WallSocket extends window.PersistentWebsocket
 
     @receivedTimestamp = @timestamp
     @on 'receivedAction', @onReceivedAction
-    console.info("wall socket initialized to ts:#{timestamp}")
+    console.info(@scope, "wall socket initialized to ts:#{timestamp}")
   
   sendAction: (msg) ->
     msg.timestamp = @timestamp unless msg.timestamp?
@@ -14,17 +14,16 @@ class window.WallSocket extends window.PersistentWebsocket
   sendActionDelayed: (msg, delay) ->
     msg.timestamp = @timestamp unless msg.timestamp?
     json = JSON.stringify(msg)
-    console.log("will send:" + json)
+    console.log(@scope, "will send:" + json)
     setTimeout (=> @sendAction(json)), delay
-
 
   onReceive: (e) =>
     data = JSON.parse(e.data)
-    console.info('received:', data)
+    console.info(@scope, 'received:', data)
     @receivedTimestamp = data.timestamp
 
     if data.error
-      console.log('disconnected: ' + data.error)
+      console.log(@scope, 'disconnected: ' + data.error)
       @close()
       return
     

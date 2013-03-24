@@ -82,6 +82,9 @@ class window.Chat extends PersistentWebsocket
     else
       newMessage = @infoHtml(data.nickname || detail.nickname, " added new connection")
 
+    if not @users[data.email]?
+      @users[data.email] = {userId:data.userId, email: data.email, nickname: data.nickname || detail.nickname}
+    
     if @ready
       @users[data.email].sessionCount = numConnections
 
