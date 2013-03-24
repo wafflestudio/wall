@@ -236,6 +236,9 @@ class window.TextSheet extends Sheet
     @timestamp = timestamp
 
     range = @getRange()
+    if not range
+      range = [0,0,0]
+
     if isMine
       console.log("mine came (#{timestamp})")
       if @pending.length > 0 and @pending[0].msgId == operation.msgId
