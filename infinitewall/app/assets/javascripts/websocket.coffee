@@ -8,6 +8,7 @@ class window.PersistentWebsocket
     @numRetry = 0
     @timestamp = 999
     @scope = "[WS]"
+    @buffer = [] # emergency buffer
 
     @connect()
 
@@ -23,7 +24,10 @@ class window.PersistentWebsocket
 
 
   send: (msg) ->
-    @socket.send(msg)
+    if @isConnected()
+      @socket.send(msg)
+    else
+      @buffer.push(msg)
 
   close: ()->
     @socket.close()
@@ -38,6 +42,10 @@ class window.PersistentWebsocket
     @socket.onmessage = @onReceive
     @socket.onclose = @onClose
     console.info(@scope, "connection established: ", e)
+    if @buffer.length > 0
+      console.info(@scope, "sending #{@buffer.length} pending messages")
+      for msg in @buffer
+        @socket.send(msg)
 
   onClose: (e) =>
     @status = "TRYING"
