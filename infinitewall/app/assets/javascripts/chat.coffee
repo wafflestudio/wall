@@ -11,7 +11,11 @@ class window.Chat extends PersistentWebsocket
     @connectionId = -1
     @ready = false
     @users =  {}
-    
+
+    # events
+    @on "open",=> @chatWindow.fadeTo(500, 1.0)
+    @on "close", => @chatWindow.fadeTo(500, 0.4)
+  
   onReceive: (e) =>
     data = JSON.parse(e.data)
     console.log(@scope, data)

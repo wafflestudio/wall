@@ -49,6 +49,7 @@ class window.PersistentWebsocket extends EventDispatcher
     @socket.onmessage = @onReceive
     @socket.onclose = @onClose
     console.info(@scope, "connection established: ", e)
+    @trigger('open', e)
     if @buffer.length > 0
       console.info(@scope, "sending #{@buffer.length} pending messages")
       while @buffer.length > 0
@@ -76,5 +77,5 @@ class window.PersistentWebsocket extends EventDispatcher
       #@numRetry += 1 if @numRetry < 5
     else
       console.error(@scope, "chat connection caught error: ", e)
-      
+
     @trigger('error', e)
