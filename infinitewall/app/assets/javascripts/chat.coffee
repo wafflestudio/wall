@@ -7,7 +7,7 @@ class window.Chat extends PersistentWebsocket
     @chatLog = $('#chatLog')
     @userList = $('#chatUsers')
     @chatInput = $('#chatInput')
-    @chatInput.textareaAutoExpand()
+    #@chatInput.textareaAutoExpand()
     @connectionId = -1
     @ready = false
     @users =  {}
@@ -52,6 +52,7 @@ class window.Chat extends PersistentWebsocket
       when "talk" then newMessage = @messageHtml(@users[data.email], data.message)
       
     @chatLog.append newMessage if newMessage?
+    @chatLog.clearQueue()
     @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 150
   
   sendCurrentMessage: ->
