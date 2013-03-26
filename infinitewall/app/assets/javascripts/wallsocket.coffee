@@ -20,6 +20,7 @@ class window.WallSocket extends window.PersistentWebsocket
   onReceive: (e) =>
     data = JSON.parse(e.data)
     console.info(@scope, 'received:', data)
+
     @receivedTimestamp = data.timestamp
 
     if data.error
@@ -32,6 +33,8 @@ class window.WallSocket extends window.PersistentWebsocket
       detail = JSON.parse(data.detail)
       @trigger('receivedAction', detail, data.mine, data.timestamp)
       @sendAction({action:'ack'})
+    else if data.kind is "action"
+      console.warn(@scope, "received message with older timestamp: #{data.timestamp} < #{@timestamp}")
       
 
   onReceivedAction: (detail, isMine, timestamp) =>

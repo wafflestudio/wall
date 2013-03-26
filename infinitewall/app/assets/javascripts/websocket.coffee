@@ -21,7 +21,7 @@ class window.PersistentWebsocket extends EventDispatcher
     @status == "CONNECTED"
 
   connect: ()=>
-    console.info(@scope, "Retrying to connect... ", @numRetry) if @numRetry > 0 
+    console.info(@scope, "Retrying to connect... ", @numRetry, "ts: #{@timestamp}") if @numRetry > 0 
     @socket = new @WS(@url + "?timestamp=#{@timestamp}")
     @socket.onopen = @onOpen
     @socket.onerror = @onError
@@ -31,6 +31,7 @@ class window.PersistentWebsocket extends EventDispatcher
   send: (msg) ->
     if @isConnected()
       @socket.send(msg)
+      console.info(@scope, "sending #{msg.length} characters", msg)
     else
       @buffer.push(msg)
 
@@ -44,16 +45,18 @@ class window.PersistentWebsocket extends EventDispatcher
     console.log(@scope, data)
 
   onOpen: (e) =>
-    @status = "CONNECTED"
-    @numRetry = 0
-    @socket.onmessage = @onReceive
-    console.info(@scope, "connection established: ", e)
-    @trigger('open', e)
+    
     if @buffer.length > 0
       console.info(@scope, "sending #{@buffer.length} pending messages")
       while @buffer.length > 0
         @socket.send(@buffer[0])
         @buffer.shift()
+
+    @socket.onmessage = @onReceive
+    console.info(@scope, "connection established: ", e)
+    @trigger('open', e)
+    @status = "CONNECTED"
+    @numRetry = 0
       
 
   onClose: (e) =>
@@ -66,7 +69,7 @@ class window.PersistentWebsocket extends EventDispatcher
 
     setTimeout(@connect, Math.pow(2, @numRetry) * 1000)
     @numRetry += 1 if @numRetry < 5
-    console.warn(@scope, "connection closed: ", e, "Retrying connection")
+    console.warn(@scope, "connection closed: ", e, "Will retry connect")
     @trigger('close', e)
 
   onError: (e) =>

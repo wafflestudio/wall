@@ -78,7 +78,10 @@ object Wall extends Controller with Auth with Login {
     Redirect(routes.Wall.stage(wallId))
   }
 
-  def sync(wallId: Long, timestamp: Long = 0) = WebSocket.async[JsValue] { request =>
+  def sync(wallId: Long) = WebSocket.async[JsValue] { request =>
+    val params = request.queryString
+    val timestamp = params.get("timestamp").getOrElse(Seq("999"))(0).toLong
+    
     request.session.get("current_user_id") match {
       case Some(userId) =>
         WallSystem.establish(wallId, userId.toLong, timestamp)

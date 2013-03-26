@@ -231,6 +231,8 @@ class WallActor(wallId: Long) extends Actor {
         // update connections map
         connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ (producer, timestamp)))
         sender ! Connected(producer, prev)
+        
+        Logger.info(s"[Wall] user $userId joined to wall $wallId ")
       }
     }
     case RetryFinish =>
@@ -315,6 +317,7 @@ class WallActor(wallId: Long) extends Actor {
     case Quit(userId, producer) => {
       quit(userId, producer)
       notifyAll("userQuit", 0, userId, "", producer)
+      Logger.info(s"[Wall] user $userId quit from wall $wallId ")
     }
 
   }
