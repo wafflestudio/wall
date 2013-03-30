@@ -91,7 +91,8 @@ class ChatRoomActor(roomId: Long) extends Actor {
   }
 
   def logMessage(kind: String, userId: Long, message: String) = {
-    ChatLog.create(kind, roomId, userId, message)
+    val when = System.currentTimeMillis
+    (ChatLog.create(kind, roomId, userId, message, when), when)
   }
 
   def receive = {
@@ -194,10 +195,10 @@ class ChatRoomActor(roomId: Long) extends Actor {
         )
     }
     
-    val timestamp = logMessage(kind, userId, (msg \ "message").as[String])
-
+    val (timestamp, when) = logMessage(kind, userId, (msg \ "message").as[String])
+  
     connections.foreach {
-      case (_, producer,_) => producer.push(msg.as[JsObject] ++ Json.obj("timestamp" -> timestamp))
+      case (_, producer,_) => producer.push(msg.as[JsObject] ++ Json.obj("timestamp" -> timestamp, "when" -> when))
     }
   }
 }

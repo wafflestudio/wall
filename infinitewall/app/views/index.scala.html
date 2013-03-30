@@ -2,9 +2,9 @@
 
 @layouts.default("Walls ::: Infinite Wall") {
 
-	@if(request.session.get("current_user").isDefined)  {
-        <p><a href="/wall">Walls</a></p>
-		<p><a href="/group">Manage Groups</a></p>
-        <p><a href="/me">My Account</a></p>
-	}
+@if(request.session.get("current_user").isDefined)  {
+  <p><a href="/wall">Walls</a></p>
+  <p><a href="/group">Manage Groups</a></p>
+  <p><a href="/me">My Account</a></p>
+}
 }

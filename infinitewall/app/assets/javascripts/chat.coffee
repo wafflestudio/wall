@@ -7,7 +7,6 @@ class window.Chat extends PersistentWebsocket
     @chatLog = $('#chatLog')
     @userList = $('#chatUsers')
     @chatInput = $('#chatInput')
-    #@chatInput.textareaAutoExpand()
     @connectionId = -1
     @ready = false
     @users =  {}
@@ -97,9 +96,9 @@ class window.Chat extends PersistentWebsocket
       @users[data.email] = {userId:data.userId, email: data.email, nickname: data.nickname || detail.nickname}
       
     if numConnections == 0
-      newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " has left") 
+      newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " has left")
     else
-      newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " removed a connection") 
+      newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " removed a connection")
 
       if @ready
         @users[data.email].sessionCount = numConnections

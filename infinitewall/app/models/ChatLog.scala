@@ -7,8 +7,8 @@ import play.api.Play.current
 import java.sql.Timestamp
 import play.api.libs.json._
 
-case class ChatLog(id: Pk[Long], kind: String, message: String, time: Long, roomId: Long, userId: Long)
-case class ChatLogWithEmail(id: Pk[Long], kind: String, message: String, time: Long, roomId: Long, userId: Long, email: String)
+case class ChatLog(id: Pk[Long], kind: String, message: String, time: Long, when: Long, roomId: Long, userId: Long)
+case class ChatLogWithEmail(id: Pk[Long], kind: String, message: String, time: Long, when: Long, roomId: Long, userId: Long, email: String)
 
 object ChatLog extends ActiveRecord[ChatLog] {
 
@@ -18,10 +18,11 @@ object ChatLog extends ActiveRecord[ChatLog] {
     field[Pk[Long]]("id") ~
       field[String]("message") ~
       field[Long]("time") ~
+      field[Long]("when") ~
       field[Long]("chatroom_id") ~
       field[Long]("user_id") ~
       field[String]("kind") map {
-        case id ~ message ~ time ~ roomId ~ userId ~ kind => ChatLog(id, kind, message, time, roomId, userId)
+        case id ~ message ~ time ~ when ~ roomId ~ userId ~ kind => ChatLog(id, kind, message, time, when, roomId, userId)
       }
   }
 
@@ -29,11 +30,12 @@ object ChatLog extends ActiveRecord[ChatLog] {
     field[Pk[Long]]("id") ~
       field[String]("message") ~
       field[Long]("time") ~
+      field[Long]("when") ~
       field[Long]("chatroom_id") ~
       field[Long]("user_id") ~
       get[String]("User.email") ~
       field[String]("kind") map {
-        case id ~ message ~ time ~ roomId ~ userId ~ email ~ kind => ChatLogWithEmail(id, kind, message, time, roomId, userId, email)
+        case id ~ message ~ time ~ when ~ roomId ~ userId ~ email ~ kind => ChatLogWithEmail(id, kind, message, time, when, roomId, userId, email)
       }
   }
 
@@ -52,23 +54,25 @@ object ChatLog extends ActiveRecord[ChatLog] {
       "userId" -> chatlog.userId,
       "kind" -> chatlog.kind,
       "email" -> chatlog.email,
+      "when" -> chatlog.when,
       "message" -> chatlog.message
     )
     
   }
 
-  def create(kind: String, roomId: Long, userId: Long, message: String) = {
+  def create(kind: String, roomId: Long, userId: Long, message: String, when:Long) = {
     DB.withConnection { implicit c =>
       val id = SQL("select next value for chatlog_seq").as(scalar[Long].single)
       SQL(""" 
-				insert into ChatLog (id, message, time, chatroom_id, user_id, kind)
+				insert into ChatLog (id, message, time, when, chatroom_id, user_id, kind)
 					values (
 					{id},
-					{message}, (select next value for chatlog_timestamp), {chatroomId}, {userId}, {kind}	
+					{message}, (select next value for chatlog_timestamp), {when}, {chatroomId}, {userId}, {kind}	
 				)
 			""").on(
         'id -> id,
         'message -> message,
+        'when -> when,
         'chatroomId -> roomId,
         'userId -> userId,
         'kind -> kind
