@@ -7,6 +7,7 @@ class window.LinkLine extends Movable
   oldTheta: 0
 
   constructor: (fromID) ->
+    super(false)
     @id = "linkLine_" + fromID + "_null"
     @element = $($("<div id='" + @id + "' class='linkLine'></div>").appendTo('#linkLayer'))
     @paper = Raphael(@id, '100%', '100%')

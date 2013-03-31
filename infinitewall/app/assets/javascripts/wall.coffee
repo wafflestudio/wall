@@ -1,5 +1,6 @@
 class ScaleLayer extends Movable
   constructor: ->
+    super(false)
     @element = $("#scaleLayer")
   
   setPoint: (tx, ty, x, y) ->
@@ -30,6 +31,7 @@ class ScaleLayer extends Movable
 
 class MoveLayer extends Movable
   constructor: ->
+    super(false)
     @element = $("#moveLayer")
 
   stopTransitioning: ->
@@ -37,10 +39,12 @@ class MoveLayer extends Movable
 
 class DockLayer extends Movable
   constructor: ->
+    super(false)
     @element = $("#dockLayer")
 
 class DeleteLayer extends Movable
   constructor: ->
+    super(false)
     @element = $("#removeLayer")
     @element.on 'proximity', {max : 100}, (e, proximity, distance) ->
       return unless stage.draggingSheet?

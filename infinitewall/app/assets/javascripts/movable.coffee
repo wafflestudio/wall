@@ -1,5 +1,7 @@
 Function::define = (prop, desc) ->
-  Object.defineProperty this.prototype, prop, desc
+  Object.defineProperty(this.prototype, prop, desc)
+
+cellVal = 100
 
 class window.Movable
   id: null
@@ -8,18 +10,70 @@ class window.Movable
   handler: null
   timer: 0
 
-  constructor: (params) ->
-
   #i 는 안에 들어있는 element에 대한것
   #c 는 중심의 좌표
-  
-  @define 'x'
-    get: -> parseInt(@element.css('x'))
-    set: (value) -> @element.css {x: Math.round(value)}
 
-  @define 'y'
-    get: -> parseInt(@element.css('y'))
-    set: (value) -> @element.css {y: Math.round(value)}
+  constructor: (isCell = false) ->
+    if isCell
+      Object.defineProperty @, 'x'
+        get: -> parseInt(@element.css('x'))
+        set: (value) ->
+          roundVal = Math.round(value)
+          diff = roundVal % cellVal
+
+          if diff > cellVal / 2
+            @element.css {x: roundVal - diff + cellVal}
+          else
+            @element.css {x: roundVal - diff}
+
+      Object.defineProperty @, 'y'
+        get: -> parseInt(@element.css('y'))
+        set: (value) ->
+          roundVal = Math.round(value)
+          diff = roundVal % cellVal
+
+          if diff > cellVal / 2
+            @element.css {y: roundVal - diff + cellVal}
+          else
+            @element.css {y: roundVal - diff}
+
+      Object.defineProperty @, 'iw'
+        get: -> parseInt(@innerElement.css('width'))
+        set: (value) ->
+          roundVal = Math.round(value)
+          diff = roundVal % cellVal
+
+          if diff > cellVal / 2
+            @innerElement.css {width: roundVal - diff + cellVal}
+          else
+            @innerElement.css {width: roundVal - diff}
+
+      Object.defineProperty @, 'ih'
+        get: -> parseInt(@innerElement.css('height'))
+        set: (value) ->
+          roundVal = Math.round(value)
+          diff = roundVal % cellVal
+
+          if diff > cellVal / 2
+            @innerElement.css {height: roundVal - diff + cellVal}
+          else
+            @innerElement.css {height: roundVal - diff}
+    else
+      Object.defineProperty @, 'x'
+        get: -> parseInt(@element.css('x'))
+        set: (value) -> @element.css {x: Math.round(value)}
+
+      Object.defineProperty @, 'y'
+        get: -> parseInt(@element.css('y'))
+        set: (value) -> @element.css {y: Math.round(value)}
+
+      Object.defineProperty @, 'iw'
+        get: -> parseInt(@innerElement.css('width'))
+        set: (value) -> @innerElement.css {width: Math.round(value)}
+
+      Object.defineProperty @, 'ih'
+        get: -> parseInt(@innerElement.css('height'))
+        set: (value) -> @innerElement.css {height: Math.round(value)}
 
   @define 'w'
     get: -> parseInt(@element.css('width'))
@@ -28,14 +82,6 @@ class window.Movable
   @define 'h'
     get: -> parseInt(@element.css('height'))
     set: (value) -> @element.css {height: Math.round(value)}
-
-  @define 'iw'
-    get: -> parseInt(@innerElement.css('width'))
-    set: (value) -> @innerElement.css {width: Math.round(value)}
-
-  @define 'ih'
-    get: -> parseInt(@innerElement.css('height'))
-    set: (value) -> @innerElement.css {height: Math.round(value)}
 
   @define 'left'
     get: -> @x

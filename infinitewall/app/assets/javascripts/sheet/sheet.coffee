@@ -7,6 +7,7 @@ class window.Sheet extends Movable
     #interface for random creation
   setElement: (params) ->
   constructor: (params) ->
+    super(true)
     @id = params.id
     @setElement()
     @xyiwh(params.x, params.y, params.width, params.height)

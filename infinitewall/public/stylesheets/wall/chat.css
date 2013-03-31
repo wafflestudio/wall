@@ -29,6 +29,11 @@
   float: left;
 }
 
+.chatNickname {
+  display: none;
+
+}
+
 #chatLog {
 	height:100%;
 	overflow-y:auto;

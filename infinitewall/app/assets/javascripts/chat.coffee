@@ -107,7 +107,7 @@ class window.Chat extends PersistentWebsocket
     @userList.html('')
     #console.log("[CHAT]", @users)
     for email,user of @users
-      @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(/users/#{user.userId}/profile)'> </div>")
+      @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(/users/#{user.userId}/profile)'> <div class = 'chatNickname'>#{user.nickname}</div> </div>")
 
   messageHtml: (user, message) ->
     owner = if user?.email is stage.currentUser then "isMine" else "isNotMine"
