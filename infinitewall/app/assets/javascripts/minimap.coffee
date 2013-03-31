@@ -1,5 +1,6 @@
 class MiniSheet extends Movable
   constructor: (params) ->
+    super(false)
     @id = params.id
     @element = $($('<div class = "miniSheet"></div>').appendTo('#miniMoveLayer'))
     #@xywh(params.x, params.y, params.width, params.height)
@@ -19,10 +20,14 @@ class MiniSheet extends Movable
   remove: -> @element.remove()
 
 class Miniworld extends Movable
-  constructor: -> @element = $("#minimapWorld")
+  constructor: ->
+    super(false)
+    @element = $("#minimapWorld")
 
 class Miniscreen extends Movable
-  constructor: -> @element = $("#miniScreen")
+  constructor: ->
+    super(false)
+    @element = $("#miniScreen")
   becomeSelected: -> @element.addClass("selectedMiniScreen")
   resignSelected: -> @element.removeClass("selectedMiniScreen")
 
@@ -43,6 +48,7 @@ class window.Minimap extends Movable
   minimapHeight: 0
 
   constructor: ->
+    super(false)
     @element = $('#minimap')
     @miniWorld = new Miniworld()
     @miniScreen = new Miniscreen()

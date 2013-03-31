@@ -151,8 +151,8 @@ class window.SheetHandler
 
     if @hasMoved
       @sheet.socketMove {
-        x: (@startx + e.pageX - @deltax) / stage.zoom
-        y: (@starty + e.pageY - @deltay) / stage.zoom
+        x: @sheet.x
+        y: @sheet.y
       }
       @sheet.element.find('.sheetTextField').blur()
       @sheet.element.find('.sheetTitle').blur()
