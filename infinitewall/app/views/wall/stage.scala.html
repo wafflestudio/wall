@@ -2,7 +2,13 @@
 
 @layouts.stage("Wall ::: Infinite Wall") {
 
+<div class="wallTitle">@wallName</div>
+<div class="wallContainer otherwall1"></div>
+<div class="wallContainer otherwall2"></div>
+<div class="wallContainer currentwall">
+
 <input id="fileupload" type="file" name="files[]" data-url="/wall/file/@wallId" multiple>
+
 
 <div id = "zoomBar"></div>
 <div id = "wall">
@@ -81,6 +87,8 @@
 </div>
 -->
 
+</div><!-- wallcontainer -->
+
 <script type = "text/javascript">
 
   $(function()
@@ -91,7 +99,21 @@
     $('#logoImage').click(function() {
       $('#wallmanagement').toggle()
     })
+  })
 
+  $(function() {
+    var mode = 'zoomed'
+    $('#folderButton').click( function (e) {
+      if(mode == 'zoomed') {
+        mode = 'changing' 
+        $(".currentwall").animate({margin:0}, 300, function() { mode = 'full' })
+      }
+      else if(mode == 'full')
+      {
+        mode = 'changing' 
+        $(".currentwall").animate({margin:30}, 300, function() { mode = 'zoomed' })
+      }
+    });
   })
 
   $(function() {
