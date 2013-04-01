@@ -1,5 +1,8 @@
 body { 
+
+
   background-color:#F7F7F7;
+
 }
 .wallTitle {
   margin-top:5px;
@@ -47,8 +50,9 @@ body {
   width:auto !important; 
   margin:10px 10px 10px 320px;
 
-  background-color:#EFEFEA;
-  border-top:1px solid #9AA6A2;
+  background-color:#EFEFEF;
+  border-top:1px solid #9AA2A2;
+
   border-left:1px solid #92A2A2;
   overflow:hidden;
 -webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
