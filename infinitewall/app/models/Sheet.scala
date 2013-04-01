@@ -44,7 +44,7 @@ class TextSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Doubl
       "y" -> y,
       "width" -> width,
       "height" -> height,
-      "title" -> escapeHtml(title),
+      "title" ->  title,
       "content" -> TextContent.findBySheetId(id.get).content,
       "contentType" -> "text"
     ).toString()
@@ -61,7 +61,7 @@ class ImageSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Doub
       "y" -> y,
       "width" -> width,
       "height" -> height,
-      "title" -> escapeHtml(title),
+      "title" -> title, 
       "content" -> ImageContent.findBySheetId(id.get).url,
       "contentType" -> "image"
     ).toString
