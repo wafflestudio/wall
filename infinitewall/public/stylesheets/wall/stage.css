@@ -1,5 +1,5 @@
 body { 
-  background-color:#7F8488;
+  background-color:#F7F7F7;
 }
 .wallTitle {
   margin-top:5px;
@@ -12,19 +12,29 @@ body {
     1px 1px 0 #eee;  
 }
 
+.navigator {
+  position:absolute;
+  top:0px;
+  left:0px;
+  width:300px;
+  bottom:0px;
+  background-color:#EFEFEA;
+  border-right:2px solid #9A9A9A;
+}
+
 .otherwall1 {
--webkit-transform:rotate(1.5deg);
-       -moz-transform:rotate(1.5deg);
-        -ms-transform:rotate(1.5deg);
-         -o-transform:rotate(1.5deg);
-            transform:rotate(1.5deg);
+-webkit-transform:rotate(-1.5deg);
+       -moz-transform:rotate(-1.5deg);
+        -ms-transform:rotate(-1.5deg);
+         -o-transform:rotate(-1.5deg);
+            transform:rotate(-1.5deg);
 }
 .otherwall2 {
--webkit-transform:rotate(0.75deg);
-       -moz-transform:rotate(0.75deg);
-        -ms-transform:rotate(0.75deg);
-         -o-transform:rotate(0.75deg);
-            transform:rotate(0.75deg);
+-webkit-transform:rotate(-0.75deg);
+       -moz-transform:rotate(-0.75deg);
+        -ms-transform:rotate(-0.75deg);
+         -o-transform:rotate(-0.75deg);
+            transform:rotate(-0.75deg);
 }
 
 
@@ -35,7 +45,8 @@ body {
   left:0;
   right:0;
   width:auto !important; 
-  margin:30px;
+  margin:10px 10px 10px 320px;
+
   background-color:#EFEFEA;
   border-top:1px solid #9AA6A2;
   border-left:1px solid #92A2A2;

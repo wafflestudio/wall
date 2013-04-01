@@ -3,6 +3,10 @@
 @layouts.stage("Wall ::: Infinite Wall") {
 
 <div class="wallTitle">@wallName</div>
+
+
+<div class="navigator"></div>
+
 <div class="wallContainer otherwall1"></div>
 <div class="wallContainer otherwall2"></div>
 <div class="wallContainer currentwall">
@@ -23,7 +27,7 @@
     <div contenteditable = true id = "wallPasteArea"></div>
 </div>
 
-<div id = "menuWrapper">
+<div id = "menuWrapper" style="display:none">
   <div id = "menuBar">
     <a href = "/me">
       <div id = "profileButton" class = "menuButton">
@@ -101,6 +105,7 @@
     })
   })
 
+  // fullscreen stage mode <=> zoomed out mode 
   $(function() {
     var mode = 'zoomed'
     $('#folderButton').click( function (e) {
@@ -111,7 +116,8 @@
       else if(mode == 'full')
       {
         mode = 'changing' 
-        $(".currentwall").animate({margin:30}, 300, function() { mode = 'zoomed' })
+        // TODO: make it auto consistent with the css
+        $(".currentwall").animate({marginTop:10, marginLeft:320, marginBottom:10, marginRight:10}, 300, function() { mode = 'zoomed' })
       }
     });
   })
