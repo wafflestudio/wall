@@ -121,3 +121,13 @@
 .selectedSheet {
   background-color: #CFD2FF !important;
 }
+
+.sheetOutline {
+  background-color: skyblue;
+  opacity: 0.5;
+}
+
+.gridCell {
+  background-color: pink;
+  opacity: 0.5;
+}

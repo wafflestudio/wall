@@ -1,5 +1,19 @@
+class GridCell extends Movable
+  constructor: (sheet) ->
+    super(true)
+    @element = $($("<div class = 'gridCell'></div>").appendTo("#sheetLayer"))
+    @xywh(sheet.x, sheet.y, sheet.w, sheet.h)
+
+class SheetOutline extends Movable
+  constructor: (sheet) ->
+    super(false)
+    @element = $($("<div class = 'sheetOutline'></div>").appendTo("#sheetLayer"))
+    @xywh(sheet.x, sheet.y, sheet.w, sheet.h)
+
 class window.SheetHandler
   sheet: null
+  sheetOutline: null
+  gridCell: null
   deltax: 0
   deltay: 0
   startx: 0
@@ -148,6 +162,8 @@ class window.SheetHandler
     wall.removeLayer.reset()
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
+    @sheetOutline.element.remove()
+    @sheetOutline = null
 
     if @hasMoved
       @sheet.socketMove {
@@ -165,8 +181,53 @@ class window.SheetHandler
 
     return false
 
+  onMouseUpTwo: (e) =>
+    stage.leftClick = false
+    stage.draggingSheet = null
+    wall.removeLayer.reset()
+    $(document).off 'mousemove', @onMouseMoveTwo
+    $(document).off 'mouseup', @onMouseUpTwo
+
+    console.log @sheetOutline.x
+    console.log @sheetOutline.y
+
+    if @hasMoved
+      @sheet.txy(@sheetOutline.x, @sheetOutline.y)
+
+      @sheet.socketMove {
+        x: @sheet.x
+        y: @sheet.y
+      }
+      @sheet.element.find('.sheetTextField').blur()
+      @sheet.element.find('.sheetTitle').blur()
+    else
+      if stage.activeSheet and stage.activeSheet isnt @sheet
+        stage.activeSheet.resignActive()
+
+      @sheet.becomeActive()
+      wall.revealSheet()
+
+    @sheetOutline.element.remove()
+    @sheetOutline = null
+    @gridCell.element.remove()
+    @gridCell = null
+    return false
+
+  onMouseMoveTwo: (e) =>
+    if stage.activeSheet is @sheet and @sheet.contentType is stage.contentTypeEnum.text
+      return false
+    else
+      @sheetOutline.x = (@startx + e.pageX - @deltax) / stage.zoom
+      @sheetOutline.y = (@starty + e.pageY - @deltay) / stage.zoom
+      @gridCell.x = (@startx + e.pageX - @deltax) / stage.zoom
+      @gridCell.y = (@starty + e.pageY - @deltay) / stage.zoom
+      @hasMoved = true
+
   onMouseDown: (e) =>
     if e.which is 1 # left click
+      @sheetOutline = new SheetOutline(@sheet)
+      @gridCell = new GridCell(@sheet)
+
       stage.leftClick = true
       stage.draggingSheet = @sheet
       @hasMoved = false
@@ -179,8 +240,10 @@ class window.SheetHandler
       @deltax = e.pageX
       @deltay = e.pageY
 
-      $(document).on 'mousemove', @onMouseMove
-      $(document).on 'mouseup', @onMouseUp
+      $(document).on 'mousemove', @onMouseMoveTwo
+      $(document).on 'mouseup', @onMouseUpTwo
+      #$(document).on 'mousemove', @onMouseMove
+      #$(document).on 'mouseup', @onMouseUp
 
     else if e.which is 3 # right click
       stage.rightClick = true

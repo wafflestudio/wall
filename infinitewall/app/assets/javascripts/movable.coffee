@@ -123,6 +123,7 @@ class window.Movable
       @y(intery)), 5
 
   txy: (x, y, duration, callback) ->
+    console.log "txy: ", x, y
     @element.transition {
       x: Math.round(x)
       y: Math.round(y)
