@@ -17,7 +17,10 @@ object ApplicationBuild extends Build {
 		"org.apache.commons" % "commons-email" % "1.2",
     "commons-codec" % "commons-codec" % "1.7",
     "com.github.theon" %% "scala-uri" % "0.3.2",
+    "net.fwbrasil" % "activate-core_2.10" % "1.2",
+    "net.fwbrasil" % "activate-jdbc_2.10" % "1.2",
     "net.fwbrasil" % "activate_2.10" % "1.2",
+    "net.fwbrasil" % "activate-play_2.10" % "1.2",
 		"org.mindrot" % "jbcrypt" % "0.3m")
 		
 
