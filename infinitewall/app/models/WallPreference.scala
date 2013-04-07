@@ -8,7 +8,6 @@ import play.api.db.DB
 case class WallPreference(id: Pk[Long], val alias: Option[String], val panX: Double, val panY: Double, val zoom: Double, userId: Long, wallId: Long)
 
 object WallPreference extends ActiveRecord[WallPreference] {
-  val tableName = "WallPreference"
 
   val simple = {
     field[Pk[Long]]("id") ~

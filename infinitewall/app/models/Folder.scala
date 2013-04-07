@@ -11,7 +11,6 @@ case class RootFolder() extends TreeNode
 case class Folder(id: Pk[Long], name: String, parentId: Option[Long], userId: Long) extends TreeNode
 
 object Folder extends ActiveRecord[Folder] {
-  val tableName = "Folder"
 
   val simple = {
     field[Pk[Long]]("id") ~

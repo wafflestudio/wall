@@ -69,7 +69,6 @@ class ImageSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Doub
 }
 
 object Sheet extends ActiveRecord[Sheet] {
-  val tableName = "sheet"
 
   val simple = {
     field[Pk[Long]]("id") ~
