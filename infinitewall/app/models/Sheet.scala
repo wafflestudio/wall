@@ -8,6 +8,7 @@ import ContentType._
 import play.api.libs.json._
 import play.api.Logger
 import org.apache.commons.lang.StringEscapeUtils._
+import indexing._
 
 abstract class Sheet(val id: Pk[Long], val x: Double, val y: Double, val width: Double, val height: Double,
   val title: String, val contentType: ContentType, val wallId: Long) {
@@ -99,6 +100,7 @@ object Sheet extends ActiveRecord[Sheet] {
         case "text" =>
           val id = create(x, y, width, height, title, ContentType.TextType, wallId)
           val contentId = TextContent.create(content, 0, 0, id)
+          SheetIndexManager.create(id, wallId, title, content)
           id
         case "image" =>
           val id = create(x, y, width, height, title, ContentType.ImageType, wallId)
@@ -131,6 +133,7 @@ object Sheet extends ActiveRecord[Sheet] {
 
       id
     }
+
   }
 
   def findByWallId(wallId: Long) = {
@@ -140,7 +143,6 @@ object Sheet extends ActiveRecord[Sheet] {
   }
 
   def move(id: Long, x: Double, y: Double) = {
-
     DB.withConnection { implicit c =>
       SQL("update " + tableName + " SET x = {x}, y = {y} where id = {id}").on(
         'id -> id,
@@ -151,6 +153,8 @@ object Sheet extends ActiveRecord[Sheet] {
 
   def setText(id: Long, text: String) = {
     TextContent.setText(id, text)
+
+    SheetIndexManager.setText(id, text)
   }
 
   def alterText(id: Long, from: Int, length: Int, content: String): (String, String) = {
@@ -174,6 +178,8 @@ object Sheet extends ActiveRecord[Sheet] {
         'id -> id,
         'title -> title).executeUpdate()
     }
+
+    SheetIndexManager.setTitle(id, title)
   }
 
   def resize(id: Long, width: Double, height: Double) = {

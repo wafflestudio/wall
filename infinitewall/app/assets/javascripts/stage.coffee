@@ -32,6 +32,7 @@ class window.Stage
     window.wall = new Wall()
     window.minimap = new Minimap()
     window.menu = new Menu()
+    window.search = new Search()
     window.statusbar = new Statusbar()
     window.wallSocket = new WallSocket(wallSocketURL, timestamp)
     window.chat = new Chat(chatURL)

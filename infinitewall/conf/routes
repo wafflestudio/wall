@@ -28,6 +28,8 @@ GET      /wall/:wallId                        controllers.Wall.stage(wallId:Long
 POST     /wall/create                         controllers.Wall.create
 GET      /wall/sync/:wallId                   controllers.Wall.sync(wallId:Long)
 POST     /wall/view/:wallId                   controllers.Wall.setView(wallId:Long)
+GET      /wall/search/:wallId/:keyword                        controllers.Wall.search(wallId:Long, keyword:String)
+
 
 POST     /wall/file/:wallId                   controllers.Wall.uploadFile(wallId:Long)
 GET      /wall/file/:wallId                   controllers.Wall.infoFile(wallId:Long)

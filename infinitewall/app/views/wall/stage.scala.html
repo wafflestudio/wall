@@ -46,6 +46,15 @@
     <div class = "placeholderButton"></div>
   </div>
 </div>
+<div id = "searchWrapper">
+  <div id = "searchForm">
+    <input type="text" id="searchInput" />
+    <a href="#" id="searchButton">Search</a>
+  </div>
+  <div id = "searchResult">
+
+  </div>
+</div>
 
 <div id = "statusBar">
 </div>
@@ -125,7 +134,7 @@
     window.stage = new Stage(@wallId, @timestamp, "@Application.currentUser", webSocketURL, chatURL)
     wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
 
-    // place sheets
+    // place sheets and sheet links
     var sheetData = []
     var sheetlinkData = []
 
@@ -143,7 +152,6 @@
       stage.createSheet(sheet.id, sheet, @timestamp)
     }
 
-    // place sheet links
     for(var i = 0; i < sheetlinkData.length; i++)  {	
       var sheetlink = sheetlinkData[i]
       console.log(sheetlink)
