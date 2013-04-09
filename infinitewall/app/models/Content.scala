@@ -17,7 +17,6 @@ case class TextContent(id: Pk[Long], content: String, scrollX: Int, scrollY: Int
 case class ImageContent(id: Pk[Long], url: String, width: Double, height: Double, sheetId: Long) extends Content
 
 object TextContent extends ActiveRecord[TextContent] {
-  val tableName = "TextContent"
 
   val simple = {
     get[Pk[Long]]("TextContent.id") ~
@@ -68,7 +67,7 @@ object TextContent extends ActiveRecord[TextContent] {
 
 // TODO
 object ImageContent extends ActiveRecord[ImageContent] {
-  val tableName = "ImageContent"
+  override val tableName = "ImageContent"
 
   val simple = {
     field[Pk[Long]]("id") ~

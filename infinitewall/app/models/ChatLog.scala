@@ -12,8 +12,6 @@ case class ChatLogWithEmail(id: Pk[Long], kind: String, message: String, time: L
 
 object ChatLog extends ActiveRecord[ChatLog] {
 
-  val tableName = "ChatLog"
-
   val simple = {
     field[Pk[Long]]("id") ~
       field[String]("message") ~
