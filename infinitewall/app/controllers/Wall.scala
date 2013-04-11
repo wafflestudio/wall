@@ -114,7 +114,7 @@ object Wall extends Controller with Auth with Login {
 
   def search(wallId: Long, keyword: String) = AuthenticatedAction { implicit request =>
     val results = SheetIndexManager.search(wallId, keyword)
-    Ok(Json.toJson("OK"))
+    Ok(Json.toJson(results))
   }
 
 

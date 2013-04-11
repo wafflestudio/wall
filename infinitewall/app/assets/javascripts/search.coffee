@@ -1,16 +1,41 @@
+searchTemplate = "<div class='searchResult'>
+    <b id='title'></b>
+    <span id='content'></span>
+  </div>"
+
 class window.Search
   constructor: ->
     @searchForm = $("#searchForm")
     @searchInput = $("#searchInput")
     @searchButton = $("#searchButton")
-    @searchResult = $("#searchResult")
+    @searchResults = $("#searchResults")
 
     @searchButton.click =>
-      keyword = @searchInput.val()
+      @query()
+   
+  query: () =>
+    @clear()
+    keyword = @searchInput.val()
       
-      if keyword?
-        $.get("/wall/search/#{stage.wallId}/#{keyword}", {},
-          (res) ->
-            console.log(res)
-        )
-      return
+    if keyword?
+      $.get("/wall/search/#{stage.wallId}/#{keyword}", {},
+        (res) =>
+          $.each(res, (i, val) =>
+            element = $(searchTemplate).appendTo(@searchResults)
+
+            element.find("#title").html(val.title)
+            element.find("#content").html(val.content)
+
+            element.click =>
+              curSheet = stage.sheets[val.id]
+              console.log(minimap)
+              stage.activeSheet.resignActive()
+              wall.center(curSheet) #callback to resign selected
+              curSheet.becomeActive()
+          )
+      )
+    return
+
+
+  clear: () =>
+    @searchResults.html("")

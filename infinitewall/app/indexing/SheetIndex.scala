@@ -10,8 +10,8 @@ case class SheetIndex(id: String, val wallId: String, var title: String, var con
 
 object SheetIndexManager extends IndexableManager[SheetIndex] { 
   val indexType = "SheetIndex"
-  val reads: Reads[SheetIndex] = Json.reads[SheetIndex]
-  val writes: Writes[SheetIndex] = Json.writes[SheetIndex]
+  implicit val reads: Reads[SheetIndex] = Json.reads[SheetIndex]
+  implicit val writes: Writes[SheetIndex] = Json.writes[SheetIndex]
 
   //Sheet Index
   def create(id: Long, wallId: Long, title: String, content: String) = {
@@ -47,11 +47,14 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
 
   //Sheet Index Retreival
   //Overloading ScalaHelpers` search method
-  def search(wallId: Long, keyword: String): List[SheetIndex] = {
+  def search(wallId: Long, keyword: String): List[JsValue] = {
     val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
     val indexResults: IndexResults[SheetIndex] = SheetIndexManager.search(indexQuery)
 
     Logger.info("SheetIndexManager.search() / multiQuery : " + indexResults.results)
-    indexResults.results
+    val jsonResults = indexResults.results.map { t:SheetIndex =>
+      Json.toJson(t)
+    }
+    jsonResults
   }
 }
