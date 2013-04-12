@@ -45,10 +45,17 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
     }
   }
 
+  def remove(id: Long) {
+    var deleteRes = SheetIndexManager.delete(id.toString())
+    Logger.info("SheetIndexManager.remove() : " + id + " / " + deleteRes)
+  }
+
   //Sheet Index Retreival
   //Overloading ScalaHelpers` search method
   def search(wallId: Long, keyword: String): List[JsValue] = {
-    val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
+    //val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
+    val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("wallId", wallId.toString())).must(QueryBuilders.multiMatchQuery(keyword, "title", "content")))
+
     val indexResults: IndexResults[SheetIndex] = SheetIndexManager.search(indexQuery)
 
     Logger.info("SheetIndexManager.search() / multiQuery : " + indexResults.results)

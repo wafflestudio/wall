@@ -135,6 +135,12 @@ object Sheet extends ActiveRecord[Sheet] {
 
   }
 
+  def remove(id: Long) = {
+    Sheet.delete(id)
+
+    SheetIndexManager.remove(id)
+  }
+
   def findByWallId(wallId: Long) = {
     DB.withConnection { implicit c =>
       SQL("select * from " + tableName + " where wall_id = {wallId}").on('wallId -> wallId).as(simple *)

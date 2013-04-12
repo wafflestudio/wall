@@ -28,8 +28,10 @@ class window.Search
 
             element.click =>
               curSheet = stage.sheets[val.id]
-              console.log(minimap)
-              stage.activeSheet.resignActive()
+
+              if stage.activeSheet?
+                stage.activeSheet.resignActive()
+
               wall.center(curSheet) #callback to resign selected
               curSheet.becomeActive()
           )

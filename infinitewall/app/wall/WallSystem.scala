@@ -266,7 +266,7 @@ class WallActor(wallId: Long) extends Actor {
           case a: ResizeAction =>
             Sheet.resize(a.id, a.width, a.height)
           case a: RemoveAction =>
-            Sheet.delete(a.id)
+            Sheet.remove(a.id) //former delete
           case a: SetTitleAction =>
             Sheet.setTitle(a.id, a.title)
           case a: SetTextAction =>
