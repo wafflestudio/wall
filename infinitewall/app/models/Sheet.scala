@@ -99,7 +99,7 @@ object Sheet extends ActiveRecord[Sheet] {
         case "text" =>
           val id = create(x, y, width, height, title, ContentType.TextType, wallId)
           val contentId = TextContent.create(content, 0, 0, id)
-          SheetIndexManager.create(id, wallId, title, content)
+          SheetIndexManager.create(id, wallId, title, content) //indexing
           id
         case "image" =>
           val id = create(x, y, width, height, title, ContentType.ImageType, wallId)
@@ -138,7 +138,7 @@ object Sheet extends ActiveRecord[Sheet] {
   def remove(id: Long) = {
     Sheet.delete(id)
 
-    SheetIndexManager.remove(id)
+    SheetIndexManager.remove(id) //indexing
   }
 
   def findByWallId(wallId: Long) = {
@@ -158,8 +158,6 @@ object Sheet extends ActiveRecord[Sheet] {
 
   def setText(id: Long, text: String) = {
     TextContent.setText(id, text)
-
-    SheetIndexManager.setText(id, text)
   }
 
   def alterText(id: Long, from: Int, length: Int, content: String): (String, String) = {
@@ -168,6 +166,8 @@ object Sheet extends ActiveRecord[Sheet] {
       val alteredText = spliceText(baseText, from, length, content)
       Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"")
       TextContent.setText(id, alteredText)
+
+      SheetIndexManager.setText(id, alteredText) //indexing
       (baseText, alteredText)
     }
     catch {
@@ -184,7 +184,7 @@ object Sheet extends ActiveRecord[Sheet] {
         'title -> title).executeUpdate()
     }
 
-    SheetIndexManager.setTitle(id, title)
+    SheetIndexManager.setTitle(id, title) //indexing
   }
 
   def resize(id: Long, width: Double, height: Double) = {

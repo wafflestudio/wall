@@ -6,7 +6,7 @@ import com.github.cleverage.elasticsearch.ScalaHelpers._
 import org.elasticsearch.index.query.{QueryBuilders, QueryBuilder}
 import org.elasticsearch.action.index.IndexResponse
 
-case class SheetIndex(id: String, val wallId: String, var title: String, var content: String) extends Indexable
+case class SheetIndex(id: String, val wallId: Long, var title: String, var content: String) extends Indexable
 
 object SheetIndexManager extends IndexableManager[SheetIndex] { 
   val indexType = "SheetIndex"
@@ -15,7 +15,7 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
 
   //Sheet Index
   def create(id: Long, wallId: Long, title: String, content: String) = {
-    val sheetIndex = SheetIndex(id.toString(), wallId.toString(), title, content)
+    val sheetIndex = SheetIndex(id.toString(), wallId, title, content)
     val sheetIndexResponse: IndexResponse = SheetIndexManager.index(sheetIndex)
 
     Logger.info("SheetIndexManager.index() : " + sheetIndex)
@@ -53,9 +53,7 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
   //Sheet Index Retreival
   //Overloading ScalaHelpers` search method
   def search(wallId: Long, keyword: String): List[JsValue] = {
-    //val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
-    val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("wallId", wallId.toString())).must(QueryBuilders.multiMatchQuery(keyword, "title", "content")))
-
+    val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("wallId", wallId)).must(QueryBuilders.termQuery("wallId", wallId.toString())))
     val indexResults: IndexResults[SheetIndex] = SheetIndexManager.search(indexQuery)
 
     Logger.info("SheetIndexManager.search() / multiQuery : " + indexResults.results)
