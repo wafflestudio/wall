@@ -255,6 +255,7 @@ class window.TextSheet extends Sheet
       ss = new StringWithState(@baseText)
       tmp = ss.apply(operation, 0)
       
+      # new baseText applying new operation
       @baseText = spliceString(@baseText, operation.from, operation.length, operation.content)
       
       @pending = for p in @pending

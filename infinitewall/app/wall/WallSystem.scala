@@ -275,8 +275,10 @@ class WallActor(wallId: Long) extends Actor {
             // simulate consolidation of records after timestamp
             val records = recentRecords.filter(r => r.sheetId == a.id && r.timestamp > a.timestamp)
             var pending = a.operations // all mine with > a.timestamp
+            
             assert(pending.size - 1 == records.filter(_.conn == origin).size,
               "pending:" + (pending.size - 1) + " record:" + records.filter(_.conn == origin).size)
+            
             records.map { r =>
               if (r.conn == origin) {
                 // consolidated

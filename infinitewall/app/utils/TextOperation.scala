@@ -9,6 +9,7 @@ class StringWithState(str: String) {
     new CharWithState(c)
   }.toList
 
+  // @description: apply op operation and returns its transformed operation
   def apply(op: Operation, branch: Int): Operation = {
     var i = 0
     var iBranch = 0
@@ -53,6 +54,10 @@ class StringWithState(str: String) {
 
     list = list.take(insertPos) ++ inserted.toList ++ list.drop(insertPos)
     Operation(alteredFrom, numDeleted, op.content)
+  }
+  
+  def getUndoOperation() = {
+    
   }
 
   def text = {
