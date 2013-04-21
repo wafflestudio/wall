@@ -7,9 +7,9 @@
 
 <div class="navigator"></div>
 
-<div class="wallContainer otherwall1"></div>
-<div class="wallContainer otherwall2"></div>
-<div class="wallContainer currentwall">
+<div class="wallContainer innershade otherwall1"></div>
+<div class="wallContainer innershade otherwall2"></div>
+<div class="wallContainer innershade currentwall">
 
 <input id="fileupload" type="file" name="files[]" data-url="/wall/file/@wallId" multiple>
 
@@ -120,13 +120,26 @@
     $('#folderButton').click( function (e) {
       if(mode == 'zoomed') {
         mode = 'changing' 
-        $(".currentwall").animate({margin:0}, 300, function() { mode = 'full' })
+        
+        
+
+        $(".currentwall").animate({margin:0}, 300, function() { mode = 'full'
+            $('.wallContainer').each(function(idx, el) {
+                $(el).removeClass('innershade')
+            });
+        })
       }
       else if(mode == 'full')
       {
         mode = 'changing' 
+        $('.wallContainer').each(function(idx, el) {
+             $(el).addClass('innershade')
+        }); 
         // TODO: make it auto consistent with the css
-        $(".currentwall").animate({marginTop:10, marginLeft:320, marginBottom:10, marginRight:10}, 300, function() { mode = 'zoomed' })
+        $(".currentwall").animate({marginTop:10, marginLeft:320, marginBottom:10, marginRight:10}, 300, 
+            function() { 
+                mode = 'zoomed'
+            })
       }
     });
   })
