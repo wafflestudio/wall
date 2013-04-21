@@ -28,7 +28,7 @@ class window.WallSocket extends window.PersistentWebsocket
       @close()
       return
     
-    if data.kind is "action" and @timestamp < @receivedTimestamp
+    if data.kind is "action" and (not @timestamp? or @timestamp < @receivedTimestamp)
       @timestamp = data.timestamp
       detail = JSON.parse(data.detail)
       @trigger('receivedAction', detail, data.mine, data.timestamp)

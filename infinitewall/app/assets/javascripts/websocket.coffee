@@ -7,7 +7,7 @@
 class window.PersistentWebsocket extends EventDispatcher
   
 
-  constructor: (@url, scope = "WS", @timestamp = 999) ->
+  constructor: (@url, scope = "WS", @timestamp) ->
     super()
     @WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
     @status = "TRYING"
@@ -22,7 +22,7 @@ class window.PersistentWebsocket extends EventDispatcher
 
   connect: ()=>
     console.info(@scope, "Retrying to connect... ", @numRetry, "ts: #{@timestamp}") if @numRetry > 0 
-    @socket = new @WS(@url + "?timestamp=#{@timestamp}")
+    @socket = new @WS(@url + if @timestamp? then "?timestamp=#{@timestamp}" else "")
     @socket.onopen = @onOpen
     @socket.onerror = @onError
     @socket.onclose = @onClose

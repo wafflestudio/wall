@@ -21,6 +21,7 @@ GET      /users/:userId/profile               controllers.File.serveUserProfileP
 # GET     /chat/:roomId               controllers.Chat.room(roomId:Long)
 # POST    /chat/create                controllers.Chat.create
 GET      /chat/establish/:roomId              controllers.Chat.establish(roomId:Long)
+GET      /chat/log/:roomId                    controllers.Chat.prevMessages(roomId:Long)
 
 GET      /wall                                controllers.Wall.index
 GET      /tree                                controllers.Wall.tree
