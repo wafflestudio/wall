@@ -19,6 +19,7 @@ public class KoreanAnalyzerProvider extends AbstractIndexAnalyzerProvider<Korean
     analyzer = new KoreanAnalyzer(Lucene.VERSION.LUCENE_36);
   }
 
+  @Override
   public KoreanAnalyzer get() {
     return this.analyzer;
   }

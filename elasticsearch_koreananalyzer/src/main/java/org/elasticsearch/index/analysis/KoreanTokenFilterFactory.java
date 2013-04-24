@@ -12,7 +12,7 @@ public class KoreanTokenFilterFactory extends AbstractTokenFilterFactory {
   public KoreanTokenFilterFactory(Index index, Settings indexSettings, String name, Settings settings) {
     super(index, indexSettings, name, settings);
   }
-
+  @Override
   public TokenStream create(TokenStream tokenStream) {
     return new KoreanFilter(tokenStream);
   }

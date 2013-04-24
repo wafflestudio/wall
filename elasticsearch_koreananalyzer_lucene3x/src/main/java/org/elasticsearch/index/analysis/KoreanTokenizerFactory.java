@@ -15,7 +15,8 @@ public class KoreanTokenizerFactory extends AbstractTokenizerFactory {
   public KoreanTokenizerFactory(Index index, Settings indexSettings, String name, Settings settings) {
     super(index, indexSettings, name, settings);
   }
-
+  
+  @Override
   public Tokenizer create(Reader reader) {
     return new KoreanTokenizer(Lucene.VERSION.LUCENE_36, reader);
   }
