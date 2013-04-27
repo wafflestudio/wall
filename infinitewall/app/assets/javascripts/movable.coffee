@@ -15,7 +15,8 @@ class window.Movable
 
   constructor: (isCell = false) ->
     if isCell
-      Object.defineProperty @, 'x'
+
+      Object.defineProperty @, 'x', {
         get: -> parseInt(@element.css('x'))
         set: (value) ->
           roundVal = Math.round(value)
@@ -25,8 +26,9 @@ class window.Movable
             @element.css {x: roundVal - diff + cellVal}
           else
             @element.css {x: roundVal - diff}
+      }
 
-      Object.defineProperty @, 'y'
+      Object.defineProperty @, 'y', {
         get: -> parseInt(@element.css('y'))
         set: (value) ->
           roundVal = Math.round(value)
@@ -36,8 +38,9 @@ class window.Movable
             @element.css {y: roundVal - diff + cellVal}
           else
             @element.css {y: roundVal - diff}
+      }
 
-      Object.defineProperty @, 'iw'
+      Object.defineProperty @, 'iw', {
         get: -> parseInt(@innerElement.css('width'))
         set: (value) ->
           roundVal = Math.round(value)
@@ -47,8 +50,9 @@ class window.Movable
             @innerElement.css {width: roundVal - diff + cellVal}
           else
             @innerElement.css {width: roundVal - diff}
+      }
 
-      Object.defineProperty @, 'ih'
+      Object.defineProperty @, 'ih', {
         get: -> parseInt(@innerElement.css('height'))
         set: (value) ->
           roundVal = Math.round(value)
@@ -58,56 +62,70 @@ class window.Movable
             @innerElement.css {height: roundVal - diff + cellVal}
           else
             @innerElement.css {height: roundVal - diff}
+      }
+
     else
-      Object.defineProperty @, 'x'
+      Object.defineProperty @, 'x', {
         get: -> parseInt(@element.css('x'))
         set: (value) -> @element.css {x: Math.round(value)}
+      }
 
-      Object.defineProperty @, 'y'
+      Object.defineProperty @, 'y', {
         get: -> parseInt(@element.css('y'))
         set: (value) -> @element.css {y: Math.round(value)}
+      }
 
-      Object.defineProperty @, 'iw'
+      Object.defineProperty @, 'iw', {
         get: -> parseInt(@innerElement.css('width'))
         set: (value) -> @innerElement.css {width: Math.round(value)}
+      }
 
-      Object.defineProperty @, 'ih'
+      Object.defineProperty @, 'ih', {
         get: -> parseInt(@innerElement.css('height'))
         set: (value) -> @innerElement.css {height: Math.round(value)}
+      }
 
-  @define 'w'
+  @define 'w', {
     get: -> parseInt(@element.css('width'))
     set: (value) -> @element.css {width: Math.round(value)}
+  }
 
-  @define 'h'
+  @define 'h', {
     get: -> parseInt(@element.css('height'))
     set: (value) -> @element.css {height: Math.round(value)}
+  }
 
-  @define 'left'
+  @define 'left', {
     get: -> @x
     set: (value) -> @x = value
+  }
 
-  @define 'right'
+  @define 'right', {
     get: -> @x + @w
     set: (value) -> @x = value - @w
+  }
 
-  @define 'top'
+  @define 'top', {
     get: -> @y
     set: (value) -> @y = value
+  }
 
-  @define 'bottom'
+  @define 'bottom', {
     get: -> @y + @h
     set: (value) -> @y = value - @h
+  }
 
-  @define 'cx'
+  @define 'cx', {
     get: -> @x + @w / 2
     set: (value) -> @element.css {x: Math.round(value - @w / 2)}
+  }
 
-  @define 'cy'
+  @define 'cy', {
     get: -> @y + @h / 2
     set: (value) -> @element.css {y: Math.round(value - @h / 2)}
+  }
 
-  # t가 붙으면 transition animation이 됨
+  ## t가 붙으면 transition animation이 됨
 
   smoothmove: (endx, endy) ->
     clearTimeout(@timer)

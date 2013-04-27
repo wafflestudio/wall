@@ -12,6 +12,7 @@ dist
 infinitewall.h2.db
 infinitewall.trace.db
 infinitewall.lock.db
+data/
 
 nohup.out
 
