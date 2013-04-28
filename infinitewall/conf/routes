@@ -21,6 +21,7 @@ GET      /users/:userId/profile               controllers.File.serveUserProfileP
 # GET     /chat/:roomId               controllers.Chat.room(roomId:Long)
 # POST    /chat/create                controllers.Chat.create
 GET      /chat/establish/:roomId              controllers.Chat.establish(roomId:Long)
+GET      /chat/log/:roomId                    controllers.Chat.prevMessages(roomId:Long)
 
 GET      /wall                                controllers.Wall.index
 GET      /tree                                controllers.Wall.tree
@@ -28,6 +29,8 @@ GET      /wall/:wallId                        controllers.Wall.stage(wallId:Long
 POST     /wall/create                         controllers.Wall.create
 GET      /wall/sync/:wallId                   controllers.Wall.sync(wallId:Long)
 POST     /wall/view/:wallId                   controllers.Wall.setView(wallId:Long)
+GET      /wall/search/:wallId/:keyword                        controllers.Wall.search(wallId:Long, keyword:String)
+
 
 POST     /wall/file/:wallId                   controllers.Wall.uploadFile(wallId:Long)
 GET      /wall/file/:wallId                   controllers.Wall.infoFile(wallId:Long)

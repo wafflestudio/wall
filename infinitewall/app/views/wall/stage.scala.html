@@ -2,7 +2,17 @@
 
 @layouts.stage("Wall ::: Infinite Wall") {
 
+<div class="wallTitle">@wallName</div>
+
+
+<div class="navigator"></div>
+
+<div class="wallContainer innershade otherwall1"></div>
+<div class="wallContainer innershade otherwall2"></div>
+<div class="wallContainer innershade currentwall">
+
 <input id="fileupload" type="file" name="files[]" data-url="/wall/file/@wallId" multiple>
+
 
 <div id = "zoomBar"></div>
 <div id = "wall">
@@ -38,6 +48,15 @@
     <div id = "folderButton" class = "menuButton"></div>
     <!--<div id = "tellButton" class = "menuButton"></div>-->
     <div class = "placeholderButton"></div>
+  </div>
+</div>
+<div id = "searchWrapper">
+  <div id = "searchForm">
+    <input type="text" id="searchInput" />
+    <a href="#" id="searchButton">Search</a>
+  </div>
+  <div id = "searchResults">
+
   </div>
 </div>
 
@@ -81,6 +100,8 @@
 </div>
 -->
 
+</div><!-- wallcontainer -->
+
 <script type = "text/javascript">
 
   $(function()
@@ -91,7 +112,36 @@
     $('#logoImage').click(function() {
       $('#wallmanagement').toggle()
     })
+  })
 
+  // fullscreen stage mode <=> zoomed out mode 
+  $(function() {
+    var mode = 'zoomed'
+    $('#folderButton').click( function (e) {
+      if(mode == 'zoomed') {
+        mode = 'changing' 
+        
+        
+
+        $(".currentwall").animate({margin:0}, 300, function() { mode = 'full'
+            $('.wallContainer').each(function(idx, el) {
+                $(el).removeClass('innershade')
+            });
+        })
+      }
+      else if(mode == 'full')
+      {
+        mode = 'changing' 
+        $('.wallContainer').each(function(idx, el) {
+             $(el).addClass('innershade')
+        }); 
+        // TODO: make it auto consistent with the css
+        $(".currentwall").animate({marginTop:10, marginLeft:320, marginBottom:10, marginRight:10}, 300, 
+            function() { 
+                mode = 'zoomed'
+            })
+      }
+    });
   })
 
   $(function() {
@@ -103,7 +153,7 @@
     window.stage = new Stage(@wallId, @timestamp, "@Application.currentUser", webSocketURL, chatURL)
     wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
 
-    // place sheets
+    // place sheets and sheet links
     var sheetData = []
     var sheetlinkData = []
 
@@ -121,7 +171,6 @@
       stage.createSheet(sheet.id, sheet, @timestamp)
     }
 
-    // place sheet links
     for(var i = 0; i < sheetlinkData.length; i++)  {	
       var sheetlink = sheetlinkData[i]
       console.log(sheetlink)

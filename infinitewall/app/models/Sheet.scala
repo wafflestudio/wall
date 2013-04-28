@@ -8,6 +8,7 @@ import ContentType._
 import play.api.libs.json._
 import play.api.Logger
 import org.apache.commons.lang.StringEscapeUtils._
+import indexing._
 
 abstract class Sheet(val id: Pk[Long], val x: Double, val y: Double, val width: Double, val height: Double,
   val title: String, val contentType: ContentType, val wallId: Long) {
@@ -44,7 +45,7 @@ class TextSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Doubl
       "y" -> y,
       "width" -> width,
       "height" -> height,
-      "title" -> escapeHtml(title),
+      "title" ->  title,
       "content" -> TextContent.findBySheetId(id.get).content,
       "contentType" -> "text"
     ).toString()
@@ -61,7 +62,7 @@ class ImageSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Doub
       "y" -> y,
       "width" -> width,
       "height" -> height,
-      "title" -> escapeHtml(title),
+      "title" -> title, 
       "content" -> ImageContent.findBySheetId(id.get).url,
       "contentType" -> "image"
     ).toString
@@ -69,7 +70,6 @@ class ImageSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Doub
 }
 
 object Sheet extends ActiveRecord[Sheet] {
-  val tableName = "sheet"
 
   val simple = {
     field[Pk[Long]]("id") ~
@@ -99,6 +99,7 @@ object Sheet extends ActiveRecord[Sheet] {
         case "text" =>
           val id = create(x, y, width, height, title, ContentType.TextType, wallId)
           val contentId = TextContent.create(content, 0, 0, id)
+          SheetIndexManager.create(id, wallId, title, content) //indexing
           id
         case "image" =>
           val id = create(x, y, width, height, title, ContentType.ImageType, wallId)
@@ -131,6 +132,13 @@ object Sheet extends ActiveRecord[Sheet] {
 
       id
     }
+
+  }
+
+  def remove(id: Long) = {
+    Sheet.delete(id)
+
+    SheetIndexManager.remove(id) //indexing
   }
 
   def findByWallId(wallId: Long) = {
@@ -140,7 +148,6 @@ object Sheet extends ActiveRecord[Sheet] {
   }
 
   def move(id: Long, x: Double, y: Double) = {
-
     DB.withConnection { implicit c =>
       SQL("update " + tableName + " SET x = {x}, y = {y} where id = {id}").on(
         'id -> id,
@@ -159,6 +166,8 @@ object Sheet extends ActiveRecord[Sheet] {
       val alteredText = spliceText(baseText, from, length, content)
       Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"")
       TextContent.setText(id, alteredText)
+
+      SheetIndexManager.setText(id, alteredText) //indexing
       (baseText, alteredText)
     }
     catch {
@@ -174,6 +183,8 @@ object Sheet extends ActiveRecord[Sheet] {
         'id -> id,
         'title -> title).executeUpdate()
     }
+
+    SheetIndexManager.setTitle(id, title) //indexing
   }
 
   def resize(id: Long, width: Double, height: Double) = {

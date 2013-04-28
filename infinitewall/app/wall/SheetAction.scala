@@ -30,19 +30,6 @@ case class RemoveAction(userId: Long, timestamp: Long, id: Long) extends ActionD
 case class SetTitleAction(userId: Long, timestamp: Long, id: Long, title: String) extends ActionDetailWithId
 case class SetTextAction(userId: Long, timestamp: Long, id: Long, text: String) extends ActionDetailWithId
 case class AlterTextAction(userId: Long, timestamp: Long, id: Long, operations: List[OperationWithState]) extends ActionDetailWithId {
-  //	override def json = {
-  //		val opjson = JsArray(
-  //		operations.map { opWithState =>
-  //			JsObject(Seq(
-  //					"from" -> JsNumber(opWithState.op.from), 
-  //					"length" -> JsNumber(opWithState.op.length), 
-  //					"content" -> JsString(opWithState.op.content), 
-  //					"msgId" -> JsNumber(opWithState.msgId)
-  //			))
-  //		})
-  //		JsObject(Seq("action" -> JsString("alterText"), 
-  //				"params" -> JsObject(Seq("id" -> JsNumber(id), "operations" -> opjson))))
-  //	}
 
   def singleJson = {
     val last = operations.last

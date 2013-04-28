@@ -15,6 +15,7 @@ import models.ChatRoom
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
+import play.api.libs.concurrent.Execution.Implicits._
 
 object Chat extends Controller with Login {
 
@@ -46,16 +47,30 @@ object Chat extends Controller with Login {
 */
   def establish(roomId: Long) = WebSocket.async[JsValue] { implicit request =>
     val params = request.queryString
-    val timestamp = params.get("timestamp").getOrElse(Seq("999"))(0).toLong
+    val timestampOpt:Option[Long] = params.get("timestamp").map(_(0).toLong)
 
     request.session.get("current_user_id") match {
       case Some(id) =>
-        ChatSystem.establish(roomId, id.toLong, timestamp)
+       ChatSystem.establish(roomId, id.toLong, timestampOpt)
       case None =>
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
 
         Promise.pure(consumer, producer)
+    }
+  }
+  
+  def prevMessages(roomId: Long) = AuthenticatedAction { implicit request =>
+    val params = request.queryString
+    // mandatory params
+    val startTs:Long = params.get("startTs").get(0).toLong
+    val endTs:Long = params.get("endTs").get(0).toLong
+    
+    Async {
+      ChatSystem.prevMessages(roomId, startTs, endTs).map { json =>
+        
+        Ok(json)
+      }
     }
   }
 

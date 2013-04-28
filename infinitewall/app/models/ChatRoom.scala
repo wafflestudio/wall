@@ -12,7 +12,6 @@ case class UserInChatRoom(userId: Long, roomId: Long, time: Long)
 case class ChatRoomForWall(id: Pk[Long])
 
 object ChatRoom extends ActiveRecord[ChatRoom] {
-  val tableName = "ChatRoom"
 
   val simple = {
     field[Pk[Long]]("id") ~

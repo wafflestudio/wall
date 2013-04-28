@@ -22,16 +22,18 @@ import akka.util.Timeout
 import scala.collection.mutable.BitSet
 import utils.UsageSet
 
-case class Join(userId: Long, timestamp:Long)
+case class Join(userId: Long, timestampOpt:Option[Long])
 case class Quit(userId: Long, producer: Enumerator[JsValue])
 case class Talk(userId: Long, connectionId:Int, text: String)
 case class NotifyJoin(userId: Long, connectionId:Int)
+case class GetPrevMessages(startTs: Long, endTs: Long)
 
 case class Connected(enumerator: Enumerator[JsValue], prev: Enumerator[JsValue])
 case class CannotConnect(msg: String)
 
 case class Message(kind: String, email: String, text: String)
 
+// FIXME: check for any concurrency issue especially accessing rooms
 object ChatSystem {
 
   implicit val timeout = Timeout(1 second)
@@ -48,7 +50,7 @@ object ChatSystem {
     }
   }
 
-  def establish(roomId: Long, userId: Long, timestamp: Long): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def establish(roomId: Long, userId: Long, timestamp: Option[Long]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     val joinResult = room(roomId) ? Join(userId, timestamp)
 
@@ -78,6 +80,10 @@ object ChatSystem {
     }
 
   }
+  
+  def prevMessages(roomId: Long, startTs: Long, endTs: Long) = {
+    (room(roomId) ? GetPrevMessages(startTs, endTs)).mapTo[JsValue]
+  }
 
 }
 
@@ -86,8 +92,17 @@ class ChatRoomActor(roomId: Long) extends Actor {
   val connectionUsage = new UsageSet
   private var connections = List.empty[(Long, PushEnumerator[JsValue], Int)]
 
-  def prevMessages(timestamp: Long) = {
-    ChatLog.list(roomId, timestamp)
+  def prevMessages(timestampOpt: Option[Long]) = {
+    timestampOpt match {
+      case Some(timestamp) =>
+        ChatLog.list(roomId, timestamp)
+      case None => 
+        ChatLog.list(roomId)
+    }
+  }
+  
+  def prevMessages(startTs: Long, endTs: Long) = {
+    ChatLog.list(roomId, startTs, endTs)
   }
 
   def logMessage(kind: String, userId: Long, message: String) = {
@@ -97,7 +112,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
 
   def receive = {
 
-    case Join(userId, timestamp) => {
+    case Join(userId, timestampOpt) => {
      
       if (false /* maximum connection per user constraint here*/ ) {
         sender ! CannotConnect("You have reached your maximum number of connections.")
@@ -108,7 +123,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
         // Create an Enumerator to write to this socket
         val producer = Enumerator.imperative[JsValue](onStart = () => self ! NotifyJoin(userId, connectionId))
         // previous messages
-        val prev = Enumerator(prevMessages(timestamp).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
+        val prev = Enumerator(prevMessages(timestampOpt).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
         
         connections = connections :+ (userId, producer, connectionId)
     
@@ -134,6 +149,10 @@ class ChatRoomActor(roomId: Long) extends Actor {
         sender ! Connected(producer, prev >>> welcome)
       }
     }
+    
+    case GetPrevMessages(startTs, endTs) =>
+      val prev = prevMessages(startTs, endTs).map { chatlog => ChatLog.chatlog2Json(chatlog) }
+      sender ! JsArray(prev)
 
     case NotifyJoin(userId, connectionId) => {
       val nickname = User.findById(userId).get.nickname
@@ -145,12 +164,8 @@ class ChatRoomActor(roomId: Long) extends Actor {
     }
 
     case Quit(userId, producer) => {
-      connections = connections.flatMap { p =>
-        if (p._1 == userId && p._2 == producer)
-          None
-        else
-          Some(p)
-      }
+      connections = connections.filterNot{ p => p._1 == userId && p._2 == producer }
+       
       ChatRoom.removeUser(roomId, userId)
       notifyAll("quit", userId, 0, "has left")
     }

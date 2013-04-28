@@ -16,7 +16,6 @@ case class User(id: Pk[Long], val email: String, val hashedPW: String, val permi
   val nickname: String, val picturePath: Option[String], val verified: Int)
 
 object User extends ActiveRecord[User] {
-  val tableName = "User"
 
   val simple = {
     field[Pk[Long]]("id") ~

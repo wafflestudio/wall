@@ -6,11 +6,15 @@ import play.api.Play.current
 import play.api.db.DB
 import java.sql.Timestamp
 import org.apache.commons.codec.digest.DigestUtils
+import scala.language.experimental.macros
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import scala.reflect.{ ClassTag, classTag }
 
 case class ActiveRecordRow(timestamp: Timestamp)
 
 object ActiveRecord extends ActiveRecord[ActiveRecordRow] {
-  val tableName = "activerecord"
+  override val tableName = "activerecord"
   val simple = {
     field[Timestamp]("initialized_timestamp") map {
       case timestamp => ActiveRecordRow(timestamp)
@@ -28,8 +32,9 @@ object ActiveRecord extends ActiveRecord[ActiveRecordRow] {
   }
 }
 
-abstract class ActiveRecord[T] {
-  val tableName: String
+abstract class ActiveRecord[T:ClassTag] {
+  // default table name. can be overrided
+  val tableName: String = { classTag[T].runtimeClass.getSimpleName }
 
   def field[Type](fieldName: String)(implicit extractor: anorm.Column[Type]) = get[Type](tableName + "." + fieldName)(extractor)
 
@@ -58,4 +63,5 @@ abstract class ActiveRecord[T] {
       ).executeUpdate()
     }
   }
+ 
 }

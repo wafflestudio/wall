@@ -100,11 +100,15 @@ object Account extends Controller with Auth with Login {
   private def placeUserFile(user: User, file: MultipartFormData.FilePart[TemporaryFile]) = {
     val encodedFolderName = user.id.get.toString
     val encodedFileName = file.filename
-    val dir = new java.io.File("public/files/" + encodedFolderName)
-    dir.mkdirs()
-    val path = encodedFolderName + "/" + encodedFileName
-    val newFile = new java.io.File("public/files/" + path)
-    file.ref.moveTo(newFile, true)
-    path
+    val dir = new java.io.File("public/files/" + encodedFolderName).mkdirs()
+
+    if(encodedFileName.isEmpty)
+      "Error"
+    else {
+      val path = encodedFolderName + "/" + encodedFileName
+      val newFile = new java.io.File("public/files/" + path)
+      file.ref.moveTo(newFile, true)
+      path
+    }
   }
 }
