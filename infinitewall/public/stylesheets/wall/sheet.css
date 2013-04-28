@@ -123,11 +123,13 @@
 }
 
 .sheetOutline {
-  background-color: skyblue;
+  background-color: #C2CDEB;
   opacity: 0.5;
 }
 
 .gridCell {
-  background-color: pink;
-  opacity: 0.5;
+  border: 5px solid lightgray;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 }

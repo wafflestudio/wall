@@ -1,13 +1,13 @@
 class GridCell extends Movable
   constructor: (sheet) ->
     super(true)
-    @element = $($("<div class = 'gridCell'></div>").appendTo("#sheetLayer"))
+    @element = $($("<div class = 'gridCell sheetBox'></div>").appendTo("#sheetLayer"))
     @xywh(sheet.x, sheet.y, sheet.w, sheet.h)
 
 class SheetOutline extends Movable
   constructor: (sheet) ->
     super(false)
-    @element = $($("<div class = 'sheetOutline'></div>").appendTo("#sheetLayer"))
+    @element = $($("<div class = 'sheetOutline sheetBox'></div>").appendTo("#sheetLayer"))
     @xywh(sheet.x, sheet.y, sheet.w, sheet.h)
 
 class window.SheetHandler
@@ -188,11 +188,10 @@ class window.SheetHandler
     $(document).off 'mousemove', @onMouseMoveTwo
     $(document).off 'mouseup', @onMouseUpTwo
 
-    console.log @sheetOutline.x
-    console.log @sheetOutline.y
+    console.log @sheetOutline.x, @sheetOutline.y
 
     if @hasMoved
-      @sheet.txy(@sheetOutline.x, @sheetOutline.y)
+      @sheet.txy(@gridCell.x, @gridCell.y)
 
       @sheet.socketMove {
         x: @sheet.x
@@ -221,6 +220,7 @@ class window.SheetHandler
       @sheetOutline.y = (@starty + e.pageY - @deltay) / stage.zoom
       @gridCell.x = (@startx + e.pageX - @deltax) / stage.zoom
       @gridCell.y = (@starty + e.pageY - @deltay) / stage.zoom
+      console.log @sheetOutline.x, @sheetOutline.y, @gridCell.x, @gridCell.y
       @hasMoved = true
 
   onMouseDown: (e) =>
