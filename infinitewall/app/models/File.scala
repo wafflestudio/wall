@@ -15,6 +15,6 @@ object File {
     val id = DB.withConnection { implicit c =>
       SQL("select next value for uploaded_file_seq").as(scalar[Long].single)
     }
-    DigestUtils.sha1Hex(id.toString)
+    DigestUtils.shaHex(id.toString)
   }
 }

@@ -25,7 +25,7 @@ object File extends Controller {
 		request.body.files.map { picture =>
 			import java.io.File
 			val filename = picture.filename
-      val savedFilename = DigestUtils.sha1Hex(1.toString)
+      val savedFilename = DigestUtils.shaHex(1.toString)
 
 			val contentType = picture.contentType
 			val newFile = new File("public/files/sheet/" + picture.filename)

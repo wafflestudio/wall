@@ -28,7 +28,7 @@ object ActiveRecord extends ActiveRecord[ActiveRecordRow] {
   }
 
   lazy val sessionToken = {
-    DigestUtils.sha1Hex(timestamp.toString)
+    DigestUtils.shaHex(timestamp.toString)
   }
 }
 

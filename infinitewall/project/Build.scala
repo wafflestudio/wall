@@ -13,11 +13,10 @@ object ApplicationBuild extends Build {
 		// Add your project dependencies here,
 		"postgresql" % "postgresql" % "9.1-901.jdbc4",
 		"ru.circumflex" % "circumflex-markeven" % "2.0",
-		/*"com.typesafe" %% "play-plugins-mailer" % "2.0.2",*/
+    "com.typesafe" %% "play-plugins-mailer" % "2.1.0",
 		"commons-lang" % "commons-lang" % "2.6",
 		"org.apache.commons" % "commons-email" % "1.2",
     "commons-codec" % "commons-codec" % "1.6",
-    "commons-codec" % "commons-codec" % "1.8",
     "com.github.theon" %% "scala-uri" % "0.3.2",
     "net.fwbrasil" % "activate-core_2.10" % "1.2",
     "net.fwbrasil" % "activate-jdbc_2.10" % "1.2",
