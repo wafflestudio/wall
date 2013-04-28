@@ -23,6 +23,7 @@ import scala.util.Success
 import scala.util.Failure
 import models.RootFolder
 import org.apache.commons.codec.digest.DigestUtils
+import indexing._
 
 object Wall extends Controller with Auth with Login {
 
@@ -110,6 +111,12 @@ object Wall extends Controller with Auth with Login {
     models.WallPreference.setView(currentUserId, wallId, x, y, zoom)
     Ok(Json.toJson("OK"))
   }
+
+  def search(wallId: Long, keyword: String) = AuthenticatedAction { implicit request =>
+    val results = SheetIndexManager.search(wallId, keyword)
+    Ok(Json.toJson(results))
+  }
+
 
   def rename(wallId: Long, name: String) = AuthenticatedAction { implicit request =>
     models.Wall.rename(wallId, name)

@@ -266,7 +266,7 @@ class WallActor(wallId: Long) extends Actor {
           case a: ResizeAction =>
             Sheet.resize(a.id, a.width, a.height)
           case a: RemoveAction =>
-            Sheet.delete(a.id)
+            Sheet.remove(a.id) //former delete
           case a: SetTitleAction =>
             Sheet.setTitle(a.id, a.title)
           case a: SetTextAction =>
@@ -275,8 +275,10 @@ class WallActor(wallId: Long) extends Actor {
             // simulate consolidation of records after timestamp
             val records = recentRecords.filter(r => r.sheetId == a.id && r.timestamp > a.timestamp)
             var pending = a.operations // all mine with > a.timestamp
+            
             assert(pending.size - 1 == records.filter(_.conn == origin).size,
               "pending:" + (pending.size - 1) + " record:" + records.filter(_.conn == origin).size)
+            
             records.map { r =>
               if (r.conn == origin) {
                 // consolidated

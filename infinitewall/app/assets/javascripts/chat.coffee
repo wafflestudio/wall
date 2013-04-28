@@ -48,7 +48,7 @@ class window.Chat extends PersistentWebsocket
         @removeConnection(data)
         @refreshUserList()
 
-      when "talk" then newMessage = @messageHtml(@users[data.email], data.message)
+      when "talk" then newMessage = @messageHtml(@users[data.email] || {email: data.email, nickname: data.nickname, userId:data.userId}, data.message)
       
     @chatLog.append newMessage if newMessage?
     @chatLog.clearQueue()
@@ -108,6 +108,9 @@ class window.Chat extends PersistentWebsocket
     #console.log("[CHAT]", @users)
     for email,user of @users
       @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(/users/#{user.userId}/profile)'> <div class = 'chatNickname'>#{user.nickname}</div> </div>")
+
+  getUserInfo: () ->
+    $.getJSON("/")
 
   messageHtml: (user, message) ->
     owner = if user?.email is stage.currentUser then "isMine" else "isNotMine"

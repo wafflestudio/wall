@@ -10,7 +10,7 @@ case class UserInGroup(userId: Long, groupId: Long)
 case class WallInGroup(wallId: Long, groupId: Long)
 
 object Group extends ActiveRecord[Group] {
-  val tableName = "UserGroup"
+  override val tableName = "UserGroup"
 
   val simple = {
     field[Pk[Long]]("id") ~

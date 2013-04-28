@@ -13,7 +13,6 @@ class ResourceTree(val node: TreeNode, val children: Seq[ResourceTree])
 class ResourceLeaf(node: TreeNode) extends ResourceTree(node, List())
 
 object Wall extends ActiveRecord[Wall] {
-  val tableName = "wall"
 
   val simple = {
     field[Pk[Long]]("id") ~

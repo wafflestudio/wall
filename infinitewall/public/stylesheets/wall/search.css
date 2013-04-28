@@ -1,0 +1,13 @@
+#searchWrapper {
+  left: 70px; /* temp */
+  position: absolute;
+}
+
+#searchResults {
+  background: #ccc;
+}
+
+.searchResult {
+  margin: 5px;
+  border-bottom: 1px dashed gray;
+}

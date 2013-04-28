@@ -22,7 +22,6 @@ case class SheetLink(id: Pk[Long], from_id: Long, to_id: Long, wall_id: Long) {
 }
 
 object SheetLink extends ActiveRecord[SheetLink] {
-  val tableName = "sheetlink"
 
   val simple = {
     field[Pk[Long]]("id") ~

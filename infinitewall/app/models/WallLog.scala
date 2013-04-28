@@ -12,8 +12,6 @@ case class WallLogWithEmail(id: Pk[Long], kind: String, message: String, time: L
 
 object WallLog extends ActiveRecord[WallLog] {
 
-  val tableName = "WallLog"
-
   val simple = {
     field[Pk[Long]]("id") ~
       field[String]("kind") ~
