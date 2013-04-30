@@ -130,6 +130,7 @@
 .sheetOutline {
   background-color: #C2CDEB;
   opacity: 0.5;
+  display:none;
 }
 
 .gridCell {
@@ -137,4 +138,5 @@
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
+  display:none;
 }

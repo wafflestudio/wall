@@ -1,7 +1,7 @@
 Function::define = (prop, desc) ->
   Object.defineProperty(this.prototype, prop, desc)
 
-cellVal = 60
+cellVal = 50
 
 class window.Movable
   id: null

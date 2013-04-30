@@ -32,7 +32,7 @@ class window.Sheet extends Movable
       prevTitle = curTitle
     .html(params.title)
     @attachHandler()
-    
+
     stage.miniSheets[@id] = minimap.createMiniSheet(params)
     stage.sheets[params.id] = this
     minimap.refresh()

@@ -4,11 +4,17 @@ class GridCell extends Movable
     @element = $($("<div class = 'gridCell sheetBox'></div>").appendTo("#sheetLayer"))
     @xywh(sheet.x, sheet.y, sheet.w, sheet.h)
 
+  show: ->
+    @element.show()
+
 class SheetOutline extends Movable
   constructor: (sheet) ->
     super(false)
     @element = $($("<div class = 'sheetOutline sheetBox'></div>").appendTo("#sheetLayer"))
     @xywh(sheet.x, sheet.y, sheet.w, sheet.h)
+
+  show: ->
+    @element.show()
 
 class window.SheetHandler
   sheet: null
@@ -216,6 +222,9 @@ class window.SheetHandler
     if stage.activeSheet is @sheet and @sheet.contentType is stage.contentTypeEnum.text
       return false
     else
+      @sheetOutline.show()
+      @gridCell.show()
+
       @sheetOutline.x = (@startx + e.pageX - @deltax) / stage.zoom
       @sheetOutline.y = (@starty + e.pageY - @deltay) / stage.zoom
       @gridCell.x = (@startx + e.pageX - @deltax) / stage.zoom

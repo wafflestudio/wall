@@ -12,9 +12,9 @@ StringWithState = modules.StringWithState
 
 textTemplate = "<div class='sheetBox' tabindex='-1'>
     <div class='sheet' contentType='text'>
-      <div class='sheetTopBar'>
-        <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
-      </div>
+      <!--<div class='sheetTopBar'>-->
+        <!--<h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>-->
+      <!--</div>-->
       <div class='sheetText'>
         <div class='sheetTextField' contenteditable='true'>
         </div>
@@ -28,8 +28,8 @@ class window.TextSheet extends Sheet
   @create: (content) ->
     x = Math.random() * ($(window).width() - 225) * 0.9 / stage.zoom - (stage.scaleLayerX + (parseInt ($('#moveLayer').css 'x')) * stage.zoom) / stage.zoom
     y = Math.random() * ($(window).height() - 74) * 0.9 / stage.zoom - (stage.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * stage.zoom) / stage.zoom
-    w = 300
-    h = 300
+    w = 250
+    h = 250
 
     title = "Untitled Text"
 
