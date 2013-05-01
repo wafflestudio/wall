@@ -1,7 +1,7 @@
 Function::define = (prop, desc) ->
   Object.defineProperty(this.prototype, prop, desc)
 
-cellVal = 50
+cellVal = 24
 
 class window.Movable
   id: null
@@ -19,7 +19,7 @@ class window.Movable
         get: -> parseInt(@element.css('x'))
         set: (value) ->
           roundVal = Math.round(value)
-          diff = roundVal % cellVal
+          diff = if roundVal > 0 then Math.abs(roundVal % cellVal) else cellVal - Math.abs(roundVal % cellVal)
 
           if diff > cellVal / 2
             @element.css {x: roundVal - diff + cellVal}
@@ -31,7 +31,7 @@ class window.Movable
         get: -> parseInt(@element.css('y'))
         set: (value) ->
           roundVal = Math.round(value)
-          diff = roundVal % cellVal
+          diff = if roundVal > 0 then Math.abs(roundVal % cellVal) else cellVal - Math.abs(roundVal % cellVal)
 
           if diff > cellVal / 2
             @element.css {y: roundVal - diff + cellVal}

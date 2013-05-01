@@ -1,191 +1,190 @@
 @(wallId:Long, wallName:String, pref:WallPreference, sheets:List[Sheet], sheetlinks:List[SheetLink],timestamp:Long, chatId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.stage("Wall ::: Infinite Wall") {
+  <div class="navigator"></div>
 
-<div class="wallTitle">@wallName</div>
+  <!--<div class="wallContainer innershade otherwall1"></div>-->
+  <!--<div class="wallContainer innershade otherwall2"></div>-->
+  <div class="wallContainer innershade currentwall">
 
+    <!--<div id = "topMenuBar">-->
+      <!--asdfasdfasdfasdfasdfkjahsdfkjhasdjklfjaklsdjfklasjdklfaksldjfklasjdflkjaskldfjlkasdjflkasjdflkajsdlkfjaslkdfjlkasjdflkajsdlfkjaslkdfjalksdjfklajsdlfkjasdfkljalskdfjalksdf-->
 
-<div class="navigator"></div>
+    <!--</div>-->
 
-<!--<div class="wallContainer innershade otherwall1"></div>-->
-<!--<div class="wallContainer innershade otherwall2"></div>-->
-<div class="wallContainer innershade currentwall">
+    <input id="fileupload" type="file" name="files[]" data-url="/wall/file/@wallId" multiple>
 
-<input id="fileupload" type="file" name="files[]" data-url="/wall/file/@wallId" multiple>
-
-
-<div id = "zoomBar"></div>
-<div id = "wall">
-  <div id = "scaleLayer">
-    <div id = "moveLayer">
-      <div id = "linkLayer"></div>
-      <div id = "sheetLayer"></div>
+    <div id = "zoomBar"></div>
+    <div id = "wall">
+      <div id = "scaleLayer">
+        <div id = "moveLayer">
+          <div id = "linkLayer"></div>
+          <div id = "sheetLayer"></div>
         </div>
-    </div>
-  <!--<div id = "removeLayer"></div>-->
-  <div id = "dockLayer"></div>
-    <div contenteditable = true id = "wallPasteArea"></div>
-</div>
-
-<div id = "menuWrapper">
-  <div id = "menuBar">
-    <a href = "/me">
-      <div id = "profileButton" class = "menuButton">
-        <div id = "profilePic" style="background-image:url(@Application.currentUserPicturePath)"></div>
-        <div id = "nickname">@Application.currentUserNickname</div>
       </div>
-    </a>
-    <a href = "/logout"> <div id = "logoutButton" class = "menuButton"></div> </a>
-    <div id = "newSheetButton" class = "menuButton"> </div>
-    <div id = "newSheetContainer">
-      <div id = "newTextSheetButton" class = "menuButton newSheetButtons" rel = "text"></div>
-      <div id = "newImageSheetButton" class = "menuButton newSheetButtons" rel = "image"> </div>
-      <div id = "newVideoSheetButton" class = "menuButton newSheetButtons" rel = "video"> </div>
+      <div id = "dockLayer"></div>
+      <div contenteditable = true id = "wallPasteArea"></div>
     </div>
-    <div id = "deleteSheetButton" class = "menuButton"></div>
-    <div id = "minimapButton" class = "menuButton"></div>
-    <div id = "chatButton" class = "menuButton"></div>
-    <div id = "folderButton" class = "menuButton"></div>
-    <!--<div id = "tellButton" class = "menuButton"></div>-->
-    <div class = "placeholderButton"></div>
-  </div>
-</div>
-<div id = "searchWrapper">
-  <div id = "searchForm">
-    <input type="text" id="searchInput" />
-    <a href="#" id="searchButton">Search</a>
-  </div>
-  <div id = "searchResults">
 
-  </div>
-</div>
-
-<div id = "statusBar">
-</div>
-
-<div id = "rightPart">
-  <div id = "infoText">
-    <p id = "currentWallName">@wallName</p>
-    <p id = "zoomText">100%</p>
-  </div>
-  <div id = "minimap">
-    <div id = "minimapWorld">
-      <div id = "miniScreen"></div>
-      <div id = "miniMoveLayer"></div>
+    <div id = "menuWrapper">
+      <div id = "menuBar">
+        <a href = "/me">
+          <div id = "profileButton" class = "menuButton">
+            <div id = "profilePic" style="background-image:url(@Application.currentUserPicturePath)"></div>
+            <div id = "nickname">@Application.currentUserNickname</div>
+          </div>
+        </a>
+        <a href = "/logout"> <div id = "logoutButton" class = "menuButton"></div> </a>
+        <div id = "newSheetButton" class = "menuButton"> </div>
+        <div id = "newSheetContainer">
+          <div id = "newTextSheetButton" class = "menuButton newSheetButtons" rel = "text"></div>
+          <div id = "newImageSheetButton" class = "menuButton newSheetButtons" rel = "image"> </div>
+          <div id = "newVideoSheetButton" class = "menuButton newSheetButtons" rel = "video"> </div>
+        </div>
+        <div id = "deleteSheetButton" class = "menuButton"></div>
+        <div id = "minimapButton" class = "menuButton"></div>
+        <div id = "chatButton" class = "menuButton"></div>
+        <div id = "folderButton" class = "menuButton"></div>
+        <!--<div id = "tellButton" class = "menuButton"></div>-->
+        <div class = "placeholderButton"></div>
+      </div>
     </div>
-  </div>
-</div>
+    <div id = "searchWrapper">
+      <div id = "searchForm">
+        <input type="text" id="searchInput" />
+        <a href="#" id="searchButton">Search</a>
+      </div>
+      <div id = "searchResults">
 
-<div id = "chatWindow">
-  <div id = "chatUsers"> </div>
-  <div id = "chatLog"> </div>
-  <div id = "chatInputContainer">
-    <textarea id = "chatInput"></textarea>
-  </div>
-</div>
+      </div>
+    </div>
+
+    <div id = "statusBar">
+    </div>
+
+    <div id = "rightPart">
+      <div id = "infoText">
+        <p id = "currentWallName">@wallName</p>
+        <p id = "zoomText">100%</p>
+      </div>
+      <div id = "minimap">
+        <div id = "minimapWorld">
+          <div id = "miniScreen"></div>
+          <div id = "miniMoveLayer"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id = "chatWindow">
+      <div id = "chatUsers"> </div>
+      <div id = "chatLog"> </div>
+      <div id = "chatInputContainer">
+        <textarea id = "chatInput"></textarea>
+      </div>
+    </div>
 
 
-<div id = "stickyMenuContainer">
-  <div id = "stickyMenu"> 
-    <div id = "removeSheetButton" class = "stickyMenuButton"></div>
-    <div id = "editSheetButton" class = "stickyMenuButton"></div>
-    <div id = "lockSheetButton" class = "stickyMenuButton"></div>
-  </div>
-</div>
+    <div id = "stickyMenuContainer">
+      <div id = "stickyMenu"> 
+        <div id = "removeSheetButton" class = "stickyMenuButton"></div>
+        <div id = "editSheetButton" class = "stickyMenuButton"></div>
+        <div id = "lockSheetButton" class = "stickyMenuButton"></div>
+      </div>
+    </div>
 
-<!--
-<div id = "wallmanagement">
-  <div id = "folder-test">
-  </div>
-</div>
--->
+    <!--
+    <div id = "wallmanagement">
+      <div id = "folder-test">
+      </div>
+    </div>
+    -->
 
-</div><!-- wallcontainer -->
+  </div><!-- wallcontainer -->
 
-<script type = "text/javascript">
+  <script type = "text/javascript">
 
-  $(function()
-  {
-    $('#logoImage').attr('href', 'javascript:')
-    $('#wallmanagement').appendTo($("#logoMenu"))
+    $(function()
+    {
+      $('#logoImage').attr('href', 'javascript:')
+      $('#wallmanagement').appendTo($("#logoMenu"))
 
-    $('#logoImage').click(function() {
-      $('#wallmanagement').toggle()
+      $('#logoImage').click(function() {
+        $('#wallmanagement').toggle()
+      })
     })
-  })
 
-  // fullscreen stage mode <=> zoomed out mode 
-  $(function() {
-    var mode = 'zoomed'
-    $('#folderButton').click( function (e) {
-      if(mode == 'zoomed') {
-        mode = 'changing' 
-        
-        
+    // fullscreen stage mode <=> zoomed out mode 
+    $(function() {
+      var mode = 'zoomed'
+      $('#folderButton').click( function (e) {
+        if(mode == 'zoomed') {
+          mode = 'changing' 
 
-        $(".currentwall").animate({margin:0}, 300, function() { mode = 'full'
+
+
+          $(".currentwall").animate({margin:0}, 300, function() { mode = 'full'
             $('.wallContainer').each(function(idx, el) {
-                $(el).removeClass('innershade')
+              $(el).removeClass('innershade')
             });
-        })
-      }
-      else if(mode == 'full')
-      {
-        mode = 'changing' 
-        $('.wallContainer').each(function(idx, el) {
-             $(el).addClass('innershade')
-        }); 
-        // TODO: make it auto consistent with the css
-        $(".currentwall").animate({marginTop:10, marginLeft:320, marginBottom:10, marginRight:10}, 300, 
+          })
+        }
+        else if(mode == 'full')
+        {
+          mode = 'changing' 
+          $('.wallContainer').each(function(idx, el) {
+            $(el).addClass('innershade')
+          }); 
+          // TODO: make it auto consistent with the css
+          $(".currentwall").animate({marginTop:10, marginLeft:320, marginBottom:10, marginRight:10}, 300, 
             function() { 
-                mode = 'zoomed'
+              mode = 'zoomed'
             })
-      }
-    });
-  })
-
-  $(function() {
-    // open sockets
-    var webSocketURL = "@routes.Wall.sync(wallId).webSocketURL()"
-    var chatURL = "@routes.Chat.establish(chatId).webSocketURL()"
-
-    // prepare stage
-    window.stage = new Stage(@wallId, @timestamp, "@Application.currentUser", webSocketURL, chatURL)
-    wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
-
-    // place sheets and sheet links
-    var sheetData = []
-    var sheetlinkData = []
-
-    @sheets.map { sheet => 
-      sheetData.push(@Html(sheet.toJson()))
-    }
-
-    @sheetlinks.map { sheetlink => 
-      sheetlinkData.push(@Html(sheetlink.toJson()))
-    }
-
-    for(var i = 0; i < sheetData.length; i++)  {	
-      var sheet = sheetData[i]
-      console.log(sheet)
-      stage.createSheet(sheet.id, sheet, @timestamp)
-    }
-
-    for(var i = 0; i < sheetlinkData.length; i++)  {	
-      var sheetlink = sheetlinkData[i]
-      console.log(sheetlink)
-      stage.createSheetLink(sheetlink, @timestamp)
-    }
-
-    $.getJSON('/tree', function(data) {
-      // folder test
-      var fv = new FolderView(data);
-      fv.appendTo($('#folder-test'))
+        }
+      });
     })
 
-    // wall ready
-    $(document).trigger("wallready")
-  })
-</script>
+    $(function() {
+      // open sockets
+      var webSocketURL = "@routes.Wall.sync(wallId).webSocketURL()"
+      var chatURL = "@routes.Chat.establish(chatId).webSocketURL()"
 
-}
+      // prepare stage
+      window.stage = new Stage(@wallId, @timestamp, "@Application.currentUser", webSocketURL, chatURL)
+      wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
+
+      // place sheets and sheet links
+      var sheetData = []
+      var sheetlinkData = []
+
+      @sheets.map { sheet => 
+        sheetData.push(@Html(sheet.toJson()))
+      }
+
+      @sheetlinks.map { sheetlink => 
+        sheetlinkData.push(@Html(sheetlink.toJson()))
+      }
+
+      for(var i = 0; i < sheetData.length; i++)  {	
+        var sheet = sheetData[i]
+        console.log(sheet)
+        stage.createSheet(sheet.id, sheet, @timestamp)
+      }
+
+      for(var i = 0; i < sheetlinkData.length; i++)  {	
+        var sheetlink = sheetlinkData[i]
+        console.log(sheetlink)
+        stage.createSheetLink(sheetlink, @timestamp)
+      }
+
+      $.getJSON('/tree', function(data) {
+        // folder test
+        var fv = new FolderView(data);
+        fv.appendTo($('#folder-test'))
+      })
+
+      // wall ready
+      $(document).trigger("wallready")
+    })
+  </script>
+
+  }

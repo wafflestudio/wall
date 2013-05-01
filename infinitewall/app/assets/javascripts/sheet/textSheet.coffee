@@ -28,8 +28,8 @@ class window.TextSheet extends Sheet
   @create: (content) ->
     x = Math.random() * ($(window).width() - 225) * 0.9 / stage.zoom - (stage.scaleLayerX + (parseInt ($('#moveLayer').css 'x')) * stage.zoom) / stage.zoom
     y = Math.random() * ($(window).height() - 74) * 0.9 / stage.zoom - (stage.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * stage.zoom) / stage.zoom
-    w = 250
-    h = 250
+    w = 240
+    h = 168
 
     title = "Untitled Text"
 

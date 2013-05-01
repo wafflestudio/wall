@@ -194,17 +194,14 @@ class window.SheetHandler
     $(document).off 'mousemove', @onMouseMoveTwo
     $(document).off 'mouseup', @onMouseUpTwo
 
-    console.log @sheetOutline.x, @sheetOutline.y
-
     if @hasMoved
       @sheet.txy(@gridCell.x, @gridCell.y)
-
-      @sheet.socketMove {
-        x: @sheet.x
-        y: @sheet.y
-      }
+      @sheet.socketMove {x: @sheet.x, y: @sheet.y}
       @sheet.element.find('.sheetTextField').blur()
       @sheet.element.find('.sheetTitle').blur()
+
+      minimap.refresh({isTransition: true})
+      link.refresh(true) for id, link of @sheet.links
     else
       if stage.activeSheet and stage.activeSheet isnt @sheet
         stage.activeSheet.resignActive()
@@ -229,7 +226,6 @@ class window.SheetHandler
       @sheetOutline.y = (@starty + e.pageY - @deltay) / stage.zoom
       @gridCell.x = (@startx + e.pageX - @deltax) / stage.zoom
       @gridCell.y = (@starty + e.pageY - @deltay) / stage.zoom
-      console.log @sheetOutline.x, @sheetOutline.y, @gridCell.x, @gridCell.y
       @hasMoved = true
 
   onMouseDown: (e) =>

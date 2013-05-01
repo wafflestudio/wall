@@ -55,8 +55,8 @@ class window.LinkLine extends Movable
     @from.links[@to.id] = this
     @to.links[@from.id] = this
 
-  refresh: ->
-    @rotateLink(@from.cx, @from.cy, @to.cx, @to.cy)
+  refresh: (isTransition = false) ->
+    @rotateLink(@from.cx, @from.cy, @to.cx, @to.cy, isTransition)
 
   transitionRefresh: (id, x, y, w, h) ->
     if stage.sheets[id] is @from

@@ -16,7 +16,7 @@
   background-repeat: repeat-x;
   /*left top;*/
   /*padding:2px 11px 44px 11px;*/
-  padding:11px;
+  padding:9px;
 }
 
 .sheet[contentType='image']{
@@ -84,7 +84,7 @@
 }
 
 .sheet[contentType='text'] > .sheetText > .sheetTextField {
-  font-size: 17px;
+  font-size: 14px;
 }
 
 .sheetTextField {
@@ -128,13 +128,14 @@
 }
 
 .sheetOutline {
-  background-color: #C2CDEB;
+  /*background-color: #C2CDEB;*/
+  background-color: #96A6D6;
   opacity: 0.5;
   display:none;
 }
 
 .gridCell {
-  border: 5px solid lightgray;
+  border: 5px solid #888;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
