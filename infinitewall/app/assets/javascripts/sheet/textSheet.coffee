@@ -42,6 +42,11 @@ class window.TextSheet extends Sheet
   constructor: (params, timestamp) ->
     super(params)
     textfield = @element.find('.sheetTextField')
+
+    textfield.on 'resize', (e) =>
+      if $(e.target).height() > @ih
+        @ih = $(e.target).height()
+
     @baseText = params.content # used for rebuilding with @pending 
     @pending = [] # {basetimestamp, userid, original change, }
     @msgId = 0
