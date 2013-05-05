@@ -21,7 +21,7 @@ class HelloWorldSpec extends Specification {
 
 
   // fake application test
-
+/*
   "User model" should {
 
     "be retrieved by id" in {
@@ -33,7 +33,7 @@ class HelloWorldSpec extends Specification {
       }
     }
   }
-
+*/
 
   // fake request
 }

@@ -1,67 +1,46 @@
 package models
 
-import anorm._
-import anorm.SqlParser._
-import play.api.Play.current
-import play.api.db.DB
-import java.sql.Timestamp
-import org.apache.commons.codec.digest.DigestUtils
-import scala.language.experimental.macros
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json
-import scala.reflect.{ ClassTag, classTag }
+import net.fwbrasil.activate.ActivateContext
+import net.fwbrasil.activate.storage.relational.PooledJdbcRelationalStorage
+import net.fwbrasil.activate.storage.relational.idiom.h2Dialect
+import net.fwbrasil.activate.storage.memory.TransientMemoryStorage
+import net.fwbrasil.activate.entity.Entity
+import net.fwbrasil.activate.entity.Alias
+import scala.reflect.runtime.universe._
+import scala.language.postfixOps
 
-case class ActiveRecordRow(timestamp: Timestamp)
-
-object ActiveRecord extends ActiveRecord[ActiveRecordRow] {
-  override val tableName = "activerecord"
-  val simple = {
-    field[Timestamp]("initialized_timestamp") map {
-      case timestamp => ActiveRecordRow(timestamp)
+object ActiveRecord extends ActivateContext {
+//    val storage = new TransientMemoryStorage    
+    val storage = new PooledJdbcRelationalStorage {
+        val jdbcDriver = "org.h2.Driver"
+        val user = "infinitewall"
+        val password = ""
+        //val url = "jdbc:h2:mem:infinitewall;DB_CLOSE_DELAY=-1"
+        val url = "jdbc:h2:activatedwall"
+        val dialect = h2Dialect
     }
-  }
+    
+    // FIXME: should be driven by database schema change
+    val sessionToken = ""
 
-  lazy val timestamp = {
-    DB.withConnection { implicit c =>
-      SQL("select * from " + tableName).as(simple.single).timestamp
-    }
-  }
-
-  lazy val sessionToken = {
-    DigestUtils.shaHex(timestamp.toString)
-  }
 }
 
-abstract class ActiveRecord[T:ClassTag] {
-  // default table name. can be overrided
-  val tableName: String = { classTag[T].runtimeClass.getSimpleName }
 
-  def field[Type](fieldName: String)(implicit extractor: anorm.Column[Type]) = get[Type](tableName + "." + fieldName)(extractor)
-
-  def simple: anorm.RowParser[T]
-
-  implicit def rowToTimestamp: anorm.Column[Timestamp] = Column.nonNull { (value, meta) =>
-    val MetaDataItem(qualified, nullable, clazz) = meta
-    value match {
-      case timestamp: Timestamp => Right(timestamp)
-      case _ => Left(TypeDoesNotMatch("Cannot convert " + value + ":" + value.asInstanceOf[AnyRef].getClass + " to java.sql.Timestamp for column " + qualified))
-    }
+abstract class ActiveRecord[ModelType <: Entity : Manifest] {
+  import ActiveRecord._
+  
+  def findById(id:String):Option[ModelType] = transactional {
+    byId[ModelType](id)
   }
 
-  def timestampParser = scalar[Timestamp]
-
-  def findById(id: Long): Option[T] = {
-    DB.withConnection { implicit c =>
-      SQL("select * from " + tableName + " where id = {id}").on('id -> id).as(simple.singleOpt)
-    }
+  def findAll() = transactional {
+    all[ModelType]
   }
+  
 
-  def delete(id: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("delete from " + tableName + " where id = {id}").on(
-        'id -> id
-      ).executeUpdate()
-    }
+  def delete(id:String) = transactional {
+    byId[ModelType](id).map(_.delete)
   }
  
 }
+

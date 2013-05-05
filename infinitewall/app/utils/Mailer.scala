@@ -32,7 +32,7 @@ object Mailer {
 
   }
 
-  def sendVerification(user: User) = {
+  def sendVerification(user: User.Frozen) = {
     send("Verify your account at Infinite Wall", """
 				<html>
 					<p><a href="@URL"></a></p>

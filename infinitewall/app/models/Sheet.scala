@@ -1,198 +1,119 @@
 package models
 
-import anorm._
-import anorm.SqlParser._
 import play.api.Play.current
-import play.api.db.DB
 import ContentType._
 import play.api.libs.json._
 import play.api.Logger
 import org.apache.commons.lang.StringEscapeUtils._
 import indexing._
+import ActiveRecord._
 
-abstract class Sheet(val id: Pk[Long], val x: Double, val y: Double, val width: Double, val height: Double,
-  val title: String, val contentType: ContentType, val wallId: Long) {
 
-  lazy val wall = {
-    Wall.findById(wallId)
+
+class Sheet(var x: Double, var y: Double, var width: Double, var height: Double, var title: String, var wall: Wall, val isReference: Boolean) extends Entity {
+  def frozen() = transactional {
+    val content = TextContent.findBySheetId(id).map(_.asInstanceOf[Content])
+      .getOrElse(ImageContent.findBySheetId(id).get.asInstanceOf[Content]).frozen
+    Sheet.Frozen(id, x, y, width, height, title, content, wall.id)
   }
 
-  lazy val content: Content = {
-    contentType match {
-      case ContentType.TextType => TextContent.findBySheetId(id.get)
-      case ContentType.ImageType => ImageContent.findBySheetId(id.get)
-    }
-  }
-
-  lazy val contentId = {
-    contentType match {
-      // TODO: can be optimized
-      case ContentType.TextType => TextContent.findBySheetId(id.get).id.get
-      case ContentType.ImageType => ImageContent.findBySheetId(id.get).id.get
-    }
-  }
-
-  def toJson(): String
-}
-
-class TextSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Double,
-  title: String, wallId: Long) extends Sheet(id, x, y, width, height, title, ContentType.TextType, wallId) {
-
-  def toJson() = {
-    Json.obj(
-      "id" -> id.get,
-      "x" -> x,
-      "y" -> y,
-      "width" -> width,
-      "height" -> height,
-      "title" ->  title,
-      "content" -> TextContent.findBySheetId(id.get).content,
-      "contentType" -> "text"
-    ).toString()
-  }
-}
-
-class ImageSheet(id: Pk[Long], x: Double, y: Double, width: Double, height: Double,
-  title: String, wallId: Long) extends Sheet(id, x, y, width, height, title, ContentType.ImageType, wallId) {
-
-  def toJson() = {
-    Json.obj(
-      "id" -> id.get,
-      "x" -> x,
-      "y" -> y,
-      "width" -> width,
-      "height" -> height,
-      "title" -> title, 
-      "content" -> ImageContent.findBySheetId(id.get).url,
-      "contentType" -> "image"
-    ).toString
-  }
 }
 
 object Sheet extends ActiveRecord[Sheet] {
 
-  val simple = {
-    field[Pk[Long]]("id") ~
-      field[Double]("x") ~
-      field[Double]("y") ~
-      field[Double]("width") ~
-      field[Double]("height") ~
-      field[String]("title") ~
-      field[Int]("content_type") ~
-      field[Long]("wall_id") ~
-      field[Int]("is_reference") map {
-        case id ~ x ~ y ~ width ~ height ~ title ~ contentType ~ wallId ~ isReference => {
-          ContentType(contentType) match {
-            case ContentType.TextType =>
-              new TextSheet(id, x, y, width, height, title, wallId)
-            case ContentType.ImageType =>
-              new ImageSheet(id, x, y, width, height, title, wallId)
+  case class Frozen(id: String, x: Double, y: Double, width: Double, height: Double, title: String, content: FrozenContent, wallId: String) {
+    def toJson() = {
+      Json.obj(
+        "id" -> id,
+        "x" -> x,
+        "y" -> y,
+        "width" -> width,
+        "height" -> height,
+        "title" -> title,
+        "content" -> content.content,
+        "contentType" -> {
+          content match {
+            case _: TextContent.Frozen => "text"
+            case _: ImageContent.Frozen => "image"
+            case _ => "misc"
           }
-
         }
-      }
-  }
-
-  def createInit(x: Double, y: Double, width: Double, height: Double, title: String, contentType: String, content: String, wallId: Long) = {
-    DB.withConnection { implicit c =>
-      contentType match {
-        case "text" =>
-          val id = create(x, y, width, height, title, ContentType.TextType, wallId)
-          val contentId = TextContent.create(content, 0, 0, id)
-          SheetIndexManager.create(id, wallId, title, content) //indexing
-          id
-        case "image" =>
-          val id = create(x, y, width, height, title, ContentType.ImageType, wallId)
-          val contentId = ImageContent.create(content, 0, 0, id)
-          id
-      }
+      ).toString()
     }
+  
+  }
+  
+  def create(x: Double, y: Double, width: Double, height: Double, title: String, contentType: String, content: String, wallId: String) = {
+    val sheet =
+      transactional {
+        val wall = Wall.findById(wallId).get
+        val newSheet = new Sheet(x, y, width, height, title, wall, false)
+        contentType match {
+          case "text" => new TextContent(content, 0, 0, newSheet)
+          case "image" => new ImageContent(content, width, height, newSheet)
+        }
+        newSheet
+      }
+    if (contentType == "text")
+      SheetIndexManager.create(sheet.frozen.id, wallId, title, content) //indexing
+
+    sheet
   }
 
-  private def create(x: Double, y: Double, width: Double, height: Double, title: String, contentType: ContentType, wallId: Long) = {
-    DB.withConnection { implicit c =>
-      val id = SQL("select next value for sheet_seq").as(scalar[Long].single)
-
-      SQL(""" 
-				insert into sheet (id, x, y, width, height, title, content_type, wall_id, is_reference) values (
-					{id},
-					{x}, {y}, {width}, {height}, {title}, {contentType}, {wallId}, {isReference}
-				)
-			""").on(
-        'id -> id,
-        'x -> x,
-        'y -> y,
-        'width -> width,
-        'height -> height,
-        'title -> title,
-        'contentType -> contentType.id,
-        'wallId -> wallId,
-        'isReference -> 0
-      ).executeUpdate()
-
-      id
-    }
-
-  }
-
-  def remove(id: Long) = {
-    Sheet.delete(id)
-
+  def remove(id: String) {
+    delete(id)
     SheetIndexManager.remove(id) //indexing
   }
 
-  def findByWallId(wallId: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("select * from " + tableName + " where wall_id = {wallId}").on('wallId -> wallId).as(simple *)
+  def findAllByWallId(wallId: String) = transactional {
+    select[Sheet] where (_.wall.id :== wallId)
+  }
+  
+
+  def move(id: String, x: Double, y: Double) = transactional {
+    findById(id).map { sheet =>
+      sheet.x = x
+      sheet.y = y
     }
   }
+  
 
-  def move(id: Long, x: Double, y: Double) = {
-    DB.withConnection { implicit c =>
-      SQL("update " + tableName + " SET x = {x}, y = {y} where id = {id}").on(
-        'id -> id,
-        'x -> x,
-        'y -> y).executeUpdate()
+  def setText(id: String, text: String) = {
+    transactional {
+      findById(id).map { sheet =>
+        TextContent.findBySheetId(id).map(_.text = text)
+      }
     }
+    SheetIndexManager.setText(id, text) //indexing
   }
 
-  def setText(id: Long, text: String) = {
-    TextContent.setText(id, text)
-  }
+  def alterText(id: String, from: Int, length: Int, text: String): (String, String) = transactional {
+    val baseText = TextContent.findBySheetId(id).get.text
 
-  def alterText(id: Long, from: Int, length: Int, content: String): (String, String) = {
-    val baseText = TextContent.findBySheetId(id).content
     try {
-      val alteredText = spliceText(baseText, from, length, content)
+      val alteredText = spliceText(baseText, from, length, text)
       Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"")
-      TextContent.setText(id, alteredText)
-
-      SheetIndexManager.setText(id, alteredText) //indexing
+      setText(id, alteredText)
       (baseText, alteredText)
     }
     catch {
       case e: Exception =>
-        Logger.error("bad alter text operation:" + from + ", " + length + "," + content + " => " + baseText)
+        Logger.error("bad alter text operation:" + from + ", " + length + "," + text + " => " + baseText)
         throw e
     }
   }
 
-  def setTitle(id: Long, title: String) = {
-    DB.withConnection { implicit c =>
-      SQL("update " + tableName + " SET title = {title} where id = {id}").on(
-        'id -> id,
-        'title -> title).executeUpdate()
+  def setTitle(id: String, title: String) = {
+    transactional {
+      findById(id).map(_.title = title)
     }
-
     SheetIndexManager.setTitle(id, title) //indexing
   }
 
-  def resize(id: Long, width: Double, height: Double) = {
-    DB.withConnection { implicit c =>
-      SQL("update " + tableName + " SET width = {width}, height = {height} where id = {id}").on(
-        'id -> id,
-        'width -> width,
-        'height -> height).executeUpdate()
+  def resize(id: String, width: Double, height: Double) = transactional {
+    findById(id).map { sheet =>
+      sheet.width = width
+      sheet.height = height
     }
   }
 

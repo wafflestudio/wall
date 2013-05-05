@@ -21,16 +21,16 @@ import models.ActiveRecord._
 
 // Messages
 // WallSystem -> WallSystem Actor
-case class JoinWall(wallId: Long, userId: Long, timestamp: Long)
-case class QuitWall(wallId: Long, userId: Long, producer: Enumerator[JsValue])
-case class ActionInWall(wallId: Long, json: JsValue, detail: ActionDetail, producer: Enumerator[JsValue] = WallSystem.volatileEnumerator)
-case class Finishing(wallId: Long)
+case class JoinWall(wallId: String, userId: String, timestamp: Long)
+case class QuitWall(wallId: String, userId: String, producer: Enumerator[JsValue])
+case class ActionInWall(wallId: String, json: JsValue, detail: ActionDetail, producer: Enumerator[JsValue] = WallSystem.volatileEnumerator)
+case class Finishing(wallId: String)
 case class FinishAccepted()
 case class RetryFinish()
 
 // WallSystem Actor -> Wall Actor
-case class Join(userId: Long, timestamp: Long)
-case class Quit(userId: Long, producer: Enumerator[JsValue])
+case class Join(userId: String, timestamp: Long)
+case class Quit(userId: String, producer: Enumerator[JsValue])
 case class Action(json: JsValue, detail: ActionDetail, producer: Enumerator[JsValue] = WallSystem.volatileEnumerator)
 
 // Wall Actor reply
@@ -38,7 +38,7 @@ case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[J
 case class CannotConnect(msg: String)
 
 // Record used for tracking text change (cache)
-case class Record(timestamp: Long, sheetId: Long, baseText: String, resultText: String, consolidated: Operation, conn: Enumerator[JsValue])
+case class Record(timestamp: Long, sheetId: String, baseText: String, resultText: String, consolidated: Operation, conn: Enumerator[JsValue])
 
 // Wall System (Delegate + Actor)
 object WallSystem {
@@ -50,7 +50,7 @@ object WallSystem {
   implicit val timeout = Timeout(1 second)
   lazy val actor = Akka.system.actorOf(Props(new WallSystem))
 
-  def establish(wallId: Long, userId: Long, timestamp: Long): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def establish(wallId: String, userId: String, timestamp: Long): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     val joinResult = actor ? JoinWall(wallId, userId, timestamp)
 
@@ -84,7 +84,7 @@ object WallSystem {
     }
   }
 
-  def submitVolatileAction(wallId: Long, userId: Long, timestamp: Long) = {
+  def submitVolatileAction(wallId: String, userId: String, timestamp: Long) = {
 
   }
 }
@@ -95,10 +95,9 @@ class WallSystem extends Actor {
 
   case class WallActorState(actorRef: ActorRef, time: Long)
 
-  // wallId => (actor, time)
-  var wallActors: Map[Long, WallActorState] = Map()
+  var wallActors: Map[String, WallActorState] = Map()
 
-  def wall(wallId: Long): ActorRef = {
+  def wall(wallId: String): ActorRef = {
     wallActors.get(wallId) match {
       case Some(actorState) =>
         wallActors = wallActors + (wallId -> WallActorState(actorState.actorRef, System.currentTimeMillis()))
@@ -111,7 +110,7 @@ class WallSystem extends Actor {
     }
   }
 
-  def lastAccessedTime(wallId: Long): Long = {
+  def lastAccessedTime(wallId: String): Long = {
     wallActors.get(wallId) match {
       case Some(actorState) =>
         actorState.time
@@ -141,7 +140,7 @@ class WallSystem extends Actor {
   }
 }
 
-class WallActor(wallId: Long) extends Actor {
+class WallActor(wallId: String) extends Actor {
 
   implicit def toDouble(value: JsValue) = { value.as[Double] }
   implicit def toLong(value: JsValue) = { value.as[Long] }
@@ -149,18 +148,16 @@ class WallActor(wallId: Long) extends Actor {
   case class Connection(enumerator: PushEnumerator[JsValue], timestamp: Long)
 
   // key: userId, values: list of sessions user have
-  var connections = Map.empty[Long, List[Connection]]
+  var connections = Map.empty[String, List[Connection]]
   // trick to track pending messages for each session (session, timestamp, action)
   var recentRecords = List[Record]()
   // shutdown timer activated when no connection is left to the actor
   var shutdownTimer: Option[akka.actor.Cancellable] = None
 
-  def prevLogs(timestamp: Long) = WallLog.list(wallId, timestamp)
-  def logMessage(kind: String, basetimestamp: Long, userId: Long, message: String) = { 
-    WallLog.create(kind, wallId, basetimestamp, userId, message)
-  }
+  def prevLogs(timestamp: Long) = WallLog.list(wallId, timestamp).map(_.frozen)
+  def logMessage(kind: String, basetimestamp: Long, userId: String, message: String) = WallLog.create(kind, wallId, basetimestamp, userId, message).frozen.timestamp
 
-  def quit(userId: Long, producer: Enumerator[JsValue]) = {
+  def quit(userId: String, producer: Enumerator[JsValue]) = {
     // clear sessions for userid. if none exists for a userid, remove userid key.
     connections.get(userId).foreach { userConns =>
       val newUserConns = userConns.filterNot(_.enumerator == producer)
@@ -184,7 +181,7 @@ class WallActor(wallId: Long) extends Actor {
     Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
   }
 
-  def updateTimestamp(userId: Long, ts: Long, origin: Enumerator[JsValue]) = {
+  def updateTimestamp(userId: String, ts: Long, origin: Enumerator[JsValue]) = {
 
     connections.get(userId).foreach { userConns =>
       val newUserConns = userConns.map { connection =>
@@ -250,11 +247,11 @@ class WallActor(wallId: Long) extends Actor {
       cleanRecentRecords()
     // Create Action
     case Action(detail, c: CreateAction, origin) =>
-      val sheetId = Sheet.createInit(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId)
+      val sheetId = Sheet.create(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId).frozen.id
       notifyAll("action", c.timestamp, c.userId, (detail.as[JsObject] ++ Json.obj("id" -> sheetId)).toString, origin)
     // Other Action
     case Action(detail, action: ActionDetailWithId, origin) =>
-      Sheet.findById(action.id).map { sheet =>
+      Sheet.findById(action.id).map(_.frozen).map { sheet =>
 
         action match {
           case a: MoveAction => Sheet.move(a.id, a.x, a.y)
@@ -288,7 +285,6 @@ class WallActor(wallId: Long) extends Actor {
 
             val newOp = pending.head.op
             val (baseText, resultText) = Sheet.alterText(action.id, newOp.from, newOp.length, newOp.content)
-            
             val newAction = AlterTextAction(action.userId, action.timestamp, action.id, List(OperationWithState(newOp, action.operations.last.msgId)))
             val newTimestamp = notifyAll("action", action.timestamp, action.userId, newAction.singleJson.toString, origin)
 
@@ -316,9 +312,9 @@ class WallActor(wallId: Long) extends Actor {
 
   }
 
-  def notifyAll(kind: String, basetimestamp: Long, userId: Long, detail: String, origin: Enumerator[JsValue]) = {
+  def notifyAll(kind: String, basetimestamp: Long, userId: String, detail: String, origin: Enumerator[JsValue]) = {
 
-    val username = User.findById(userId).get.email
+    val username = User.findById(userId).map(_.frozen).get.email
     val logId = logMessage(kind, basetimestamp, userId, detail)
     val msg = Json.obj(
       "kind" -> kind,

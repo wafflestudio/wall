@@ -1,104 +1,55 @@
 package models
 
-import anorm._
-import anorm.SqlParser._
 import play.api.Play.current
-import play.api.db.DB
 import scala.collection.mutable.HashMap
 import scala.collection.immutable.HashMap
-
-case class Wall(id: Pk[Long], val name: String, userId: Long, folderId: Option[Long]) extends TreeNode
+import ActiveRecord._
 
 class ResourceTree(val node: TreeNode, val children: Seq[ResourceTree])
 class ResourceLeaf(node: TreeNode) extends ResourceTree(node, List())
 
+class Wall(var name:String, var user:User, var folder: Option[Folder]) extends Entity
+{
+  def frozen = transactional {
+    Wall.Frozen(id, name, user.id, folder.map(_.id))
+  }
+}
+
 object Wall extends ActiveRecord[Wall] {
 
-  val simple = {
-    field[Pk[Long]]("id") ~
-      field[String]("name") ~
-      field[Long]("user_id") ~
-      field[Int]("is_reference") ~
-      field[Option[Long]]("folder_id") map {
-        case id ~ name ~ userId ~ isReference ~ folderId => Wall(id, name, userId, folderId)
-      }
+  case class Frozen(id: String, val name: String, userId: String, folderId: Option[String]) extends TreeNode
+
+  def create(userId: String, name: String, folderId: Option[String] = None) = transactional {
+    val user = User.findById(userId).get
+    val folder = folderId.map(Folder.findById(_).get)
+    new Wall(name, user, folder)
   }
 
-  def create(userId: Long, name: String) = {
-    DB.withConnection { implicit c =>
-      val id = SQL("select next value for wall_seq").as(scalar[Long].single)
-      SQL(""" 
-          insert into Wall (id, name, user_id, is_reference) values (
-          {id},
-          {name}, {userId}, {isReference}
-      )""").on(
-        'id -> id,
-        'name -> name,
-        'userId -> userId,
-        'isReference -> 0
-      ).executeUpdate()
 
-      id
-    }
+  def deleteByUserId(userId: String, id: String) = transactional {
+    select[Wall] where(w => (w.id :== id) :&& (w.user.id :== userId))
+  }
+  
+
+  def findAllOwnedByUserId(userId: String) = transactional {
+    select[Wall] where(_.user.id :== userId)
   }
 
-  def create(userId: Long, name: String, folderId: Long) = {
-    DB.withConnection { implicit c =>
-      val id = SQL("select next value for wall_seq").as(scalar[Long].single)
-
-      SQL(""" 
-        insert into Wall (id, name, user_id, is_reference, folder_id) values (
-          {id},
-          {name}, {userId}, {isReference}, {folderId}
-        )
-      """).on(
-        'id -> id,
-        'name -> name,
-        'userId -> userId,
-        'isReference -> 0,
-        'folderId -> folderId
-      ).executeUpdate()
-
-      id
-    }
+  def isValid(id: String, userId: String) = transactional {
+    findAllOwnedByUserId(userId).exists(_.id == id) || User.listSharedWalls(userId).exists(_ == id)
   }
 
-  def deleteByUserId(userId: Long, id: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("delete from " + tableName + " where id = {id} and user_id = {userId}").on(
-        'id -> id, 'userId -> userId
-      ).executeUpdate()
-    }
-  }
-
-  /* Requires privilege */
-  def findAll() = {
-    DB.withConnection { implicit c =>
-      SQL("select * from Wall").as(Wall.simple*)
-    }
-  }
-
-  def findAllByUserId(userId: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("select * from Wall where user_id={userId}").on('userId -> userId).as(Wall.simple*)
-    }
-  }
-
-  def isValid(id: Long, userId: Long) = {
-    findAllByUserId(userId).exists((w: Wall) => w.id.get == id) | User.listSharedWalls(userId).exists((w: Wall) => w.id.get == id)
-  }
-
-  private def buildSubtree(folder: Folder, folders: List[Folder], walls: List[Wall]): ResourceTree = {
+  private def buildSubtree(folder: Folder.Frozen, folders: List[Folder.Frozen], walls: List[Wall.Frozen]): ResourceTree = {
     // search in folders and walls for folder.id as parent_id/folder_id
 
     val subfolders = for {
       folder <- folders
-      parentId <- folder.parentId if parentId == folder.id.get
+      parentId <- folder.parentId if parentId == folder.id
     } yield folder
 
     val containedWalls: List[ResourceTree] = for {
       wall <- walls
-      folderId <- wall.folderId if folderId == folder.id.get
+      folderId <- wall.folderId if folderId == folder.id
     } yield new ResourceLeaf(wall)
 
     if (subfolders.isEmpty) {
@@ -114,7 +65,7 @@ object Wall extends ActiveRecord[Wall] {
     }
   }
 
-  private def buildTree(folders: List[Folder], walls: List[Wall]): ResourceTree = {
+  private def buildTree(folders: List[Folder.Frozen], walls: List[Wall.Frozen]): ResourceTree = {
 
     val subfolders = folders.flatMap { folder =>
       folder.parentId match {
@@ -143,25 +94,23 @@ object Wall extends ActiveRecord[Wall] {
     }
   }
 
-  def tree(userId: Long): ResourceTree = {
-    DB.withConnection { implicit c =>
-      val folders = Folder.findByUserId(userId)
-      val walls = SQL("select * from Wall where user_id={userId} ORDER BY folder_id asc").on('userId -> userId).as(Wall.simple*)
-      buildTree(folders, walls)
+  def tree(userId: String): ResourceTree = transactional {
+     val folders = Folder.findAllByUserId(userId).map(_.frozen)
+     val walls = Wall.findAllOwnedByUserId(userId).map(_.frozen)
+     buildTree(folders, walls)
+  }
+
+
+  def rename(id: String, name: String) {
+    transactional {
+      findById(id).map(_.name = name)
     }
   }
 
-  def rename(id: Long, name: String) = {
-    DB.withConnection { implicit c =>
-      SQL("update " + tableName + " set name = {name} where id = {id}").
-        on('id -> id, 'name -> name).executeUpdate()
-    }
-  }
-
-  def moveTo(id: Long, folderId: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("update " + tableName + " set folder_id = {folderId} where id = {id}").
-        on('id -> id, 'folderId -> folderId).executeUpdate()
+  def moveTo(id: String, folderId: String) {
+    transactional {
+      val folder = Folder.findById(folderId)
+      findById(id).map(_.folder = folder)
     }
   }
 

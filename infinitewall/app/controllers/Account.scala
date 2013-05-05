@@ -7,9 +7,11 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 import play.api.Play.current
-import models._
 import views._
 import helpers._
+import models.User
+import models.ActiveRecord
+import models.ActiveRecord._
 
 case class AccountData(val nickname: String)
 
@@ -29,7 +31,10 @@ object Account extends Controller with Auth with Login {
           SignUpData(email, passwords._1, nickname)
       } {
         signupData => Some(signupData.email, ("", ""), "")
-      }.verifying("The email address is already taken", signup => User.signup(signup.email, signup.password, signup.nickname).isDefined)
+      }.verifying("The email address is already taken", signup => 
+        transactional {
+          User.signup(signup.email, signup.password, signup.nickname).isDefined 
+        })
   }
 
   // TODO: check usage
@@ -45,7 +50,8 @@ object Account extends Controller with Auth with Login {
   }
 
   def index = AuthenticatedAction { implicit request =>
-    val user = User.findById(currentUserId).get
+    val user = 
+      transactional { User.findById(currentUserId).map(_.frozen).get }
     val filledForm = accountForm.fill(AccountData(user.nickname))
     Ok(views.html.account.index(filledForm))
   }
@@ -66,13 +72,13 @@ object Account extends Controller with Auth with Login {
 
   def update = AuthenticatedAction { implicit request =>
 
-    val user = User.findById(currentUserId).get
+    val user = User.findById(currentUserId).map(_.frozen).get
     request.body.asMultipartFormData.map { md =>
       md.file("ProfilePicture").map { file =>
-        User.setPicture(user.id.get, placeUserFile(user, file))
+        User.setPicture(user.id, placeUserFile(user, file))
       }
       val params = md.asFormUrlEncoded
-      User.update(user.id.get, params.get("Nickname").get(0))
+      User.editNickname(user.id, params.get("Nickname").get.head)
     }
 
     Redirect(routes.Account.index).flashing("msg" -> "Successfully updated")
@@ -85,10 +91,10 @@ object Account extends Controller with Auth with Login {
         BadRequest(views.html.account.signup(formWithErrors))
       },
       signupData => {
-        val user = User.findByEmail(signupData.email).get
+        val user = User.findByEmail(signupData.email).map(_.frozen).get
         request.body.asMultipartFormData.map { md =>
           md.file("files").map { file =>
-            User.setPicture(user.id.get, placeUserFile(user, file))
+            User.setPicture(user.id, placeUserFile(user, file))
           }
         }
         Redirect(routes.Application.index).withSession("session_token" -> ActiveRecord.sessionToken,"current_user" -> user.email, "current_user_id" -> user.id.toString)
@@ -97,8 +103,8 @@ object Account extends Controller with Auth with Login {
     )
   }
 
-  private def placeUserFile(user: User, file: MultipartFormData.FilePart[TemporaryFile]) = {
-    val encodedFolderName = user.id.get.toString
+  private def placeUserFile(user: User.Frozen, file: MultipartFormData.FilePart[TemporaryFile]) = {
+    val encodedFolderName = user.id
     val encodedFileName = file.filename
     val dir = new java.io.File("public/files/" + encodedFolderName).mkdirs()
 

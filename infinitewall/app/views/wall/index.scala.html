@@ -1,4 +1,4 @@
-@(nonSharedWalls:List[Wall], sharedWalls:List[Wall])(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(nonSharedWalls:List[models.Wall.Frozen], sharedWalls:List[models.Wall.Frozen])(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.default("Walls ::: Infinite Wall") {
 
@@ -11,7 +11,7 @@
 	}
 	<ul>
 	@for(wall <- nonSharedWalls) {
-		<li><a href="/wall/@wall.id.get">@wall.name</a></li>
+		<li><a href="/wall/@wall.id">@wall.name</a></li>
 	}
 	</ul>
 
@@ -21,7 +21,7 @@
 	}
 	<ul>
 		@for(wall <- sharedWalls) {
-		<li><a href="/wall/@wall.id.get">@wall.name</a></li>
+		<li><a href="/wall/@wall.id">@wall.name</a></li>
 		}
 	</ul>
 }

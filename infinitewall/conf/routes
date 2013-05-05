@@ -13,39 +13,39 @@ GET      /me                                  controllers.Account.index
 GET      /signup                              controllers.Account.signup
 POST     /users/create                        controllers.Account.createNewUser
 POST     /users/update                        controllers.Account.update
-GET      /users/:userId/profile               controllers.File.serveUserProfilePicture(userId: Long )
+GET      /users/:userId/profile               controllers.File.serveUserProfilePicture(userId: String )
 
 
 # Chat routes available only for testing
 # GET     /chat                       controllers.Chat.index
 # GET     /chat/:roomId               controllers.Chat.room(roomId:Long)
 # POST    /chat/create                controllers.Chat.create
-GET      /chat/establish/:roomId              controllers.Chat.establish(roomId:Long)
-GET      /chat/log/:roomId                    controllers.Chat.prevMessages(roomId:Long)
+GET      /chat/establish/:roomId              controllers.Chat.establish(roomId:String)
+GET      /chat/log/:roomId                    controllers.Chat.prevMessages(roomId:String)
 
 GET      /wall                                controllers.Wall.index
 GET      /tree                                controllers.Wall.tree
-GET      /wall/:wallId                        controllers.Wall.stage(wallId:Long)
+GET      /wall/:wallId                        controllers.Wall.stage(wallId:String)
 POST     /wall/create                         controllers.Wall.create
-GET      /wall/sync/:wallId                   controllers.Wall.sync(wallId:Long)
-POST     /wall/view/:wallId                   controllers.Wall.setView(wallId:Long)
-GET      /wall/search/:wallId/:keyword                        controllers.Wall.search(wallId:Long, keyword:String)
+GET      /wall/sync/:wallId                   controllers.Wall.sync(wallId:String)
+POST     /wall/view/:wallId                   controllers.Wall.setView(wallId:String)
+GET      /wall/search/:wallId/:keyword                        controllers.Wall.search(wallId:String, keyword:String)
 
 
-POST     /wall/file/:wallId                   controllers.Wall.uploadFile(wallId:Long)
-GET      /wall/file/:wallId                   controllers.Wall.infoFile(wallId:Long)
-PUT      /wall/file/:wallId                   controllers.Wall.replaceFile(wallId:Long)
-DELETE   /wall/file/:wallId                   controllers.Wall.deleteFile(wallId:Long)
+POST     /wall/file/:wallId                   controllers.Wall.uploadFile(wallId:String)
+GET      /wall/file/:wallId                   controllers.Wall.infoFile(wallId:String)
+PUT      /wall/file/:wallId                   controllers.Wall.replaceFile(wallId:String)
+DELETE   /wall/file/:wallId                   controllers.Wall.deleteFile(wallId:String)
 
 GET      /group                               controllers.Group.index
-GET      /group/:groupId                      controllers.Group.show(groupId:Long)
+GET      /group/:groupId                      controllers.Group.show(groupId:String)
 POST     /group/create                        controllers.Group.create
-POST     /group/:groupId/addUser              controllers.Group.addUser(groupId:Long)
-GET      /group/:groupId/removeUser/:userId   controllers.Group.removeUser(groupId:Long, userId:Long)
-POST     /group/:groupId/createWall           controllers.Group.createWall(groupId:Long)
-POST     /group/:groupId/addWall              controllers.Group.addWall_Post(groupId:Long)
-GET      /group/:groupId/addWall/:wallId      controllers.Group.addWall_Get(groupId:Long, wallId:Long)
-GET      /group/:groupId/removeWall/:wallId   controllers.Group.removeWall(groupId:Long, wallId:Long)
+POST     /group/:groupId/addUser              controllers.Group.addUser(groupId:String)
+GET      /group/:groupId/removeUser/:userId   controllers.Group.removeUser(groupId:String, userId:String)
+POST     /group/:groupId/createWall           controllers.Group.createWall(groupId:String)
+POST     /group/:groupId/addWall              controllers.Group.addWall_Post(groupId:String)
+GET      /group/:groupId/addWall/:wallId      controllers.Group.addWall_Get(groupId:String, wallId:String)
+GET      /group/:groupId/removeWall/:wallId   controllers.Group.removeWall(groupId:String, wallId:String)
 
 #POST    /file                 					controllers.File.upload
 #GET     /file                 					controllers.File.info

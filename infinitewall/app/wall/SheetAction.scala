@@ -6,7 +6,7 @@ import utils.Operation
 
 // Action detail
 sealed trait ActionDetail {
-  val userId: Long
+  val userId: String
   val timestamp: Long
 
   def json = {
@@ -15,21 +15,21 @@ sealed trait ActionDetail {
 }
 
 sealed trait ActionDetailWithId extends ActionDetail {
-  val id: Long
+  val id: String
 
   override def json = {
     super.json ++ Json.obj("params" -> Json.obj("id" -> id))
   }
 }
 
-case class Ack(userId: Long, timestamp: Long) extends ActionDetail
-case class CreateAction(userId: Long, timestamp: Long, title: String, contentType: String, content: String, x: Double, y: Double, width: Double, height: Double) extends ActionDetail
-case class MoveAction(userId: Long, timestamp: Long, id: Long, x: Double, y: Double) extends ActionDetailWithId
-case class ResizeAction(userId: Long, timestamp: Long, id: Long, width: Double, height: Double) extends ActionDetailWithId
-case class RemoveAction(userId: Long, timestamp: Long, id: Long) extends ActionDetailWithId
-case class SetTitleAction(userId: Long, timestamp: Long, id: Long, title: String) extends ActionDetailWithId
-case class SetTextAction(userId: Long, timestamp: Long, id: Long, text: String) extends ActionDetailWithId
-case class AlterTextAction(userId: Long, timestamp: Long, id: Long, operations: List[OperationWithState]) extends ActionDetailWithId {
+case class Ack(userId: String, timestamp: Long) extends ActionDetail
+case class CreateAction(userId: String, timestamp: Long, title: String, contentType: String, content: String, x: Double, y: Double, width: Double, height: Double) extends ActionDetail
+case class MoveAction(userId: String, timestamp: Long, id: String, x: Double, y: Double) extends ActionDetailWithId
+case class ResizeAction(userId: String, timestamp: Long, id: String, width: Double, height: Double) extends ActionDetailWithId
+case class RemoveAction(userId: String, timestamp: Long, id: String) extends ActionDetailWithId
+case class SetTitleAction(userId: String, timestamp: Long, id: String, title: String) extends ActionDetailWithId
+case class SetTextAction(userId: String, timestamp: Long, id: String, text: String) extends ActionDetailWithId
+case class AlterTextAction(userId: String, timestamp: Long, id: String, operations: List[OperationWithState]) extends ActionDetailWithId {
 
   def singleJson = {
     val last = operations.last
@@ -44,18 +44,18 @@ case class AlterTextAction(userId: Long, timestamp: Long, id: Long, operations: 
     )
   }
 }
-case class SetLinkAction(userId: Long, timestamp: Long, id: Long, to_id: Long) extends ActionDetailWithId
-case class RemoveLinkAction(userId: Long, timestamp: Long, id: Long, to_id: Long) extends ActionDetailWithId
+case class SetLinkAction(userId: String, timestamp: Long, id: String, to_id: String) extends ActionDetailWithId
+case class RemoveLinkAction(userId: String, timestamp: Long, id: String, to_id: String) extends ActionDetailWithId
 
 case class OperationWithState(op: Operation, msgId: Long)
 
 // Action detail parser
 object ActionDetail {
-  def apply(userId: Long, json: JsValue): ActionDetail = {
+  def apply(userId: String, json: JsValue): ActionDetail = {
     val actionType = (json \ "action").as[String]
     val timestamp = (json \ "timestamp").as[Long]
     val params = (json \ "params")
-    def id = (params \ "id").as[Long]
+    def id = (params \ "id").as[String]
     def title = (params \ "title").as[String]
     def contentType = (params \ "contentType").as[String]
     def content = (params \ "content").as[String]
@@ -65,7 +65,7 @@ object ActionDetail {
     def width = (params \ "width").as[Double]
     def height = (params \ "height").as[Double]
 
-    def to_id = (params \ "to_id").as[Long]
+    def to_id = (params \ "to_id").as[String]
 
     def operations = (params \ "operations").as[List[JsObject]].map { js =>
       val from = (js \ "from").as[Int]

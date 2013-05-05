@@ -22,10 +22,10 @@ import akka.util.Timeout
 import scala.collection.mutable.BitSet
 import utils.UsageSet
 
-case class Join(userId: Long, timestampOpt:Option[Long])
-case class Quit(userId: Long, producer: Enumerator[JsValue])
-case class Talk(userId: Long, connectionId:Int, text: String)
-case class NotifyJoin(userId: Long, connectionId:Int)
+case class Join(userId: String, timestampOpt:Option[Long])
+case class Quit(userId: String, producer: Enumerator[JsValue])
+case class Talk(userId: String, connectionId:Int, text: String)
+case class NotifyJoin(userId: String, connectionId:Int)
 case class GetPrevMessages(startTs: Long, endTs: Long)
 
 case class Connected(enumerator: Enumerator[JsValue], prev: Enumerator[JsValue])
@@ -38,9 +38,9 @@ object ChatSystem {
 
   implicit val timeout = Timeout(1 second)
 
-  var rooms: Map[Long, ActorRef] = Map()
+  var rooms: Map[String, ActorRef] = Map()
 
-  def room(roomId: Long): ActorRef = {
+  def room(roomId: String): ActorRef = {
     rooms.get(roomId) match {
       case Some(room) => room
       case None =>
@@ -50,7 +50,7 @@ object ChatSystem {
     }
   }
 
-  def establish(roomId: Long, userId: Long, timestamp: Option[Long]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def establish(roomId: String, userId: String, timestamp: Option[Long]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     val joinResult = room(roomId) ? Join(userId, timestamp)
 
@@ -81,33 +81,33 @@ object ChatSystem {
 
   }
   
-  def prevMessages(roomId: Long, startTs: Long, endTs: Long) = {
+  def prevMessages(roomId: String, startTs: Long, endTs: Long) = {
     (room(roomId) ? GetPrevMessages(startTs, endTs)).mapTo[JsValue]
   }
 
 }
 
-class ChatRoomActor(roomId: Long) extends Actor {
+class ChatRoomActor(roomId: String) extends Actor {
 
   val connectionUsage = new UsageSet
-  private var connections = List.empty[(Long, PushEnumerator[JsValue], Int)]
+  private var connections = List.empty[(String, PushEnumerator[JsValue], Int)]
 
   def prevMessages(timestampOpt: Option[Long]) = {
     timestampOpt match {
       case Some(timestamp) =>
-        ChatLog.list(roomId, timestamp)
+        ChatLog.list(roomId, timestamp).map(_.frozen)
       case None => 
-        ChatLog.list(roomId)
+        ChatLog.list(roomId).map(_.frozen)
     }
   }
   
   def prevMessages(startTs: Long, endTs: Long) = {
-    ChatLog.list(roomId, startTs, endTs)
+    ChatLog.list(roomId, startTs, endTs).map(_.frozen)
   }
 
-  def logMessage(kind: String, userId: Long, message: String) = {
+  def logMessage(kind: String, userId: String, message: String) = {
     val when = System.currentTimeMillis
-    (ChatLog.create(kind, roomId, userId, message, when), when)
+    (ChatLog.create(kind, roomId, userId, message, when).frozen.timestamp, when)
   }
 
   def receive = {
@@ -123,7 +123,7 @@ class ChatRoomActor(roomId: Long) extends Actor {
         // Create an Enumerator to write to this socket
         val producer = Enumerator.imperative[JsValue](onStart = () => self ! NotifyJoin(userId, connectionId))
         // previous messages
-        val prev = Enumerator(prevMessages(timestampOpt).map { chatlog => ChatLog.chatlog2Json(chatlog) }: _*)
+        val prev = Enumerator(prevMessages(timestampOpt).map { chatlog => ChatLog.toJson(chatlog) }: _*)
         
         connections = connections :+ (userId, producer, connectionId)
     
@@ -133,9 +133,9 @@ class ChatRoomActor(roomId: Long) extends Actor {
           "kind" -> "welcome",
           "connectionId" -> connectionId,
           "users" -> connections.flatMap { connection => 
-            User.findById(connection._1).map { user =>
+            User.findById(connection._1).map(_.frozen).map { user =>
               Json.obj(
-                "userId" -> user.id.get,
+                "userId" -> user.id,
                 "connectionId" -> connection._3,
                 "email" -> user.email,
                 "nickname" -> user.nickname
@@ -151,11 +151,11 @@ class ChatRoomActor(roomId: Long) extends Actor {
     }
     
     case GetPrevMessages(startTs, endTs) =>
-      val prev = prevMessages(startTs, endTs).map { chatlog => ChatLog.chatlog2Json(chatlog) }
+      val prev = prevMessages(startTs, endTs).map { chatlog => ChatLog.toJson(chatlog) }
       sender ! JsArray(prev)
 
     case NotifyJoin(userId, connectionId) => {
-      val nickname = User.findById(userId).get.nickname
+      val nickname = User.findById(userId).map(_.frozen).get.nickname
       notifyAll("join", userId, connectionId, "has entered")
     }
 
@@ -172,11 +172,11 @@ class ChatRoomActor(roomId: Long) extends Actor {
 
   }
 
-  def notifyAll(kind: String, userId: Long, connectionId: Int, message: String) {
+  def notifyAll(kind: String, userId: String, connectionId: Int, message: String) {
 
-    val user = User.findById(userId)
-    val email = user.get.email
-    val nickname = user.get.nickname
+    val user = User.findById(userId).map(_.frozen).get
+    val email = user.email
+    val nickname = user.nickname
     
     val msg:JsValue = kind match {
       case "talk" =>
