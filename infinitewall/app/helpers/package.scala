@@ -32,7 +32,8 @@ package object infiniteWall {
   
   def decodeURIComponent(str: String) = {
     // TODO: review this
-    str.replaceAll("%20", "")
+    import java.net.URLDecoder
+    URLDecoder.decode(str, "UTF-8")
   }
 
 }
