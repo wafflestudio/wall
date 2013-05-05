@@ -3,39 +3,43 @@ import org.mindrot.jbcrypt.BCrypt
 import play.api.Logger
 import utils.Mailer
 import GlobalPermission._
-import play.api.db.DB
-import anorm._
-import anorm.SqlParser._
-import play.api.Play.current
+//import play.api.Play.current
 import java.util.Date
 import java.security.MessageDigest
-import org.h2.jdbc.JdbcSQLException
 import scala.util.Try
+import ActiveRecord._
+import java.util.Calendar
+import net.fwbrasil.activate.entity.Entity
+import net.fwbrasil.activate.entity.Alias
 
-case class User(id: Pk[Long], val email: String, val hashedPW: String, val permission: Permission,
-  val nickname: String, val picturePath: Option[String], val verified: Int)
+
+
+class User(var email: String, 
+  var hashedPW: String, 
+  var nickname: String, 
+  var picturePath: Option[String] = None, 
+  var walls:List[Wall] = List(),
+  var verified: Boolean = false, 
+  var verificationToken:Option[String] = None, 
+  var verificationTokenCreated:Option[Calendar] = None,
+  var permission: String = "Normal" ) extends Entity
+{
+  def frozen = transactional {
+    User.Frozen(id, email, permission, nickname, picturePath, verified)
+  }
+}
 
 object User extends ActiveRecord[User] {
 
-  val simple = {
-    field[Pk[Long]]("id") ~
-      field[String]("email") ~
-      field[String]("hashedPW") ~
-      field[Int]("permission") ~
-      field[String]("nickname") ~
-      field[Option[String]]("picture_path") ~
-      field[Int]("verified") map {
-        case id ~ email ~ hashedPW ~ permission ~ nickname ~ picturePath ~ verified =>
-          User(id, email, hashedPW, GlobalPermission(permission), nickname, picturePath, verified)
-      }
-  }
-
-  def getPictureUrl(userId: Long) = {
+  case class Frozen(id: String, val email: String, val permission: String,
+  val nickname: String, val picturePath: Option[String], val verified: Boolean)
+  
+  def getPictureUrl(userId: String) = transactional {
     findById(userId).get.picturePath.getOrElse(getGravatar(userId)).replaceFirst("public/", "/assets/")
   }
   
-  def getPictureOrGravatarUrl(userId: Long) = {
-    val url = User.getPictureUrl(userId)
+  def getPictureOrGravatarUrl(userId: String) = {
+    val url = getPictureUrl(userId)
     
     if (url.startsWith("http://") || url.startsWith("https://"))
       url
@@ -43,7 +47,9 @@ object User extends ActiveRecord[User] {
       helpers.infiniteWall.encodeURIComponent("/upload/" + url)
   }
 
-  def getGravatar(userId: Long) = getGravatarByEmail(findById(userId).get.email)
+  def getGravatar(userId: String) = transactional {    
+    getGravatarByEmail(findById(userId).get.frozen.email)
+  }
 
   def getGravatarByEmail(email: String) = {
     val md5 = MessageDigest.getInstance("MD5")
@@ -51,45 +57,32 @@ object User extends ActiveRecord[User] {
     "http://www.gravatar.com/avatar/" + hash + "?d=http%3A%2F%2Fdeity.mintengine.com%2Fssk.png&s=65"
   }
 
-  def findByEmail(email: String): Option[User] = {
-    DB.withConnection { implicit c =>
-      SQL("select * from " + tableName + " where email = {email}").on('email -> email).as(User.simple.singleOpt)
-    }
+  def findByEmail(email: String) = transactional {
+    (select[User] where(_.email :== email))
+    .headOption
   }
+  
 
-  def authenticate(email: String, password: String): Option[User] = {
-    findByEmail(email).flatMap { user =>
-      if (BCrypt.checkpw(password, user.hashedPW)) {
-        Some(user)
+  def authenticate(email: String, password: String): Option[Frozen] = transactional(required) {
+    findByEmail(email).flatMap { u =>
+      if (BCrypt.checkpw(password, u.hashedPW)) {
+        Some(u.frozen)
       }
       else
         None
     }
   }
 
-  def signup(email: String, password: String, nickname: String, picturePath: String = ""): Option[User] = {
-    DB.withConnection { implicit c =>
-      Try {
-        
-        SQL(""" 
-        insert into User (id, email, hashedpw, permission, nickname, picture_path) values (
-          (select next value for user_seq),
-          {email}, {hashedPW}, {permission}, {nickname}, {picturePath}
-        )
-      """).on(
-          'email -> email,
-          'hashedPW -> hashedPW(password),
-          'permission -> GlobalPermission.NormalUser.id,
-          'nickname -> nickname,
-          'picturePath -> picturePath
-        ).executeUpdate()
+
+  def signup(email: String, password: String, nickname: String, picturePath: String = ""): Option[Frozen] = transactional {
+    Try {
+      transactional {
+        new User(email, hashedPW(password), nickname, Some(picturePath)).frozen
       }
-    }.toOption.flatMap { id => 
-      findByEmail(email).map { user =>
-        Mailer.sendVerification(user)
-        user
-      }
-    }
+    }.map { user =>
+      Mailer.sendVerification(user)
+      user
+    }.toOption
   }
 
   private def tenMinutesAgo() = {
@@ -97,68 +90,49 @@ object User extends ActiveRecord[User] {
     import java.text.SimpleDateFormat
     val now = Calendar.getInstance()
     now.add(Calendar.MINUTE, 10)
-    (new SimpleDateFormat("yyyy-MM-dd").format(now.getTime()),
-      new SimpleDateFormat("HH:mm:ss").format(now.getTime()))
+   
+    now
   }
 
-  def verifyIdentity(token: String) = {
-    DB.withConnection { implicit c =>
-      val (date, time) = tenMinutesAgo
-      val foundUser = SQL("""select * from User where verification_token = {token}
-        and verification_toke_date >= {date} and verification_token_time >= {time}""").
-        on('token -> token, 'date -> date, 'time -> time).as(User.simple.singleOpt)
-
-      foundUser.map { user =>
-        SQL("update User set verified=1,verification_token = null, verification_token_date = null, verification_token_time = null where id = {id}").on('id -> user.id.get)
-      }
-
-      foundUser
+  def verifyIdentity(token: String) {
+    val cal = tenMinutesAgo
+    transactional {
+      val foundUser = select[User] where(e => (e.verificationToken :== token) :&& (e.verificationTokenCreated :>= cal))
+      foundUser.map(_.verified = true)
     }
   }
 
-  def editNickname(id: Long, nickname: String) = {
-    Logger.info(id.toString)
-    Logger.info(nickname)
-    DB.withConnection { implicit c =>
-      SQL("update User set nickname = {nickname} where id = {id}").on('id -> id, 'nickname -> nickname).executeUpdate()
+  def editNickname(id: String, nickname: String) {
+    transactional {
+      findById(id).map(_.nickname = nickname)
     }
   }
 
-  def setPicture(id: Long, path: String) = {
-    DB.withConnection { implicit c =>
-      SQL("update User set picture_path={path} where id={id}").
-        on('id -> id, 'path -> path).executeUpdate()
-    }
-
-  }
-
-  def update(id: Long, nickname: String) = {
-    DB.withConnection { implicit c =>
-      SQL("update User set nickname={nickname} where id={id}").
-        on('id -> id, 'nickname -> nickname).executeUpdate()
-    }
-
-  }
-
-  def listGroups(id: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("select usergroup.* from UserInGroup as uig, UserGroup where uig.user_id = {id} and uig.group_id = usergroup.id").
-        on('id -> id).as(Group.simple*)
+  def setPicture(id: String, path: String) {
+    transactional {
+      findById(id).map(_.picturePath = Some(path))
     }
   }
 
-  def listSharedWalls(id: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("select wall.* from WallInGroup as wig, Wall where wig.group_id in (select uig.group_id from UserInGroup as uig where uig.user_id = {id}) and wig.wall_id = wall.id").
-        on('id -> id).as(Wall.simple*)
+  def listGroups(id: String) = transactional {
+    Group.findAllOwnedByUserId(id)
+  }
+  
+
+  def listSharedWalls(id: String) = transactional {
+    query {
+      (user:User, wall:Wall, group:Group, uig:UserInGroup, wig: WallInGroup) => 
+        where((wall :== wig.wall) :&& (((uig.user :== user) :&& (uig.group :== wig.group)) :|| (group.owner :== user))) select(wall)
     }
   }
+  
 
-  def listNonSharedWalls(id: Long) = {
+  def listNonSharedWalls(id: String) = transactional {
     val sharedWalls = listSharedWalls(id)
-    val ownWalls = Wall.findAllByUserId(id)
-    ownWalls filterNot (sharedWalls contains)
+    val ownWalls = Wall.findAllOwnedByUserId(id)
+    ownWalls.filterNot(sharedWalls.contains)
   }
+  
 
-  private def hashedPW(pw: String) = BCrypt.hashpw(pw, BCrypt.gensalt(12))
+  def hashedPW(pw: String) = BCrypt.hashpw(pw, BCrypt.gensalt(12))
 }

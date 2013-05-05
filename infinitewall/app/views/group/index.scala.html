@@ -1,4 +1,4 @@
-@(groups:List[Group])(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(groups:List[models.Group.Frozen])(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.default("Walls ::: Infinite Wall") {
 
@@ -11,7 +11,7 @@
 	}
 	<ul>
 	@for(group <- groups) {
-		<li><a href="/group/@group.id.get">@group.name</a></li>
+		<li><a href="/group/@group.id">@group.name</a></li>
 	}
 	</ul>
 

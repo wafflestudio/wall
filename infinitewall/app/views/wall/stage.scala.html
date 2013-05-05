@@ -1,4 +1,4 @@
-@(wallId:Long, wallName:String, pref:WallPreference, sheets:List[Sheet], sheetlinks:List[SheetLink],timestamp:Long, chatId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(wallId:String, wallName:String, pref:WallPreference.Frozen, sheets:List[Sheet.Frozen], sheetlinks:List[SheetLink.Frozen],timestamp:Long, chatId:String)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.stage("Wall ::: Infinite Wall") {
   <div class="navigator"></div>
@@ -120,8 +120,6 @@
         if(mode == 'zoomed') {
           mode = 'changing' 
 
-
-
           $(".currentwall").animate({margin:0}, 300, function() { mode = 'full'
             $('.wallContainer').each(function(idx, el) {
               $(el).removeClass('innershade')
@@ -149,7 +147,7 @@
       var chatURL = "@routes.Chat.establish(chatId).webSocketURL()"
 
       // prepare stage
-      window.stage = new Stage(@wallId, @timestamp, "@Application.currentUser", webSocketURL, chatURL)
+      window.stage = new Stage("@wallId", @timestamp, "@Application.currentUser", webSocketURL, chatURL)
       wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
 
       // place sheets and sheet links
@@ -186,5 +184,8 @@
       $(document).trigger("wallready")
     })
   </script>
+    
+  <!-- comet -->
+  <iframe id="cometFrame" src="@routes.Wall.listen(wallId, timestamp)"></iframe>
 
   }

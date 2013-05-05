@@ -1,10 +1,10 @@
 package models
 
 object GlobalPermission extends Enumeration {
-  type Permission = Value
-  val Administrator = Value(1)
-  val NormalUser = Value(2)
-  val NormalUserUnverified = Value(3)
+
+  val Administrator = "admin"
+  val NormalUser = "normal"
+  val NormalUserUnverified = "normal_verified"
 }
 
 object Mode extends Enumeration {

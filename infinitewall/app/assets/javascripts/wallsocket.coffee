@@ -1,4 +1,8 @@
 class window.WallSocket extends window.PersistentWebsocket
+
+  @onCometReceive: (data) ->
+    console.log("[COMET]", data)
+
   constructor: (url, timestamp) ->
     super(url, "WALL", timestamp)
 

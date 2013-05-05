@@ -6,7 +6,7 @@ import com.github.cleverage.elasticsearch.ScalaHelpers._
 import org.elasticsearch.index.query.{QueryBuilders, QueryBuilder}
 import org.elasticsearch.action.index.IndexResponse
 
-case class SheetIndex(id: String, val wallId: Long, var title: String, var content: String) extends Indexable
+case class SheetIndex(id: String, val wallId: String, var title: String, var content: String) extends Indexable
 
 object SheetIndexManager extends IndexableManager[SheetIndex] { 
   val indexType = "SheetIndex"
@@ -14,15 +14,15 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
   implicit val writes: Writes[SheetIndex] = Json.writes[SheetIndex]
 
   //Sheet Index
-  def create(id: Long, wallId: Long, title: String, content: String) = {
-    val sheetIndex = SheetIndex(id.toString(), wallId, title, content)
+  def create(id: String, wallId: String, title: String, content: String) = {
+    val sheetIndex = SheetIndex(id, wallId, title, content)
     val sheetIndexResponse: IndexResponse = SheetIndexManager.index(sheetIndex)
 
     Logger.info("SheetIndexManager.index() : " + sheetIndex)
   }
 
-  def setTitle(id: Long, title: String) = {
-    var sheetIndex = SheetIndexManager.get(id.toString())
+  def setTitle(id: String, title: String) = {
+    var sheetIndex = SheetIndexManager.get(id)
     sheetIndex match { 
       case Some(si: SheetIndex) =>
         si.title = title
@@ -33,8 +33,8 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
     }
   }
 
-  def setText(id: Long, content:String) = {
-    var sheetIndex = SheetIndexManager.get(id.toString())
+  def setText(id: String, content:String) = {
+    var sheetIndex = SheetIndexManager.get(id)
     sheetIndex match { 
       case Some(si: SheetIndex) =>
         si.content = content
@@ -45,15 +45,15 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
     }
   }
 
-  def remove(id: Long) {
-    var deleteRes = SheetIndexManager.delete(id.toString())
+  def remove(id: String) {
+    var deleteRes = SheetIndexManager.delete(id)
     Logger.info("SheetIndexManager.remove() : " + id + " / " + deleteRes)
   }
 
   //Sheet Index Retreival
   //Overloading ScalaHelpers` search method
-  def search(wallId: Long, keyword: String): List[JsValue] = {
-    val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("wallId", wallId)).must(QueryBuilders.termQuery("wallId", wallId.toString())))
+  def search(wallId: String, keyword: String): List[JsValue] = {
+    val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("wallId", wallId)).must(QueryBuilders.termQuery("wallId", wallId)))
     val indexResults: IndexResults[SheetIndex] = SheetIndexManager.search(indexQuery)
 
     Logger.info("SheetIndexManager.search() / multiQuery : " + indexResults.results)

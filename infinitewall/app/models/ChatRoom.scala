@@ -1,123 +1,71 @@
 package models
 
-import play.api.db.DB
-import anorm._
-import anorm.SqlParser._
 import play.api.Play.current
-import java.sql.Timestamp
-import java.util.Date
+import ActiveRecord._
 
-case class ChatRoom(id: Pk[Long], title: String)
-case class UserInChatRoom(userId: Long, roomId: Long, time: Long)
-case class ChatRoomForWall(id: Pk[Long])
+
+class ChatRoom(var title:String, var users:List[User] = List(), var wall:Option[Wall] = None) extends Entity
+{
+  def frozen() = transactional {
+    ChatRoom.Frozen(id, title, users.map(_.id), wall.map(_.id))
+  }
+}
 
 object ChatRoom extends ActiveRecord[ChatRoom] {
+ 
+  case class Frozen(id: String, title: String, users:List[String], wallId:Option[String])
+  
+  def create(title: String) = transactional {
+    new ChatRoom(title)
+  }
+ 
+  def list() = transactional {
+    findAll
+  }
 
-  val simple = {
-    field[Pk[Long]]("id") ~
-      field[String]("title") map {
-        case id ~ title => ChatRoom(id, title)
+  def findOrCreateForWall(wallId: String) = transactional {
+    val wall = Wall.findById(wallId).get
+    transactional {
+      val result = select[ChatRoom] where(_.wall :== wall)
+      result.headOption match {
+        case Some(room) =>
+          room
+        case None => 
+          new ChatRoom("forWall", List(), Some(wall))
       }
-  }
+    } 
+  } 
 
-  val users = {
-    get[Long]("UserInChatRoom.user_id") ~
-      get[Long]("UserInChatRoom.chatroom_id") ~
-      get[Long]("UserInChatRoom.time") map {
-        case user_id ~ chatroom_id ~ time => UserInChatRoom(user_id, chatroom_id, time)
-      }
-  }
-
-  def create(title: String) = {
-    DB.withConnection { implicit c =>
-      val id = SQL("select next value for chatroom_seq").as(scalar[Long].single)
-      SQL(""" 
-				insert into ChatRoom (id, title) values (
-					{id},
-					{title}	
-				)
-			""").on(
-        'id -> id,
-        'title -> title
-      ).executeUpdate()
-      id
+  def addUser(id: String, userId: String) {
+    transactional {
+      val user = User.findById(userId)
+      val room = findById(id).get
+      if(!room.users.contains(user))
+        room.users = room.users ++ user
     }
   }
 
-  def list() = {
-    DB.withConnection { implicit c =>
-      SQL("select * from ChatRoom").as(ChatRoom.simple*)
+  def removeUser(id: String, userId: String) {
+    transactional {
+      val user = User.findById(userId)
+      val room = findById(id).get
+      
+      room.users = room.users.filter(_ != user)
     }
   }
 
-  def findOrCreateForWall(wallId: Long) = {
-    DB.withConnection { implicit c =>
-      val maybeChatRoom = SQL("select ChatRoom.* from ChatRoomForWall as crfw, ChatRoom where crfw.chatroom_id = ChatRoom.id and crfw.wall_id = {wallId}").on('wallId -> wallId).
-        as(ChatRoom.simple.singleOpt)
-
-      maybeChatRoom match {
-        case Some(chatroom) =>
-          chatroom.id.get
-        case None =>
-          val chatRoomId = SQL("select next value for chatroom_seq").as(scalar[Long].single)
-          SQL(""" 
-						insert into ChatRoom (id, title) values (
-							{id},
-							{title}	
-						)
-					""").on(
-            'id -> chatRoomId,
-            'title -> "<ChatRoom for Wall>"
-          ).executeUpdate()
-
-          val chatRoomForWallId = SQL("select next value for chatroomforwall_seq").as(scalar[Long].single)
-          SQL(""" 
-						insert into ChatRoomForWall (id, wall_id, chatroom_id) values (					
-							{id},
-							{wallId},
-							{chatRoomId}
-						)
-					""").on(
-            'id -> chatRoomForWallId,
-            'wallId -> wallId,
-            'chatRoomId -> chatRoomId
-          ).executeUpdate()
-
-          chatRoomId
-      }
+  def listUsers(id: String) = transactional {
+    findById(id).map { room =>
+      room.users
     }
   }
-
-  def addUser(id: Long, userId: Long) = {
-    DB.withConnection { implicit c =>
-      SQL(""" 
-				merge into UserInChatRoom (user_id, chatroom_id, time) values (					
-					{userId},
-					{chatroomId},
-					(select next value for userinchatroom_timestamp)
-				)
-			""").on(
-        'userId -> userId,
-        'chatroomId -> id
-      ).executeUpdate()
-    }
-  }
-
-  def removeUser(id: Long, user_id: Long) = {
-    DB.withConnection { implicit c =>
-      SQL(""" 
-				delete from UserInChatRoom where chatroom_id = {id} and user_id = {user_id}	
-			""").on(
-        'id -> id,
-        'user_id -> user_id
-      ).executeUpdate()
-    }
-  }
-
-  def listUsers(id: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("select user.* from UserInChatRoom as uic, User where uic.chatroom_id = {id} and uic.user_id = user.id").on('id -> id).
-        as(User.simple*)
+  
+  override def delete(id:String) {
+    transactional {
+      // remove all chatlogs in the room
+      val logs = select[ChatLog] where(_.room.id :== id)
+      logs.map(_.delete)
+      super.delete(id)
     }
   }
 

@@ -18,27 +18,25 @@ import utils.StringWithState
 import utils.Operation
 import akka.util.Timeout
 import models.ActiveRecord._
+import utils.UsageSet
 
 // Messages
 // WallSystem -> WallSystem Actor
-case class JoinWall(wallId: Long, userId: Long, timestamp: Long)
-case class QuitWall(wallId: Long, userId: Long, producer: Enumerator[JsValue])
-case class ActionInWall(wallId: Long, json: JsValue, detail: ActionDetail, producer: Enumerator[JsValue] = WallSystem.volatileEnumerator)
-case class Finishing(wallId: Long)
+case class JoinWall(wallId: String, userId: String, timestamp: Long)
+case class QuitWall(wallId: String, userId: String, producer: Enumerator[JsValue])
+case class ActionInWall(wallId: String, json: JsValue, detail: ActionDetail, producer: Enumerator[JsValue] = WallSystem.volatileEnumerator)
+case class Finishing(wallId: String)
 case class FinishAccepted()
 case class RetryFinish()
 
 // WallSystem Actor -> Wall Actor
-case class Join(userId: Long, timestamp: Long)
-case class Quit(userId: Long, producer: Enumerator[JsValue])
+case class Join(userId: String, timestamp: Long)
+case class Quit(userId: String, producer: Enumerator[JsValue])
 case class Action(json: JsValue, detail: ActionDetail, producer: Enumerator[JsValue] = WallSystem.volatileEnumerator)
 
 // Wall Actor reply
 case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[JsValue])
 case class CannotConnect(msg: String)
-
-// Record used for tracking text change (cache)
-case class Record(timestamp: Long, sheetId: Long, baseText: String, resultText: String, consolidated: Operation, conn: Enumerator[JsValue])
 
 // Wall System (Delegate + Actor)
 object WallSystem {
@@ -50,7 +48,7 @@ object WallSystem {
   implicit val timeout = Timeout(1 second)
   lazy val actor = Akka.system.actorOf(Props(new WallSystem))
 
-  def establish(wallId: Long, userId: Long, timestamp: Long): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def establish(wallId: String, userId: String, timestamp: Long, receiveOnly:Boolean = false): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     val joinResult = actor ? JoinWall(wallId, userId, timestamp)
 
@@ -84,8 +82,8 @@ object WallSystem {
     }
   }
 
-  def submitVolatileAction(wallId: Long, userId: Long, timestamp: Long) = {
-
+  def submitVolatileAction(wallId: String, userId: String, json:JsValue) = {
+    actor ? ActionInWall(wallId, json, ActionDetail(userId, json))
   }
 }
 
@@ -95,10 +93,9 @@ class WallSystem extends Actor {
 
   case class WallActorState(actorRef: ActorRef, time: Long)
 
-  // wallId => (actor, time)
-  var wallActors: Map[Long, WallActorState] = Map()
+  var wallActors: Map[String, WallActorState] = Map()
 
-  def wall(wallId: Long): ActorRef = {
+  def wall(wallId: String): ActorRef = {
     wallActors.get(wallId) match {
       case Some(actorState) =>
         wallActors = wallActors + (wallId -> WallActorState(actorState.actorRef, System.currentTimeMillis()))
@@ -111,7 +108,7 @@ class WallSystem extends Actor {
     }
   }
 
-  def lastAccessedTime(wallId: Long): Long = {
+  def lastAccessedTime(wallId: String): Long = {
     wallActors.get(wallId) match {
       case Some(actorState) =>
         actorState.time
@@ -141,205 +138,3 @@ class WallSystem extends Actor {
   }
 }
 
-class WallActor(wallId: Long) extends Actor {
-
-  implicit def toDouble(value: JsValue) = { value.as[Double] }
-  implicit def toLong(value: JsValue) = { value.as[Long] }
-
-  case class Connection(enumerator: PushEnumerator[JsValue], timestamp: Long)
-
-  // key: userId, values: list of sessions user have
-  var connections = Map.empty[Long, List[Connection]]
-  // trick to track pending messages for each session (session, timestamp, action)
-  var recentRecords = List[Record]()
-  // shutdown timer activated when no connection is left to the actor
-  var shutdownTimer: Option[akka.actor.Cancellable] = None
-
-  def prevLogs(timestamp: Long) = WallLog.list(wallId, timestamp)
-  def logMessage(kind: String, basetimestamp: Long, userId: Long, message: String) = { 
-    WallLog.create(kind, wallId, basetimestamp, userId, message)
-  }
-
-  def quit(userId: Long, producer: Enumerator[JsValue]) = {
-    // clear sessions for userid. if none exists for a userid, remove userid key.
-    connections.get(userId).foreach { userConns =>
-      val newUserConns = userConns.filterNot(_.enumerator == producer)
-
-      if (newUserConns.isEmpty)
-        connections = connections - userId
-      else
-        connections = connections + (userId -> newUserConns)
-
-    }
-    cleanRecentRecords()
-
-    val numConnections = connections.foldLeft(0) { (num, connection) =>
-      num + connection._2.length
-    }
-
-    //start scheduling shutdown
-    if (numConnections == 0)
-      shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Finishing(wallId) })
-
-    Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
-  }
-
-  def updateTimestamp(userId: Long, ts: Long, origin: Enumerator[JsValue]) = {
-
-    connections.get(userId).foreach { userConns =>
-      val newUserConns = userConns.map { connection =>
-        if (connection.enumerator == origin)
-          Connection(connection.enumerator, ts)
-        else
-          connection
-      }
-      connections = connections + (userId -> newUserConns)
-    }
-  }
-
-  def cleanRecentRecords() = {
-    var minTs: Long = 0
-    connections.foreach {
-      _._2.foreach { conn =>
-        if (minTs == 0 || conn.timestamp < minTs)
-          minTs = conn.timestamp
-      }
-    }
-
-    recentRecords = recentRecords.dropWhile(_.timestamp < minTs)
-  }
-
-  def receive = {
-    // Join
-    case Join(userId, timestamp) => {
-      // Create an Enumerator to write to this socket
-      val wallActor = self
-      lazy val producer: PushEnumerator[JsValue] = Enumerator.imperative[JsValue]()
-
-      val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
-
-      if (false /* maximum connection per user constraint here*/ ) {
-        sender ! CannotConnect("Wall has reached maximum number of connections.")
-      }
-      else {
-        // deactivate shutdown timer if activated
-        shutdownTimer.map { cancellable =>
-          cancellable.cancel()
-          shutdownTimer = None
-        }
-        // update connections map
-        connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(producer, timestamp)))
-        sender ! Connected(producer, prev)
-
-        Logger.info(s"[Wall] user $userId joined to wall $wallId ")
-      }
-    }
-    case RetryFinish =>
-      val numConnections = connections.foldLeft[Int](0) { (num, connection) =>
-        num + connection._2.length
-      }
-
-      //start scheduling shutdown if no connections left
-      if (numConnections == 0)
-        shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Finishing(wallId) })
-
-    // ACK
-    case Action(detail, ack: Ack, origin) =>
-      Logger.debug("ack came(" + ack.timestamp + ").")
-      updateTimestamp(ack.userId, ack.timestamp, origin)
-      cleanRecentRecords()
-    // Create Action
-    case Action(detail, c: CreateAction, origin) =>
-      val sheetId = Sheet.createInit(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId)
-      notifyAll("action", c.timestamp, c.userId, (detail.as[JsObject] ++ Json.obj("id" -> sheetId)).toString, origin)
-    // Other Action
-    case Action(detail, action: ActionDetailWithId, origin) =>
-      Sheet.findById(action.id).map { sheet =>
-
-        action match {
-          case a: MoveAction => Sheet.move(a.id, a.x, a.y)
-          case a: ResizeAction => Sheet.resize(a.id, a.width, a.height)
-          case a: RemoveAction => Sheet.remove(a.id) //former delete
-          case a: SetTitleAction => Sheet.setTitle(a.id, a.title)
-          case a: SetTextAction => Sheet.setText(a.id, a.text)
-          case action: AlterTextAction =>
-            // simulate consolidation of records after timestamp
-            val records = recentRecords.dropWhile(_.timestamp <= action.timestamp).filter(_.sheetId == action.id)
-            var pending = action.operations // all mine with > a.timestamp
-
-            assert(pending.size - 1 == records.filter(_.conn == origin).size,
-              "pending:" + (pending.size - 1) + " record:" + records.filter(_.conn == origin).size)
-
-            records.foreach { record =>
-              if (record.conn == origin) {
-                // drop already consolidated. 
-                pending = pending.drop(1)
-              }
-              else { // apply arrived consolidated record
-                val ss = new StringWithState(record.baseText)
-                ss.apply(record.consolidated, 1)
-                // transform pending
-                pending = pending.map { p =>
-                  OperationWithState(ss.apply(p.op, 0), p.msgId)
-                }
-                Logger.debug("simulation: " + ss.text)
-              }
-            }
-
-            val newOp = pending.head.op
-            val (baseText, resultText) = Sheet.alterText(action.id, newOp.from, newOp.length, newOp.content)
-            
-            val newAction = AlterTextAction(action.userId, action.timestamp, action.id, List(OperationWithState(newOp, action.operations.last.msgId)))
-            val newTimestamp = notifyAll("action", action.timestamp, action.userId, newAction.singleJson.toString, origin)
-
-            recentRecords = recentRecords :+ Record(newTimestamp, action.id, baseText, resultText, newOp, origin)
-
-          case a: SetLinkAction => SheetLink.create(a.id, a.to_id, wallId)
-          case a: RemoveLinkAction =>
-            SheetLink.remove(a.id, a.to_id)
-            SheetLink.remove(a.to_id, a.id)
-        }
-
-        action match {
-          case a: AlterTextAction =>
-          case _ =>
-            notifyAll("action", action.timestamp, action.userId, detail.toString, origin)
-        }
-      }
-
-    // Quit
-    case Quit(userId, producer) => {
-      quit(userId, producer)
-      notifyAll("userQuit", 0, userId, "", producer)
-      Logger.info(s"[Wall] user $userId quit from wall $wallId")
-    }
-
-  }
-
-  def notifyAll(kind: String, basetimestamp: Long, userId: Long, detail: String, origin: Enumerator[JsValue]) = {
-
-    val username = User.findById(userId).get.email
-    val logId = logMessage(kind, basetimestamp, userId, detail)
-    val msg = Json.obj(
-      "kind" -> kind,
-      "username" -> username,
-      "detail" -> detail,
-      "timestamp" -> logId
-    )
-
-    // notify all producers
-    connections.foreach {
-      case (_, userConns) =>
-        userConns.foreach { connection =>
-          val producer = connection.enumerator
-          if (producer == origin)
-            producer.push(msg ++ Json.obj("mine" -> true, "timestamp" -> logId))
-          else
-            producer.push(msg ++ Json.obj("timestamp" -> logId))
-        }
-    }
-
-    logId
-  }
-
-}

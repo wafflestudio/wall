@@ -65,7 +65,7 @@ object File extends Controller {
       NotFound("File not found:" + filePath + "(" + helpers.infiniteWall.decodeURIComponent(filePath) + ")")
   }
   
-  def serveUserProfilePicture(userId: Long) = Action {
+  def serveUserProfilePicture(userId: String) = Action {
     val url = User.getPictureOrGravatarUrl(userId)
     
     Redirect(url)

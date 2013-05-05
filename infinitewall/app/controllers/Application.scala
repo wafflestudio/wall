@@ -10,28 +10,39 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.Play.current
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
-import models._
+import models.User
 import views._
 import helpers._
+import net.fwbrasil.activate.ActivateContext
+import net.fwbrasil.activate.play.EntityForm
+import net.fwbrasil.activate.play.EntityForm._
+import models.ActiveRecord
+import models.ActiveRecord._
 
 case class LoginData(val email: String, val password: String)
 case class SignUpData(val email: String, val password: String, val nickname: String)
-case class CurrentUser(val userId: Long, val email: String)
+case class CurrentUser(val userId:String , val email: String)
 
 trait Auth {
   self: Controller =>
 
-  def currentUser(implicit request: Request[AnyContent]): String = {
+  def currentUser[Content <: AnyContent](implicit request: { def session:Session }): String = {
     request.session.get("current_user").getOrElse("default")
   }
 
-  def currentUserId(implicit request: Request[AnyContent]): Long = {
-    request.session.get("current_user_id").getOrElse("-1").toLong
+  def currentUserId[Content <: AnyContent](implicit request: { def session:Session }): String = {
+    currentUserIdOption.getOrElse("UNAUTHORIZED")
+  }
+  
+  def currentUserIdOption[Content <: AnyContent](implicit request: { def session:Session } ) = {
+    request.session.get("current_user_id")
   }
 
   def currentUserNickname(implicit request: Request[AnyContent]): String = {
     // TODO: cache
-    User.findById(currentUserId).get.nickname
+    transactional {
+      User.findById(currentUserId).get.nickname
+    }
   }
 
   def currentUserPicturePath(implicit request: Request[AnyContent]) = {
@@ -98,8 +109,10 @@ object Application extends Controller with Login {
         Redirect(routes.Application.index).flashing("error" -> "Bad username or password")
       },
       loginData => {
-        val user = User.findByEmail(loginData.email).get
-        Redirect(routes.Application.index).withSession("session_token" -> ActiveRecord.sessionToken, "current_user" -> user.email, "current_user_id" -> user.id.toString)
+        val user = transactional { 
+          User.findByEmail(loginData.email).get.frozen
+        }
+        Redirect(routes.Application.index).withSession("session_token" -> ActiveRecord.sessionToken, "current_user" -> user.email, "current_user_id" -> user.id)
       }
     )
 

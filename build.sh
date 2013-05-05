@@ -1,7 +1,8 @@
 #!/bin/bash
 
 cd infinitewall
-
+export PATH="$HOME/bin":"$HOME/bin/scala/bin":"`pwd`/Play20":$PATH
+set
 # compile
 play compile
 
@@ -25,8 +26,9 @@ fi
 
 # use existing files
 if [ $USER == "jenkins_slave" ]; then
-	rm -rf public/files
-	ln -s /home/jenkins_slave/infinitewall/public/files public/files
+	if [ ! -d "public/files" ]; then
+    ln -s /home/jenkins_slave/infinitewall_custom/public/files public/files
+  fi
 fi
 
 # run tests
@@ -34,7 +36,7 @@ play test
 
 # start the server
 play stage
-BUILD_ID=0 nohup target/start -Dhttp.port=9000 -DapplyEvolutions.default=true > log.log 2>&1 &
+BUILD_ID=0 nohup target/start -Dhttp.port=10000 -DapplyEvolutions.default=true > log.log 2>&1 &
 
 # for more detailed configuration:
 #target/start -Dconfig.file=/full/path/to/conf/application-prod.conf

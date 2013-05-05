@@ -1,4 +1,4 @@
-@(users:List[User], walls:List[Wall], nonSharedWalls:List[Wall], groupId:Long)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(users:List[User.Frozen], walls:List[models.Wall.Frozen], nonSharedWalls:List[models.Wall.Frozen], groupId:String)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.default("Walls ::: Infinite Wall") {
 
@@ -11,7 +11,7 @@
 	}
 	<ul>
 	@for(user <- users) {
-		<li>@user.email <a href="@{routes.Group.removeUser(groupId, user.id.get)}">remove</a></li>
+		<li>@user.email <a href="@{routes.Group.removeUser(groupId, user.id)}">remove</a></li>
 	}
 	</ul>
 
@@ -28,7 +28,7 @@
 	}
 	<ul>
 	@for(wall <- nonSharedWalls) {
-		<li>@wall.name <a href="@{routes.Group.addWall_Get(groupId, wall.id.get)}">add to Group</a></li>
+		<li>@wall.name <a href="@{routes.Group.addWall_Get(groupId, wall.id)}">add to Group</a></li>
 	}
 	</ul>
 	<h5>Group's Walls</h5>
@@ -37,7 +37,7 @@
 	}
 	<ul>
 	@for(wall <- walls) {
-		<li>@wall.name <a href="@{routes.Group.removeWall(groupId, wall.id.get)}">remove</a></li>
+		<li>@wall.name <a href="@{routes.Group.removeWall(groupId, wall.id)}">remove</a></li>
 	}
 	</ul>
 }

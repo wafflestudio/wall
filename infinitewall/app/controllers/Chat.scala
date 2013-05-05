@@ -45,13 +45,13 @@ object Chat extends Controller with Login {
 		Ok("")
 	}
 */
-  def establish(roomId: Long) = WebSocket.async[JsValue] { implicit request =>
+  def establish(roomId: String) = WebSocket.async[JsValue] { implicit request =>
     val params = request.queryString
     val timestampOpt:Option[Long] = params.get("timestamp").map(_(0).toLong)
 
     request.session.get("current_user_id") match {
       case Some(id) =>
-       ChatSystem.establish(roomId, id.toLong, timestampOpt)
+       ChatSystem.establish(roomId, id, timestampOpt)
       case None =>
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
@@ -60,15 +60,14 @@ object Chat extends Controller with Login {
     }
   }
   
-  def prevMessages(roomId: Long) = AuthenticatedAction { implicit request =>
+  def prevMessages(roomId: String) = AuthenticatedAction { implicit request =>
     val params = request.queryString
     // mandatory params
     val startTs:Long = params.get("startTs").get(0).toLong
     val endTs:Long = params.get("endTs").get(0).toLong
     
     Async {
-      ChatSystem.prevMessages(roomId, startTs, endTs).map { json =>
-        
+      ChatSystem.prevMessages(roomId, startTs, endTs).map { json =>        
         Ok(json)
       }
     }

@@ -1,63 +1,51 @@
 package models
 
-import anorm._
-import anorm.SqlParser._
 import play.api.Play.current
-import play.api.db.DB
 import ContentType._
 import play.api.libs.json._
 import play.api.Logger
 import org.apache.commons.lang.StringEscapeUtils._
+import ActiveRecord._
 
-case class SheetLink(id: Pk[Long], from_id: Long, to_id: Long, wall_id: Long) {
-  def toJson() = {
-    Json.obj(
-      "id" -> id.get,
-      "from_id" -> from_id,
-      "to_id" -> to_id,
-      "wall_id" -> wall_id
-    ).toString()
+
+
+class SheetLink(val fromSheet:Sheet, val toSheet:Sheet, var wall:Wall) extends Entity
+{
+  def frozen = transactional {
+    SheetLink.Frozen(id, fromSheet.id, toSheet.id, wall.id)
   }
-
 }
 
 object SheetLink extends ActiveRecord[SheetLink] {
 
-  val simple = {
-    field[Pk[Long]]("id") ~
-      field[Long]("from_id") ~
-      field[Long]("to_id") ~
-      field[Long]("wall_id") map {
-        case id ~ from_id ~ to_id ~ wall_id => SheetLink(id, from_id, to_id, wall_id)
-      }
+  case class Frozen(id: String, fromId: String, toId: String, wallId: String) {
+    def toJson() = {
+      Json.obj(
+        "id" -> id,
+        "from_id" -> fromId,
+        "to_id" -> toId,
+        "wall_id" -> wallId
+      ).toString()
+    }
+  }
+  
+  def create(fromId: String, toId: String, wallId: String) = transactional {
+    val fromSheet = Sheet.findById(fromId).get
+    val toSheet = Sheet.findById(toId).get
+    val wall = Wall.findById(wallId).get
+    new SheetLink(fromSheet, toSheet, wall).id
   }
 
-  def create(id: Long, toId: Long, wallId: Long) = {
-    DB.withConnection { implicit c =>
-      val seq_id = SQL("select next value for sheet_seq").as(scalar[Long].single)
-
-      SQL("insert into " + tableName + " (id, from_id, to_id, wall_id) values ({id},	{from_id}, {to_id}, {wall_id})").on(
-        'id -> seq_id,
-        'from_id -> id,
-        'to_id -> toId,
-        'wall_id -> wallId
-      ).executeUpdate()
-      seq_id
+  def remove(fromId: String, toId: String)  {
+    transactional {
+      val entities = select[SheetLink] where(link => 
+        (link.fromSheet.id :== fromId) :&& (link.toSheet.id :== toId))
+      entities.map(_.delete)
     }
   }
 
-  def remove(id: Long, toId: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("delete from " + tableName + " where from_id={from_id} and to_id={to_id}").on(
-        'from_id -> id,
-        'to_id -> toId
-      ).executeUpdate()
-    }
+  def findAllByWallId(wallId: String) = transactional {
+    select[SheetLink] where(_.wall.id :== wallId)
   }
-
-  def findByWallId(wallId: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("select * from " + tableName + " where wall_id = {wallId}").on('wallId -> wallId).as(simple *)
-    }
-  }
+  
 }
