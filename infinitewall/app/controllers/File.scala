@@ -14,6 +14,7 @@ import views._
 import helpers._
 import play.api.libs.json._
 import org.apache.commons.codec.digest.DigestUtils
+import views.html.defaultpages.notFound
 
 object File extends Controller {
 
@@ -57,7 +58,11 @@ object File extends Controller {
 
   def serve(filePath: String) = Action {
     Logger.info("serving file : " + filePath)
-    Ok.sendFile(content = new java.io.File("public/files/" + filePath), inline = true)
+    val file = new java.io.File("public/files/" + helpers.infiniteWall.decodeURIComponent(filePath))
+    if(file.exists)
+      Ok.sendFile(content = file, inline = true)
+    else
+      NotFound("File not found:" + filePath + "(" + helpers.infiniteWall.decodeURIComponent(filePath) + ")")
   }
   
   def serveUserProfilePicture(userId: Long) = Action {

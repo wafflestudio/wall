@@ -29,5 +29,9 @@ package object infiniteWall {
   def encodeURIComponent(str: String) = {
     parseUri(str).toString
   }
+  
+  def decodeURIComponent(str: String) = {
+    parseUri(str).toStringRaw
+  }
 
 }
