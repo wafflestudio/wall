@@ -142,7 +142,7 @@ object Wall extends Controller with Auth with Login {
             fileList :+ Json.obj(
               "name" -> filename,
               "size" -> file.length,
-              "url" -> ("/assets/files/" + filename),
+              "url" -> ("/upload/" + filename),
               "delete_url" -> ("/wall/file/" + wallId),
               "delete_type" -> "delete"
             )
