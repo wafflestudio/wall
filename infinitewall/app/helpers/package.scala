@@ -31,7 +31,8 @@ package object infiniteWall {
   }
   
   def decodeURIComponent(str: String) = {
-    parseUri(str).toStringRaw
+    // TODO: review this
+    str.replaceAll("%20", "")
   }
 
 }
