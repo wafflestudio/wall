@@ -9,6 +9,18 @@ import play.api.libs.json._
 
 case class WallLog(id: Pk[Long], kind: String, message: String, time: Long, basetime: Long, roomId: Long, userId: Long)
 case class WallLogWithEmail(id: Pk[Long], kind: String, message: String, time: Long, basetime: Long, roomId: Long, email: String)
+{
+  def toJson: JsValue = {
+
+    Json.obj(
+      "kind" -> kind,
+      "username" -> email,
+      "detail" -> message,
+      "timestamp" -> time,
+      "basetimestamp" -> basetime
+    )
+  }
+}
 
 object WallLog extends ActiveRecord[WallLog] {
 
@@ -45,16 +57,7 @@ object WallLog extends ActiveRecord[WallLog] {
     }
   }
 
-  implicit def walllog2Json(walllog: WallLogWithEmail): JsValue = {
-
-    Json.obj(
-      "kind" -> walllog.kind,
-      "username" -> walllog.email,
-      "detail" -> walllog.message,
-      "timestamp" -> walllog.time,
-      "basetimestamp" -> walllog.basetime
-    )
-  }
+  
 
   def create(kind: String, wallId: Long, basetime: Long, userId: Long, message: String) = {
     DB.withConnection { implicit c =>

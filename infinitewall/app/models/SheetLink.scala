@@ -46,12 +46,11 @@ object SheetLink extends ActiveRecord[SheetLink] {
     }
   }
 
-  def remove(id: Long, toId: Long, wallId: Long) = {
+  def remove(id: Long, toId: Long) = {
     DB.withConnection { implicit c =>
-      SQL("delete from " + tableName + " where from_id={from_id} and to_id={to_id} and wall_id={wall_id}").on(
+      SQL("delete from " + tableName + " where from_id={from_id} and to_id={to_id}").on(
         'from_id -> id,
-        'to_id -> toId,
-        'wall_id -> wallId
+        'to_id -> toId
       ).executeUpdate()
     }
   }

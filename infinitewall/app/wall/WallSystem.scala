@@ -17,6 +17,7 @@ import models.SheetLink
 import utils.StringWithState
 import utils.Operation
 import akka.util.Timeout
+import models.ActiveRecord._
 
 // Messages
 // WallSystem -> WallSystem Actor
@@ -92,25 +93,28 @@ class WallSystem extends Actor {
 
   implicit val timeout = Timeout(1 second)
 
-  var walls: Map[Long, (ActorRef, Long)] = Map()
+  case class WallActorState(actorRef: ActorRef, time: Long)
+
+  // wallId => (actor, time)
+  var wallActors: Map[Long, WallActorState] = Map()
 
   def wall(wallId: Long): ActorRef = {
-    walls.get(wallId) match {
-      case Some(wall) =>
-        walls = walls + (wallId -> (wall._1, System.currentTimeMillis()))
-        wall._1
+    wallActors.get(wallId) match {
+      case Some(actorState) =>
+        wallActors = wallActors + (wallId -> WallActorState(actorState.actorRef, System.currentTimeMillis()))
+        actorState.actorRef
       case None =>
         val newActor = context.actorOf(Props(new WallActor(wallId)))
-        walls = walls + (wallId -> (newActor, 0))
+        wallActors = wallActors + (wallId -> WallActorState(newActor, 0))
         Logger.info("initiated wall actor (" + wallId + ")")
         newActor
     }
   }
 
   def lastAccessedTime(wallId: Long): Long = {
-    walls.get(wallId) match {
-      case Some(wall) =>
-        wall._2
+    wallActors.get(wallId) match {
+      case Some(actorState) =>
+        actorState.time
       case None =>
         0
     }
@@ -129,7 +133,7 @@ class WallSystem extends Actor {
     case Finishing(wallId) =>
       if (System.currentTimeMillis() - lastAccessedTime(wallId) > WallSystem.shutdownFinalizeTimeout) {
         Logger.info("shutting down wall actor (" + wallId + ") due to inactivity")
-        walls = walls - wallId
+        wallActors = wallActors - wallId
         akka.pattern.gracefulStop(sender, 1 seconds)(context.system)
       }
       else
@@ -142,68 +146,63 @@ class WallActor(wallId: Long) extends Actor {
   implicit def toDouble(value: JsValue) = { value.as[Double] }
   implicit def toLong(value: JsValue) = { value.as[Long] }
 
+  case class Connection(enumerator: PushEnumerator[JsValue], timestamp: Long)
+
   // key: userId, values: list of sessions user have
-  var connections = Map.empty[Long, List[(PushEnumerator[JsValue], Long)]]
+  var connections = Map.empty[Long, List[Connection]]
   // trick to track pending messages for each session (session, timestamp, action)
   var recentRecords = List[Record]()
   // shutdown timer activated when no connection is left to the actor
   var shutdownTimer: Option[akka.actor.Cancellable] = None
 
   def prevLogs(timestamp: Long) = WallLog.list(wallId, timestamp)
-  def logMessage(kind: String, basetimestamp: Long, userId: Long, message: String) = WallLog.create(kind, wallId, basetimestamp, userId, message)
+  def logMessage(kind: String, basetimestamp: Long, userId: Long, message: String) = { 
+    WallLog.create(kind, wallId, basetimestamp, userId, message)
+  }
 
   def quit(userId: Long, producer: Enumerator[JsValue]) = {
     // clear sessions for userid. if none exists for a userid, remove userid key.
-    connections.get(userId).map { producers =>
-      val newProducers = producers.filterNot(_._1 == producer)
+    connections.get(userId).foreach { userConns =>
+      val newUserConns = userConns.filterNot(_.enumerator == producer)
 
-      if (newProducers.isEmpty)
+      if (newUserConns.isEmpty)
         connections = connections - userId
       else
-        connections = connections + (userId -> newProducers)
+        connections = connections + (userId -> newUserConns)
 
     }
     cleanRecentRecords()
 
-    val numConnections = connections.foldLeft[Int](0) { (num, connection) =>
+    val numConnections = connections.foldLeft(0) { (num, connection) =>
       num + connection._2.length
     }
 
-    if (numConnections == 0) {
-      //start scheduling
-      shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) {
-        context.parent ! Finishing(wallId)
-      })
-    }
+    //start scheduling shutdown
+    if (numConnections == 0)
+      shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Finishing(wallId) })
 
     Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
   }
 
   def updateTimestamp(userId: Long, ts: Long, origin: Enumerator[JsValue]) = {
 
-    connections.get(userId).map { connectionInfoList =>
-      val newConnectionInfoList =
-
-        connectionInfoList.map { connectionInfo =>
-          val connection = connectionInfo._1
-
-          if (connection == origin)
-            (connection, ts)
-          else
-            connectionInfo
-        }
-
-      connections = connections + (userId -> newConnectionInfoList)
+    connections.get(userId).foreach { userConns =>
+      val newUserConns = userConns.map { connection =>
+        if (connection.enumerator == origin)
+          Connection(connection.enumerator, ts)
+        else
+          connection
+      }
+      connections = connections + (userId -> newUserConns)
     }
   }
 
   def cleanRecentRecords() = {
     var minTs: Long = 0
-    connections.map { keyvalue =>
-      val userId = keyvalue._1
-      keyvalue._2.map { pair =>
-        if (minTs == 0 || pair._2 < minTs)
-          minTs = pair._2
+    connections.foreach {
+      _._2.foreach { conn =>
+        if (minTs == 0 || conn.timestamp < minTs)
+          minTs = conn.timestamp
       }
     }
 
@@ -217,7 +216,7 @@ class WallActor(wallId: Long) extends Actor {
       val wallActor = self
       lazy val producer: PushEnumerator[JsValue] = Enumerator.imperative[JsValue]()
 
-      val prev = Enumerator(prevLogs(timestamp).map { walllog => WallLog.walllog2Json(walllog) }: _*)
+      val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
 
       if (false /* maximum connection per user constraint here*/ ) {
         sender ! CannotConnect("Wall has reached maximum number of connections.")
@@ -229,9 +228,9 @@ class WallActor(wallId: Long) extends Actor {
           shutdownTimer = None
         }
         // update connections map
-        connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ (producer, timestamp)))
+        connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(producer, timestamp)))
         sender ! Connected(producer, prev)
-        
+
         Logger.info(s"[Wall] user $userId joined to wall $wallId ")
       }
     }
@@ -240,12 +239,9 @@ class WallActor(wallId: Long) extends Actor {
         num + connection._2.length
       }
 
-      if (numConnections == 0) {
-        //start scheduling
-        shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) {
-          context.parent ! Finishing(wallId)
-        })
-      }
+      //start scheduling shutdown if no connections left
+      if (numConnections == 0)
+        shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Finishing(wallId) })
 
     // ACK
     case Action(detail, ack: Ack, origin) =>
@@ -258,35 +254,31 @@ class WallActor(wallId: Long) extends Actor {
       notifyAll("action", c.timestamp, c.userId, (detail.as[JsObject] ++ Json.obj("id" -> sheetId)).toString, origin)
     // Other Action
     case Action(detail, action: ActionDetailWithId, origin) =>
-      Sheet.findById(action.id) map { sheet =>
+      Sheet.findById(action.id).map { sheet =>
 
         action match {
-          case a: MoveAction =>
-            Sheet.move(a.id, a.x, a.y)
-          case a: ResizeAction =>
-            Sheet.resize(a.id, a.width, a.height)
-          case a: RemoveAction =>
-            Sheet.remove(a.id) //former delete
-          case a: SetTitleAction =>
-            Sheet.setTitle(a.id, a.title)
-          case a: SetTextAction =>
-            Sheet.setText(a.id, a.text)
-          case a: AlterTextAction =>
+          case a: MoveAction => Sheet.move(a.id, a.x, a.y)
+          case a: ResizeAction => Sheet.resize(a.id, a.width, a.height)
+          case a: RemoveAction => Sheet.remove(a.id) //former delete
+          case a: SetTitleAction => Sheet.setTitle(a.id, a.title)
+          case a: SetTextAction => Sheet.setText(a.id, a.text)
+          case action: AlterTextAction =>
             // simulate consolidation of records after timestamp
-            val records = recentRecords.filter(r => r.sheetId == a.id && r.timestamp > a.timestamp)
-            var pending = a.operations // all mine with > a.timestamp
-            
+            val records = recentRecords.dropWhile(_.timestamp <= action.timestamp).filter(_.sheetId == action.id)
+            var pending = action.operations // all mine with > a.timestamp
+
             assert(pending.size - 1 == records.filter(_.conn == origin).size,
               "pending:" + (pending.size - 1) + " record:" + records.filter(_.conn == origin).size)
-            
-            records.map { r =>
-              if (r.conn == origin) {
-                // consolidated
+
+            records.foreach { record =>
+              if (record.conn == origin) {
+                // drop already consolidated. 
                 pending = pending.drop(1)
               }
               else { // apply arrived consolidated record
-                val ss = new StringWithState(r.baseText)
-                ss.apply(r.consolidated, 1)
+                val ss = new StringWithState(record.baseText)
+                ss.apply(record.consolidated, 1)
+                // transform pending
                 pending = pending.map { p =>
                   OperationWithState(ss.apply(p.op, 0), p.msgId)
                 }
@@ -294,18 +286,18 @@ class WallActor(wallId: Long) extends Actor {
               }
             }
 
-            val alteredAction = pending.head.op
-            val (baseText, resultText) = Sheet.alterText(a.id, alteredAction.from, alteredAction.length, alteredAction.content)
-            val newAction = AlterTextAction(a.userId, a.timestamp, a.id, List(OperationWithState(alteredAction, a.operations.last.msgId)))
-            val timestamp = notifyAll("action", action.timestamp, action.userId, newAction.singleJson.toString, origin)
+            val newOp = pending.head.op
+            val (baseText, resultText) = Sheet.alterText(action.id, newOp.from, newOp.length, newOp.content)
+            
+            val newAction = AlterTextAction(action.userId, action.timestamp, action.id, List(OperationWithState(newOp, action.operations.last.msgId)))
+            val newTimestamp = notifyAll("action", action.timestamp, action.userId, newAction.singleJson.toString, origin)
 
-            recentRecords = recentRecords :+ Record(timestamp, a.id, baseText, resultText, alteredAction, origin)
+            recentRecords = recentRecords :+ Record(newTimestamp, action.id, baseText, resultText, newOp, origin)
 
-          case a: SetLinkAction =>
-            SheetLink.create(a.id, a.to_id, wallId)
+          case a: SetLinkAction => SheetLink.create(a.id, a.to_id, wallId)
           case a: RemoveLinkAction =>
-            SheetLink.remove(a.id, a.to_id, wallId)
-            SheetLink.remove(a.to_id, a.id, wallId)
+            SheetLink.remove(a.id, a.to_id)
+            SheetLink.remove(a.to_id, a.id)
         }
 
         action match {
@@ -319,7 +311,7 @@ class WallActor(wallId: Long) extends Actor {
     case Quit(userId, producer) => {
       quit(userId, producer)
       notifyAll("userQuit", 0, userId, "", producer)
-      Logger.info(s"[Wall] user $userId quit from wall $wallId ")
+      Logger.info(s"[Wall] user $userId quit from wall $wallId")
     }
 
   }
@@ -337,9 +329,9 @@ class WallActor(wallId: Long) extends Actor {
 
     // notify all producers
     connections.foreach {
-      case (_, producers) =>
-        producers.map { producerPair =>
-          val producer = producerPair._1
+      case (_, userConns) =>
+        userConns.foreach { connection =>
+          val producer = connection.enumerator
           if (producer == origin)
             producer.push(msg ++ Json.obj("mine" -> true, "timestamp" -> logId))
           else
