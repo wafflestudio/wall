@@ -10,7 +10,7 @@ import java.util.Date
 import java.sql.Timestamp
 import models.ActiveRecord._
 
-class Anorm extends Specification {
+class ORMSpec extends Specification {
   sequential
 
 	"ChatLog in ChatRoom" should {
@@ -27,8 +27,8 @@ class Anorm extends Specification {
 					println(chatLog.timestamp)
 				}
 				
-				ChatLog.delete(chatlogId)
-				ChatRoom.delete(roomId)
+				//ChatLog.delete(chatlogId) 
+				ChatRoom.delete(roomId) // deletes chatlog too
 				}
 				true
 			}

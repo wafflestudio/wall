@@ -8,22 +8,36 @@ import net.fwbrasil.activate.entity.Entity
 import net.fwbrasil.activate.entity.Alias
 import scala.reflect.runtime.universe._
 import scala.language.postfixOps
+import com.typesafe.config.ConfigFactory
+import play.Logger
+import org.apache.commons.codec.digest.DigestUtils
+import java.util.Date
 
 object ActiveRecord extends ActivateContext {
-//    val storage = new TransientMemoryStorage    
-    val storage = new PooledJdbcRelationalStorage {
-        val jdbcDriver = "org.h2.Driver"
-        val user = "infinitewall"
-        val password = ""
-        //val url = "jdbc:h2:mem:infinitewall;DB_CLOSE_DELAY=-1"
-        val url = "jdbc:h2:activatedwall"
-        val dialect = h2Dialect
-    }
-    
-    // FIXME: should be driven by database schema change
-    val sessionToken = ""
+  lazy val config = ConfigFactory.load()
+  lazy val host = config.getString("smtp.host")
+  
+  if(play.Play.isTest)
+    Logger.info("Activating ActiveRecord in test mode")
+  
+  val storage = new PooledJdbcRelationalStorage {
+      val jdbcDriver = "org.h2.Driver"
+      val user = "infinitewall"
+      val password = ""
+      val url = if(play.Play.isTest) "jdbc:h2:mem:infinitewall;DB_CLOSE_DELAY=-1" else "jdbc:h2:activatedwall"
+      val dialect = h2Dialect
+  }
+  
+  lazy val sessionToken = transactional {
+    val tokens = all[SessionToken]
+    if(tokens.isEmpty)
+      new SessionToken(DigestUtils.shaHex(new Date().toString)).token
+    else tokens.map(_.token).head
+  }
 
 }
+
+class SessionToken(val token:String) extends Entity
 
 
 abstract class ActiveRecord[ModelType <: Entity : Manifest] {
@@ -38,8 +52,10 @@ abstract class ActiveRecord[ModelType <: Entity : Manifest] {
   }
   
 
-  def delete(id:String) = transactional {
-    byId[ModelType](id).map(_.delete)
+  def delete(id:String) {
+    transactional {
+      byId[ModelType](id).map(_.delete)
+    }
   }
  
 }

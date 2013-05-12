@@ -122,7 +122,6 @@ object Sheet extends ActiveRecord[Sheet] {
     val p2 = scala.math.min(scala.math.max(0, offset + remove), str.length)
 
     str.substring(0, p1) + content + str.substring(p2, str.length)
-
   }
 
 }

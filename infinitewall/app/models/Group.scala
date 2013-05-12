@@ -97,4 +97,12 @@ object Group extends ActiveRecord[Group] {
       findById(id).map(_.name = name)
     }
   }
+  
+  override def delete(id:String)  {
+    transactional {
+      select[UserInGroup] where(_.group.id :== id)
+      select[WallInGroup] where(_.group.id :== id)
+      super.delete(id)
+    }
+  } 
 }

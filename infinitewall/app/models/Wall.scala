@@ -113,5 +113,20 @@ object Wall extends ActiveRecord[Wall] {
       findById(id).map(_.folder = folder)
     }
   }
+  
+  override def delete(id:String) {
+    transactional {
+      val wall = findById(id)
+      val sheets = select[Sheet] where(_.wall.id :== id)
+      val pref = select[WallPreference] where(_.wall.id :== id)
+      val logs = select[WallLog] where(_.wall.id :== id)
+      val chatroom = select[ChatRoom] where(_.wall :== wall)
+      sheets.map(_.delete)
+      pref.map(_.delete)
+      logs.map(_.delete)
+      chatroom.map(_.delete)
+      wall.map(_.delete)
+    }
+  }
 
 }
