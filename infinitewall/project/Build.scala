@@ -31,7 +31,7 @@ object ApplicationBuild extends Build {
     resolvers += Resolver.url("play-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
     resolvers += Resolver.url("play-plugin-frozens", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-frozens/"))(Resolver.ivyStylePatterns),
 		coffeescriptOptions := Seq("native", "coffee -p"),
-    scalacOptions ++= Seq("-feature")
+    scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
 		).settings(
             ScctPlugin.instrumentSettings : _*
 		).settings(parallelExecution in ScctPlugin.ScctTest := false)
