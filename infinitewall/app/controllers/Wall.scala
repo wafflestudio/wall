@@ -25,6 +25,9 @@ import models.RootFolder
 import org.apache.commons.codec.digest.DigestUtils
 import indexing._
 import models.ActiveRecord._
+import play.api.libs.Comet
+import scala.actors.Future
+
 
 object Wall extends Controller with Auth with Login {
 
@@ -94,8 +97,30 @@ object Wall extends Controller with Auth with Login {
     }
   }
 
-  def syncHttp(wallId: String, timestamp: Long = 0) = Action {
-    Ok("")
+  def syncHttp(wallId: String) = Action { request =>
+    import play.api.templates.Html
+    import play.api.libs.concurrent.Execution.Implicits._
+    
+    val params = request.queryString
+    val timestamp = params.get("timestamp").getOrElse(Seq("999"))(0).toLong
+//    val toCometMessage = Enumeratee.map[JsValue] { data => 
+//      Html("""<script>console.log('""" + data + """')</script>""")
+//    }
+    
+    val timeoutFuture = play.api.libs.concurrent.Promise.timeout("Oops", 2.seconds)
+    
+    request.session.get("current_user_id") match {
+      case Some(userId) =>
+        Async {
+          val futureChannels = WallSystem.establish(wallId, userId, timestamp)
+          scala.concurrent.Future.firstCompletedOf(Seq(
+              futureChannels.map(channels => Ok.stream(channels._2 &> Comet(callback = "console.log") )),
+              timeoutFuture.map(Ok(_))
+          ))
+        }
+      case None =>
+        Forbidden("Request wall with id " + wallId + " not accessible")
+    }
   }
 
   def delete(id: String) = AuthenticatedAction { implicit request =>

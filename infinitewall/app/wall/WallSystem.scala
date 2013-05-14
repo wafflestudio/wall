@@ -50,7 +50,7 @@ object WallSystem {
   implicit val timeout = Timeout(1 second)
   lazy val actor = Akka.system.actorOf(Props(new WallSystem))
 
-  def establish(wallId: String, userId: String, timestamp: Long): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def establish(wallId: String, userId: String, timestamp: Long, receiveOnly:Boolean = false): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
     val joinResult = actor ? JoinWall(wallId, userId, timestamp)
 
