@@ -112,11 +112,8 @@ object Wall extends Controller with Auth with Login {
     request.session.get("current_user_id") match {
       case Some(userId) =>
         Async {
-          val futureChannels = WallSystem.establish(wallId, userId, timestamp)
-          scala.concurrent.Future.firstCompletedOf(Seq(
-              futureChannels.map(channels => Ok.stream(channels._2 &> Comet(callback = "console.log") )),
-              timeoutFuture.map(Ok(_))
-          ))
+          WallSystem.establish(wallId, userId, timestamp).map(
+              channels => Ok.stream(channels._2 &> Comet(callback = "console.log") ))
         }
       case None =>
         Forbidden("Request wall with id " + wallId + " not accessible")
