@@ -120,8 +120,6 @@
         if(mode == 'zoomed') {
           mode = 'changing' 
 
-
-
           $(".currentwall").animate({margin:0}, 300, function() { mode = 'full'
             $('.wallContainer').each(function(idx, el) {
               $(el).removeClass('innershade')
@@ -186,5 +184,8 @@
       $(document).trigger("wallready")
     })
   </script>
+    
+  <!-- comet -->
+  <iframe id="cometFrame" src="@routes.Wall.syncHttp(wallId, timestamp)"></iframe>
 
   }

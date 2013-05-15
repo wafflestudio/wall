@@ -28,7 +28,7 @@ GET      /tree                                controllers.Wall.tree
 GET      /wall/:wallId                        controllers.Wall.stage(wallId:String)
 POST     /wall/create                         controllers.Wall.create
 GET      /wall/sync/:wallId                   controllers.Wall.sync(wallId:String)
-GET      /wall/comet/:wallId                  controllers.Wall.syncHttp(wallId:String)
+GET      /wall/comet/:wallId/:timestamp                  controllers.Wall.syncHttp(wallId:String, timestamp:Long)
 POST     /wall/view/:wallId                   controllers.Wall.setView(wallId:String)
 GET      /wall/search/:wallId/:keyword                        controllers.Wall.search(wallId:String, keyword:String)
 

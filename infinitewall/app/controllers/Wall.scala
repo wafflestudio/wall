@@ -97,12 +97,12 @@ object Wall extends Controller with Auth with Login {
     }
   }
 
-  def syncHttp(wallId: String) = Action { request =>
+  def syncHttp(wallId: String, timestamp:Long) = Action { request =>
     import play.api.templates.Html
     import play.api.libs.concurrent.Execution.Implicits._
     
-    val params = request.queryString
-    val timestamp = params.get("timestamp").getOrElse(Seq("999"))(0).toLong
+//    val params = request.queryString
+    //val timestamp = params.get("timestamp").getOrElse(Seq("999"))(0).toLong
 //    val toCometMessage = Enumeratee.map[JsValue] { data => 
 //      Html("""<script>console.log('""" + data + """')</script>""")
 //    }
@@ -113,7 +113,7 @@ object Wall extends Controller with Auth with Login {
       case Some(userId) =>
         Async {
           WallSystem.establish(wallId, userId, timestamp).map(
-              channels => Ok.stream(channels._2 &> Comet(callback = "console.log") ))
+              channels => Ok.stream(channels._2 &> Comet(callback = "parent.WallSocket.onCometReceive") ))
         }
       case None =>
         Forbidden("Request wall with id " + wallId + " not accessible")
