@@ -1,15 +1,5 @@
 #!/bin/bash
 
-# build (optionally) play itself
-if [ $USER == "jenkins_slave" ]; then
-	export PATH="$HOME/bin":"$HOME/bin/scala/bin":"`pwd`/Play20":$PATH
-
-	cd Play20/framework
-	set
-	./build publish-local
-	cd -
-fi
-
 cd infinitewall
 
 # compile
@@ -20,7 +10,7 @@ if [ -e RUNNING_PID ]; then
 	kill `cat RUNNING_PID`
 fi
 # DO it again in more general form for verification
-ps aux | grep play | awk '{ print $2 }' | xargs -I {} kill {}
+#ps aux | grep play | awk '{ print $2 }' | xargs -I {} kill {}
 
 if [ -e infinitewall.h2.db ]; then
 	echo "H2 database already exists."
