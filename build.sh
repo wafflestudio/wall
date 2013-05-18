@@ -1,7 +1,8 @@
 #!/bin/bash
 
 cd infinitewall
-
+export PATH="$HOME/bin":"$HOME/bin/scala/bin":"`pwd`/Play20":$PATH
+set
 # compile
 play compile
 
