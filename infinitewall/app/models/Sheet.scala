@@ -10,7 +10,7 @@ import ActiveRecord._
 
 
 
-class Sheet(var x: Double, var y: Double, var width: Double, var height: Double, var title: String, var wall: Wall, val isReference: Boolean) extends Entity {
+class Sheet(var x: Int, var y: Int, var width: Int, var height: Int, var title: String, var wall: Wall, val isReference: Boolean) extends Entity {
   def frozen() = transactional {
     val content = TextContent.findBySheetId(id).map(_.asInstanceOf[Content])
       .getOrElse(ImageContent.findBySheetId(id).get.asInstanceOf[Content]).frozen
@@ -21,7 +21,7 @@ class Sheet(var x: Double, var y: Double, var width: Double, var height: Double,
 
 object Sheet extends ActiveRecord[Sheet] {
 
-  case class Frozen(id: String, x: Double, y: Double, width: Double, height: Double, title: String, content: FrozenContent, wallId: String) {
+  case class Frozen(id: String, x: Int, y: Int, width: Int, height: Int, title: String, content: FrozenContent, wallId: String) {
     def toJson() = {
       Json.obj(
         "id" -> id,
@@ -43,7 +43,7 @@ object Sheet extends ActiveRecord[Sheet] {
   
   }
   
-  def create(x: Double, y: Double, width: Double, height: Double, title: String, contentType: String, content: String, wallId: String) = {
+  def create(x: Int, y: Int, width: Int, height: Int, title: String, contentType: String, content: String, wallId: String) = {
     val sheet =
       transactional {
         val wall = Wall.findById(wallId).get
@@ -70,7 +70,7 @@ object Sheet extends ActiveRecord[Sheet] {
   }
   
 
-  def move(id: String, x: Double, y: Double) = transactional {
+  def move(id: String, x: Int, y: Int) = transactional {
     findById(id).map { sheet =>
       sheet.x = x
       sheet.y = y
@@ -110,7 +110,7 @@ object Sheet extends ActiveRecord[Sheet] {
     SheetIndexManager.setTitle(id, title) //indexing
   }
 
-  def resize(id: String, width: Double, height: Double) = transactional {
+  def resize(id: String, width: Int, height: Int) = transactional {
     findById(id).map { sheet =>
       sheet.width = width
       sheet.height = height

@@ -23,9 +23,9 @@ sealed trait ActionDetailWithId extends ActionDetail {
 }
 
 case class Ack(userId: String, timestamp: Long) extends ActionDetail
-case class CreateAction(userId: String, timestamp: Long, title: String, contentType: String, content: String, x: Double, y: Double, width: Double, height: Double) extends ActionDetail
-case class MoveAction(userId: String, timestamp: Long, id: String, x: Double, y: Double) extends ActionDetailWithId
-case class ResizeAction(userId: String, timestamp: Long, id: String, width: Double, height: Double) extends ActionDetailWithId
+case class CreateAction(userId: String, timestamp: Long, title: String, contentType: String, content: String, x: Int, y: Int, width: Int, height: Int) extends ActionDetail
+case class MoveAction(userId: String, timestamp: Long, id: String, x: Int, y: Int) extends ActionDetailWithId
+case class ResizeAction(userId: String, timestamp: Long, id: String, width: Int, height: Int) extends ActionDetailWithId
 case class RemoveAction(userId: String, timestamp: Long, id: String) extends ActionDetailWithId
 case class SetTitleAction(userId: String, timestamp: Long, id: String, title: String) extends ActionDetailWithId
 case class SetTextAction(userId: String, timestamp: Long, id: String, text: String) extends ActionDetailWithId
@@ -60,10 +60,10 @@ object ActionDetail {
     def contentType = (params \ "contentType").as[String]
     def content = (params \ "content").as[String]
     def text = (params \ "text").as[String]
-    def x = (params \ "x").as[Double]
-    def y = (params \ "y").as[Double]
-    def width = (params \ "width").as[Double]
-    def height = (params \ "height").as[Double]
+    def x = (params \ "x").as[Int]
+    def y = (params \ "y").as[Int]
+    def width = (params \ "width").as[Int]
+    def height = (params \ "height").as[Int]
 
     def to_id = (params \ "to_id").as[String]
 
