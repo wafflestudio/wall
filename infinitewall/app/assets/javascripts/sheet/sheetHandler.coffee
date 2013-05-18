@@ -28,6 +28,7 @@ class window.SheetHandler
   startHeight: 0
   hasMoved: false
   myTouch: 0
+  resizeType: null
 
   constructor: (params) ->
     @sheet = params
@@ -150,49 +151,12 @@ class window.SheetHandler
       @sheet.currentLink.remove()
     @sheet.currentLink = null
 
-  onMouseMove: (e) =>
-    if stage.activeSheet is @sheet and @sheet.contentType is stage.contentTypeEnum.text
-      return false
-    else
-      @sheet.x = (@startx + e.pageX - @deltax) / stage.zoom
-      @sheet.y = (@starty + e.pageY - @deltay) / stage.zoom
-      @hasMoved = true
-      minimap.refresh()
-
-      for id, link of @sheet.links
-        link.refresh()
-   
   onMouseUp: (e) =>
     stage.leftClick = false
     stage.draggingSheet = null
     wall.removeLayer.reset()
     $(document).off 'mousemove', @onMouseMove
     $(document).off 'mouseup', @onMouseUp
-    @sheetOutline.element.remove()
-    @sheetOutline = null
-
-    if @hasMoved
-      @sheet.socketMove {
-        x: @sheet.x
-        y: @sheet.y
-      }
-      @sheet.element.find('.sheetTextField').blur()
-      @sheet.element.find('.sheetTitle').blur()
-    else
-      if stage.activeSheet and stage.activeSheet isnt @sheet
-        stage.activeSheet.resignActive()
-
-      @sheet.becomeActive()
-      wall.revealSheet()
-
-    return false
-
-  onMouseUpTwo: (e) =>
-    stage.leftClick = false
-    stage.draggingSheet = null
-    wall.removeLayer.reset()
-    $(document).off 'mousemove', @onMouseMoveTwo
-    $(document).off 'mouseup', @onMouseUpTwo
 
     if @hasMoved
       @sheet.txy(@gridCell.x, @gridCell.y)
@@ -215,7 +179,7 @@ class window.SheetHandler
     @gridCell = null
     return false
 
-  onMouseMoveTwo: (e) =>
+  onMouseMove: (e) =>
     if stage.activeSheet is @sheet and @sheet.contentType is stage.contentTypeEnum.text
       return false
     else
@@ -245,10 +209,8 @@ class window.SheetHandler
       @deltax = e.pageX
       @deltay = e.pageY
 
-      $(document).on 'mousemove', @onMouseMoveTwo
-      $(document).on 'mouseup', @onMouseUpTwo
-      #$(document).on 'mousemove', @onMouseMove
-      #$(document).on 'mouseup', @onMouseUp
+      $(document).on 'mousemove', @onMouseMove
+      $(document).on 'mouseup', @onMouseUp
 
     else if e.which is 3 # right click
       stage.rightClick = true
@@ -295,8 +257,12 @@ class window.SheetHandler
     $(document).on 'mouseup', @onResizeMouseUp
     @startWidth = @sheet.iw * stage.zoom
     @startHeight = @sheet.ih * stage.zoom
+    @startx = @sheet.x * stage.zoom
+    @starty = @sheet.y * stage.zoom
+
     @deltax = e.pageX
     @deltay = e.pageY
+    @resizeType = $(e.target).attr('class').split(" ")[2]
     return false
 
   onResizeMouseMove: (e) =>
@@ -312,6 +278,7 @@ class window.SheetHandler
       height: @sheet.ih
     }
     minimap.refresh()
+    @resizeType = null
 
   onMouseEnter: (e) =>
     if stage.rightClick

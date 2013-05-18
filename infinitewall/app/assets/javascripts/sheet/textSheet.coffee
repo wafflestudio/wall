@@ -19,15 +19,24 @@ textTemplate = "<div class='sheetBox' tabindex='-1'>
         <div class='sheetTextField' contenteditable='true'>
         </div>
       </div>
-      <div class='resizeHandle'></div>
+      <div class='resizeHandleContainer'>
+        <div class='resizeHandle resizeEdge resizeTop'></div>
+        <div class='resizeHandle resizeEdge resizeBottom'></div>
+        <div class='resizeHandle resizeEdge resizeLeft'></div>
+        <div class='resizeHandle resizeEdge resizeRight'></div>
+        <div class='resizeHandle resizeCorner resizeTopLeft'></div>
+        <div class='resizeHandle resizeCorner resizeTopRight'></div>
+        <div class='resizeHandle resizeCorner resizeBottomLeft'></div>
+        <div class='resizeHandle resizeCorner resizeBottomRight'></div>
+      </div>
     </div>
   </div>"
 
 
 class window.TextSheet extends Sheet
   @create: (content) ->
-    x = Math.random() * ($(window).width() - 225) * 0.9 / stage.zoom - (stage.scaleLayerX + (parseInt ($('#moveLayer').css 'x')) * stage.zoom) / stage.zoom
-    y = Math.random() * ($(window).height() - 74) * 0.9 / stage.zoom - (stage.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * stage.zoom) / stage.zoom
+    x = Math.floor(Math.random() * ($(window).width() - 225) * 0.9 / stage.zoom - (stage.scaleLayerX + (parseInt ($('#moveLayer').css 'x')) * stage.zoom) / stage.zoom)
+    y = Math.floor(Math.random() * ($(window).height() - 74) * 0.9 / stage.zoom - (stage.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * stage.zoom) / stage.zoom)
     w = 240
     h = 168
 
@@ -43,9 +52,9 @@ class window.TextSheet extends Sheet
     super(params)
     textfield = @element.find('.sheetTextField')
 
-    textfield.on 'resize', (e) =>
-      if $(e.target).height() > @ih
-        @ih = $(e.target).height()
+    #textfield.on 'resize', (e) =>
+      #if $(e.target).height() > @ih
+        #@ih = $(e.target).height()
 
     @baseText = params.content # used for rebuilding with @pending 
     @pending = [] # {basetimestamp, userid, original change, }
