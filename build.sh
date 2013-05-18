@@ -20,7 +20,7 @@ if [ -e RUNNING_PID ]; then
 	kill `cat RUNNING_PID`
 fi
 # DO it again in more general form for verification
-ps aux | grep play | awk '{ print $2 }' | xargs -I {} kill {}
+#ps aux | grep play | awk '{ print $2 }' | xargs -I {} kill {}
 
 if [ -e infinitewall.h2.db ]; then
 	echo "H2 database already exists."
@@ -45,7 +45,7 @@ play test
 
 # start the server
 play stage
-BUILD_ID=0 nohup target/start -Dhttp.port=9000 -DapplyEvolutions.default=true > log.log 2>&1 &
+BUILD_ID=0 nohup target/start -Dhttp.port=9001 -DapplyEvolutions.default=true > log.log 2>&1 &
 
 # for more detailed configuration:
 #target/start -Dconfig.file=/full/path/to/conf/application-prod.conf
