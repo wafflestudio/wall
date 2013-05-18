@@ -66,6 +66,7 @@ object ActionDetail {
     def height = (params \ "height").as[Int]
 
     def to_id = (params \ "to_id").as[String]
+    
 
     def operations = (params \ "operations").as[List[JsObject]].map { js =>
       val from = (js \ "from").as[Int]

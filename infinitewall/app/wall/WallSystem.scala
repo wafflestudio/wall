@@ -23,19 +23,19 @@ import utils.UsageSet
 // Messages
 // WallSystem -> WallSystem Actor
 case class JoinWall(wallId: String, userId: String, timestamp: Long)
-case class QuitWall(wallId: String, userId: String, producer: Enumerator[JsValue])
-case class ActionInWall(wallId: String, json: JsValue, detail: ActionDetail, producer: Enumerator[JsValue] = WallSystem.volatileEnumerator)
+case class QuitWall(wallId: String, userId: String, connectionId:Int)
+case class ActionInWall(wallId: String, json: JsValue, detail: ActionDetail, connectionId:Int)
 case class Finishing(wallId: String)
 case class FinishAccepted()
 case class RetryFinish()
 
 // WallSystem Actor -> Wall Actor
 case class Join(userId: String, timestamp: Long)
-case class Quit(userId: String, producer: Enumerator[JsValue])
-case class Action(json: JsValue, detail: ActionDetail, producer: Enumerator[JsValue] = WallSystem.volatileEnumerator)
+case class Quit(userId: String, connectionId:Int)
+case class Action(json: JsValue, detail: ActionDetail, connectionId:Int)
 
 // Wall Actor reply
-case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[JsValue])
+case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[JsValue], connectionId:Int)
 case class CannotConnect(msg: String)
 
 // Wall System (Delegate + Actor)
@@ -53,13 +53,13 @@ object WallSystem {
     val joinResult = actor ? JoinWall(wallId, userId, timestamp)
 
     joinResult.map {
-      case Connected(producer, prevMessages) =>
+      case Connected(producer, prevMessages, connectionId) =>
         // Create an Iteratee to consume the feed
         val consumer: Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] { json: JsValue =>
           Logger.info("received: " + json.toString)
-          actor ! ActionInWall(wallId, json, ActionDetail(userId, json), producer)
+          actor ! ActionInWall(wallId, json, ActionDetail(userId, json), connectionId)
         }.mapDone { _ =>
-          actor ! QuitWall(wallId, userId, producer)
+          actor ! QuitWall(wallId, userId, connectionId)
         }
 
         (consumer, prevMessages >>> producer)
@@ -82,8 +82,8 @@ object WallSystem {
     }
   }
 
-  def submitVolatileAction(wallId: String, userId: String, json:JsValue) = {
-    actor ? ActionInWall(wallId, json, ActionDetail(userId, json))
+  def submitVolatileAction(wallId: String, userId: String, connectionId:Int, json:JsValue) = {
+    actor ? ActionInWall(wallId, json, ActionDetail(userId, json), connectionId)
   }
 }
 
@@ -121,12 +121,12 @@ class WallSystem extends Actor {
     case JoinWall(wallId, userId, timestamp) =>
       val savedSender = sender
       (wall(wallId) ? Join(userId, timestamp)).map(savedSender ! _)
-    case QuitWall(wallId, userId, producer) =>
+    case QuitWall(wallId, userId, connectionId) =>
       val savedSender = sender
-      (wall(wallId) ? Quit(userId, producer)).map(savedSender ! _)
-    case ActionInWall(wallId, json, detail, producer) =>
+      (wall(wallId) ? Quit(userId, connectionId)).map(savedSender ! _)
+    case ActionInWall(wallId, json, detail, connectionId) =>
       val savedSender = sender
-      (wall(wallId) ? Action(json, detail, producer)).map(savedSender ! _)
+      (wall(wallId) ? Action(json, detail, connectionId)).map(savedSender ! _)
     case Finishing(wallId) =>
       if (System.currentTimeMillis() - lastAccessedTime(wallId) > WallSystem.shutdownFinalizeTimeout) {
         Logger.info("shutting down wall actor (" + wallId + ") due to inactivity")
