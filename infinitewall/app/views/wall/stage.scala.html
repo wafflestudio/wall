@@ -186,6 +186,15 @@
   </script>
     
   <!-- comet -->
-  <iframe id="cometFrame" src="@routes.Wall.listen(wallId, timestamp)"></iframe>
+<!--
+  <script type="text/javascript">
+    $( function() {
+        setTimeout(function() {
+            $("<iframe id='cometFrame' src='@routes.Wall.listen(wallId, timestamp)'></iframe>").appendTo($("body"))
+        }, 4000)
+    })
+  </script>
+-->
+  
 
   }
