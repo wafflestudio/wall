@@ -4,11 +4,20 @@ imageTemplate = "<div class='sheetBox' tabindex='-1'>
         <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
       </div>
       <div class='sheetImage'></div>
-      <div class='sheetText'>
-        <div class='sheetTextField' contenteditable='true'>
-        </div>
+      <!--<div class='sheetText'>-->
+        <!--<div class='sheetTextField' contenteditable='true'>-->
+        <!--</div>-->
+      <!--</div>-->
+      <div class='resizeHandleContainer'>
+        <div class='resizeHandle resizeEdge resizeTop'></div>
+        <div class='resizeHandle resizeEdge resizeBottom'></div>
+        <div class='resizeHandle resizeEdge resizeLeft'></div>
+        <div class='resizeHandle resizeEdge resizeRight'></div>
+        <div class='resizeHandle resizeCorner resizeTopLeft'></div>
+        <div class='resizeHandle resizeCorner resizeTopRight'></div>
+        <div class='resizeHandle resizeCorner resizeBottomLeft'></div>
+        <div class='resizeHandle resizeCorner resizeBottomRight'></div>
       </div>
-      <div class='resizeHandle'></div>
     </div>
   </div>"
 
