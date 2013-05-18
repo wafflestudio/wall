@@ -116,6 +116,19 @@ object Sheet extends ActiveRecord[Sheet] {
       sheet.height = height
     }
   }
+  
+  override def delete(id:String) {
+    transactional {
+      val sheetlinks = select[SheetLink] where(link => (link.fromSheet.id :== id) :|| (link.toSheet.id :== id))
+      val textContents = select[TextContent] where(_.sheet.id :== id)
+      val imageContents = select[ImageContent] where(_.sheet.id :== id)
+      // TODO: more general content per type delete?
+      sheetlinks.map(_.delete)
+      textContents.map(_.delete)
+      imageContents.map(_.delete)
+      super.delete(id)
+    }
+  }
 
   private def spliceText(str: String, offset: Int, remove: Int, content: String) = {
     val p1 = scala.math.min(scala.math.max(0, offset), str.length)
