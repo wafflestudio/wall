@@ -39,11 +39,6 @@ class WallActor(wallId: String) extends Actor {
   var recentRecords = List[Record]()
   // shutdown timer activated when no connection is left to the actor
   var shutdownTimer: Option[akka.actor.Cancellable] = None
-  
-  // TODO: complete this
-  def loadRecords(minTs:Long) = {
-    
-  }
 
   def prevLogs(timestamp: Long) = WallLog.list(wallId, timestamp).map(_.frozen)
   def logMessage(kind: String, basetimestamp: Long, userId: String, message: String) = WallLog.create(kind, wallId, basetimestamp, userId, message).frozen.timestamp
