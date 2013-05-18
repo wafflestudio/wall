@@ -21,6 +21,10 @@ import models.ActiveRecord._
 import utils.UsageSet
 
 
+// Record used for tracking text change (cache)
+case class Record(timestamp: Long, sheetId: String, baseText: String, resultText: String, consolidated: Operation, conn: Enumerator[JsValue])
+
+
 class WallActor(wallId: String) extends Actor {
 
   implicit def toDouble(value: JsValue) = { value.as[Double] }
@@ -78,8 +82,8 @@ class WallActor(wallId: String) extends Actor {
 
   def cleanRecentRecords() = {
     var minTs: Long = 0
-    connections.foreach {
-      _._2.foreach { conn =>
+    connections.foreach { case (_,userConns) =>
+      userConns.foreach { conn =>
         if (minTs == 0 || conn.timestamp < minTs)
           minTs = conn.timestamp
       }
@@ -124,16 +128,16 @@ class WallActor(wallId: String) extends Actor {
         shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Finishing(wallId) })
 
     // ACK
-    case Action(detail, ack: Ack, origin) =>
+    case Action(json, ack: Ack, origin) =>
       Logger.debug("ack came(" + ack.timestamp + ").")
       updateTimestamp(ack.userId, ack.timestamp, origin)
       cleanRecentRecords()
     // Create Action
-    case Action(detail, c: CreateAction, origin) =>
+    case Action(json, c: CreateAction, origin) =>
       val sheetId = Sheet.create(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId).frozen.id
-      notifyAll("action", c.timestamp, c.userId, (detail.as[JsObject] ++ Json.obj("id" -> sheetId)).toString, origin)
+      notifyAll("action", c.timestamp, c.userId, (json.as[JsObject] ++ Json.obj("id" -> sheetId)).toString, origin)
     // Other Action
-    case Action(detail, action: ActionDetailWithId, origin) =>
+    case Action(json, action: ActionDetailWithId, origin) =>
       Sheet.findById(action.id).map(_.frozen).map { sheet =>
 
         action match {
@@ -182,7 +186,7 @@ class WallActor(wallId: String) extends Actor {
         action match {
           case a: AlterTextAction =>
           case _ =>
-            notifyAll("action", action.timestamp, action.userId, detail.toString, origin)
+            notifyAll("action", action.timestamp, action.userId, json.toString, origin)
         }
       }
 

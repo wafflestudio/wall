@@ -38,9 +38,6 @@ case class Action(json: JsValue, detail: ActionDetail, producer: Enumerator[JsVa
 case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[JsValue])
 case class CannotConnect(msg: String)
 
-// Record used for tracking text change (cache)
-case class Record(timestamp: Long, sheetId: String, baseText: String, resultText: String, consolidated: Operation, conn: Enumerator[JsValue])
-
 // Wall System (Delegate + Actor)
 object WallSystem {
   val shutdownInitiateTimeout = 60 * 1000

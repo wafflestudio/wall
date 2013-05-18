@@ -35,8 +35,9 @@ fi
 
 # use existing files
 if [ $USER == "jenkins_slave" ]; then
-	rm -rf public/files
-	ln -s /home/jenkins_slave/infinitewall/public/files public/files
+	if [ ! -d "public/files" ]; then
+    ln -s /home/jenkins_slave/infinitewall_custom/public/files public/files
+  fi
 fi
 
 # run tests

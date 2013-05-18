@@ -28,7 +28,6 @@ import models.ActiveRecord._
 import play.api.libs.Comet
 import scala.actors.Future
 
-
 object Wall extends Controller with Auth with Login {
 
   def index = AuthenticatedAction { implicit request =>
@@ -83,11 +82,11 @@ object Wall extends Controller with Auth with Login {
     Redirect(routes.Wall.stage(wallId))
   }
 
-  def sync(wallId: String) = WebSocket.async[JsValue] { request =>
+  def sync(wallId: String) = WebSocket.async[JsValue] { implicit request =>
     val params = request.queryString
     val timestamp = params.get("timestamp").getOrElse(Seq("999"))(0).toLong
-    
-    request.session.get("current_user_id") match {
+
+    currentUserIdOption match {
       case Some(userId) =>
         WallSystem.establish(wallId, userId, timestamp)
       case None =>
@@ -97,23 +96,25 @@ object Wall extends Controller with Auth with Login {
     }
   }
 
-  def syncHttp(wallId: String, timestamp:Long) = Action { request =>
+  def speak(wallId: String) = Action { request =>
+    val params = request.queryString
+    val jsonStr = params.get("action").getOrElse(Seq(""))(0)
+    val json = Json.parse(jsonStr)
+    
+    Ok("")
+  }
+
+  def listen(wallId: String, timestamp: Long) = Action { implicit request =>
     import play.api.templates.Html
     import play.api.libs.concurrent.Execution.Implicits._
-    
-//    val params = request.queryString
-    //val timestamp = params.get("timestamp").getOrElse(Seq("999"))(0).toLong
-//    val toCometMessage = Enumeratee.map[JsValue] { data => 
-//      Html("""<script>console.log('""" + data + """')</script>""")
-//    }
-    
+
     val timeoutFuture = play.api.libs.concurrent.Promise.timeout("Oops", 2.seconds)
-    
-    request.session.get("current_user_id") match {
+
+    currentUserIdOption match {
       case Some(userId) =>
         Async {
           WallSystem.establish(wallId, userId, timestamp).map(
-              channels => Ok.stream(channels._2 &> Comet(callback = "parent.WallSocket.onCometReceive") ))
+            channels => Ok.stream(channels._2 &> Comet(callback = "parent.WallSocket.onCometReceive")))
         }
       case None =>
         Forbidden("Request wall with id " + wallId + " not accessible")
@@ -139,7 +140,6 @@ object Wall extends Controller with Auth with Login {
     val results = SheetIndexManager.search(wallId, keyword)
     Ok(Json.toJson(results))
   }
-
 
   def rename(wallId: String, name: String) = AuthenticatedAction { implicit request =>
     models.Wall.rename(wallId, name)

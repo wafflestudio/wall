@@ -26,12 +26,16 @@ case class CurrentUser(val userId:String , val email: String)
 trait Auth {
   self: Controller =>
 
-  def currentUser(implicit request: Request[AnyContent]): String = {
+  def currentUser[Content <: AnyContent](implicit request: { def session:Session }): String = {
     request.session.get("current_user").getOrElse("default")
   }
 
-  def currentUserId(implicit request: Request[AnyContent]): String = {
-    request.session.get("current_user_id").getOrElse("")
+  def currentUserId[Content <: AnyContent](implicit request: { def session:Session }): String = {
+    currentUserIdOption.getOrElse("UNAUTHORIZED")
+  }
+  
+  def currentUserIdOption[Content <: AnyContent](implicit request: { def session:Session } ) = {
+    request.session.get("current_user_id")
   }
 
   def currentUserNickname(implicit request: Request[AnyContent]): String = {
