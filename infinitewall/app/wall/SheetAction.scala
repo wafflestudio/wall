@@ -29,7 +29,7 @@ case class ResizeAction(userId: String, timestamp: Long, id: String, width: Int,
 case class RemoveAction(userId: String, timestamp: Long, id: String) extends ActionDetailWithId
 case class SetTitleAction(userId: String, timestamp: Long, id: String, title: String) extends ActionDetailWithId
 case class SetTextAction(userId: String, timestamp: Long, id: String, text: String) extends ActionDetailWithId
-case class AlterTextAction(userId: String, timestamp: Long, id: String, operations: List[OperationWithState]) extends ActionDetailWithId {
+case class AlterTextAction(userId: String, timestamp: Long, id: String, operations: List[OperationWithState], undoOperation:Operation) extends ActionDetailWithId {
 
   def singleJson = {
     val last = operations.last
@@ -40,6 +40,11 @@ case class AlterTextAction(userId: String, timestamp: Long, id: String, operatio
         "content" -> last.op.content,
         "msgId" -> last.msgId,
         "id" -> id
+      ), 
+      "undo" -> Json.obj(
+        "from" -> undoOperation.from,
+        "length" -> undoOperation.length,
+        "content" -> undoOperation.content
       )
     )
   }
@@ -66,7 +71,6 @@ object ActionDetail {
     def height = (params \ "height").as[Int]
 
     def to_id = (params \ "to_id").as[String]
-    
 
     def operations = (params \ "operations").as[List[JsObject]].map { js =>
       val from = (js \ "from").as[Int]
@@ -95,7 +99,7 @@ object ActionDetail {
           SetTextAction(userId, timestamp, id, text)
         case "alterText" =>
           //Logger.info(content)
-          AlterTextAction(userId, timestamp, id, operations)
+          AlterTextAction(userId, timestamp, id, operations, Operation.blank)
         case "setLink" =>
           SetLinkAction(userId, timestamp, id, to_id)
         case "removeLink" =>

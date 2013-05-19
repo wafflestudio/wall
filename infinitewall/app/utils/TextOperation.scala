@@ -2,6 +2,10 @@ package utils
 
 case class Operation(from: Int, length: Int, content: String)
 
+object Operation {
+  val blank = Operation(0,0,"")
+}
+
 class CharWithState(val char: Char, var insertedBy: Set[Int] = Set(), var deletedBy: Set[Int] = Set())
 
 class StringWithState(str: String) {

@@ -121,8 +121,9 @@ class WallActor(wallId: String) extends Actor {
             }
 
             val newOp = pending.head.op
-            val (baseText, resultText) = Sheet.alterText(action.id, newOp.from, newOp.length, newOp.content)
-            val newAction = AlterTextAction(action.userId, action.timestamp, action.id, List(OperationWithState(newOp, action.operations.last.msgId)))
+            val (baseText, resultText, undoOp) = Sheet.alterText(action.id, newOp.from, newOp.length, newOp.content)
+            val newAction = AlterTextAction(action.userId, action.timestamp, action.id, 
+                List(OperationWithState(newOp, action.operations.last.msgId)), undoOp)
             val newTimestamp = notifyAll("action", action.timestamp, action.userId, newAction.singleJson.toString, connectionId)
 
             recentRecords = recentRecords :+ Record(newTimestamp, action.id, baseText, resultText, newOp, connectionId)

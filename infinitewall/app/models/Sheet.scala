@@ -7,6 +7,7 @@ import play.api.Logger
 import org.apache.commons.lang.StringEscapeUtils._
 import indexing._
 import ActiveRecord._
+import utils.Operation
 
 
 
@@ -87,14 +88,15 @@ object Sheet extends ActiveRecord[Sheet] {
     SheetIndexManager.setText(id, text) //indexing
   }
 
-  def alterText(id: String, from: Int, length: Int, text: String): (String, String) = transactional {
+  def alterText(id: String, from: Int, length: Int, text: String) = transactional {
     val baseText = TextContent.findBySheetId(id).get.text
 
     try {
-      val alteredText = spliceText(baseText, from, length, text)
-      Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"")
+      val (alteredText, undo) = spliceText(baseText, from, length, text)
+      Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"" + " " + undo.toString())
+     
       setText(id, alteredText)
-      (baseText, alteredText)
+      (baseText, alteredText, undo)
     }
     catch {
       case e: Exception =>
@@ -133,8 +135,23 @@ object Sheet extends ActiveRecord[Sheet] {
   private def spliceText(str: String, offset: Int, remove: Int, content: String) = {
     val p1 = scala.math.min(scala.math.max(0, offset), str.length)
     val p2 = scala.math.min(scala.math.max(0, offset + remove), str.length)
+    
+    assert(p1 == offset)
+    assert(p2 == offset + remove)
 
-    str.substring(0, p1) + content + str.substring(p2, str.length)
+    val alteredText = str.substring(0, p1) + content + str.substring(p2, str.length)
+    val undoOp = {
+      val remove_ = content.length
+      val p1_ = p1
+      val p2_ = scala.math.min(scala.math.max(0, offset + remove_), alteredText.length)
+      val content_ = str.substring(p1, p2)
+      val originalText = alteredText.substring(0, p1_) + content_ + alteredText.substring(p2_, alteredText.length)
+      Logger.info(str + ":" + originalText)
+      assert(str == originalText)
+      Operation(p1_, remove_, content_)
+    }
+    
+    (alteredText, undoOp)
   }
 
 }
