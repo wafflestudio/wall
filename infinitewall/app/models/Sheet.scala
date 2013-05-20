@@ -7,6 +7,7 @@ import play.api.Logger
 import org.apache.commons.lang.StringEscapeUtils._
 import indexing._
 import ActiveRecord._
+import utils.Operation
 
 
 
@@ -24,7 +25,7 @@ object Sheet extends ActiveRecord[Sheet] {
   case class Frozen(id: String, x: Int, y: Int, width: Int, height: Int, title: String, content: FrozenContent, wallId: String) {
     def toJson() = {
       Json.obj(
-        "id" -> id,
+        "sheetId" -> id,
         "x" -> x,
         "y" -> y,
         "width" -> width,
@@ -87,18 +88,19 @@ object Sheet extends ActiveRecord[Sheet] {
     SheetIndexManager.setText(id, text) //indexing
   }
 
-  def alterText(id: String, from: Int, length: Int, text: String): (String, String) = transactional {
+  def alterText(id: String, operation:Operation) = transactional {
     val baseText = TextContent.findBySheetId(id).get.text
 
     try {
-      val alteredText = spliceText(baseText, from, length, text)
-      Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"")
+      val (alteredText, undo) = operation.applyAndCreateUndo(baseText)
+      Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"" + " " + undo.toString())
+     
       setText(id, alteredText)
-      (baseText, alteredText)
+      (baseText, alteredText, undo)
     }
     catch {
       case e: Exception =>
-        Logger.error("bad alter text operation:" + from + ", " + length + "," + text + " => " + baseText)
+        Logger.error("bad alter text operation:" + operation + " => " + baseText)
         throw e
     }
   }
@@ -120,21 +122,11 @@ object Sheet extends ActiveRecord[Sheet] {
   override def delete(id:String) {
     transactional {
       val sheetlinks = select[SheetLink] where(link => (link.fromSheet.id :== id) :|| (link.toSheet.id :== id))
-      val textContents = select[TextContent] where(_.sheet.id :== id)
-      val imageContents = select[ImageContent] where(_.sheet.id :== id)
-      // TODO: more general content per type delete?
+      val contents = select[Content] where(_.sheet.id :== id)
       sheetlinks.map(_.delete)
-      textContents.map(_.delete)
-      imageContents.map(_.delete)
+      contents.map(_.delete)
       super.delete(id)
     }
-  }
-
-  private def spliceText(str: String, offset: Int, remove: Int, content: String) = {
-    val p1 = scala.math.min(scala.math.max(0, offset), str.length)
-    val p2 = scala.math.min(scala.math.max(0, offset + remove), str.length)
-
-    str.substring(0, p1) + content + str.substring(p2, str.length)
   }
 
 }

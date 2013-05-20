@@ -15,21 +15,21 @@ sealed trait ActionDetail {
 }
 
 sealed trait ActionDetailWithId extends ActionDetail {
-  val id: String
+  val sheetId: String
 
   override def json = {
-    super.json ++ Json.obj("params" -> Json.obj("id" -> id))
+    super.json ++ Json.obj("params" -> Json.obj("sheetId" -> sheetId))
   }
 }
 
 case class Ack(userId: String, timestamp: Long) extends ActionDetail
 case class CreateAction(userId: String, timestamp: Long, title: String, contentType: String, content: String, x: Int, y: Int, width: Int, height: Int) extends ActionDetail
-case class MoveAction(userId: String, timestamp: Long, id: String, x: Int, y: Int) extends ActionDetailWithId
-case class ResizeAction(userId: String, timestamp: Long, id: String, width: Int, height: Int) extends ActionDetailWithId
-case class RemoveAction(userId: String, timestamp: Long, id: String) extends ActionDetailWithId
-case class SetTitleAction(userId: String, timestamp: Long, id: String, title: String) extends ActionDetailWithId
-case class SetTextAction(userId: String, timestamp: Long, id: String, text: String) extends ActionDetailWithId
-case class AlterTextAction(userId: String, timestamp: Long, id: String, operations: List[OperationWithState]) extends ActionDetailWithId {
+case class MoveAction(userId: String, timestamp: Long, sheetId: String, x: Int, y: Int) extends ActionDetailWithId
+case class ResizeAction(userId: String, timestamp: Long, sheetId: String, width: Int, height: Int) extends ActionDetailWithId
+case class RemoveAction(userId: String, timestamp: Long, sheetId: String) extends ActionDetailWithId
+case class SetTitleAction(userId: String, timestamp: Long, sheetId: String, title: String) extends ActionDetailWithId
+case class SetTextAction(userId: String, timestamp: Long, sheetId: String, text: String) extends ActionDetailWithId
+case class AlterTextAction(userId: String, timestamp: Long, sheetId: String, operations: List[OperationWithState], undoOperation:Operation) extends ActionDetailWithId {
 
   def singleJson = {
     val last = operations.last
@@ -39,13 +39,18 @@ case class AlterTextAction(userId: String, timestamp: Long, id: String, operatio
         "length" -> last.op.length,
         "content" -> last.op.content,
         "msgId" -> last.msgId,
-        "id" -> id
+        "sheetId" -> sheetId
+      ), 
+      "undo" -> Json.obj(
+        "from" -> undoOperation.from,
+        "length" -> undoOperation.length,
+        "content" -> undoOperation.content
       )
     )
   }
 }
-case class SetLinkAction(userId: String, timestamp: Long, id: String, to_id: String) extends ActionDetailWithId
-case class RemoveLinkAction(userId: String, timestamp: Long, id: String, to_id: String) extends ActionDetailWithId
+case class SetLinkAction(userId: String, timestamp: Long, sheetId: String, toSheetId: String) extends ActionDetailWithId
+case class RemoveLinkAction(userId: String, timestamp: Long, sheetId: String, toSheetId: String) extends ActionDetailWithId
 
 case class OperationWithState(op: Operation, msgId: Long)
 
@@ -55,7 +60,7 @@ object ActionDetail {
     val actionType = (json \ "action").as[String]
     val timestamp = (json \ "timestamp").as[Long]
     val params = (json \ "params")
-    def id = (params \ "id").as[String]
+    def sheetId = (params \ "sheetId").as[String]
     def title = (params \ "title").as[String]
     def contentType = (params \ "contentType").as[String]
     def content = (params \ "content").as[String]
@@ -65,7 +70,8 @@ object ActionDetail {
     def width = (params \ "width").as[Int]
     def height = (params \ "height").as[Int]
 
-    def to_id = (params \ "to_id").as[String]
+    def fromSheetId = (params \ "fromSheetId").as[String]
+    def toSheetId = (params \ "toSheetId").as[String]
 
     def operations = (params \ "operations").as[List[JsObject]].map { js =>
       val from = (js \ "from").as[Int]
@@ -83,22 +89,22 @@ object ActionDetail {
     else {
       actionType match {
         case "move" =>
-          MoveAction(userId, timestamp, id, x, y)
+          MoveAction(userId, timestamp, sheetId, x, y)
         case "resize" =>
-          ResizeAction(userId, timestamp, id, width, height)
+          ResizeAction(userId, timestamp, sheetId, width, height)
         case "remove" =>
-          RemoveAction(userId, timestamp, id)
+          RemoveAction(userId, timestamp, sheetId)
         case "setTitle" =>
-          SetTitleAction(userId, timestamp, id, title)
+          SetTitleAction(userId, timestamp, sheetId, title)
         case "setText" =>
-          SetTextAction(userId, timestamp, id, text)
+          SetTextAction(userId, timestamp, sheetId, text)
         case "alterText" =>
           //Logger.info(content)
-          AlterTextAction(userId, timestamp, id, operations)
+          AlterTextAction(userId, timestamp, sheetId, operations, Operation.blank)
         case "setLink" =>
-          SetLinkAction(userId, timestamp, id, to_id)
+          SetLinkAction(userId, timestamp, fromSheetId, toSheetId)
         case "removeLink" =>
-          RemoveLinkAction(userId, timestamp, id, to_id)
+          RemoveLinkAction(userId, timestamp, fromSheetId, toSheetId)
 
       }
     }

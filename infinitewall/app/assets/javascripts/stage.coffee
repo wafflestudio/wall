@@ -20,10 +20,10 @@ class window.Stage
   }
   zCount: 1
 
-  createSheet: (id, params, timestamp) ->
+  createSheet: (sheetId, params, timestamp) ->
     switch params.contentType
-      when @contentTypeEnum.text then new TextSheet($.extend(params, {id : id}), timestamp)
-      when @contentTypeEnum.image then new ImageSheet($.extend(params, {id : id}))
+      when @contentTypeEnum.text then new TextSheet($.extend(params, {id : sheetId}), timestamp)
+      when @contentTypeEnum.image then new ImageSheet($.extend(params, {id : sheetId}))
 
   createSheetLink: (params, timestamp) ->
     @sheets[params.from_id].setLink(params)
