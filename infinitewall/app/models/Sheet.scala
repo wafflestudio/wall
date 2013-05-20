@@ -122,12 +122,9 @@ object Sheet extends ActiveRecord[Sheet] {
   override def delete(id:String) {
     transactional {
       val sheetlinks = select[SheetLink] where(link => (link.fromSheet.id :== id) :|| (link.toSheet.id :== id))
-      val textContents = select[TextContent] where(_.sheet.id :== id)
-      val imageContents = select[ImageContent] where(_.sheet.id :== id)
-      // TODO: more general content per type delete?
+      val contents = select[Content] where(_.sheet.id :== id)
       sheetlinks.map(_.delete)
-      textContents.map(_.delete)
-      imageContents.map(_.delete)
+      contents.map(_.delete)
       super.delete(id)
     }
   }

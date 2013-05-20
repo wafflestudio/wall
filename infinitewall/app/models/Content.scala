@@ -4,11 +4,9 @@ package models
 import play.api.Play.current
 import ActiveRecord._
 
-object ContentType extends Enumeration {
-  case class ContentType(name:String) extends Val(name)
-  
-  val TextType = ContentType("text")
-  val ImageType = ContentType("image")
+object ContentType {
+  val TextType = "text"
+  val ImageType = "image"
 }
 
 sealed trait FrozenContent
@@ -19,6 +17,7 @@ sealed trait FrozenContent
 
 abstract class Content extends Entity {
   def frozen:FrozenContent
+  val sheet:Sheet
 }
 
 class TextContent(var text:String, var scrollX:Int, var scrollY:Int, val sheet:Sheet) extends Content
