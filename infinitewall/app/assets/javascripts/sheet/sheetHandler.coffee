@@ -273,6 +273,12 @@ class window.SheetHandler
     $(document).off 'mousemove', @onResizeMouseMove
     $(document).off 'mouseup', @onResizeMouseUp
 
+    if @startx isnt @sheet.x or @starty isnt @sheet.y
+      @sheet.socketMove {
+        x: @sheet.x
+        y: @sheet.y
+      }
+
     @sheet.socketResize {
       width: @sheet.iw
       height: @sheet.ih
