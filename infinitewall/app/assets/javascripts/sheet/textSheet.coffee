@@ -59,7 +59,7 @@ class window.TextSheet extends Sheet
     @baseText = params.content # used for rebuilding with @pending 
     @pending = [] # {basetimestamp, userid, original change, }
     @msgId = 0
-    @id = params.id
+    @id = params.sheetId
     @textfield = textfield
     @timestamp = timestamp
 
@@ -203,8 +203,8 @@ class window.TextSheet extends Sheet
         @msgId++
         operation.msgId = @msgId
         @pending.push(operation)
-        wallSocket.sendAction({action:"alterText", timestamp:@timestamp, params:{id:@id, operations:@pending}})
-        #for test: #wallSocket.sendActionDelayed({action:"alterText", timestamp:@timestamp, params:{id:@id, operations:@pending}}, 2000)
+        wallSocket.sendAction({action:"alterText", timestamp:@timestamp, params:{sheetId:@id, operations:@pending}})
+        #for test: #wallSocket.sendActionDelayed({action:"alterText", timestamp:@timestamp, params:{sheetId:@id, operations:@pending}}, 2000)
 
     # activate focus event handlers:
     $(textfield).focusin ()=>

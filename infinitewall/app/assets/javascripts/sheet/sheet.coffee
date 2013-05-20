@@ -8,11 +8,11 @@ class window.Sheet extends Movable
   setElement: (params) ->
   constructor: (params) ->
     super(true)
-    @id = params.id
+    @id = params.sheetId
     @setElement()
     @xyiwh(params.x, params.y, params.width, params.height)
 
-    @element.attr 'id', 'sheet' + params.id
+    @element.attr 'id', 'sheet' + @id
     @links = new Object()
     
     prevTitle = params.title
@@ -34,29 +34,29 @@ class window.Sheet extends Movable
     @attachHandler()
 
     stage.miniSheets[@id] = minimap.createMiniSheet(params)
-    stage.sheets[params.id] = this
+    stage.sheets[@id] = this
     minimap.refresh()
 
   type: ->
     @element.attr('contentType')
    
   socketMove: (params) ->
-    wallSocket.sendAction {action : 'move', params : $.extend(params, {id : @id})}
+    wallSocket.sendAction {action : 'move', params : $.extend(params, {sheetId : @id})}
 
   socketResize: (params) ->
-    wallSocket.sendAction {action : 'resize', params : $.extend(params, {id : @id})}
+    wallSocket.sendAction {action : 'resize', params : $.extend(params, {sheetId : @id})}
 
   socketRemove: ->
-    wallSocket.sendAction {action : 'remove', params : {id : @id}}
+    wallSocket.sendAction {action : 'remove', params : {sheetId : @id}}
 
   socketSetTitle: ->
-    wallSocket.sendAction {action : 'setTitle', params : {id : @id, title : @element.find('.sheetTitle').html()}}
+    wallSocket.sendAction {action : 'setTitle', params : {sheetId : @id, title : @element.find('.sheetTitle').html()}}
 
   socketSetLink: (to_id) ->
-    wallSocket.sendAction {action : 'setLink', params: {id: @id, to_id: to_id}}
+    wallSocket.sendAction {action : 'setLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: to_id}}
     
   socketRemoveLink: (to_id) ->
-    wallSocket.sendAction {action : 'removeLink', params: {id: @id, to_id: to_id}}
+    wallSocket.sendAction {action : 'removeLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: to_id}}
 
   attachHandler: ->
 
@@ -70,7 +70,7 @@ class window.Sheet extends Movable
     @refreshLinks(params.x, params.y, @w, @h)
 
     minimap.refresh {
-      id: params.id
+      id: params.sheetId
       x: params.x
       y: params.y
       w: @w
@@ -82,7 +82,7 @@ class window.Sheet extends Movable
     @tiWH(params.width, params.height)
     @refreshLinks(@x, @y, params.width, params.height)
     minimap.refresh {
-      id: params.id
+      id: params.sheetId
       x: @x
       y: @y
       w: params.width
@@ -132,12 +132,12 @@ class window.Sheet extends Movable
 
   setLink: (params) ->
     @newLinkLine = new LinkLine(@id)
-    @newLinkLine.connect(params.to_id)
+    @newLinkLine.connect(params.toSheetId)
 
   removeLink: (params) ->
     @links[params.to_id].remove()
-    delete @links[params.to_id]
-    delete stage.sheets[params.to_id].links[params.from_id]
+    delete @links[params.toSheetId]
+    delete stage.sheets[params.to_id].links[params.fromSheetId]
 
   refreshLinks: (x, y, w, h) ->
     for id, link of @links

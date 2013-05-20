@@ -22,8 +22,9 @@ object SheetLink extends ActiveRecord[SheetLink] {
     def toJson() = {
       Json.obj(
         "id" -> id,
-        "from_id" -> fromId,
-        "to_id" -> toId,
+        "sheetId" -> fromId,
+        "fromSheetId" -> fromId, // added redundancy... remove?
+        "toSheetId" -> toId,
         "wall_id" -> wallId
       ).toString()
     }

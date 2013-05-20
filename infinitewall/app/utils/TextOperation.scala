@@ -1,6 +1,43 @@
 package utils
 
-case class Operation(from: Int, length: Int, content: String)
+import play.Logger
+
+case class Operation(from: Int, length: Int, content: String) {
+  
+  def apply(str: String) = {
+    val p1 = scala.math.min(scala.math.max(0, from), str.length)
+    val p2 = scala.math.min(scala.math.max(0, from + length), str.length)
+    
+    assert(p1 == from)
+    assert(p2 == from + length)
+    
+    str.substring(0, p1) + content + str.substring(p2, str.length)
+  }
+  
+  def applyAndCreateUndo(str:String) = {
+    val p1 = scala.math.min(scala.math.max(0, from), str.length)
+    val p2 = scala.math.min(scala.math.max(0, from + length), str.length)
+    
+    assert(p1 == from, { Logger.error(s"p1($p1) != from($from)") })
+    assert(p2 == from + length, { Logger.error(s"p2($p2) != from + length($from + $length)") })
+
+    val alteredText = str.substring(0, p1) + content + str.substring(p2, str.length)
+    val undoOp = {
+      val remove_ = content.length
+      val p1_ = p1
+      val p2_ = scala.math.min(scala.math.max(0, from + remove_), alteredText.length)
+      val content_ = str.substring(p1, p2)
+      val originalText = alteredText.substring(0, p1_) + content_ + alteredText.substring(p2_, alteredText.length)
+      assert(str == originalText)
+      Operation(p1_, remove_, content_)
+    }
+    
+    (alteredText, undoOp)
+  }
+  
+  override def toString() = "[from: " + from + ", remove: " + length + ", content: " + content +"]"  
+  
+}
 
 object Operation {
   val blank = Operation(0,0,"")

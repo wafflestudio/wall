@@ -88,17 +88,17 @@ class WallActor(wallId: String) extends Actor {
       notifyAll("action", c.timestamp, c.userId, (json.as[JsObject] ++ Json.obj("id" -> sheetId)).toString, connectionId)
     // Other Action
     case Action(json, action: ActionDetailWithId, connectionId) =>
-      Sheet.findById(action.id).map(_.frozen).map { sheet =>
+      Sheet.findById(action.sheetId).map(_.frozen).map { sheet =>
 
         action match {
-          case a: MoveAction => Sheet.move(a.id, a.x, a.y)
-          case a: ResizeAction => Sheet.resize(a.id, a.width, a.height)
-          case a: RemoveAction => Sheet.remove(a.id) //former delete
-          case a: SetTitleAction => Sheet.setTitle(a.id, a.title)
-          case a: SetTextAction => Sheet.setText(a.id, a.text)
+          case a: MoveAction => Sheet.move(a.sheetId, a.x, a.y)
+          case a: ResizeAction => Sheet.resize(a.sheetId, a.width, a.height)
+          case a: RemoveAction => Sheet.remove(a.sheetId) //former delete
+          case a: SetTitleAction => Sheet.setTitle(a.sheetId, a.title)
+          case a: SetTextAction => Sheet.setText(a.sheetId, a.text)
           case action: AlterTextAction =>
             // simulate consolidation of records after timestamp
-            val records = recentRecords.dropWhile(_.timestamp <= action.timestamp).filter(_.sheetId == action.id)
+            val records = recentRecords.dropWhile(_.timestamp <= action.timestamp).filter(_.sheetId == action.sheetId)
             var pending = action.operations // all mine with > a.timestamp
 
             assert(pending.size - 1 == records.filter(_.connectionId == connectionId).size,
@@ -120,18 +120,18 @@ class WallActor(wallId: String) extends Actor {
               }
             }
 
-            val newOp = pending.head.op
-            val (baseText, resultText, undoOp) = Sheet.alterText(action.id, newOp.from, newOp.length, newOp.content)
-            val newAction = AlterTextAction(action.userId, action.timestamp, action.id, 
-                List(OperationWithState(newOp, action.operations.last.msgId)), undoOp)
+            val newOperation = pending.head.op
+            val (baseText, resultText, undoOp) = Sheet.alterText(action.sheetId, newOperation)
+            val newAction = AlterTextAction(action.userId, action.timestamp, action.sheetId, 
+                List(OperationWithState(newOperation, action.operations.last.msgId)), undoOp)
             val newTimestamp = notifyAll("action", action.timestamp, action.userId, newAction.singleJson.toString, connectionId)
 
-            recentRecords = recentRecords :+ Record(newTimestamp, action.id, baseText, resultText, newOp, connectionId)
+            recentRecords = recentRecords :+ Record(newTimestamp, action.sheetId, baseText, resultText, newOperation, connectionId)
 
-          case a: SetLinkAction => SheetLink.create(a.id, a.to_id, wallId)
+          case a: SetLinkAction => SheetLink.create(a.sheetId, a.toSheetId, wallId)
           case a: RemoveLinkAction =>
-            SheetLink.remove(a.id, a.to_id)
-            SheetLink.remove(a.to_id, a.id)
+            SheetLink.remove(a.sheetId, a.toSheetId)
+            SheetLink.remove(a.toSheetId, a.sheetId)
         }
 
         action match {

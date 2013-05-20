@@ -43,11 +43,11 @@ class window.WallSocket extends window.PersistentWebsocket
 
   onReceivedAction: (detail, isMine, timestamp) =>
     isMine = isMine || false
-    sheet = stage.sheets[detail.params.id]
+    sheet = stage.sheets[detail.params.sheetId]
 
     switch detail.action
       when "alterText" then sheet.alterText(detail.params, isMine, timestamp)
-      when "create" then stage.createSheet(detail.id, detail.params, timestamp)
+      when "create" then stage.createSheet(detail.sheetId, detail.params, timestamp)
       when "move" then sheet.move(detail.params) unless isMine
       when "resize" then sheet.resize(detail.params) unless isMine
       when "remove" then sheet.remove(detail.params)

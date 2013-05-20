@@ -4,6 +4,8 @@ import play.api.Play.current
 import java.sql.Timestamp
 import play.api.libs.json._
 import ActiveRecord._
+import scala.util.Try
+import utils.Operation
 
 object WallTimestamp extends Sequencer("WallTimestamp")
 
@@ -20,7 +22,7 @@ object WallLog extends ActiveRecord[WallLog] {
   {
     def toJson:JsValue = {
       Json.obj(
-        "id" -> id,
+        "wallLogId" -> id,
         "kind" -> kind,
         "username" -> email,
         "detail" -> message,
@@ -54,16 +56,28 @@ object WallLog extends ActiveRecord[WallLog] {
     }
   }
   
-/* ???
-  def timestamp(wallId: Long) = {
-    DB.withConnection { implicit c =>
-      SQL("select MAX(time) from WallLog where wall_id = {wallId}").on(
-        'wallId -> wallId
-      ).as(scalar[Option[Long]].single) match {
-          case Some(time) => time
-          case None => 999
-        }
+  def recentOperations(wallId:String, sheetId:String, timestamp:Long) = transactional {
+    // TODO:working on...
+    val content = TextContent.findBySheetId(sheetId).get
+    val finalText = content.text
+    
+    val logs = query {
+      (log:WallLog) => where((log.wall.id :== wallId) :&& (log.timestamp :>= timestamp) :&& (log.kind :== "")) select(log) orderBy(log.timestamp asc)
     }
+    
+    logs.filter { log =>
+      val json = Json.parse(log.message)
+      Try {
+        (json \ "action").as[String] == "alterText" && (json \ "sheetId").as[String] == sheetId
+      }.getOrElse(false)
+    }.map { log =>
+      val json = Json.parse(log.message)
+      val u = json \ "undo"
+      new Operation((u \ "from").as[Int],
+          (u \ "length").as[Int],
+          (u \ "content").as[String])
+    }
+    
   }
-*/
+  
 }

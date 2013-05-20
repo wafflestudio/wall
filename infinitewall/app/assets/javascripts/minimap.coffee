@@ -1,7 +1,7 @@
 class MiniSheet extends Movable
   constructor: (params) ->
     super(false)
-    @id = params.id
+    @id = params.sheetId
     @element = $($('<div class = "miniSheet"></div>').appendTo('#miniMoveLayer'))
     #@xywh(params.x, params.y, params.width, params.height)
     @element.attr('id', 'map_sheet' + @id)
