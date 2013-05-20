@@ -109,7 +109,7 @@ class ChatRoomActor(roomId: String) extends Actor {
     }
     
     case GetPrevMessages(startTs, endTs) =>
-      val prev = prevMessages(startTs, endTs).map { chatlog => ChatLog.toJson(chatlog) }
+      val prev = prevMessages(startTs, endTs).map(ChatLog.toJson(_))
       sender ! JsArray(prev)
 
     case NotifyJoin(userId, connectionId) => {
