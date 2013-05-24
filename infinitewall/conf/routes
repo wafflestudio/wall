@@ -45,8 +45,8 @@ POST     /group/create                        controllers.Group.create
 POST     /group/:groupId/addUser              controllers.Group.addUser(groupId:String)
 GET      /group/:groupId/removeUser/:userId   controllers.Group.removeUser(groupId:String, userId:String)
 POST     /group/:groupId/createWall           controllers.Group.createWall(groupId:String)
-POST     /group/:groupId/addWall              controllers.Group.addWall_Post(groupId:String)
-GET      /group/:groupId/addWall/:wallId      controllers.Group.addWall_Get(groupId:String, wallId:String)
+POST     /group/:groupId/addWall              controllers.Group.addWallPost(groupId:String)
+GET      /group/:groupId/addWall/:wallId      controllers.Group.addWall(groupId:String, wallId:String)
 GET      /group/:groupId/removeWall/:wallId   controllers.Group.removeWall(groupId:String, wallId:String)
 
 #POST    /file                 					controllers.File.upload

@@ -24,7 +24,7 @@ import utils.UsageSet
 // WallSystem -> WallSystem Actor
 case class JoinWall(wallId: String, userId: String, timestamp: Long)
 case class QuitWall(wallId: String, userId: String, connectionId:Int)
-case class ActionInWall(wallId: String, json: JsValue, detail: ActionDetail, connectionId:Int)
+case class ActionInWall(wallId: String, userId: String, connectionId: Int, actionJson: JsValue)
 case class Finishing(wallId: String)
 case class FinishAccepted()
 case class RetryFinish()
@@ -32,7 +32,7 @@ case class RetryFinish()
 // WallSystem Actor -> Wall Actor
 case class Join(userId: String, timestamp: Long)
 case class Quit(userId: String, connectionId:Int)
-case class Action(json: JsValue, detail: ActionDetail, connectionId:Int)
+case class Action(json:JsValue, parsed: ActionDetail)
 
 // Wall Actor reply
 case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[JsValue], connectionId:Int)
@@ -57,7 +57,7 @@ object WallSystem {
         // Create an Iteratee to consume the feed
         val consumer: Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] { json: JsValue =>
           Logger.info("received: " + json.toString)
-          actor ! ActionInWall(wallId, json, ActionDetail(userId, json), connectionId)
+          actor ! ActionInWall(wallId, userId, connectionId, json)
         }.mapDone { _ =>
           actor ! QuitWall(wallId, userId, connectionId)
         }
@@ -83,7 +83,7 @@ object WallSystem {
   }
 
   def submitVolatileAction(wallId: String, userId: String, connectionId:Int, json:JsValue) = {
-    actor ? ActionInWall(wallId, json, ActionDetail(userId, json), connectionId)
+    actor ? ActionInWall(wallId, userId, connectionId, json)
   }
 }
 
@@ -124,9 +124,9 @@ class WallSystem extends Actor {
     case QuitWall(wallId, userId, connectionId) =>
       val savedSender = sender
       (wall(wallId) ? Quit(userId, connectionId)).map(savedSender ! _)
-    case ActionInWall(wallId, json, detail, connectionId) =>
+    case ActionInWall(wallId, userId, connectionId, json) =>
       val savedSender = sender
-      (wall(wallId) ? Action(json, detail, connectionId)).map(savedSender ! _)
+      (wall(wallId) ? Action(json, ActionDetail(userId, connectionId, json))).map(savedSender ! _)
     case Finishing(wallId) =>
       if (System.currentTimeMillis() - lastAccessedTime(wallId) > WallSystem.shutdownFinalizeTimeout) {
         Logger.info("shutting down wall actor (" + wallId + ") due to inactivity")

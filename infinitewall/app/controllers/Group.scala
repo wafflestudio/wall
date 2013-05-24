@@ -59,14 +59,12 @@ object Group extends Controller with Auth with Login {
     Redirect(routes.Wall.stage(wallId))
   }
   
-  def addWall_Post(groupId: String) = AuthenticatedAction { implicit request =>
+  def addWallPost(groupId: String) = AuthenticatedAction { implicit request =>
     val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
     val wallId = params.get("wall_id").getOrElse(Seq(""))
     if (models.Wall.isValid(wallId(0), currentUserId)) {
       val wall = models.Wall.findById(wallId(0)).map(_.frozen)
       wall.map { w =>
-        Logger.info("hi")
-        Logger.info(w.name)
         models.Group.addWall(groupId, w.id)
       }
       Redirect(routes.Group.show(groupId))
@@ -76,14 +74,17 @@ object Group extends Controller with Auth with Login {
     }
   }
   
-  def addWall_Get(groupId: String, wallId: String) = AuthenticatedAction { implicit request =>
+  def addWall(groupId: String, wallId: String) = AuthenticatedAction { implicit request =>
     val wall = models.Wall.findById(wallId).map(_.frozen)
-    wall.map { w =>
-      Logger.info("hi")
-      Logger.info(w.name)
-      models.Group.addWall(groupId, w.id)
+    if (models.Wall.isValid(wallId, currentUserId)) {
+      wall.map { w =>
+        models.Group.addWall(groupId, w.id)
+      }
+      Redirect(routes.Group.show(groupId))
     }
-    Redirect(routes.Group.show(groupId))
+    else {
+      Forbidden("Invalid Request")
+    }
   }
   
   def removeUser(groupId: String, userId: String) = AuthenticatedAction { implicit request =>

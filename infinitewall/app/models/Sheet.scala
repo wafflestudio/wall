@@ -96,7 +96,7 @@ object Sheet extends ActiveRecord[Sheet] {
       Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"" + " " + undo.toString())
      
       setText(id, alteredText)
-      (baseText, alteredText, undo)
+      (baseText, undo)
     }
     catch {
       case e: Exception =>

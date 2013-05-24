@@ -19,7 +19,7 @@
 	<form method="POST" action="@{routes.Group.createWall(groupId)}" class="form-inline">
 		<input name="title" type="text" placeholder="Wall name"> <button class="btn">Create</button/>
 	</form>
-	<form method="POST" action="@{routes.Group.addWall_Post(groupId)}" class="form-inline">
+	<form method="POST" action="@{routes.Group.addWallPost(groupId)}" class="form-inline">
 		<input name="wall_id" type="text" placeholder="Wall ID"> <button class="btn">Add</button/>
 	</form>
 	<h5>My Walls</h5>
@@ -28,7 +28,7 @@
 	}
 	<ul>
 	@for(wall <- nonSharedWalls) {
-		<li>@wall.name <a href="@{routes.Group.addWall_Get(groupId, wall.id)}">add to Group</a></li>
+		<li>@wall.name <a href="@{routes.Group.addWall(groupId, wall.id)}">add to Group</a></li>
 	}
 	</ul>
 	<h5>Group's Walls</h5>

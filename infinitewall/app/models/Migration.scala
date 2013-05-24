@@ -75,32 +75,6 @@ class RenameGroupToUserGroup extends Migration {
   }
 }
 
-/*
-class AddSheetLinkReferences extends Migration {
-  def timestamp = 201305121543L
-  
-  def up = {
-    customScript {
-      val connection = storage.directAccess
-      try {
-          connection
-              .prepareStatement("""alter table UserInChatRoom add constraint fk_userinchatroom_user_1 foreign key (user_id) references User (id) 
-  on delete cascade on update restrict;
-alter table UserInChatRoom add constraint fk_userinchatroom_chatroom_1 foreign key (chatroom_id) references ChatRoom (id) 
-  on delete cascade on update restrict;""")
-              .executeUpdate
-          connection.commit
-      } catch {
-          case e:Throwable =>
-              connection.rollback
-              throw e
-      } finally
-          connection.close
-    }
-  }
-}
-
-*/
 
 class DevMigration extends ManualMigration {
 

@@ -6,6 +6,11 @@ import play.api.libs.json._
 import ActiveRecord._
 import scala.util.Try
 import utils.Operation
+import play.Logger
+
+// Record used for tracking text change (cache)
+case class AlterTextRecord(timestamp: Long, baseTimestamp:Long, baseText: String, resultText:String, connectionId: Int, operation: Operation)
+
 
 object WallTimestamp extends Sequencer("WallTimestamp")
 
@@ -56,27 +61,43 @@ object WallLog extends ActiveRecord[WallLog] {
     }
   }
   
-  def recentOperations(wallId:String, sheetId:String, timestamp:Long) = transactional {
-    // TODO:working on...
+  def listAlterTextRecord(wallId:String, sheetId:String, timestamp:Long) = transactional {
     val content = TextContent.findBySheetId(sheetId).get
     val finalText = content.text
-    
+
+    // order by large timestamp first..
     val logs = query {
-      (log:WallLog) => where((log.wall.id :== wallId) :&& (log.timestamp :>= timestamp) :&& (log.kind :== "")) select(log) orderBy(log.timestamp asc)
+      (log:WallLog) => where((log.wall.id :== wallId) :&& (log.timestamp :> timestamp) :&& (log.kind :== "action")) select(log) orderBy(log.timestamp desc)
     }
     
-    logs.filter { log =>
-      val json = Json.parse(log.message)
+    val operations = logs.filter { log =>
+      Logger.debug(log.timestamp +"/" + log.message)
+      
       Try {
-        (json \ "action").as[String] == "alterText" && (json \ "sheetId").as[String] == sheetId
+        val json = Json.parse(log.message)
+        (json \ "action").as[String] == "alterText" && (json \ "params" \ "sheetId").as[String] == sheetId
       }.getOrElse(false)
-    }.map { log =>
+    }.foldLeft[(List[AlterTextRecord], String)]((List(), finalText)) { (pair, log) =>
       val json = Json.parse(log.message)
+      val r = json \ "params"
       val u = json \ "undo"
-      new Operation((u \ "from").as[Int],
+      val connectionId = (json \ "connectionId").as[Int]
+      val timestamp = (json \ "timestamp").as[Long]
+      val redo = new Operation((r \ "from").as[Int],
+          (r \ "length").as[Int],
+          (r \ "content").as[String])
+      val undo = new Operation((u \ "from").as[Int],
           (u \ "length").as[Int],
           (u \ "content").as[String])
+      val resultText = pair._2
+      val baseText = undo.apply(resultText)
+      val record = AlterTextRecord(timestamp = log.timestamp, baseTimestamp = timestamp, connectionId = connectionId, operation = redo, 
+          baseText = baseText, resultText = resultText)
+      val list = pair._1
+      (list :+ record, baseText)
     }
+    Logger.debug(operations._1.toString)
+    operations._1.reverse
     
   }
   
