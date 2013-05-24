@@ -3,7 +3,7 @@ package models
 import play.api.Play.current
 import ActiveRecord._
 
-
+@Alias("UserGroup")
 class Group(var name:String, var owner:User) extends Entity
 {
   def frozen() = transactional {

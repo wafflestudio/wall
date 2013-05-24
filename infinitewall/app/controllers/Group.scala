@@ -49,8 +49,8 @@ object Group extends Controller with Auth with Login {
   def createWall(groupId: String) = AuthenticatedAction { implicit request =>
     val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
     val title = params.get("title").getOrElse(Seq("unnamed"))
-    val wallId = models.Wall.create(currentUserId, title(0)).id
-    val wall = models.Wall.findById(wallId)
+    val wallId = models.Wall.create(currentUserId, title(0)).frozen.id
+    val wall = models.Wall.findById(wallId).map(_.frozen)
     wall.map { w =>
       Logger.info("hi")
       Logger.info(w.name)
@@ -58,11 +58,12 @@ object Group extends Controller with Auth with Login {
     }
     Redirect(routes.Wall.stage(wallId))
   }
+  
   def addWall_Post(groupId: String) = AuthenticatedAction { implicit request =>
     val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
     val wallId = params.get("wall_id").getOrElse(Seq(""))
     if (models.Wall.isValid(wallId(0), currentUserId)) {
-      val wall = models.Wall.findById(wallId(0))
+      val wall = models.Wall.findById(wallId(0)).map(_.frozen)
       wall.map { w =>
         Logger.info("hi")
         Logger.info(w.name)
@@ -76,7 +77,7 @@ object Group extends Controller with Auth with Login {
   }
   
   def addWall_Get(groupId: String, wallId: String) = AuthenticatedAction { implicit request =>
-    val wall = models.Wall.findById(wallId)
+    val wall = models.Wall.findById(wallId).map(_.frozen)
     wall.map { w =>
       Logger.info("hi")
       Logger.info(w.name)

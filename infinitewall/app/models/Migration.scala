@@ -65,6 +65,16 @@ class AddIndexToGroupReferences extends Migration {
   }
 }
 
+class RenameGroupToUserGroup extends Migration {
+  def timestamp = 201305232130L
+
+  def up = {
+    table("Group")
+      .renameTable("UserGroup")
+      .ifExists
+  }
+}
+
 /*
 class AddSheetLinkReferences extends Migration {
   def timestamp = 201305121543L
