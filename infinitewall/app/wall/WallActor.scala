@@ -87,6 +87,7 @@ class WallActor(wallId: String) extends Actor {
     // ACK
     case Action(json, ack: Ack) =>
       Logger.debug("ack came(" + ack.timestamp + ").")
+      // reserved for future use..
     // Create Action
     case Action(json, c: CreateAction) =>
       val sheetId = Sheet.create(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId).frozen.id

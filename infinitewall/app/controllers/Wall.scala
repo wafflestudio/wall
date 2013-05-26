@@ -96,14 +96,17 @@ object Wall extends Controller with Auth with Login {
     }
   }
 
-  def speak(wallId: String) = Action { request =>
+  // http send by client
+  def speak(wallId: String) = AuthenticatedAction { implicit request =>
     val params = request.queryString
     val jsonStr = params.get("action").getOrElse(Seq(""))(0)
+    val connectionId = params.get("connectionId").get(0).toInt
     val json = Json.parse(jsonStr)
-    
+    WallSystem.submitVolatileAction(wallId, currentUserId, connectionId, json)
     Ok("")
   }
 
+  // http receive
   def listen(wallId: String, timestamp: Long) = Action { implicit request =>
     import play.api.templates.Html
     import play.api.libs.concurrent.Execution.Implicits._
