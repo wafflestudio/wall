@@ -1,6 +1,12 @@
+
+
+class WallLog
+  constructor: () ->
+
+  append:() ->
+    
+
+
+
 class History
   constructor: () ->
-    console.log('history')
-
-
-    console.log('history3')

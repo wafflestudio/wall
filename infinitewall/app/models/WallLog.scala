@@ -9,7 +9,7 @@ import utils.Operation
 import play.Logger
 
 // Record used for tracking text change (cache)
-case class AlterTextRecord(timestamp: Long, baseTimestamp:Long, baseText: String, resultText:String, connectionId: Int, operation: Operation)
+case class AlterTextRecord(timestamp: Long, baseTimestamp:Long, baseText: String, resultText:String, connectionId: Int, msgId:Long, operation: Operation)
 
 
 object WallTimestamp extends Sequencer("WallTimestamp")
@@ -89,10 +89,11 @@ object WallLog extends ActiveRecord[WallLog] {
       val undo = new Operation((u \ "from").as[Int],
           (u \ "length").as[Int],
           (u \ "content").as[String])
+      val msgId = (r \ "msgId").as[Long]
       val resultText = pair._2
       val baseText = undo.apply(resultText)
-      val record = AlterTextRecord(timestamp = log.timestamp, baseTimestamp = timestamp, connectionId = connectionId, operation = redo, 
-          baseText = baseText, resultText = resultText)
+      val record = AlterTextRecord(timestamp = log.timestamp, baseTimestamp = timestamp, connectionId = connectionId, msgId = 1, 
+          operation = redo, baseText = baseText, resultText = resultText)
       val list = pair._1
       (list :+ record, baseText)
     }

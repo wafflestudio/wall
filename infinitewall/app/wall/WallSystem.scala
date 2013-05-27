@@ -22,7 +22,7 @@ import utils.UsageSet
 
 // Messages
 // WallSystem -> WallSystem Actor
-case class JoinWall(wallId: String, userId: String, timestamp: Long)
+case class JoinWall(wallId: String, userId: String, timestamp: Long, syncOnce:Boolean = false)
 case class QuitWall(wallId: String, userId: String, connectionId:Int)
 case class ActionInWall(wallId: String, userId: String, connectionId: Int, actionJson: JsValue)
 case class Finishing(wallId: String)
@@ -30,7 +30,7 @@ case class FinishAccepted()
 case class RetryFinish()
 
 // WallSystem Actor -> Wall Actor
-case class Join(userId: String, timestamp: Long)
+case class Join(userId: String, timestamp: Long, syncOnce:Boolean = false)
 case class Quit(userId: String, connectionId:Int)
 case class Action(json:JsValue, parsed: ActionDetail)
 
@@ -48,9 +48,9 @@ object WallSystem {
   implicit val timeout = Timeout(1 second)
   lazy val actor = Akka.system.actorOf(Props(new WallSystem))
 
-  def establish(wallId: String, userId: String, timestamp: Long, receiveOnly:Boolean = false): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def establish(wallId: String, userId: String, timestamp: Long, syncOnce:Boolean = false): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
-    val joinResult = actor ? JoinWall(wallId, userId, timestamp)
+    val joinResult = actor ? JoinWall(wallId, userId, timestamp, syncOnce)
 
     joinResult.map {
       case Connected(producer, prevMessages, connectionId) =>
@@ -82,8 +82,10 @@ object WallSystem {
     }
   }
 
-  def submitVolatileAction(wallId: String, userId: String, connectionId:Int, json:JsValue) = {
-    actor ? ActionInWall(wallId, userId, connectionId, json)
+  def submitActions(wallId: String, userId: String, connectionId:Int, actions:Seq[JsValue]) = {
+    actions.foreach { actionJson =>
+      actor ? ActionInWall(wallId, userId, connectionId, actionJson)
+    }
   }
 }
 
@@ -118,9 +120,9 @@ class WallSystem extends Actor {
   }
 
   def receive = {
-    case JoinWall(wallId, userId, timestamp) =>
+    case JoinWall(wallId, userId, timestamp, syncOnce) =>
       val savedSender = sender
-      (wall(wallId) ? Join(userId, timestamp)).map(savedSender ! _)
+      (wall(wallId) ? Join(userId, timestamp, syncOnce)).map(savedSender ! _)
     case QuitWall(wallId, userId, connectionId) =>
       val savedSender = sender
       (wall(wallId) ? Quit(userId, connectionId)).map(savedSender ! _)

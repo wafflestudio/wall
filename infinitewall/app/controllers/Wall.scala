@@ -99,10 +99,11 @@ object Wall extends Controller with Auth with Login {
   // http send by client
   def speak(wallId: String) = AuthenticatedAction { implicit request =>
     val params = request.queryString
-    val jsonStr = params.get("action").getOrElse(Seq(""))(0)
+    val jsonStr = params.get("actions").getOrElse(Seq(""))(0)
     val connectionId = params.get("connectionId").get(0).toInt
-    val json = Json.parse(jsonStr)
-    WallSystem.submitVolatileAction(wallId, currentUserId, connectionId, json)
+    val actions = Json.parse(jsonStr).as[Seq[JsValue]]
+    
+    WallSystem.submitActions(wallId, currentUserId, connectionId, actions)
     Ok("")
   }
 
@@ -110,15 +111,23 @@ object Wall extends Controller with Auth with Login {
   def listen(wallId: String, timestamp: Long) = Action { implicit request =>
     import play.api.templates.Html
     import play.api.libs.concurrent.Execution.Implicits._
-
-    val timeoutFuture = play.api.libs.concurrent.Promise.timeout("Oops", 2.seconds)
-
+    
     currentUserIdOption match {
       case Some(userId) =>
         Async {
-          WallSystem.establish(wallId, userId, timestamp).map(
-            channels => Ok.stream(channels._2 &> Comet(callback = "parent.WallSocket.onCometReceive")))
-        }
+          WallSystem.establish(wallId, userId, timestamp).map { channels =>
+              // force disconnect after 3 seconds
+              val timeoutEnumerator:Enumerator[JsValue] = Enumerator.fromCallback[JsValue] { () =>
+                Promise.timeout(Some(JsNumber(0)), 3.seconds)
+              }.mapInput {
+                case _ => Input.EOF
+              }
+              timeoutEnumerator.apply(channels._1)
+              // convert to comet stream
+              val stream = channels._2 &> Comet(callback = "triggerOnReceive")
+              Ok.stream(stream)
+            }
+          }
       case None =>
         Forbidden("Request wall with id " + wallId + " not accessible")
     }

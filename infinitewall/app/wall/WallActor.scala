@@ -45,7 +45,7 @@ class WallActor(wallId: String) extends Actor {
   
   def removeConnection(userId: String, connectionId: Int) = {
     connections.get(userId).foreach { userConns =>
-      val newUserConns = userConns.filterNot(_.connectionId == connectionId)
+      val newUserConns = userConns.filter(_.connectionId != connectionId)
       if (newUserConns.isEmpty)
         connections = connections - userId
       else
@@ -53,13 +53,13 @@ class WallActor(wallId: String) extends Actor {
     }
   }
   
-  def numConnections = connections.foldLeft[Int](0) { (num, connection) =>
-    num + connection._2.length
+  def numConnections = connections.foldLeft[Int](0) { (num, userConnections) =>
+    num + userConnections._2.length
   }
 
   def receive = {
     // Join
-    case Join(userId, timestamp) => {
+    case Join(userId, timestamp, syncOnce) => {
       // Create an Enumerator to write to this socket
       val wallActor = self
       lazy val producer: PushEnumerator[JsValue] = Enumerator.imperative[JsValue]()
@@ -77,7 +77,12 @@ class WallActor(wallId: String) extends Actor {
         // update connections map
         val connectionId = addConnection(userId, producer)
         sender ! Connected(producer, prev, connectionId)
-        Logger.info(s"[Wall] user $userId joined to wall $wallId ")
+        if(syncOnce)
+          Logger.info(s"[Wall] user $userId:($connectionId) syncing with wall $wallId")
+        else {
+          Logger.info(s"[Wall] user $userId:($connectionId) joined to wall $wallId")
+          Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
+        }
       }
     }
     case RetryFinish =>
@@ -116,6 +121,8 @@ class WallActor(wallId: String) extends Actor {
             records.foreach { record =>
               if (record.connectionId == action.connectionId) {
                 // drop already consolidated. 
+                if(pending.head.msgId != record.msgId)
+                  Logger.warn(s"pending: ${pending.head.msgId} != record: ${record.msgId}")
                 pending = pending.drop(1)
               }
               else { // apply arrived consolidated record
@@ -131,7 +138,7 @@ class WallActor(wallId: String) extends Actor {
 
             val newOperation = pending.head.op
             val (baseText, undoOp) = Sheet.alterText(action.sheetId, newOperation)
-            val newAction = AlterTextAction(action.userId, action.connectionId, action.sheetId, action.timestamp, 
+            val newAction = AlterTextAction(action.userId, action.connectionId, action.sheetId, action.timestamp,
                 List(OperationWithState(newOperation, action.operations.last.msgId)), undoOp)
             val newTimestamp = notifyAll("action", action.timestamp, action.userId, newAction.json.toString, action.connectionId)
            
@@ -152,7 +159,7 @@ class WallActor(wallId: String) extends Actor {
     case Quit(userId, connectionId) => {
       quit(userId, connectionId)
       notifyAll("userQuit", 0, userId, "", connectionId)
-      Logger.info(s"[Wall] user $userId quit from wall $wallId")
+      
     }
 
   }
@@ -189,6 +196,7 @@ class WallActor(wallId: String) extends Actor {
     if (numConnections == 0)
       shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Finishing(wallId) })
 
+    Logger.info(s"[Wall] user $userId quit from wall $wallId")
     Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
   }
 

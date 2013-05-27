@@ -1,18 +1,34 @@
-class window.WallSocket extends window.PersistentWebsocket
+class window.WallSocket extends EventDispatcher
 
   @onCometReceive: (data) ->
     console.log("[COMET]", data)
 
-  constructor: (url, timestamp) ->
-    super(url, "WALL", timestamp)
-
-    @receivedTimestamp = @timestamp
-    @on 'receivedAction', @onReceivedAction
+  constructor: (urls, timestamp) ->
+    super()
+    @websocket = new window.PersistentWebsocket(urls.websocket, "WALL", timestamp)
+    @comet = new window.CometSocket(urls.speak, urls.listen, "COMET", timestamp)
+    @receivedTimestamp = timestamp
+    @timestamp = timestamp
+    @scope = @websocket.scope
+    
     console.info(@scope, "wall socket initialized to ts:#{timestamp}")
+    @websocket.on 'receive', @onReceive
+    @on 'receivedAction', @onReceivedAction
+    @websocket.on 'open', () =>
+      @comet.deactivate()
+      @comet.off 'receive', @onReceive
+
+    @websocket.on 'close', () =>
+      @comet.activate()
+      @comet.on 'receive', @onReceive
+
   
   sendAction: (msg) ->
     msg.timestamp = @timestamp unless msg.timestamp?
-    @send(JSON.stringify(msg))
+    if @websocket.isConnected
+      @websocket.send(JSON.stringify(msg))
+    else
+      @cometsocket.send(JSON.stringify(msg))
 
   # only for debug
   sendActionDelayed: (msg, delay) ->
@@ -21,15 +37,15 @@ class window.WallSocket extends window.PersistentWebsocket
     console.log(@scope, "will send:" + json)
     setTimeout (=> @sendAction(json)), delay
 
-  onReceive: (e) =>
-    data = JSON.parse(e.data)
+  onReceive: (data) =>
     console.info(@scope, 'received:', data)
 
     @receivedTimestamp = data.timestamp
 
     if data.error
       console.log(@scope, 'disconnected: ' + data.error)
-      @close()
+      if @websocket.isConnected
+        @websocket.close()
       return
     
     if data.kind is "action" and (not @timestamp? or @timestamp < @receivedTimestamp)

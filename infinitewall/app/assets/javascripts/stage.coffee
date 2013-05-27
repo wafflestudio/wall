@@ -28,13 +28,13 @@ class window.Stage
   createSheetLink: (params, timestamp) ->
     @sheets[params.from_id].setLink(params)
 
-  constructor: (wallId, timestamp, currentUser, wallSocketURL, chatURL) ->
+  constructor: (wallId, timestamp, currentUser, wallSocketURLs, chatURL) ->
     window.wall = new Wall()
     window.minimap = new Minimap()
     window.menu = new Menu()
     window.search = new Search()
     window.statusbar = new Statusbar()
-    window.wallSocket = new WallSocket(wallSocketURL, timestamp)
+    window.wallSocket = new WallSocket(wallSocketURLs, timestamp)
     window.chat = new Chat(chatURL)
     @wallId = wallId
     @currentUser = currentUser

@@ -3,17 +3,18 @@
 # @url
 # @scope
 
+# states: CONNECTED <=> TRYING
 
 class window.PersistentWebsocket extends EventDispatcher
   
-
   constructor: (@url, scope = "WS", @timestamp) ->
     super()
     @WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
     @status = "TRYING"
     @numRetry = 0
     @scope = "[#{scope}]"
-    @buffer = [] # emergency buffer
+    @buffered = [] # emergency buffer
+    @pending = []
 
     @connect()
 
@@ -27,13 +28,36 @@ class window.PersistentWebsocket extends EventDispatcher
     @socket.onerror = @onError
     @socket.onclose = @onClose
 
+  trySend: () ->
+
+    checkAndSendLoop = () =>
+      if @socket.readyState == @WS.OPEN and @socket.bufferedAmount == 0
+        @buffered = []
+        # fill buffer with new pending messages
+        for msg in @pending
+          @buffered.push(msg)
+        #clear pending
+        @pending = []
+
+        for msg in @buffered
+          @socket.send(msg)
+        
+      if @socket.readyState == @WS.OPEN and @buffered.length > 0
+        setTimeout(checkAndSendLoop, 100)
+      else
+        @trySending = false
+
+    @trySending = true
+    checkAndSendLoop()
 
   send: (msg) ->
-    if @isConnected()
-      @socket.send(msg)
-      console.info(@scope, "sending #{msg.length} characters", msg)
-    else
-      @buffer.push(msg)
+    @pending.push(msg) if msg
+    if @isConnected
+      @trySend()
+    else 
+      @trySendingHttp()
+    
+    console.info(@scope, "sending #{msg.length} characters", msg)
 
   close: ()->
     @socket.close()
@@ -43,14 +67,14 @@ class window.PersistentWebsocket extends EventDispatcher
   onReceive: (e) =>
     data = JSON.parse(e.data)
     console.log(@scope, data)
+    @trigger('receive', data)
 
   onOpen: (e) =>
     
-    if @buffer.length > 0
-      console.info(@scope, "sending #{@buffer.length} pending messages")
-      while @buffer.length > 0
-        @socket.send(@buffer[0])
-        @buffer.shift()
+    if @buffered.length > 0
+      console.info(@scope, "sending #{@pending.length} unsent messages")
+      for msg in @buffered
+        @socket.send(msg)
 
     @socket.onmessage = @onReceive
     console.info(@scope, "connection established: ", e)
@@ -61,7 +85,6 @@ class window.PersistentWebsocket extends EventDispatcher
 
   onClose: (e) =>
     @status = "TRYING"
-   
     @socket.onclose = null
     @socket.onopen = null
     @socket.onmessage = null
@@ -75,9 +98,6 @@ class window.PersistentWebsocket extends EventDispatcher
   onError: (e) =>
     if @status == "TRYING"
       console.warn(@scope, "cannot establish connnection: ", e)
-      #setTimeout(@connect, Math.pow(2, @numRetry) * 1000) 
-      #@numRetry += 1 if @numRetry < 5
     else
       console.error(@scope, "chat connection caught error: ", e)
-
     @trigger('error', e)
