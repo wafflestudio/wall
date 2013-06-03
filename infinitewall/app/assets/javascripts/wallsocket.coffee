@@ -28,7 +28,7 @@ class window.WallSocket extends EventDispatcher
     if @websocket.isConnected()
       @websocket.send(JSON.stringify(msg))
     else
-      @cometsocket.send(JSON.stringify(msg))
+      @comet.send(JSON.stringify(msg))
 
   # only for debug
   sendActionDelayed: (msg, delay) ->
