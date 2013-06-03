@@ -7,8 +7,8 @@ import utils.Operation
 // Action detail
 sealed trait ActionDetail {
   val userId: String
-  val connectionId:Int
   val timestamp: Long
+  val uuid: String
 
   def json = {
     Json.obj("timestamp" -> timestamp)
@@ -24,18 +24,18 @@ sealed trait ActionDetailWithId extends ActionDetail {
   }
 }
 
-case class Ack(userId: String, connectionId: Int, timestamp: Long) extends ActionDetail
-case class CreateAction(userId: String, connectionId: Int, timestamp: Long, title: String, contentType: String, content: String, x: Int, y: Int, width: Int, height: Int) extends ActionDetail
+case class Ack(userId: String, uuid: String, timestamp: Long) extends ActionDetail
+case class CreateAction(userId: String, uuid: String, timestamp: Long, title: String, contentType: String, content: String, x: Int, y: Int, width: Int, height: Int) extends ActionDetail
 //case class CreatedAction(userId: String, connectionId: Int, sheetId: String, timestamp: Long, title: String, contentType: String, content: String, x: Int, y: Int, width: Int, height: Int) extends ActionDetailWithId
 //{
 //  def this(sheetId:String, c:CreateAction) = this(c.userId, c.connectionId, sheetId, c.timestamp, c.title, c.contentType, c.content, c.x, c.y, c.width, c.height)
 //}
-case class MoveAction(userId: String, connectionId: Int, sheetId: String,  timestamp: Long, x: Int, y: Int) extends ActionDetailWithId
-case class ResizeAction(userId: String, connectionId: Int,sheetId: String,  timestamp: Long, width: Int, height: Int) extends ActionDetailWithId
-case class RemoveAction(userId: String, connectionId: Int, sheetId: String, timestamp: Long) extends ActionDetailWithId
-case class SetTitleAction(userId: String, connectionId: Int, sheetId: String, timestamp: Long, title: String) extends ActionDetailWithId
-case class SetTextAction(userId: String, connectionId: Int, sheetId: String, timestamp: Long, text: String) extends ActionDetailWithId
-case class AlterTextAction(userId: String, connectionId: Int, sheetId: String, timestamp: Long, operations: List[OperationWithState], undoOperation:Operation) extends ActionDetailWithId {
+case class MoveAction(userId: String, uuid: String, sheetId: String,  timestamp: Long, x: Int, y: Int) extends ActionDetailWithId
+case class ResizeAction(userId: String, uuid: String,sheetId: String,  timestamp: Long, width: Int, height: Int) extends ActionDetailWithId
+case class RemoveAction(userId: String, uuid: String, sheetId: String, timestamp: Long) extends ActionDetailWithId
+case class SetTitleAction(userId: String, uuid: String, sheetId: String, timestamp: Long, title: String) extends ActionDetailWithId
+case class SetTextAction(userId: String, uuid: String, sheetId: String, timestamp: Long, text: String) extends ActionDetailWithId
+case class AlterTextAction(userId: String, uuid: String, sheetId: String, timestamp: Long, operations: List[OperationWithState], undoOperation:Operation) extends ActionDetailWithId {
 
   override def json() = {
     val last = operations.last
@@ -53,23 +53,24 @@ case class AlterTextAction(userId: String, connectionId: Int, sheetId: String, t
         "length" -> undoOperation.length,
         "content" -> undoOperation.content
       ),
-      "connectionId" -> connectionId
+      "uuid" -> uuid
     )
     
   }
 }
-case class SetLinkAction(userId: String, connectionId:Int, timestamp: Long, sheetId: String, toSheetId: String) extends ActionDetailWithId
-case class RemoveLinkAction(userId: String, connectionId:Int, timestamp: Long, sheetId: String, toSheetId: String) extends ActionDetailWithId
+case class SetLinkAction(userId: String, uuid: String, timestamp: Long, sheetId: String, toSheetId: String) extends ActionDetailWithId
+case class RemoveLinkAction(userId: String, uuid: String, timestamp: Long, sheetId: String, toSheetId: String) extends ActionDetailWithId
 
 case class OperationWithState(op: Operation, msgId: Long)
 
 // Action detail parser
 object ActionDetail {
-  def apply(userId: String, connectionId: Int, json: JsValue): ActionDetail = {
+  def apply(userId: String, json: JsValue): ActionDetail = {
     val actionType = (json \ "action").as[String]
     val timestamp = (json \ "timestamp").as[Long]
     val params = (json \ "params")
     def sheetId = (params \ "sheetId").as[String]
+    def uuid = (json \ "uuid").as[String]
     def title = (params \ "title").as[String]
     def contentType = (params \ "contentType").as[String]
     def content = (params \ "content").as[String]
@@ -92,28 +93,28 @@ object ActionDetail {
     }
 
     if (actionType == "create")
-      CreateAction(userId, connectionId, timestamp, title, contentType, content, x, y, width, height)
+      CreateAction(userId, uuid, timestamp, title, contentType, content, x, y, width, height)
     else if (actionType == "ack")
-      Ack(userId, connectionId, timestamp)
+      Ack(userId, uuid, timestamp)
     else {
       actionType match {
         case "move" =>
-          MoveAction(userId, connectionId, sheetId, timestamp, x, y)
+          MoveAction(userId, uuid, sheetId, timestamp, x, y)
         case "resize" =>
-          ResizeAction(userId, connectionId, sheetId, timestamp, width, height)
+          ResizeAction(userId, uuid, sheetId, timestamp, width, height)
         case "remove" =>
-          RemoveAction(userId, connectionId, sheetId, timestamp)
+          RemoveAction(userId, uuid, sheetId, timestamp)
         case "setTitle" =>
-          SetTitleAction(userId, connectionId, sheetId, timestamp, title)
+          SetTitleAction(userId, uuid, sheetId, timestamp, title)
         case "setText" =>
-          SetTextAction(userId, connectionId, sheetId, timestamp, text)
+          SetTextAction(userId, uuid, sheetId, timestamp, text)
         case "alterText" =>
           //Logger.info(content)
-          AlterTextAction(userId, connectionId, sheetId, timestamp, operations, Operation.blank)
+          AlterTextAction(userId, uuid, sheetId, timestamp, operations, Operation.blank)
         case "setLink" =>
-          SetLinkAction(userId, connectionId, timestamp, fromSheetId, toSheetId)
+          SetLinkAction(userId, uuid, timestamp, fromSheetId, toSheetId)
         case "removeLink" =>
-          RemoveLinkAction(userId, connectionId, timestamp, fromSheetId, toSheetId)
+          RemoveLinkAction(userId, uuid, timestamp, fromSheetId, toSheetId)
 
       }
     }

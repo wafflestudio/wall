@@ -22,17 +22,17 @@ import utils.UsageSet
 
 // Messages
 // WallSystem -> WallSystem Actor
-case class JoinWall(wallId: String, userId: String, timestamp: Long, syncOnce:Boolean = false)
-case class QuitWall(wallId: String, userId: String, connectionId:Int)
-case class ActionInWall(wallId: String, userId: String, connectionId: Int, actionJson: JsValue)
+case class JoinWall(wallId: String, userId: String, uuid:String, timestamp: Long, syncOnce:Boolean = false)
+case class QuitWall(wallId: String, userId: String, uuid:String, connectionId:Int, wasPersistent:Boolean = false)
+case class ActionInWall(wallId: String, userId: String, uuid:String, connectionId: Int, actionJson: JsValue)
 case class Finishing(wallId: String)
 case class FinishAccepted()
 case class RetryFinish()
 
 // WallSystem Actor -> Wall Actor
-case class Join(userId: String, timestamp: Long, syncOnce:Boolean = false)
-case class Quit(userId: String, connectionId:Int)
-case class Action(json:JsValue, parsed: ActionDetail)
+case class Join(userId: String, uuid:String, timestamp: Long, syncOnce:Boolean = false)
+case class Quit(userId: String, uuid:String, connectionId:Int, wasPersistent:Boolean = false)
+case class Action(json:JsValue, uuid:String, connectionId:Int, parsed: ActionDetail)
 
 // Wall Actor reply
 case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[JsValue], connectionId:Int)
@@ -48,18 +48,18 @@ object WallSystem {
   implicit val timeout = Timeout(1 second)
   lazy val actor = Akka.system.actorOf(Props(new WallSystem))
 
-  def establish(wallId: String, userId: String, timestamp: Long, syncOnce:Boolean = false): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def establish(wallId: String, userId: String, uuid: String, timestamp: Long, syncOnce:Boolean = false): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
-    val joinResult = actor ? JoinWall(wallId, userId, timestamp, syncOnce)
+    val joinResult = actor ? JoinWall(wallId, userId, uuid, timestamp, syncOnce)
 
     joinResult.map {
       case Connected(producer, prevMessages, connectionId) =>
         // Create an Iteratee to consume the feed
         val consumer: Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] { json: JsValue =>
           Logger.info("received: " + json.toString)
-          actor ! ActionInWall(wallId, userId, connectionId, json)
+          actor ! ActionInWall(wallId, userId, uuid, connectionId, json)
         }.mapDone { _ =>
-          actor ! QuitWall(wallId, userId, connectionId)
+          actor ! QuitWall(wallId, userId, uuid, connectionId, syncOnce)
         }
 
         (consumer, prevMessages >>> producer)
@@ -82,10 +82,9 @@ object WallSystem {
     }
   }
 
-  def submitActions(wallId: String, userId: String, connectionId:Int, actions:Seq[JsValue]) = {
-    actions.foreach { actionJson =>
-      actor ? ActionInWall(wallId, userId, connectionId, actionJson)
-    }
+  def submitActions(wallId: String, userId: String, uuid:String, connectionId:Int, actionJson:JsValue) = {
+    Logger.info(actionJson.toString)
+    actor ? ActionInWall(wallId, userId, uuid, connectionId, actionJson)
   }
 }
 
@@ -120,15 +119,15 @@ class WallSystem extends Actor {
   }
 
   def receive = {
-    case JoinWall(wallId, userId, timestamp, syncOnce) =>
+    case JoinWall(wallId, userId, uuid, timestamp, syncOnce) =>
       val savedSender = sender
-      (wall(wallId) ? Join(userId, timestamp, syncOnce)).map(savedSender ! _)
-    case QuitWall(wallId, userId, connectionId) =>
+      (wall(wallId) ? Join(userId, uuid, timestamp, syncOnce)).map(savedSender ! _)
+    case QuitWall(wallId, userId, uuid, connectionId, wasPersistent) =>
       val savedSender = sender
-      (wall(wallId) ? Quit(userId, connectionId)).map(savedSender ! _)
-    case ActionInWall(wallId, userId, connectionId, json) =>
+      (wall(wallId) ? Quit(userId, uuid, connectionId, wasPersistent)).map(savedSender ! _)
+    case ActionInWall(wallId, userId, uuid, connectionId, json) =>
       val savedSender = sender
-      (wall(wallId) ? Action(json, ActionDetail(userId, connectionId, json))).map(savedSender ! _)
+      (wall(wallId) ? Action(json, uuid, connectionId, ActionDetail(userId, json))).map(savedSender ! _)
     case Finishing(wallId) =>
       if (System.currentTimeMillis() - lastAccessedTime(wallId) > WallSystem.shutdownFinalizeTimeout) {
         Logger.info("shutting down wall actor (" + wallId + ") due to inactivity")

@@ -28,35 +28,8 @@ class window.PersistentWebsocket extends EventDispatcher
     @socket.onerror = @onError
     @socket.onclose = @onClose
 
-  trySend: () ->
-
-    checkAndSendLoop = () =>
-      if @socket.readyState == @WS.OPEN and @socket.bufferedAmount == 0
-        @buffered = []
-        # fill buffer with new pending messages
-        for msg in @pending
-          @buffered.push(msg)
-        #clear pending
-        @pending = []
-
-        for msg in @buffered
-          @socket.send(msg)
-        
-      if @socket.readyState == @WS.OPEN and @buffered.length > 0
-        setTimeout(checkAndSendLoop, 100)
-      else
-        @trySending = false
-
-    @trySending = true
-    checkAndSendLoop()
-
   send: (msg) ->
-    @pending.push(msg) if msg
-    if @isConnected
-      @trySend()
-    else 
-      @trySendingHttp()
-    
+    @socket.send(msg)
     console.info(@scope, "sending #{msg.length} characters", msg)
 
   close: ()->
@@ -70,12 +43,6 @@ class window.PersistentWebsocket extends EventDispatcher
     @trigger('receive', data)
 
   onOpen: (e) =>
-    
-    if @buffered.length > 0
-      console.info(@scope, "sending #{@pending.length} unsent messages")
-      for msg in @buffered
-        @socket.send(msg)
-
     @socket.onmessage = @onReceive
     console.info(@scope, "connection established: ", e)
     @trigger('open', e)

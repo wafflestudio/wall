@@ -84,11 +84,12 @@ object Wall extends Controller with Auth with Login {
 
   def sync(wallId: String) = WebSocket.async[JsValue] { implicit request =>
     val params = request.queryString
-    val timestamp = params.get("timestamp").getOrElse(Seq("999"))(0).toLong
+    val uuid = params.get("uuid").get(0)
+    val timestamp = params.get("timestamp").getOrElse(Seq("0"))(0).toLong
 
     currentUserIdOption match {
       case Some(userId) =>
-        WallSystem.establish(wallId, userId, timestamp)
+        WallSystem.establish(wallId, userId, uuid, timestamp)
       case None =>
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
@@ -98,24 +99,27 @@ object Wall extends Controller with Auth with Login {
 
   // http send by client
   def speak(wallId: String) = AuthenticatedAction { implicit request =>
-    val params = request.queryString
-    val jsonStr = params.get("actions").getOrElse(Seq(""))(0)
-    val connectionId = params.get("connectionId").get(0).toInt
-    val actions = Json.parse(jsonStr).as[Seq[JsValue]]
-    
-    WallSystem.submitActions(wallId, currentUserId, connectionId, actions)
+    val GETParams = request.queryString
+    val uuid = GETParams.get("uuid").get(0)
+    Logger.info(s"speak1: ${request.body.asText.get.toString}")
+    val action = Json.parse(Json.parse(request.body.asText.get).as[String])
+    Logger.info(s"speak2: $action")
+    WallSystem.submitActions(wallId, currentUserId, uuid, 0, action)
     Ok("")
   }
 
   // http receive
-  def listen(wallId: String, timestamp: Long) = Action { implicit request =>
+  def listen(wallId: String) = Action { implicit request =>
     import play.api.templates.Html
     import play.api.libs.concurrent.Execution.Implicits._
+    val params = request.queryString
+    val uuid = params.get("uuid").get(0)
+    val timestamp = params.get("timestamp").get(0).toLong
     
     currentUserIdOption match {
       case Some(userId) =>
         Async {
-          WallSystem.establish(wallId, userId, timestamp).map { channels =>
+          WallSystem.establish(wallId, userId, uuid, timestamp).map { channels =>
               // force disconnect after 3 seconds
               val timeoutEnumerator:Enumerator[JsValue] = Enumerator.fromCallback[JsValue] { () =>
                 Promise.timeout(Some(JsNumber(0)), 3.seconds)

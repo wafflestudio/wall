@@ -37,21 +37,21 @@ object ChatLog extends ActiveRecord[ChatLog] {
   
   def list(roomId: String) = transactional {
     query {
-      (chatlog: ChatLog) => where(chatlog.room.id :== roomId) select(chatlog) orderBy(chatlog.timestamp desc)
+      (chatlog: ChatLog) => where(chatlog.room.id :== roomId) select(chatlog) orderBy(chatlog.timestamp asc)
     }
   }
 
 
   def list(roomId: String, beginTimestamp:Long) = transactional {
     query {
-      (chatLog: ChatLog) => where((chatLog.room.id :== roomId) :&& (chatLog.timestamp :>= beginTimestamp)) select(chatLog) orderBy(chatLog.timestamp desc)
+      (chatLog: ChatLog) => where((chatLog.room.id :== roomId) :&& (chatLog.timestamp :>= beginTimestamp)) select(chatLog) orderBy(chatLog.timestamp asc)
     }
   }
 
   
   def list(roomId: String, beginTimestamp: Long, endTimestamp: Long) = transactional {
     query {
-      (chatLog: ChatLog) => where((chatLog.timestamp :>= beginTimestamp) :&& (chatLog.timestamp :<= endTimestamp)) select(chatLog) orderBy(chatLog.timestamp desc)
+      (chatLog: ChatLog) => where((chatLog.timestamp :>= beginTimestamp) :&& (chatLog.timestamp :<= endTimestamp)) select(chatLog) orderBy(chatLog.timestamp asc)
     }
   }
 

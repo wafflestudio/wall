@@ -9,7 +9,7 @@ import utils.Operation
 import play.Logger
 
 // Record used for tracking text change (cache)
-case class AlterTextRecord(timestamp: Long, baseTimestamp:Long, baseText: String, resultText:String, connectionId: Int, msgId:Long, operation: Operation)
+case class AlterTextRecord(timestamp: Long, baseTimestamp:Long, baseText: String, resultText:String, uuid: String, msgId:Long, operation: Operation)
 
 
 object WallTimestamp extends Sequencer("WallTimestamp")
@@ -39,7 +39,9 @@ object WallLog extends ActiveRecord[WallLog] {
 
 
   def list(wallId: String, timestamp: Long) = transactional {
-    select[WallLog] where(log => (log.wall.id :== wallId) :&& (log.timestamp :> timestamp))
+    query {
+      (log:WallLog) => where((log.wall.id :== wallId) :&& (log.timestamp :> timestamp)) select(log) orderBy(log.timestamp asc) 
+    }
   }
 
 
@@ -71,8 +73,7 @@ object WallLog extends ActiveRecord[WallLog] {
     }
     
     val operations = logs.filter { log =>
-      Logger.debug(log.timestamp +"/" + log.message)
-      
+      Logger.debug(log.timestamp +"/" + log.message) 
       Try {
         val json = Json.parse(log.message)
         (json \ "action").as[String] == "alterText" && (json \ "params" \ "sheetId").as[String] == sheetId
@@ -81,7 +82,7 @@ object WallLog extends ActiveRecord[WallLog] {
       val json = Json.parse(log.message)
       val r = json \ "params"
       val u = json \ "undo"
-      val connectionId = (json \ "connectionId").as[Int]
+      val uuid = (json \ "uuid").asOpt[String].getOrElse((json \ "connectionId").asOpt[Int].map(_.toString).get)
       val timestamp = (json \ "timestamp").as[Long]
       val redo = new Operation((r \ "from").as[Int],
           (r \ "length").as[Int],
@@ -92,7 +93,7 @@ object WallLog extends ActiveRecord[WallLog] {
       val msgId = (r \ "msgId").as[Long]
       val resultText = pair._2
       val baseText = undo.apply(resultText)
-      val record = AlterTextRecord(timestamp = log.timestamp, baseTimestamp = timestamp, connectionId = connectionId, msgId = 1, 
+      val record = AlterTextRecord(timestamp = log.timestamp, baseTimestamp = timestamp, uuid = uuid, msgId = 1, 
           operation = redo, baseText = baseText, resultText = resultText)
       val list = pair._1
       (list :+ record, baseText)

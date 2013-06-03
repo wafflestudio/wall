@@ -11,7 +11,7 @@ class window.CometSocket extends EventDispatcher
   constructor: (speakurl, listenurl, scope = "COMET", @timestamp)->
     super()
     @speakurl = speakurl
-    @listenurl = listenurl
+    @listenurl = listenurl 
     @scope = "[#{scope}]"
     @activated = false
     
@@ -21,13 +21,16 @@ class window.CometSocket extends EventDispatcher
 
   deactivate: () ->
     @activated = false
+
+  url: () ->
+    @listenurl + "&timestamp=#{@timestamp}"
     
   # listen: create listener ajax stream via iframe
   listen:() ->
     @iframeId = window.CometSocket.iframeId
     window.CometSocket.iframeId += 1
-    @iframe = $("<iframe id='#cometSocket#{@iframeId}' src='#{@listenurl}'></iframe>").appendTo('body')
-    @iframe.get(0).contentWindow.triggerOnReceive = (msg) =>
+    iframe = $("<iframe id='#cometSocket#{@iframeId}' src='#{@url()}'></iframe>").appendTo('body')
+    iframe.get(0).contentWindow.triggerOnReceive = (msg) =>
       @onReceive(msg)
 
     # # make sure to reconnect when iframe is done loading
@@ -38,26 +41,23 @@ class window.CometSocket extends EventDispatcher
     # )
 
     abortRetry = () =>
-      @iframe.remove()
+      iframe.attr('src', 'about:blank')
+      iframe.remove()
       _.delay(_.bind(@listen, this), 15000) if @activated
 
     _.delay(_.bind(abortRetry, this), 2000)
 
   send: (msg)->
     
-    buffered = []
-    for msg in @pending
-      buffered.push(msg)
-
-    $.ajax(@speakurl, {type:'POST', contents: {actions:buffered}}).done( =>
-      console.info('send action via http successful')
+    $.ajax(@speakurl, {type:'POST', data: JSON.stringify(msg), contentType:"text/plain" } ).done( =>
+      console.debug('send action via http successful')
     ).fail( =>
-      console.warn('send action via http failed')
+      console.warn('send action via http failed with error')
     ).always( =>
     
     )
 
   onReceive: (msg)->
-    console.info(@scope, msg)
+    #console.info(@scope, msg)
     @trigger('receive', msg)
 

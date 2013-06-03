@@ -1,30 +1,57 @@
 class window.WallSocket extends EventDispatcher
 
-  @onCometReceive: (data) ->
-    console.log("[COMET]", data)
+  generateUUID: ->
+    'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) ->
+      r = Math.random()*16|0
+      v = if c == 'x' then r else (r&0x3|0x8)
+      v.toString(16);
+    ) + "-" + new Date().getTime().toString(36)
 
   constructor: (urls, timestamp) ->
     super()
-    @websocket = new window.PersistentWebsocket(urls.websocket, "WALL", timestamp)
-    @comet = new window.CometSocket(urls.speak, urls.listen, "COMET", timestamp)
+
+    @uuid = @generateUUID()
+    @websocket = new window.PersistentWebsocket(urls.websocket + "?uuid=#{@uuid}", "WALL", timestamp)
+    @comet = new window.CometSocket(urls.speak + "?uuid=#{@uuid}", urls.listen + "?uuid=#{@uuid}", "COMET", timestamp)
     @receivedTimestamp = timestamp
     @timestamp = timestamp
     @scope = @websocket.scope
+    @pending = []
     
-    console.info(@scope, "wall socket initialized to ts:#{timestamp}")
+    console.info(@scope, "wall socket initialized to UUID: #{@uuid} ts:#{timestamp}")
     @websocket.on 'receive', @onReceive
     @on 'receivedAction', @onReceivedAction
     @websocket.on 'open', () =>
       @comet.deactivate()
       @comet.off 'receive', @onReceive
 
+      if @pending.length > 0
+        console.info(@scope, "sending #{@pending.length} unsent messages")
+        for msg in @pending
+          @websocket.send(JSON.stringify(msg))
+
+
     @websocket.on 'close', () =>
       @comet.activate()
       @comet.on 'receive', @onReceive
-
+      if @pending.length > 0
+        console.info(@scope, "sending #{@pending.length} unsent messages")
+        for msg in @pending
+          @comet.send(JSON.stringify(msg))
   
   sendAction: (msg) ->
     msg.timestamp = @timestamp unless msg.timestamp?
+    msg.uuid = @uuid
+    @pending.push(msg)
+    if @websocket.isConnected()
+      @websocket.send(JSON.stringify(msg))
+    else
+      @comet.send(JSON.stringify(msg))
+
+  sendAck: () ->
+    msg = {action:'ack'}
+    msg.timestamp = @timestamp unless msg.timestamp?
+    msg.uuid = @uuid
     if @websocket.isConnected()
       @websocket.send(JSON.stringify(msg))
     else
@@ -33,6 +60,7 @@ class window.WallSocket extends EventDispatcher
   # only for debug
   sendActionDelayed: (msg, delay) ->
     msg.timestamp = @timestamp unless msg.timestamp?
+    msg.uuid = @uuid
     json = JSON.stringify(msg)
     console.log(@scope, "will send:" + json)
     setTimeout (=> @sendAction(json)), delay
@@ -43,16 +71,21 @@ class window.WallSocket extends EventDispatcher
     @receivedTimestamp = data.timestamp
 
     if data.error
-      console.log(@scope, 'disconnected: ' + data.error)
+      console.log(@scope, 'Error: ' + data.error)
       if @websocket.isConnected()
+        @websocket.numRetry = 10
         @websocket.close()
       return
+
+    while @pending.length > 0 and @pending[@pending.length-1].timestamp <= @receivedTimestamp
+      @pending.pop()
     
     if data.kind is "action" and (not @timestamp? or @timestamp < @receivedTimestamp)
       @timestamp = data.timestamp
+      @comet.timestamp = @timestamp
       detail = JSON.parse(data.detail)
-      @trigger('receivedAction', detail, data.mine, data.timestamp)
-      @sendAction({action:'ack'})
+      @trigger('receivedAction', detail, detail.uuid == @uuid, data.timestamp)
+      @sendAck()
     else if data.kind is "action"
       console.warn(@scope, "received message with older timestamp: #{data.timestamp} < #{@timestamp}")
       

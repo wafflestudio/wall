@@ -256,13 +256,13 @@ class window.TextSheet extends Sheet
     if isMine
       console.log("mine came (#{timestamp})")
       if @pending.length > 0 and @pending[0].msgId == operation.msgId
-        #console.log("received mine")
+        console.log("received mine: msgId #{operation.msgId}")
         head = @pending.shift()
         @baseText = spliceString(@baseText, head.from, head.length, head.content)
       else if @pending.length > 0
-        console.error("unexpected msgId came: #{operation.msgId} expected: #{@pending[0].msgId}, timestamp:#{timestamp}")
+        console.warn("unexpected msgId came: #{operation.msgId} expected: #{@pending[0].msgId}, timestamp:#{timestamp}, pending: ", @pending)
       else
-        console.error("unexpected msgId came: #{operation.msgId}, timestamp:#{timestamp}")
+        console.warn("unexpected msgId came: #{operation.msgId}, timestamp:#{timestamp}")
     else
       original = @baseText
 
@@ -294,7 +294,7 @@ class window.TextSheet extends Sheet
         #console.log("action:",action)
         html = spliceString(html, p.from, p.length, p.content)
 
-      #console.log("other came (#{timestamp}). base:", original, " altered:", html, " pending:", @pending)
+      console.log("other came (#{timestamp}). base:", original, " altered:", html, " pending:", @pending)
       
       @textfield.html(html)
       @savedText = @textfield.html()

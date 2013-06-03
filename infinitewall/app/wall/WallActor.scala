@@ -28,7 +28,7 @@ class WallActor(wallId: String) extends Actor {
   implicit def toLong(value: JsValue) = { value.as[Long] }
 
   val connectionUsage = new UsageSet
-  case class Connection(enumerator: PushEnumerator[JsValue], connectionId:Int)
+  case class Connection(enumerator: PushEnumerator[JsValue], uuid:String, connectionId:Int, isVolatile:Boolean = false)
 
   // key: userId, values: list of sessions user have
   var connections = Map.empty[String, List[Connection]]
@@ -37,9 +37,9 @@ class WallActor(wallId: String) extends Actor {
   // shutdown timer activated when no connection is left to the actor
   var shutdownTimer: Option[akka.actor.Cancellable] = None
   
-  def addConnection(userId: String, enumerator:PushEnumerator[JsValue]) = {
+  def addConnection(userId: String, uuid:String, enumerator:PushEnumerator[JsValue]) = {
     val connectionId = connectionUsage.allocate
-    connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(enumerator, connectionId)))
+    connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(enumerator, uuid, connectionId)))
     connectionId
   }
   
@@ -59,7 +59,7 @@ class WallActor(wallId: String) extends Actor {
 
   def receive = {
     // Join
-    case Join(userId, timestamp, syncOnce) => {
+    case Join(userId, uuid, timestamp, syncOnce) => {
       // Create an Enumerator to write to this socket
       val wallActor = self
       lazy val producer: PushEnumerator[JsValue] = Enumerator.imperative[JsValue]()
@@ -75,12 +75,15 @@ class WallActor(wallId: String) extends Actor {
           shutdownTimer = None
         }
         // update connections map
-        val connectionId = addConnection(userId, producer)
+        
+        val connectionId = addConnection(userId, uuid, producer)
         sender ! Connected(producer, prev, connectionId)
         if(syncOnce)
-          Logger.info(s"[Wall] user $userId:($connectionId) syncing with wall $wallId")
+        {
+          Logger.info(s"[Wall] user $userId:($uuid) syncing with wall $wallId")
+        }  
         else {
-          Logger.info(s"[Wall] user $userId:($connectionId) joined to wall $wallId")
+          Logger.info(s"[Wall] user $userId:($uuid / $connectionId) joined to wall $wallId")
           Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
         }
       }
@@ -90,16 +93,16 @@ class WallActor(wallId: String) extends Actor {
       if (numConnections == 0)
         shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Finishing(wallId) })
     // ACK
-    case Action(json, ack: Ack) =>
+    case Action(json, _, _, ack: Ack) =>
       Logger.debug("ack came(" + ack.timestamp + ").")
       // reserved for future use..
     // Create Action
-    case Action(json, c: CreateAction) =>
+    case Action(json, uuid, connectionId, c: CreateAction) =>
       val sheetId = Sheet.create(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId).frozen.id
       val addSheetId = (__ \ "params").json.update(__.read[JsObject].map(_ ++ Json.obj("sheetId" -> sheetId)))
-      notifyAll("action", c.timestamp, c.userId, json.validate(addSheetId).get.toString, c.connectionId)
+      notifyAll("action", c.timestamp, c.userId, uuid, json.validate(addSheetId).get.toString)
     // Other Action
-    case Action(json, action: ActionDetailWithId) =>
+    case Action(json, uuid, connectionId, action: ActionDetailWithId) =>
       Sheet.findById(action.sheetId).map(_.frozen).map { sheet =>
 
         action match {
@@ -115,11 +118,11 @@ class WallActor(wallId: String) extends Actor {
             }
             var pending = action.operations // all mine with > a.timestamp
 
-            assert(pending.size - 1 == records.filter(_.connectionId == action.connectionId).size,
-              "pending:" + (pending.size - 1) + " record:" + records.filter(_.connectionId == action.connectionId).size)
+            /*assert(pending.size - 1 == records.filter(_.uuid == action.uuid).size,
+              "pending:" + (pending.size - 1) + " record:" + records.filter(_.uuid == action.uuid).size)*/
 
             records.foreach { record =>
-              if (record.connectionId == action.connectionId) {
+              if (record.uuid == action.uuid) {
                 // drop already consolidated. 
                 if(pending.head.msgId != record.msgId)
                   Logger.warn(s"pending: ${pending.head.msgId} != record: ${record.msgId}")
@@ -138,9 +141,9 @@ class WallActor(wallId: String) extends Actor {
 
             val newOperation = pending.head.op
             val (baseText, undoOp) = Sheet.alterText(action.sheetId, newOperation)
-            val newAction = AlterTextAction(action.userId, action.connectionId, action.sheetId, action.timestamp,
+            val newAction = AlterTextAction(action.userId, action.uuid, action.sheetId, action.timestamp,
                 List(OperationWithState(newOperation, action.operations.last.msgId)), undoOp)
-            val newTimestamp = notifyAll("action", action.timestamp, action.userId, newAction.json.toString, action.connectionId)
+            val newTimestamp = notifyAll("action", action.timestamp, action.userId, uuid, newAction.json.toString)
            
           case a: SetLinkAction => SheetLink.create(a.sheetId, a.toSheetId, wallId)
           case a: RemoveLinkAction =>
@@ -151,20 +154,24 @@ class WallActor(wallId: String) extends Actor {
         action match {
           case a: AlterTextAction =>
           case _ =>
-            notifyAll("action", action.timestamp, action.userId, json.toString, action.connectionId)
+            notifyAll("action", action.timestamp, action.userId, uuid, json.toString)
         }
       }
 
     // Quit
-    case Quit(userId, connectionId) => {
-      quit(userId, connectionId)
-      notifyAll("userQuit", 0, userId, "", connectionId)
+    case Quit(userId, uuid, connectionId, wasPersistent) => {
+      if(connectionId != 0)
+      {
+        quit(userId, uuid, connectionId)
+        if(wasPersistent)
+          notifyAll("userQuit", 0, userId, uuid, "")
+      }
       
     }
 
   }
 
-  def notifyAll(kind: String, basetimestamp: Long, userId: String, detail: String, connectionId:Int) = {
+  def notifyAll(kind: String, basetimestamp: Long, userId: String, uuid:String, detail: String) = {
 
     val log = logMessage(kind, basetimestamp, userId, detail)
     val msg = log.toJson
@@ -173,10 +180,7 @@ class WallActor(wallId: String) extends Actor {
       case (_, userConns) =>
         userConns.foreach { connection =>
           val producer = connection.enumerator
-          if (connection.connectionId == connectionId)
-            producer.push(msg.as[JsObject] ++ Json.obj("mine" -> true))
-          else
-            producer.push(msg)
+          producer.push(msg)
         }
     }
     log.id
@@ -188,7 +192,7 @@ class WallActor(wallId: String) extends Actor {
   def logMessage(kind: String, basetimestamp: Long, userId: String, message: String) =
     WallLog.create(kind, wallId, basetimestamp, userId, message).frozen
 
-  def quit(userId: String, connectionId:Int) = {
+  def quit(userId: String, uuid:String, connectionId:Int) = {
     // clear sessions for userid. if none exists for a userid, remove userid key.
     removeConnection(userId, connectionId)
     
