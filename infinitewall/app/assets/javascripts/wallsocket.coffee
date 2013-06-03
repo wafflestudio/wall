@@ -25,7 +25,7 @@ class window.WallSocket extends EventDispatcher
   
   sendAction: (msg) ->
     msg.timestamp = @timestamp unless msg.timestamp?
-    if @websocket.isConnected
+    if @websocket.isConnected()
       @websocket.send(JSON.stringify(msg))
     else
       @cometsocket.send(JSON.stringify(msg))
@@ -44,7 +44,7 @@ class window.WallSocket extends EventDispatcher
 
     if data.error
       console.log(@scope, 'disconnected: ' + data.error)
-      if @websocket.isConnected
+      if @websocket.isConnected()
         @websocket.close()
       return
     
