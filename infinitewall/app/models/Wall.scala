@@ -36,7 +36,7 @@ object Wall extends ActiveRecord[Wall] {
   }
 
   def isValid(id: String, userId: String) = transactional {
-    findAllOwnedByUserId(userId).exists(_.id == id) || User.listSharedWalls(userId).exists(_ == id)
+    findAllOwnedByUserId(userId).exists(_.id == id) || User.listSharedWalls(userId).exists(_.id == id)
   }
 
   private def buildSubtree(folder: Folder.Frozen, folders: List[Folder.Frozen], walls: List[Wall.Frozen]): ResourceTree = {

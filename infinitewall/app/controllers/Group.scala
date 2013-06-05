@@ -15,7 +15,7 @@ object Group extends Controller with Auth with Login {
   
   def show(id: String) = AuthenticatedAction { implicit request =>
     val users = models.Group.listUsers(id).map(_.frozen)
-    val walls = models.Group.listWalls(id).map(_.frozen)
+    val walls = models.User.listSharedWalls(currentUserId).map(_.frozen)
     val nonSharedWalls = models.User.listNonSharedWalls(currentUserId).map(_.frozen)
     Ok(views.html.group.show(users, walls, nonSharedWalls, id))
   }
@@ -31,11 +31,10 @@ object Group extends Controller with Auth with Login {
   def addUser(groupId: String) = AuthenticatedAction { implicit request =>
     if (models.Group.isValid(groupId, currentUserId)) {
       val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-      val userEmail = params.get("email").getOrElse(Seq("unnamed"))
-      Logger.info(userEmail(0))
-      val user = models.User.findByEmail(userEmail(0)).map(_.frozen)
+      val userEmail = params.get("email").get(0)
+      Logger.info(userEmail)
+      val user = models.User.findByEmail(userEmail).map(_.frozen)
       user.map { u =>
-        Logger.info("hi")
         Logger.info(u.email)
         models.Group.addUser(groupId, u.id)
       }
