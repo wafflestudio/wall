@@ -16,8 +16,8 @@ class window.CometSocket extends EventDispatcher
     @activated = false
     
   activate: () ->
+    @listen() if not @activated
     @activated = true
-    @listen()
 
   deactivate: () ->
     @activated = false
