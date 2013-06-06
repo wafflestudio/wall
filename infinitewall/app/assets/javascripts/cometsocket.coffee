@@ -27,6 +27,8 @@ class window.CometSocket extends EventDispatcher
     
   # listen: create listener ajax stream via iframe
   listen:() ->
+    return if not @activated
+    
     @iframeId = window.CometSocket.iframeId
     window.CometSocket.iframeId += 1
     iframe = $("<iframe id='#cometSocket#{@iframeId}' src='#{@url()}'></iframe>").appendTo('body')

@@ -1,7 +1,9 @@
-class window.Chat extends PersistentWebsocket
+class window.Chat extends EventDispatcher
   
   constructor: (url) ->
     super(url, "CHAT")
+    @scope = 'CHAT'
+    @socket = new PersistentWebsocket(url, @scope)
     
     @chatWindow = $('#chatWindow')
     @chatLog = $('#chatLog')
@@ -11,14 +13,15 @@ class window.Chat extends PersistentWebsocket
     @ready = false
     @users =  {}
 
+    @socket.on 'receive', @onReceive
+
     # events
     #@on "open",=> @chatWindow.fadeTo(500, 1.0)
     #@on "close", => @chatWindow.fadeTo(500, 0.4)
   
-  onReceive: (e) =>
-    data = JSON.parse(e.data)
+  onReceive: (data) =>
     console.log(@scope, data)
-    @timestamp = data.timestamp if data.timestamp?
+    @socket.timestamp = data.timestamp if data.timestamp?
 
     if data.error
       console.log(@scope, 'Disconnecting from an unknown error: ' + data.error)
@@ -58,7 +61,7 @@ class window.Chat extends PersistentWebsocket
     msg = @chatInput.val()
     #msg = msg.substr(0, msg.length - 1) if msg.charAt(msg.length - 1) is '\n'
     @chatInput.val("")
-    @send JSON.stringify({connectionId:@connectionId, text: msg})
+    @socket.send JSON.stringify({connectionId:@connectionId, text: msg})
 
   toggle: -> @chatWindow.fadeToggle()
 

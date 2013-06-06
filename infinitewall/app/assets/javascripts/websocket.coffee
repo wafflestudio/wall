@@ -21,9 +21,15 @@ class window.PersistentWebsocket extends EventDispatcher
   isConnected:() ->
     @status == "CONNECTED"
 
+  withTimestamp:() =>
+    if @url.indexOf('?') != -1
+      "&timestamp=#{@timestamp}"
+    else
+      "?timestamp=#{@timestamp}"
+
   connect: ()=>
     console.info(@scope, "Retrying to connect... ", @numRetry, "ts: #{@timestamp}") if @numRetry > 0 
-    @socket = new @WS(@url + if @timestamp? then "?timestamp=#{@timestamp}" else "")
+    @socket = new @WS(@url + if @timestamp? then @withTimestamp() else "")
     @socket.onopen = @onOpen
     @socket.onerror = @onError
     @socket.onclose = @onClose

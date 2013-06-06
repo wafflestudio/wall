@@ -22,6 +22,7 @@ class window.WallSocket extends EventDispatcher
     @websocket.on 'receive', @onReceive
     @on 'receivedAction', @onReceivedAction
     @websocket.on 'open', () =>
+      console.log(@scope, 'websocket established')
       @comet.deactivate()
       @comet.off 'receive', @onReceive
 
@@ -32,6 +33,7 @@ class window.WallSocket extends EventDispatcher
 
 
     @websocket.on 'close', () =>
+      console.log(@scope, 'websocket closed')
       @comet.activate()
       @comet.on 'receive', @onReceive
       if @pending.length > 0

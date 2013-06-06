@@ -56,6 +56,13 @@ class WallActor(wallId: String) extends Actor {
   def numConnections = connections.foldLeft[Int](0) { (num, userConnections) =>
     num + userConnections._2.length
   }
+  
+  def connectionsAsString = connections.foldLeft("") { (str, userConnections) =>
+    str + userConnections._2.foldLeft("") { (str, conn) =>
+      str + {if(str.isEmpty()) {""}  else { "," }} + conn.uuid
+    }
+  }
+ 
 
   def receive = {
     // Join
@@ -84,7 +91,9 @@ class WallActor(wallId: String) extends Actor {
         }  
         else {
           Logger.info(s"[Wall] user $userId:($uuid / $connectionId) joined to wall $wallId")
-          Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
+          Logger.info("[Wall] Number of active connections for wall(" + wallId + "): " + numConnections)
+          
+          Logger.info(s"[Wall] connections: (${connectionsAsString})")
         }
       }
     }
@@ -160,12 +169,11 @@ class WallActor(wallId: String) extends Actor {
 
     // Quit
     case Quit(userId, uuid, connectionId, wasPersistent) => {
-      if(connectionId != 0)
-      {
-        quit(userId, uuid, connectionId)
-        if(wasPersistent)
-          notifyAll("userQuit", 0, userId, uuid, "")
-      }
+      
+      quit(userId, uuid, connectionId)
+      if(wasPersistent)
+        notifyAll("userQuit", 0, userId, uuid, "")
+      
       
     }
 

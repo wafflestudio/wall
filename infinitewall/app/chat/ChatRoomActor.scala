@@ -65,7 +65,7 @@ class ChatRoomActor(roomId: String) extends Actor {
     }
    
     Logger.info("Number of active connections for chat(" + roomId + "): " + numConnections)
-    Logger.info(s"[Wall] user $userId joined to chat room roomId ")
+    Logger.info(s"[Chat] user $userId joined to chat room $roomId ")
   }
 
   def receive = {
