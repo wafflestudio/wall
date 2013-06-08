@@ -46,14 +46,3 @@ sleep 10
 # apply any possible evolution scripts
 curl -X GET localhost:9000/@evolutions/apply/default > /dev/null
 
-# run phantomjs integration tests
-for jsfile in test/integration/phantomjs/*.js
-do
-	phantomjs $jsfile
-done
-
-for jsfile in test/integration/phantomjs/*.coffee
-do
-	phantomjs $jsfile
-done
-
