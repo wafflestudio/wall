@@ -17,6 +17,7 @@ casper.then ->
     @waitFor ( ->
       url isnt @getCurrentUrl()
     )
+
 # fill signup form and submit
 casper.then ->
   casper.log('accessing /signup', 'info')
@@ -28,10 +29,31 @@ casper.then ->
     "Nickname": "casper"
   }
   ,true)
+  @waitForSelector('a[href="/logout"]')
 
+# capture index after login and logout
 casper.then ->
+  @test.assertEquals(@getCurrentUrl(), siteURL + "/")
   casper.log('accessing '+ @getCurrentUrl(), 'info')
-  @capture('screenshot/login_index.png')
+  @capture('screenshot/signedup_index.png')
+  @thenClick('a[href="/logout"]').then ->
+    @waitWhileSelector 'a[href="/logout"]'
+
+# logged out, and then login again
+casper.then ->
+  @test.assertEquals(@getCurrentUrl(), siteURL + "/")
+  casper.log('accessing '+ @getCurrentUrl(), 'info')
+  @capture('screenshot/loggedout_index.png')
+  @fill('form[action="/authenticate"]', {
+    "email" : "casper@example.com"
+    "password" : "blahblah"
+  }
+  , true)
+  @waitForSelector('a[href="/logout"]')
+
+# capture screen shot
+casper.then ->
+  @capture('screenshot/loggedin_index.png')
 
 casper.run ->
   @exit()
