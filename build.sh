@@ -57,14 +57,3 @@ do
 	phantomjs $jsfile
 done
 
-
-# run phantomjs interaction tests
-for jsfile in test/interaction/*.js
-do
-	casperjs $jsfile
-done
-for csfile in test/interaction/*.coffee
-do
-	casperjs $csfile
-done
-
