@@ -1,6 +1,6 @@
 @(wallId:String, wallName:String, pref:WallPreference.Frozen, sheets:List[Sheet.Frozen], sheetlinks:List[SheetLink.Frozen],timestamp:Long, chatId:String)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
-@layouts.stage("Wall ::: Infinite Wall") {
+@layouts.stage(wallName + " ::: Infinite Wall") {
   <div class="navigator"></div>
 
   <!--<div class="wallContainer innershade otherwall1"></div>-->
