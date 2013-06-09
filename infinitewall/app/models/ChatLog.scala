@@ -36,9 +36,10 @@ object ChatLog extends ActiveRecord[ChatLog] {
   }
   
   def list(roomId: String) = transactional {
-    query {
-      (chatlog: ChatLog) => where(chatlog.room.id :== roomId) select(chatlog) orderBy(chatlog.timestamp asc)
+    val result = query {
+      (chatlog: ChatLog) => where(chatlog.room.id :== roomId) select(chatlog) orderBy(chatlog.timestamp desc) limit(20)
     }
+    result.reverse
   }
 
 
