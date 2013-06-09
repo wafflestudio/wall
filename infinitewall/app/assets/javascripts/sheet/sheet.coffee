@@ -52,11 +52,11 @@ class window.Sheet extends Movable
   socketSetTitle: ->
     wallSocket.sendAction {action : 'setTitle', params : {sheetId : @id, title : @element.find('.sheetTitle').html()}}
 
-  socketSetLink: (to_id) ->
-    wallSocket.sendAction {action : 'setLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: to_id}}
+  socketSetLink: (toSheetId) ->
+    wallSocket.sendAction {action : 'setLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
     
-  socketRemoveLink: (to_id) ->
-    wallSocket.sendAction {action : 'removeLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: to_id}}
+  socketRemoveLink: (toSheetId) ->
+    wallSocket.sendAction {action : 'removeLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
 
   attachHandler: ->
 
@@ -135,9 +135,9 @@ class window.Sheet extends Movable
     @newLinkLine.connect(params.toSheetId)
 
   removeLink: (params) ->
-    @links[params.to_id].remove()
+    @links[params.toSheetId].remove()
     delete @links[params.toSheetId]
-    delete stage.sheets[params.to_id].links[params.fromSheetId]
+    delete stage.sheets[params.toSheetId].links[params.fromSheetId]
 
   refreshLinks: (x, y, w, h) ->
     for id, link of @links

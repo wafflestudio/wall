@@ -26,7 +26,7 @@ class window.Stage
       when @contentTypeEnum.image then new ImageSheet($.extend(params, {id : sheetId}))
 
   createSheetLink: (params, timestamp) ->
-    @sheets[params.from_id].setLink(params)
+    @sheets[params.fromSheetId].setLink(params)
 
   constructor: (wallId, timestamp, currentUser, wallSocketURLs, chatURL) ->
     window.wall = new Wall()
