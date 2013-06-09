@@ -1,12 +1,3 @@
-
-
-class WallLog
-  constructor: () ->
-
-  append:() ->
-    
-
-
-
-class History
-  constructor: () ->
+define [], () ->
+  class History
+    constructor: () ->

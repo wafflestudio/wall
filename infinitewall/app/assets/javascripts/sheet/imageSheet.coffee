@@ -21,49 +21,50 @@ imageTemplate = "<div class='sheetBox' tabindex='-1'>
     </div>
   </div>"
 
-class window.ImageSheet extends Sheet
-  @create: (name = "Untitled Image", content, callback) ->
-    img = new Image()
-    img.src = content
-    img.onload = ->
-      w = this.width
-      h = this.height
-      ratio = w / h
+define ["./sheet", "./imageSheetHandler", "jquery"], (Sheet, ImageSheetHandler, $) ->
+  class ImageSheet extends Sheet
+    @create: (name = "Untitled Image", content, callback) ->
+      img = new Image()
+      img.src = content
+      img.onload = ->
+        w = this.width
+        h = this.height
+        ratio = w / h
+        
+        if w > 400
+          w = 400
+          h = 400 / ratio
+
+        if h > 400
+          h = 400
+          w = 400 * ratio
       
-      if w > 400
-        w = 400
-        h = 400 / ratio
+        x = (-w + ($(window).width()) / stage.zoom) / 2 - (stage.scaleLayerX + wall.mL.x * stage.zoom) / stage.zoom
+        y = (-h + ($(window).height()) / stage.zoom) / 2 - (stage.scaleLayerY + wall.mL.y * stage.zoom) / stage.zoom
+        
+        title = name
+        
+        wallSocket.sendAction({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
+        if typeof callback is "function"
+          callback()
 
-      if h > 400
-        h = 400
-        w = 400 * ratio
-    
-      x = (-w + ($(window).width()) / stage.zoom) / 2 - (stage.scaleLayerX + wall.mL.x * stage.zoom) / stage.zoom
-      y = (-h + ($(window).height()) / stage.zoom) / 2 - (stage.scaleLayerY + wall.mL.y * stage.zoom) / stage.zoom
-      
-      title = name
-      
-      wallSocket.sendAction({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
-      if typeof callback is "function"
-        callback()
+    setElement: ->
+      @element = $($(imageTemplate).appendTo('#sheetLayer'))
+      @innerElement = @element.children('.sheet')
 
-  setElement: ->
-    @element = $($(imageTemplate).appendTo('#sheetLayer'))
-    @innerElement = @element.children('.sheet')
+    constructor: (params) ->
+      super(params)
+      @innerElement.children('.sheetImage').css 'background-image', "url('#{params.content}')"
 
-  constructor: (params) ->
-    super(params)
-    @innerElement.children('.sheetImage').css 'background-image', "url('#{params.content}')"
+    attachHandler: ->
+      @handler = new ImageSheetHandler(this)
 
-  attachHandler: ->
-    @handler = new ImageSheetHandler(this)
+    becomeActive: ->
+      super()
+      @innerElement.find('.sheetTopBar').show()
+      @innerElement.find('.sheetText').show()
 
-  becomeActive: ->
-    super()
-    @innerElement.find('.sheetTopBar').show()
-    @innerElement.find('.sheetText').show()
-
-  resignActive: ->
-    super()
-    @innerElement.find('.sheetTopBar').hide()
-    @innerElement.find('.sheetText').hide()
+    resignActive: ->
+      super()
+      @innerElement.find('.sheetTopBar').hide()
+      @innerElement.find('.sheetText').hide()

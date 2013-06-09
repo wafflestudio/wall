@@ -3,41 +3,43 @@ searchTemplate = "<div class='searchResult'>
     <span id='content'></span>
   </div>"
 
-class window.Search
-  constructor: ->
-    @searchForm = $("#searchForm")
-    @searchInput = $("#searchInput")
-    @searchButton = $("#searchButton")
-    @searchResults = $("#searchResults")
 
-    @searchButton.click =>
-      @query()
-   
-  query: () =>
-    @clear()
-    keyword = @searchInput.val()
-      
-    if keyword?
-      $.get("/wall/search/#{stage.wallId}/#{keyword}", {},
-        (res) =>
-          $.each(res, (i, val) =>
-            element = $(searchTemplate).appendTo(@searchResults)
+define ["jquery"], ($) ->
+  class Search
+    constructor: ->
+      @searchForm = $("#searchForm")
+      @searchInput = $("#searchInput")
+      @searchButton = $("#searchButton")
+      @searchResults = $("#searchResults")
 
-            element.find("#title").html(val.title)
-            element.find("#content").html(val.content)
+      @searchButton.click =>
+        @query()
+     
+    query: () =>
+      @clear()
+      keyword = @searchInput.val()
+        
+      if keyword?
+        $.get("/wall/search/#{stage.wallId}/#{keyword}", {},
+          (res) =>
+            $.each(res, (i, val) =>
+              element = $(searchTemplate).appendTo(@searchResults)
 
-            element.click =>
-              curSheet = stage.sheets[val.id]
+              element.find("#title").html(val.title)
+              element.find("#content").html(val.content)
 
-              if stage.activeSheet?
-                stage.activeSheet.resignActive()
+              element.click =>
+                curSheet = stage.sheets[val.id]
 
-              wall.center(curSheet) #callback to resign selected
-              curSheet.becomeActive()
-          )
-      )
-    return
+                if stage.activeSheet?
+                  stage.activeSheet.resignActive()
+
+                wall.center(curSheet) #callback to resign selected
+                curSheet.becomeActive()
+            )
+        )
+      return
 
 
-  clear: () =>
-    @searchResults.html("")
+    clear: () =>
+      @searchResults.html("")

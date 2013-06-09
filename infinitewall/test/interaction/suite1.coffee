@@ -31,11 +31,17 @@ casper.then ->
   ,true)
   @waitForSelector('a[href="/logout"]')
 
-# capture index after login and logout
+# capture index after login
 casper.then ->
   @test.assertEquals(@getCurrentUrl(), siteURL + "/")
   casper.log('accessing '+ @getCurrentUrl(), 'info')
   @capture('screenshot/signedup_index.png')
+
+# TODO: visit group page
+# TODO: visit wall page
+# TODO: visit account page
+
+casper.then ->
   @thenClick('a[href="/logout"]').then ->
     @waitWhileSelector 'a[href="/logout"]'
 

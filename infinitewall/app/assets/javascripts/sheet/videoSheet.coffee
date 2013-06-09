@@ -1,23 +1,26 @@
-videoTemplate = "<div class='sheetBox' tabindex='-1'>
-  <div class='sheet' contentType='image'>
-    <div class='sheetTopBar'>
-      <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
+define ["./sheet", "./videoSheetHandler", "jquery"], (Sheet, VideoSheetHandler, $) ->
+
+  videoTemplate = "<div class='sheetBox' tabindex='-1'>
+    <div class='sheet' contentType='image'>
+      <div class='sheetTopBar'>
+        <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
+      </div>
+      <div class='sheetVideo'></div>
+      <div class='resizeHandle'></div>
     </div>
-    <div class='sheetVideo'></div>
-    <div class='resizeHandle'></div>
-  </div>
-</div>"
+  </div>"
 
-class window.VideoSheet extends Sheet
-  @create: (name = "Untitled Video", content, callback) ->
 
-  setElement: ->
-    @element = $($(videoTemplate).appendTo('#sheetLayer'))
-    @innerElement = @element.children('.sheet')
+  class VideoSheet extends Sheet
+    @create: (name = "Untitled Video", content, callback) ->
 
-  constructor: (params) ->
-    super(params)
-    @innerElement.children('.sheetVideo').html(params.content)
+    setElement: ->
+      @element = $($(videoTemplate).appendTo('#sheetLayer'))
+      @innerElement = @element.children('.sheet')
 
-  attachHandler: ->
-    @handler = new VideoSheetHandler(this)
+    constructor: (params) ->
+      super(params)
+      @innerElement.children('.sheetVideo').html(params.content)
+
+    attachHandler: ->
+      @handler = new VideoSheetHandler(this)
