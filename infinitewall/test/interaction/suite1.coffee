@@ -38,8 +38,26 @@ casper.then ->
   @capture('screenshot/signedup_index.png')
 
 # TODO: visit group page
-# TODO: visit wall page
 # TODO: visit account page
+
+# visit wall page
+casper.thenOpen siteURL + '/wall', ->
+  casper.log('accessing '+ @getCurrentUrl(), 'info')
+  @capture('screenshot/wall.png')
+  @fill('form[action="/wall/create"]', {
+    "title" : "test wall"
+  }
+  ,true)
+  @waitForSelector('div#wall')
+
+casper.then ->
+  casper.log('accessing '+ @getCurrentUrl(), 'info')
+  @capture('screenshot/stage.png')
+  @wait(5000)
+
+casper.thenOpen siteURL + '/group', ->
+  casper.log('accessing '+ @getCurrentUrl(), 'info')
+  @capture('screenshot/group.png')
 
 casper.then ->
   @thenClick('a[href="/logout"]').then ->

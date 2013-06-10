@@ -55,7 +55,7 @@ trait Auth {
         f(request)
       else {
         Logger.info("unauthorized access:" + request.uri)
-        Forbidden("You are not authorized to access this url").withNewSession
+        Redirect(routes.Application.index).flashing("error" -> "You are not authorized to access this url")
       }
     }
 
@@ -65,7 +65,7 @@ trait Auth {
         f(request)
       else {
         Logger.info("unauthorized access:" + request.uri)
-        Forbidden("You are not authorized to access this url").withNewSession
+        Redirect(routes.Application.index).flashing("error" -> "You are not authorized to access this url")
       }
     }
 
