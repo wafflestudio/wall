@@ -4,7 +4,7 @@
 # @scope
 
 # states: CONNECTED <=> TRYING
-define ["EventDispatcher"], (EventDispatcher) ->
+define ["EventDispatcher","underscore"], (EventDispatcher, _) ->
   class CometSocket extends EventDispatcher
     @iframeId = 1
 
