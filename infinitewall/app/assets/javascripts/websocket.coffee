@@ -10,14 +10,17 @@ define ["EventDispatcher", "jquery"], (EventDispatcher, $) ->
     
     constructor: (@url, scope = "WS", @timestamp) ->
       super()
-      @WS = if window['MozWebSocket'] then MozWebSocket else WebSocket
+      @WS = if window['MozWebSocket'] then MozWebSocket else window['WebSocket']
       @status = "TRYING"
       @numRetry = 0
       @scope = "[#{scope}]"
       @buffered = [] # emergency buffer
       @pending = []
 
-      @connect()
+      if @WS?
+      	@connect()
+      else
+        setTimeout (() => @trigger('close')), 0
 
     isConnected:() ->
       @status == "CONNECTED"

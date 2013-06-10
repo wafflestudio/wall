@@ -27,7 +27,6 @@ define ["EventDispatcher","underscore", "jquery"], (EventDispatcher, _, $) ->
       
     # listen: create listener ajax stream via iframe
     listen:() ->
-      return if not @activated
       
       @iframeId = CometSocket.iframeId
       CometSocket.iframeId += 1
