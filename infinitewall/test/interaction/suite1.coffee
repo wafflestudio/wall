@@ -1,4 +1,4 @@
-casper = require("casper").create({verbose:true, logLevel:'debug'})
+casper = require("casper").create({verbose:true, logLevel:'debug', viewportSize:{width:1280, height:1024}})
 if casper.cli.args.length < 1
   casper.exit()
 
@@ -57,7 +57,8 @@ casper.then ->
   @capture('screenshot/stage.png')
   casper.thenClick('#newTextSheetButton').then ->
     @waitForSelector('.sheet[contenttype="text"]')
-    @capture('screenshot/create_textsheet.png')
+    @wait 1000, () ->
+	    @capture('screenshot/create_textsheet.png')
 
 # visit group page
 casper.thenOpen siteURL + '/group', ->
