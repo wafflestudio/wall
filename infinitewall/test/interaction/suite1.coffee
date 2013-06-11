@@ -50,15 +50,21 @@ casper.thenOpen siteURL + '/wall', ->
   ,true)
   @waitForSelector('div#wall')
 
+# capture wall
 casper.then ->
   casper.log('accessing '+ @getCurrentUrl(), 'info')
-  @capture('screenshot/stage.png')
   @wait(5000)
+  @capture('screenshot/stage.png')
+  casper.thenClick('#newTextSheetButton').then ->
+    @waitForSelector('.sheet[contenttype="text"]')
+    @capture('screenshot/create_textsheet.png')
 
+# visit group page
 casper.thenOpen siteURL + '/group', ->
   casper.log('accessing '+ @getCurrentUrl(), 'info')
   @capture('screenshot/group.png')
 
+# log out
 casper.then ->
   @thenClick('a[href="/logout"]').then ->
     @waitWhileSelector 'a[href="/logout"]'
