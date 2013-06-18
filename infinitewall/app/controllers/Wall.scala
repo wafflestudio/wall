@@ -16,7 +16,6 @@ import models.ChatRoom
 import models.WallLog
 import models.Sheet
 import models.SheetLink
-import play.api.db.DB
 import models.WallPreference
 import models.ResourceTree
 import scala.util.Success
@@ -61,9 +60,9 @@ object Wall extends Controller with Auth with Login {
       case Some(w) =>
         if (models.Wall.isValid(wallId, currentUserId)) {
           val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
-          val (timestamp, sheets, sheetlinks) = DB.withConnection { implicit c =>
+          val (timestamp, sheets, sheetlinks) = 
             (WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
-          }
+    
           val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
           Ok(views.html.wall.stage(wallId, w.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
         }
