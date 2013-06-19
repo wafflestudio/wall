@@ -37,7 +37,8 @@ object ChatLog extends ActiveRecord[ChatLog] {
   
   def list(roomId: String) = transactional {
     val result = query {
-      (chatlog: ChatLog) => where(chatlog.room.id :== roomId) select(chatlog) orderBy(chatlog.timestamp desc) limit(20)
+      val room = byId[ChatRoom](roomId)
+      (chatlog: ChatLog) => where(chatlog.room :== room) select(chatlog) orderBy(chatlog.timestamp desc) limit(20)
     }
     result.reverse
   }
@@ -45,14 +46,16 @@ object ChatLog extends ActiveRecord[ChatLog] {
 
   def list(roomId: String, beginTimestamp:Long) = transactional {
     query {
-      (chatLog: ChatLog) => where((chatLog.room.id :== roomId) :&& (chatLog.timestamp :>= beginTimestamp)) select(chatLog) orderBy(chatLog.timestamp asc)
+      val room = byId[ChatRoom](roomId)
+      (chatLog: ChatLog) => where((chatLog.room :== room) :&& (chatLog.timestamp :>= beginTimestamp)) select(chatLog) orderBy(chatLog.timestamp asc)
     }
   }
 
   
   def list(roomId: String, beginTimestamp: Long, endTimestamp: Long) = transactional {
     query {
-      (chatLog: ChatLog) => where((chatLog.timestamp :>= beginTimestamp) :&& (chatLog.timestamp :<= endTimestamp)) select(chatLog) orderBy(chatLog.timestamp asc)
+      val room = byId[ChatRoom](roomId)
+      (chatLog: ChatLog) => where((chatLog.room :== room) :&& (chatLog.timestamp :>= beginTimestamp) :&& (chatLog.timestamp :<= endTimestamp)) select(chatLog) orderBy(chatLog.timestamp asc)
     }
   }
 

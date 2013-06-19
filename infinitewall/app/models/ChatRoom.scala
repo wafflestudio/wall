@@ -63,7 +63,8 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
   override def delete(id:String) {
     transactional {
       // remove all chatlogs in the room
-      val logs = select[ChatLog] where(_.room.id :== id)
+      val room = byId[ChatRoom](id)
+      val logs = select[ChatLog] where(_.room :== room)
       logs.map(_.delete)
       super.delete(id)
     }

@@ -39,14 +39,17 @@ object SheetLink extends ActiveRecord[SheetLink] {
 
   def remove(fromId: String, toId: String)  {
     transactional {
+      val fromSheet = byId[Sheet](fromId)
+      val toSheet = byId[Sheet](toId)
       val entities = select[SheetLink] where(link => 
-        (link.fromSheet.id :== fromId) :&& (link.toSheet.id :== toId))
+        (link.fromSheet :== fromSheet) :&& (link.toSheet :== toSheet))
       entities.map(_.delete)
     }
   }
 
   def findAllByWallId(wallId: String) = transactional {
-    select[SheetLink] where(_.wall.id :== wallId)
+    val wall = byId[Wall](wallId)
+    select[SheetLink] where(_.wall :== wall)
   }
   
 }

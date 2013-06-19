@@ -30,7 +30,8 @@ object Group extends ActiveRecord[Group] {
 
   def findAllIncludesUserId(userId: String) = transactional {
     query {
-      (group:Group, uig:UserInGroup) => where((uig.user.id :== userId) :&& (group :== uig.group)) select(group)
+      val user = byId[User](userId)
+      (group:Group, uig:UserInGroup) => where((uig.user :== user) :&& (group :== uig.group)) select(group)
     }.map(_.frozen)
   }
   
@@ -100,8 +101,9 @@ object Group extends ActiveRecord[Group] {
   
   override def delete(id:String)  {
     transactional {
-      select[UserInGroup] where(_.group.id :== id)
-      select[WallInGroup] where(_.group.id :== id)
+      val group = byId[Group](id)
+      select[UserInGroup] where(_.group :== group)
+      select[WallInGroup] where(_.group :== group)
       super.delete(id)
     }
   } 

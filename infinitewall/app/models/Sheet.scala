@@ -67,7 +67,8 @@ object Sheet extends ActiveRecord[Sheet] {
   }
 
   def findAllByWallId(wallId: String) = transactional {
-    select[Sheet] where (_.wall.id :== wallId)
+    val wall = byId[Wall](wallId)
+    select[Sheet] where (_.wall :== wall)
   }
   
 
