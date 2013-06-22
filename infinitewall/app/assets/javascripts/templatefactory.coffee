@@ -27,7 +27,7 @@ define ["jquery"], ($) ->
               <!--<h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>-->
             <!--</div>-->
             <div class='sheetText'>
-              <div class='sheetTextField' contenteditable='true'>
+              <div class='sheetTextField'>
               </div>
             </div>
             <div class='resizeHandleContainer'>

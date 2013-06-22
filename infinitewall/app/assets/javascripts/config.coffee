@@ -16,6 +16,10 @@ requirejs.config
       "canvas-to-blob": "fileupload/canvas-to-blob"
   },
   shim: {
+      hallo : {
+        deps: ["jquery","jquery.ui.widget", "rangy-core"]
+        exports: "jQuery.fn.hallo"
+      }
       underscore: {
         exports: '_'
       }

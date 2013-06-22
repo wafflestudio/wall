@@ -1,287 +1,182 @@
 define [
-  "jquery",
-  "text/util",
-  "text/operation",
-  "text/stringwithstate",
-  "./sheet",
-  "./textSheetHandler",
-  "templatefactory",
-  "rangy"], ($, TextUtil, Operation, StringWithState, Sheet, TextSheetHandler, TemplateFactory, rangy) ->
-
-  # import module
-  detectOperation = TextUtil.detectOperation
-  spliceString = TextUtil.spliceString
-
-  class TextSheet extends Sheet
-    @create: (content) ->
-      x = Math.floor(Math.random() * ($(window).width() - 225) * 0.9 / stage.zoom - (stage.scaleLayerX + (parseInt ($('#moveLayer').css 'x')) * stage.zoom) / stage.zoom)
-      y = Math.floor(Math.random() * ($(window).height() - 74) * 0.9 / stage.zoom - (stage.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * stage.zoom) / stage.zoom)
-      w = 240
-      h = 168
-      title = "Untitled Text"
-
-      action = {action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}}
-      histObj = {action:"remove", params:{}}
-      wallSocket.sendAction(action, histObj)
-
-    setElement: ->
-      textTemplate = TemplateFactory.makeTemplate("textSheet")
-      @element = $($(textTemplate).appendTo('#sheetLayer'))
-      @innerElement = @element.children('.sheet')
-
-    constructor: (params, timestamp) ->
-      super(params)
-      textfield = @element.find('.sheetTextField')
-
-      #textfield.on 'resize', (e) =>
-        #if $(e.target).height() > @ih
-          #@ih = $(e.target).height()
-
-      @contentType = "textSheet"
-      @baseText = params.content # used for rebuilding with @pending 
-      @pending = [] # {basetimestamp, userid, original change, }
-      @msgId = 0
-      @id = params.sheetId
-      @textfield = textfield
-      @timestamp = timestamp
-
-      @element.find('.sheetTextField').html(params.content)
-
-      @savedText = params.content
-      textfield.html(params.content)
-
-      if textfield.html() != params.content
-          console.warn("browser altered content! :", textfield.html(), ":", params.content)
-
-      ##### Text change detection ###### 
-      savedRange = null
-      selection = rangy.getSelection()
-      
-      @setRange = (start, end) ->
-        html = textfield.html()
-        length = html.length
-
-        backwards = start > end
-        if start < end
-          s = start
-          e = end
-        else
-          s = end
-          e = start
-
-        if s == e
-          html = html.substr(0,s) + '<a class="rangeCollapsed"></a>' + html.substr(s)
-          textfield.html(html)
-          node = textfield.find('a.rangeCollapsed').get(0)
-          range = rangy.createNativeRange()
-          if s > 0
-            range.setEndBefore(node)
-            range.collapse(false)
-          else if e < length-1
-            range.setStartAfter(node)
-            range.collapse(true)
-          else
-            range.selectNode(textfield.get(0))
-
-          node.parentNode.removeChild(node)
-
-        else
-          textfield.html(html.substr(0,s) + '<a class="rangeStart"></a>' +
-            html.substr(s, e-s) + '<a class="rangeEnd"></a>' + html.substr(e))
-          node1 = textfield.find('a.rangeStart').get(0)
-          node2 = textfield.find('a.rangeEnd').get(0)
-          #console.log(node1, node2)
-          range = rangy.createNativeRange()
-          range.setStartAfter(node1)
-          range.setEndBefore(node2)
-          node1.parentNode.removeChild(node1)
-          node2.parentNode.removeChild(node2)
-
-        selection.removeAllRanges()
-        selection.addRange(range, backwards)
-
-     
-      @getRange = () ->
-        start = 0
-        end = 0
-
-        # save selection
-        selection.refresh()
-        ranges = selection.getAllRanges()
-
-        if ranges.length == 0
-          console.warn('no available selection or cursor')
-          return null
-
-        range = ranges[0]
-        backwards = selection.isBackwards()
-        collapsed = selection.isCollapsed
-
-        if !collapsed and backwards
-          range4 = range.cloneRange()
-          range4.collapse(false)
-          endNode = document.createElement('a')
-          endNode.setAttribute('class', 'rangeEnd')
-          range4.insertNode(endNode)
-
-        # insert node   [[inserted]      ]
-        range2 = range.cloneRange()
-        startNode = document.createElement('a')
-        startNode.setAttribute('class', 'rangeStart')
-        range2.insertNode(startNode)
-        # get the position with innerHTML
-        start = textfield.html().search('<a class="rangeStart"')
-        # remove node
-        startNode.parentNode.removeChild(startNode)
-
-        selection.refresh()
-        range = selection.getAllRanges()[0]
-
-        if !collapsed and backwards
-          selection.removeAllRanges()
-          range.setEndBefore(endNode)
-          endNode.parentNode.removeChild(endNode)
-          selection.addRange(range,backwards)
-
-        if collapsed
-          end = start
-        else
-          # insert node at the end
-          endNode = document.createElement('a')
-          endNode.setAttribute('class', 'rangeEnd')
-          range3 = range.cloneRange()
-          range3.collapse(false)  # collapse to end
-          range3.insertNode(endNode)
-
-          # get the position with innerHTML
-          end = $(textfield).html().search('<a class="rangeEnd"')
-          # remove node
-          endNode.parentNode.removeChild(endNode)
-          selection.refresh()
-          range = selection.getAllRanges()[0]
-
-        # restore selection
-        selection.removeAllRanges()
-        selection.addRange(range, backwards)
-        
-        [start, end, textfield.html().length]
-
-      @detectChangeAndUpdate = () =>
-        oldText = @savedText
-
-        currentRange = @getRange()
-
-        if not currentRange
-          return
-
-        if !savedRange or savedRange[0] != currentRange[0] or savedRange[1] != currentRange[1]
-          #console.log('selection changed', savedRange, "->", currentRange)
-          savedRange = currentRange
-
-        if @savedText != $(textfield).html()
-          #console.log("change detected: \"" + @savedText, "\",\"" + textfield.html() + "\"")
-          @savedText = $(textfield).html()
-          operation = detectOperation(oldText, @savedText, savedRange)
-          @msgId++
-          operation.msgId = @msgId
-          @pending.push(operation)
-
-          action = {action:"alterText", timestamp:@timestamp, params:{sheetId:@id, operations:@pending}}
-          histObj = {action:"alterText", timestamp:@timestamp, params:{sheetId:@id, operations:@pending}}
-          wallSocket.sendAction(action, histObj)
-          #for test: #wallSocket.sendActionDelayed({action:"alterText", timestamp:@timestamp, params:{sheetId:@id, operations:@pending}}, 2000)
-
-      # activate focus event handlers:
-      $(textfield).focusin ()=>
-        savedRange = @getRange()
-        intervalId = setInterval(@detectChangeAndUpdate, 8000)
-
-        # deactivate when focused out
-        deactivate = ()=>
-          @detectChangeAndUpdate() # check change for the last time
-          clearInterval(intervalId)
-          textfield.off 'focusout', deactivate
-          $(textfield).get(0).normalize()
-          #@setRange(0, textfield.html().length)
-
-        $(textfield).on 'focusout', deactivate
-
-      # activate key event handlers
-      #$(textfield).on 'keyup', (e)=>
-      #  console.log('[TEXT]', "keyup - keyCode: #{e.keyCode} charCode: #{e.charCode} which: #{e.which}", e)
-        
-      # activate key event handlers
-      $(textfield).on 'keypress', (e)=>
-        #console.log('[TEXT]', "keypress - keyCode: #{e.keyCode} charCode: #{e.charCode} which: #{e.which}", e)
-        @detectChangeAndUpdate()
+	"jquery",
+	"text/util",
+	"text/operation",
+	"text/stringwithstate",
+	"rangeutil",
+	"./sheet",
+	"./textSheetHandler",
+	"templatefactory",
+	"rangy",
+	"text/texthistory",
+	"hallo"], ($, TextUtil, Operation, StringWithState, RangeUtil, Sheet, TextSheetHandler, TemplateFactory, rangy, TextHistory, hallo) ->
 
 
-      # check for any update by the browser
-      $(()=>
-          setTimeout @detectChangeAndUpdate, 200
-      )
+	class TextSheet extends Sheet
+		@create: (content) ->
+			x = Math.floor(Math.random() * ($(window).width() - 225) * 0.9 / stage.zoom - (stage.scaleLayerX + (parseInt ($('#moveLayer').css 'x')) * stage.zoom) / stage.zoom)
+			y = Math.floor(Math.random() * ($(window).height() - 74) * 0.9 / stage.zoom - (stage.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * stage.zoom) / stage.zoom)
+			w = 240
+			h = 168
+			title = "Untitled Text"
+
+			action = {action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}}
+			histObj = {action:"remove", params:{}}
+			wallSocket.sendAction(action, histObj)
+
+		setElement: ->
+			textTemplate = TemplateFactory.makeTemplate("textSheet")
+			@element = $($(textTemplate).appendTo('#sheetLayer'))
+			
+			@element.find(".sheetTextField").hallo({
+				plugins:
+					'halloformat' : {"bold": true, "italic": true, "strikethrough": true, "underline": false}
+			})
+			@innerElement = @element.children('.sheet')
+
+		constructor: (params, timestamp) ->
+			super(params)
+			textfield = @element.find('.sheetTextField')
+			@contentType = "textSheet"
+			#textfield.on 'resize', (e) =>
+				#if $(e.target).height() > @ih
+					#@ih = $(e.target).height()
+			@id = params.sheetId
+			
+			@textfield = textfield
+			@element.find('.sheetTextField').html(params.content)
+			@textfield.html(params.content)
+
+			if @textfield.html() != params.content
+				console.warn("browser altered content! :", @textfield.html(), ":", params.content)
+
+			@history = new TextHistory(params.content, timestamp)
+			@savedText = params.content # saved text based on actual textfield value
+			@savedRange = null
+			
+			# activate focus event handlers:
+			$(@textfield).focusin ()=>
+				@savedRange = RangeUtil.getRange(@textfield)
+				intervalId = setInterval(@detectChangeAndUpdate, 8000)
+
+				# deactivate when focused out
+				deactivate = ()=>
+					@detectChangeAndUpdate() # check change for the last time
+					clearInterval(intervalId)
+					@textfield.off 'focusout', deactivate
+					$(@textfield).get(0).normalize()
+
+				$(@textfield).on 'focusout', deactivate
+
+			# activate key event handlers
+			$(@textfield).on 'keypress', (e)=>
+				@detectChangeAndUpdate()
 
 
-    attachHandler: ->
-      @handler = new TextSheetHandler(this)
+			# check for any update by the browser
+			$(
+				() =>
+					setTimeout @detectChangeAndUpdate
+			,
+			200)
+
+		attachHandler: ->
+			@handler = new TextSheetHandler(this)
 
 
-    alterText: (operation, isMine, timestamp) ->
-      # save current cursor and text
-      # if it differs from last one, create new operation?
-      # apply my change list => set text
-      # restore cursor
-      @detectChangeAndUpdate()
-      @timestamp = timestamp
 
-      range = @getRange()
-      if not range
-        range = [0,0,0]
+		detectChangeAndUpdate : () =>
+			oldText = @savedText
 
-      if isMine
-        console.log("mine came (#{timestamp})")
-        if @pending.length > 0 and @pending[0].msgId == operation.msgId
-          console.log("received mine: msgId #{operation.msgId}")
-          head = @pending.shift()
-          @baseText = spliceString(@baseText, head.from, head.length, head.content)
-        else if @pending.length > 0
-          console.warn("unexpected msgId came: #{operation.msgId} expected: #{@pending[0].msgId}, timestamp:#{timestamp}, pending: ", @pending)
-        else
-          console.warn("unexpected msgId came: #{operation.msgId}, timestamp:#{timestamp}")
-      else
-        original = @baseText
+			currentRange = RangeUtil.getRange(@textfield)
 
-        ss = new StringWithState(@baseText)
-        tmp = ss.apply(operation, 0)
-        
-        # new baseText applying new operation
-        @baseText = spliceString(@baseText, operation.from, operation.length, operation.content)
-        
-        @pending = for p in @pending
-          $.extend(ss.apply(p, 1), {msgId:p.msgId})
-      
-        rangeop = []
-        len = range[2]
+			if not currentRange
+				return
 
-        ss2 = ss.clone()
-        ss3 = ss.clone()
+			if !@savedRange or @savedRange[0] != currentRange[0] or @savedRange[1] != currentRange[1]
+				@savedRange = currentRange
 
-        rangeop[0] = new Operation(range[0], 0, "")
-        rangeop[1] = new Operation(range[1], 0, "")
-        
-        range[0] = ss2.apply(rangeop[0], 1).from
-        range[1] = ss3.apply(rangeop[1], 1).from
-        
-        html = @baseText
+			if @savedText != $(@textfield).html()
+				@savedText = $(@textfield).html()
+				[operation, undoStr] = TextUtil.detectOperation(oldText, @savedText, @savedRange)
+				operation.msgId = @history.write(operation)
 
-        # apply each operation in pending      
-        for p in @pending
-          #console.log("action:",action)
-          html = spliceString(html, p.from, p.length, p.content)
+				action = {action:"alterText", timestamp: @history.timestamp, params:{sheetId:@id, operations:@history.getPending()}}
+				histObj = {action:"alterText", timestamp: @history.timestamp, params:{sheetId:@id, operations:@history.getPending()}}
+				wallSocket.sendAction(action, histObj)
 
-        console.log("other came (#{timestamp}). base:", original, " altered:", html, " pending:", @pending)
-        
-        @textfield.html(html)
-        @savedText = @textfield.html()
-        #console.log(range)
-        @setRange(range[0], range[1])
+
+		alterText: (operation, isMine, timestamp) ->
+			# Save current cursor and text
+			#	 - if it differs from last one, create new operation?
+			#	 - apply my change list => set text
+			#	 - restore cursor
+
+			# check for any possible updates in the form first
+			@detectChangeAndUpdate()
+			@history.timestamp = timestamp
+
+			# save current cursor and range
+			range = RangeUtil.getRange(@textfield)
+			if not range
+				range = [0,0,0]
+
+			if isMine
+				console.log("mine came (#{timestamp})")
+				# respond only when it's valid 
+				if @history.consolidateMine(operation)
+					console.log("received mine: msgId #{operation.msgId}")
+				else if @history.hasPending()
+					console.warn("unexpected msgId came: #{operation.msgId} expected: #{@history.getPendingMsgId()}, timestamp:#{timestamp}, pending: ", @history.getPending())
+				else
+					console.warn("unexpected msgId came: #{operation.msgId}, timestamp:#{timestamp}")
+			else
+				
+				# save the original base text
+				original = @history.baseText
+
+				[html, range] = @history.consolidateOther(operation, range)
+				
+				console.log("other came (#{timestamp}). base:", original, " altered:", html, " pending:", @history.pending)
+				
+				# update text field with the new html
+				@textfield.html(html)
+				@savedText = @textfield.html()
+			 
+				# restore original cursor and range (after applying 'other')
+				RangeUtil.setRange(@textfield, range[0], range[1])
+
+		undo: ->
+			# TODO: properly set range
+			range = RangeUtil.getRange(@textfield)
+			if not range
+				range = [0,0,0]
+
+			[html, range] = @history.undo(range)
+			@textfield.html(html)
+			@savedText = @textfield.html()
+			#RangeUtil.setRange
+			action = {action:"alterText", timestamp: @history.timestamp, params:{sheetId:@id, operations:@history.getPending()}}
+			wallSocket.sendAction(action)
+
+			RangeUtil.setRange(@textfield, range[0], range[1])
+
+		redo: ->
+			# TODO: properly set range
+			range = RangeUtil.getRange(@textfield)
+			if not range
+				range = [0,0,0]
+
+			[html, range] = @history.redo(range)
+			@textfield.html(html)
+			@savedText = @textfield.html()
+			#RangeUtil.setRange
+			action = {action:"alterText", timestamp: @history.timestamp, params:{sheetId:@id, operations:@history.getPending()}}
+			wallSocket.sendAction(action)
+
+			RangeUtil.setRange(@textfield, range[0], range[1])
+
+
+			
+
+

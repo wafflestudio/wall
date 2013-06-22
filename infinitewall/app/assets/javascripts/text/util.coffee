@@ -1,9 +1,25 @@
-define [], () ->
+define ["./operation"], (Operation) ->
   class TextUtil
 
     @spliceString : (str, offset, remove, add) ->
       #console.log("*", str.substr(0,offset),"*", (if add? then add else ""),"*",str.substr(Math.max(0,offset+remove)))
       str.substr(0,offset) + (if add? then add else "") + str.substr(Math.max(0, offset+remove))
+
+    @createUndo : (oldStr, newStr, operation) ->
+      remove = operation.content.length
+      p1 = Math.min(Math.max(0, operation.from), oldStr.length)
+      p2 = Math.min(Math.max(0, operation.from + operation.length), oldStr.length)
+      p2_ = Math.min(Math.max(0, operation.from + remove), newStr.length)
+      content = oldStr.substring(p1, p2)
+      oldStrByCalc = newStr.substring(0, p1) + content + newStr.substring(p2_, newStr.length)
+
+      undoOperation = new Operation(p1, remove, content)
+      if(oldStr !=  oldStrByCalc)
+        console.error(oldStr)
+        console.error(oldStrByCalc)
+        console.error(undoOperation)
+        throw "assertion oldStr == oldStrByCalc failed"
+      undoOperation
 
 
     @detectOperation : (old, current, range) ->
@@ -55,7 +71,7 @@ define [], () ->
           console.warn TextUtil.spliceString(old, Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1, ZstartAtCurrent-Xend-1)), current
           throw "operation error"
 
-        {from: Xend+1, length: ZstartAtOld-Xend-1, content: current.substr(Xend+1,ZstartAtCurrent-Xend-1), range: [cursor,cursor]}
+        [new Operation(Xend+1, ZstartAtOld-Xend-1, current.substr(Xend+1,ZstartAtCurrent-Xend-1), [cursor,cursor]) , old.substr(Xend+1, ZstartAtOld-Xend-1)]
 
 
       if range[1] == range[0]
@@ -78,6 +94,6 @@ define [], () ->
           console.error('something is wrong with the text change. Falling back to heuristics')
           heuristic()
         else
-          {from: diffBegin, length: diffEnd-diffBegin, content: current.substr(diffBegin, rangeEnd - rangeBegin), range: range}
+          [new Operation(diffBegin, diffEnd-diffBegin, current.substr(diffBegin, rangeEnd - rangeBegin), range), old.substr(diffBegin, diffEnd-diffBegin)]
 
 

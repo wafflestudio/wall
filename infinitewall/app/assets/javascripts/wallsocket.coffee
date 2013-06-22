@@ -5,7 +5,7 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
       'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) ->
         r = Math.random()*16|0
         v = if c == 'x' then r else (r&0x3|0x8)
-        v.toString(16);
+        v.toString(16)
       ) + "-" + new Date().getTime().toString(36)
 
     constructor: (urls, timestamp) ->
@@ -44,15 +44,19 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
     
     sendAction: (msg, historyData) ->
       console.log(msg)
-      console.log(historyData)
-      msg.timestamp = historyData.timestamp = @timestamp unless msg.timestamp?
-      msg.uuid = historyData.uuid = @uuid
+      msg.timestamp = @timestamp unless msg.timestamp?
+      msg.uuid = @uuid
       @pending.push(msg)
       if @websocket.isConnected()
         @websocket.send(JSON.stringify(msg))
       else
         @comet.send(JSON.stringify(msg))
-      stage.history.push({from: historyData, to: msg})
+
+      if historyData?
+        historyData.uuid = msg.uuid
+        historyData.timestamp = msg.timestamp
+        console.log(historyData)
+        stage.history.push({from: historyData, to: msg})
 
     sendUndoAction: (msg, historyData) ->
       msg.timestamp = historyData.timestamp = @timestamp
