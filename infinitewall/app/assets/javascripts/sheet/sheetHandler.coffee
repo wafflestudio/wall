@@ -42,6 +42,11 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       @sheet.element.on 'dblclick', @onMouseDblClick
     
     onTouchStart: (e) =>
+      @sheetOutline = new SheetOutline(@sheet)
+      @gridCell = new GridCell(@sheet)
+
+      stage.draggingSheet = @sheet
+      @hasMoved = false
       wall.bringToTop(@sheet)
       minimap.bringToTop(stage.miniSheets[@sheet.id])
 
@@ -57,28 +62,30 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       e.stopPropagation()
 
     onTouchMove: (e) =>
-      @sheet.x = (@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom
-      @sheet.y = (@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom
+      @sheetOutline.show()
+      @gridCell.show()
+      
+      @sheetOutline.x = (@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom
+      @sheetOutline.y = (@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom
+      @gridCell.x = (@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom
+      @gridCell.y = (@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom
       @hasMoved = true
-      for id, link of @sheet.links
-        link.refresh()
+
       e.preventDefault()
-        
+
     onTouchEnd: (e) =>
       $(document).off 'touchmove', @onTouchMove
       $(document).off 'touchend', @onTouchEnd
       d = new Date()
       t = d.getTime()
-      
-      minimap.refresh()
 
       if @hasMoved
-        @sheet.socketMove {
-          x: @sheet.x
-          y: @sheet.y
-        }
+        @sheet.txy(@gridCell.x, @gridCell.y)
+        @sheet.socketMove {x: @sheet.x, y: @sheet.y}
         @sheet.element.find('.sheetTextField').blur()
         @sheet.element.find('.sheetTitle').blur()
+        minimap.refresh({isTransition: true})
+        link.refresh(true) for id, link of @sheet.links
 
       else
         @onTouchEnd.lastTouch = @onTouchEnd.lastTouch || 0
@@ -101,6 +108,11 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
             @sheet.becomeActive()
           wall.revealSheet()
           @onTouchEnd.lastTouch = t
+
+      @sheetOutline.element.remove()
+      @sheetOutline = null
+      @gridCell.element.remove()
+      @gridCell = null
 
       return false
 
