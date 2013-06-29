@@ -82,8 +82,8 @@ define ["jquery","jquery.transit", "jquery.mousewheel", "movable", "wall", "shee
       clearTimeout(@saveTimeout) if @saveTimeout
       @saveTimeout = setTimeout(
         () =>
-          x = (stage.scaleLayerX + @mL.x * stage.zoom) / stage.zoom
-          y = (stage.scaleLayerY + @mL.y * stage.zoom) / stage.zoom
+          x = Math.floor((stage.scaleLayerX + @mL.x * stage.zoom) / stage.zoom)
+          y = Math.floor((stage.scaleLayerY + @mL.y * stage.zoom) / stage.zoom)
           zoom = stage.zoom
           console.log("x: #{x}, y: #{y}, zoom: #{zoom}")
           $.post("/wall/view/#{stage.wallId}", {x:x, y:y, zoom:zoom})
