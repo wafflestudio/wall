@@ -17,9 +17,9 @@ GET      /users/:userId/profile               controllers.File.serveUserProfileP
 
 
 # Chat routes available only for testing
-# GET     /chat                       controllers.Chat.index
-# GET     /chat/:roomId               controllers.Chat.room(roomId:Long)
-# POST    /chat/create                controllers.Chat.create
+# GET     /chat                       		  controllers.Chat.index
+# GET     /chat/:roomId               		  controllers.Chat.room(roomId:Long)
+# POST    /chat/create                		  controllers.Chat.create
 GET      /chat/establish/:roomId              controllers.Chat.establish(roomId:String)
 GET      /chat/log/:roomId                    controllers.Chat.prevMessages(roomId:String)
 
@@ -49,10 +49,10 @@ POST     /group/:groupId/addWall              controllers.Group.addWallPost(grou
 GET      /group/:groupId/addWall/:wallId      controllers.Group.addWall(groupId:String, wallId:String)
 GET      /group/:groupId/removeWall/:wallId   controllers.Group.removeWall(groupId:String, wallId:String)
 
-#POST    /file                 					controllers.File.upload
-#GET     /file                 					controllers.File.info
-#PUT     /file                 					controllers.File.replace
-#DELETE  /file                 					controllers.File.delete
+#POST    /file                 				  controllers.File.upload
+#GET     /file                 				  controllers.File.info
+#PUT     /file                 				  controllers.File.replace
+#DELETE  /file                 				  controllers.File.delete
 
 GET      /dropbox/authorize                   controllers.Dropbox.authorize
 GET      /dropbox/callback                    controllers.Dropbox.callback
