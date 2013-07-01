@@ -9,7 +9,7 @@ define [
   "statusbar",
   "wallsocket",
   "chat",
-  "jquery.fileupload",
+  "jquery.fileupload"
   ], ($, TextSheet, ImageSheet, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
   class Stage
     currentUser: null
@@ -57,22 +57,32 @@ define [
       $(window).resize -> minimap.refresh()
       $('#fileupload').fileupload  {
         dataType: 'json'
+        process: [
+          {
+            action: 'loadImage'
+            fileTypes: /^image\/(gif|jpeg|png)$/
+            maxFileSize: 20000000
+          },
+          {
+            action: 'resizeImage'
+            maxWidth: 500
+            maxHeight: 500
+          },
+          {
+            action: 'saveImage'
+          }
+        ]
         #sequentialUploads: true
         add: (e, data) ->
-          console.log "add!"
-          console.log e
           $.each data.files, (index, file) ->
             data.context = statusbar.addStatus("#{file.name}", "0%")
             data.submit()
         change: (e, data) ->
-          console.log "change"
           statusbar.instantStatus("Hint: Drag and dropping works! :)", 3500)
         progress : (e, data) ->
-          console.log "progress"
           progress = parseInt(data.loaded / data.total * 100) + "%"
           data.context.changeRightText(progress)
         done : (e, data) ->
-          console.log "done"
           $.each(data.result, (index, file) ->
             data.context.changeText("Loading " + file.name, "")
             ImageSheet.create file.name.replace(/\.[^/.]+$/, ""), "/upload/#{file.name}", =>
