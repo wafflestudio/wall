@@ -42,7 +42,9 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
           for msg in @pending
             @comet.send(JSON.stringify(msg))
     
-    sendAction: (msg) ->
+    sendAction: (msg, historyData) ->
+      console.log "History!"
+      console.log historyData
       msg.timestamp = @timestamp unless msg.timestamp?
       msg.uuid = @uuid
       @pending.push(msg)

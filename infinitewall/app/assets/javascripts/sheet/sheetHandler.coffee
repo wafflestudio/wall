@@ -81,8 +81,9 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       t = d.getTime()
 
       if @hasMoved
+        moveHistObj = {x: @sheet.x, y: @sheet.y}
         @sheet.txy(@gridCell.x, @gridCell.y)
-        @sheet.socketMove {x: @sheet.x, y: @sheet.y}
+        @sheet.socketMove({x: @sheet.x, y: @sheet.y}, moveHistObj)
         @sheet.element.find('.sheetTextField').blur()
         @sheet.element.find('.sheetTitle').blur()
         minimap.refresh({isTransition: true})
@@ -173,8 +174,9 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       $(document).off 'mouseup', @onMouseUp
 
       if @hasMoved
+        moveHistObj = {x: @sheet.x, y: @sheet.y}
         @sheet.txy(@gridCell.x, @gridCell.y)
-        @sheet.socketMove {x: @sheet.x, y: @sheet.y}
+        @sheet.socketMove({x: @sheet.x, y: @sheet.y}, moveHistObj)
         @sheet.element.find('.sheetTextField').blur()
         @sheet.element.find('.sheetTitle').blur()
 
@@ -254,6 +256,11 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       @startx = @sheet.x * stage.zoom
       @starty = @sheet.y * stage.zoom
 
+      @sheetPrevX = @sheet.x
+      @sheetPrevY = @sheet.y
+      @sheetPrevIW = @sheet.iw
+      @sheetPrevIH = @sheet.ih
+
       @deltax = e.originalEvent.pageX
       @deltay = e.originalEvent.pageY
       @resizeType = $(e.target).attr('class').split(" ")[2]
@@ -265,9 +272,11 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       $(document).off 'touchend', @onResizeTouchEnd
 
       if @startx isnt @sheet.x or @starty isnt @sheet.y
-        @sheet.socketMove {x: @sheet.x, y: @sheet.y}
+        moveHistObj = {x: @sheetPrevX, y: @sheetPrevY}
+        @sheet.socketMove({x: @sheet.x, y: @sheet.y}, moveHistObj)
 
-      @sheet.socketResize {width: @sheet.iw, height: @sheet.ih}
+      resizeHistObj = {width: @sheetPrevIW, height: @sheetPrevIH}
+      @sheet.socketResize({width: @sheet.iw, height: @sheet.ih}, resizeHistObj)
       minimap.refresh()
       @resizeType = null
 
@@ -278,6 +287,10 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       @startHeight = @sheet.ih * stage.zoom
       @startx = @sheet.x * stage.zoom
       @starty = @sheet.y * stage.zoom
+      @sheetPrevX = @sheet.x
+      @sheetPrevY = @sheet.y
+      @sheetPrevIW = @sheet.iw
+      @sheetPrevIH = @sheet.ih
 
       @deltax = e.pageX
       @deltay = e.pageY
@@ -293,9 +306,11 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       $(document).off 'mouseup', @onResizeMouseUp
 
       if @startx isnt @sheet.x or @starty isnt @sheet.y
-        @sheet.socketMove {x: @sheet.x, y: @sheet.y}
+        moveHistObj = {x: @sheetPrevX, y: @sheetPrevY}
+        @sheet.socketMove({x: @sheet.x, y: @sheet.y}, moveHistObj)
 
-      @sheet.socketResize {width: @sheet.iw, height: @sheet.ih}
+      resizeHistObj = {width: @sheetPrevIW, height: @sheetPrevIH}
+      @sheet.socketResize({width: @sheet.iw, height: @sheet.ih}, resizeHistObj)
       minimap.refresh()
       @resizeType = null
 
