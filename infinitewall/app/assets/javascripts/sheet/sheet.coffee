@@ -153,6 +153,7 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       wall.undock(this)
       @docked = false
 
+
     glow: ->
       temp = "3px 4px 4px 2px #888"
       blur = 40 / stage.zoom

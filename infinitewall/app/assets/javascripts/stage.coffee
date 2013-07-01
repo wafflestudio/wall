@@ -1,4 +1,16 @@
-define ["jquery", "sheet/textSheet", "sheet/imageSheet", "wall", "minimap", "menu", "search", "statusbar", "wallsocket", "chat", "jquery.fileupload"], ($, TextSheet, ImageSheet, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
+define [
+  "jquery",
+  "sheet/textSheet",
+  "sheet/imageSheet",
+  "wall",
+  "minimap",
+  "menu",
+  "search",
+  "statusbar",
+  "wallsocket",
+  "chat",
+  "jquery.fileupload",
+  ], ($, TextSheet, ImageSheet, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
   class Stage
     currentUser: null
     activeSheet: null
@@ -46,16 +58,25 @@ define ["jquery", "sheet/textSheet", "sheet/imageSheet", "wall", "minimap", "men
       $('#fileupload').fileupload  {
         dataType: 'json'
         #sequentialUploads: true
+        drop: (e, data) ->
+          console.log e
+          #console.log "drop!"
+
         add: (e, data) ->
+          console.log "add!"
+          console.log e
           $.each data.files, (index, file) ->
             data.context = statusbar.addStatus("#{file.name}", "0%")
             data.submit()
         change: (e, data) ->
+          console.log "change"
           statusbar.instantStatus("Hint: Drag and dropping works! :)", 3500)
         progress : (e, data) ->
+          console.log "progress"
           progress = parseInt(data.loaded / data.total * 100) + "%"
           data.context.changeRightText(progress)
         done : (e, data) ->
+          console.log "done"
           $.each(data.result, (index, file) ->
             data.context.changeText("Loading " + file.name, "")
             ImageSheet.create file.name.replace(/\.[^/.]+$/, ""), "/upload/#{file.name}", =>

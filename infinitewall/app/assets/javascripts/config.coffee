@@ -3,7 +3,7 @@ requirejs.config
   paths: {
       jquery: 'jquery-1.9.0.min'
       "jquery-ui": 'jquery-ui-1.8.23.custom.min'
-      "jquery.ui.widget" : "jquery-ui-1.8.23.custom.min"
+      "jquery.ui.widget" : "jquery.ui.widget"
       underscore: "underscore-min"
       raphael: "raphael-min"
   },
@@ -21,7 +21,7 @@ requirejs.config
       "jquery.proximity": ["jquery"]
       "jquery.ba-resize": ["jquery"]
       "jquery.iframe-transport": ["jquery"]
-      "jquery.fileupload": ["jquery", "jquery.iframe-transport"]
+      "jquery.fileupload": ["jquery", "jquery.iframe-transport", "jquery.ui.widget"]
       "rangy-core" : {
         exports: "rangy"
         init: () ->

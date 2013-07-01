@@ -42,6 +42,7 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       @sheet.element.on 'dblclick', @onMouseDblClick
     
     onTouchStart: (e) =>
+      console.log e
       @sheetOutline = new SheetOutline(@sheet)
       @gridCell = new GridCell(@sheet)
 
@@ -248,22 +249,27 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
     onResizeTouchStart: (e) =>
       $(document).on 'touchmove', @onResizeTouchMove
       $(document).on 'touchend', @onResizeTouchEnd
-      console.log "resizetouchstart"
       @startWidth = @sheet.iw * stage.zoom
       @startHeight = @sheet.ih * stage.zoom
+      @startx = @sheet.x * stage.zoom
+      @starty = @sheet.y * stage.zoom
+
       @deltax = e.originalEvent.pageX
       @deltay = e.originalEvent.pageY
+      @resizeType = $(e.target).attr('class').split(" ")[2]
+      console.log @resizeType
       return false
 
     onResizeTouchEnd: (e) =>
       $(document).off 'touchmove', @onResizeTouchMove
       $(document).off 'touchend', @onResizeTouchEnd
 
-      @sheet.socketResize {
-        width: @sheet.iw
-        height: @sheet.ih
-      }
+      if @startx isnt @sheet.x or @starty isnt @sheet.y
+        @sheet.socketMove {x: @sheet.x, y: @sheet.y}
+
+      @sheet.socketResize {width: @sheet.iw, height: @sheet.ih}
       minimap.refresh()
+      @resizeType = null
 
     onResizeMouseDown: (e) =>
       $(document).on 'mousemove', @onResizeMouseMove
@@ -287,15 +293,9 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       $(document).off 'mouseup', @onResizeMouseUp
 
       if @startx isnt @sheet.x or @starty isnt @sheet.y
-        @sheet.socketMove {
-          x: @sheet.x
-          y: @sheet.y
-        }
+        @sheet.socketMove {x: @sheet.x, y: @sheet.y}
 
-      @sheet.socketResize {
-        width: @sheet.iw
-        height: @sheet.ih
-      }
+      @sheet.socketResize {width: @sheet.iw, height: @sheet.ih}
       minimap.refresh()
       @resizeType = null
 
