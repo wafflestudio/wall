@@ -16,5 +16,3 @@ object Environment extends GlobalSettings {
   }
 
 }
-
-

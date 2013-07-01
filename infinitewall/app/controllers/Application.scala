@@ -55,7 +55,7 @@ trait Auth {
         f(request)
       else {
         Logger.info("unauthorized access:" + request.uri)
-        Redirect(routes.Application.index).flashing("error" -> "You are not authorized to access this url")
+        Redirect(routes.Application.index).flashing("error" -> "Please sign in first to access this url").withSession("redirect_uri" -> request.uri)
       }
     }
 
@@ -65,7 +65,7 @@ trait Auth {
         f(request)
       else {
         Logger.info("unauthorized access:" + request.uri)
-        Redirect(routes.Application.index).flashing("error" -> "You are not authorized to access this url")
+        Redirect(routes.Application.index).flashing("error" -> "Please sign in first to access this url").withSession("redirect_uri" -> request.uri)
       }
     }
 
@@ -112,10 +112,12 @@ object Application extends Controller with Login {
         val user = transactional { 
           User.findByEmail(loginData.email).get.frozen
         }
-        Redirect(routes.Application.index).withSession("session_token" -> ActiveRecord.sessionToken, "current_user" -> user.email, "current_user_id" -> user.id)
+        request.session.get("redirect_uri") match {
+          case Some(uri) => Redirect(uri).withSession("redirect_uri" -> "/", "session_token" -> ActiveRecord.sessionToken, "current_user" -> user.email, "current_user_id" -> user.id)
+          case None => Redirect(routes.Application.index).withSession("session_token" -> ActiveRecord.sessionToken, "current_user" -> user.email, "current_user_id" -> user.id)
+        }
       }
     )
-
   }
 
   def logout = AuthenticatedAction { implicit request =>
