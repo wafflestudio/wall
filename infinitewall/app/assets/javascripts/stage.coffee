@@ -58,10 +58,6 @@ define [
       $('#fileupload').fileupload  {
         dataType: 'json'
         #sequentialUploads: true
-        drop: (e, data) ->
-          console.log e
-          #console.log "drop!"
-
         add: (e, data) ->
           console.log "add!"
           console.log e

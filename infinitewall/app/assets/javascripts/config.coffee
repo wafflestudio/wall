@@ -1,8 +1,8 @@
 requirejs.config
   baseUrl: '/assets/javascripts'
   paths: {
-      jquery: 'jquery-1.9.0.min'
-      "jquery-ui": 'jquery-ui-1.8.23.custom.min'
+      jquery: 'jquery-2.0.2.min'
+      "jquery-ui": 'jquery-ui.min'
       "jquery.ui.widget" : "jquery.ui.widget"
       underscore: "underscore-min"
       raphael: "raphael-min"
