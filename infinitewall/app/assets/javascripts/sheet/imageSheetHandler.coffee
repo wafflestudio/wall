@@ -10,7 +10,7 @@ define ["./sheetHandler"], (SheetHandler) ->
       @imgHeight = @sheet.ih
 
     onResizeMouseMove: (e) =>
-      super e
+      @onResizeMouseMoveSuper e
 
       dX = e.pageX - @deltax
       dY = e.pageY - @deltay

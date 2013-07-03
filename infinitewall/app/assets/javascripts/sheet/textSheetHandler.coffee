@@ -1,7 +1,8 @@
 define ["./sheetHandler"], (SheetHandler) ->
   class TextSheetHandler extends SheetHandler
     onResizeMouseMove: (e) =>
-      super e
+      #super e
+      @onResizeMouseMoveSuper(e)
 
       switch @resizeType
         when "resizeBottom"

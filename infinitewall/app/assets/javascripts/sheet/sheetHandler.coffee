@@ -299,9 +299,11 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       @resizeType = $(e.target).attr('class').split(" ")[2]
       return false
 
-    onResizeMouseMove: (e) =>
+    onResizeMouseMoveSuper: (e) =>
+      console.log "supersuper"
       for id, link of @sheet.links
         link.refresh()
+        #TODO => 얜 왜 walnut에서 onResizeMouseMove라고 하고 override 하면 안되는가??
 
     onResizeMouseUp: (e) =>
       $(document).off 'mousemove', @onResizeMouseMove
