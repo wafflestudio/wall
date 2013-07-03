@@ -1,4 +1,4 @@
-define ["./folder_node", "jquery"], (Node, $) ->
+define ["./folder_node", "jquery", "jquery-ui"], (Node, $) ->
   class Item extends Node
     constructor: (parent, nodeData, level)->
       super(parent, nodeData, level)

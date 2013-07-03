@@ -1,4 +1,17 @@
-define ["jquery", "sheet/textSheet", "sheet/imageSheet", "history", "wall", "minimap", "menu", "search", "statusbar", "wallsocket", "chat", "jquery.fileupload", "history"], ($, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
+define [
+  "jquery",
+  "sheet/textSheet",
+  "sheet/imageSheet",
+  "history",
+  "wall",
+  "minimap",
+  "menu",
+  "search",
+  "statusbar",
+  "wallsocket",
+  "chat",
+  "jquery.fileupload"
+  ], ($, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
   class Stage
     currentUser: null
     activeSheet: null
@@ -47,6 +60,21 @@ define ["jquery", "sheet/textSheet", "sheet/imageSheet", "history", "wall", "min
       $(window).resize -> minimap.refresh()
       $('#fileupload').fileupload  {
         dataType: 'json'
+        process: [
+          {
+            action: 'loadImage'
+            fileTypes: /^image\/(gif|jpeg|png)$/
+            maxFileSize: 20000000
+          },
+          {
+            action: 'resizeImage'
+            maxWidth: 500
+            maxHeight: 500
+          },
+          {
+            action: 'saveImage'
+          }
+        ]
         #sequentialUploads: true
         add: (e, data) ->
           $.each data.files, (index, file) ->

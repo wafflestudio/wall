@@ -28,20 +28,22 @@ define ["jquery"], ($) ->
     push: (action) ->
       console.info(action)
       @stack.push(action)
+      @unstack = []
 
     repush: (action) ->
       console.info(action)
       @unstack.push(action)
 
-    sendAction: (action) ->
-      sheet = stage.sheets[action.params.sheetId]
+    sendAction: (detail) ->
+      sheet = stage.sheets[detail.params.sheetId]
       isMine = false
-      switch action.action
-        when "alterText" then sheet.alterText(action.params, isMine, timestamp)
-        when "create" then stage.createSheet(action.sheetId, action.params, timestamp)
-        when "move" then sheet.move(action.params) unless isMine
-        when "resize" then sheet.resize(action.params) unless isMine
-        when "remove" then sheet.remove(action.params)
-        when "setTitle" then sheet.setTitle(action.params) unless isMine
-        when "setLink" then sheet.setLink(action.params)
-        when "removeLink" then sheet.removeLink(action.params)
+      switch detail.action
+        when "alterText" then sheet.alterText(detail.params, isMine, timestamp)
+        when "create" then stage.createSheet(detail.sheetId, detail.params, timestamp)
+        when "move" then sheet.move(detail.params) unless isMine
+        when "resize" then sheet.resize(detail.params) unless isMine
+        when "remove" then sheet.remove(detail.params)
+        when "setTitle" then sheet.setTitle(detail.params) unless isMine
+        when "setLink" then sheet.setLink(detail.params)
+        when "removeLink" then sheet.removeLink(detail.params)
+        else console.error("Not supported action", detail)

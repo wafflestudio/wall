@@ -42,7 +42,7 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
           for msg in @pending
             @comet.send(JSON.stringify(msg))
     
-    sendAction: (msg) ->
+    sendAction: (msg, historyData) ->
       msg.timestamp = @timestamp unless msg.timestamp?
       msg.uuid = @uuid
       @pending.push(msg)
@@ -50,9 +50,7 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
         @websocket.send(JSON.stringify(msg))
       else
         @comet.send(JSON.stringify(msg))
-      console.info("T")
-      console.info(JSON.stringify(msg))
-      stage.history.push(msg)
+      stage.history.push(historyData)
 
     sendAck: () ->
       msg = {action:'ack'}
@@ -109,3 +107,4 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
         when "setTitle" then sheet.setTitle(detail.params) unless isMine
         when "setLink" then sheet.setLink(detail.params)
         when "removeLink" then sheet.removeLink(detail.params)
+        else console.error("Not supported action", detail)

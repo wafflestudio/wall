@@ -10,6 +10,8 @@ define ["sheet/textSheet", "sheet/videoSheet", "jquery"], (TextSheet, VideoSheet
       @chat = $('#chatButton')
       @minimap = $('#minimapButton')
       @tellButton = $('#tellButton')
+      @undoButton = $('#undoButton')
+      @redoButton = $('#redoButton')
       @menubar = $('#menuBar')
       @menubar.on 'mousedown', (e) -> e.preventDefault()
       @menubar.css('x', 0) # ios에서 메뉴바 찌그러지는거 막음
@@ -32,6 +34,8 @@ define ["sheet/textSheet", "sheet/videoSheet", "jquery"], (TextSheet, VideoSheet
       @minimap.click -> minimap.toggle()
       @chat.click -> chat.toggle()
       @tellButton.click -> stage.activeSheet.glow()
+      @undoButton.click -> stage.history.undo()
+      @redoButton.click -> stage.history.redo()
 
     activateDelete: ->
       @deleteSheet.css('background-image', 'url(/assets/images/delete_red.png)')

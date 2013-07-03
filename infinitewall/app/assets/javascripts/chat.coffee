@@ -21,7 +21,7 @@ define ["jquery", "EventDispatcher", "websocket"], ($, EventDispatcher, Persiste
       #@on "close", => @chatWindow.fadeTo(500, 0.4)
     
     onReceive: (data) =>
-      console.log(@scope, data)
+      #console.log(@scope, data)
       @socket.timestamp = data.timestamp if data.timestamp?
 
       if data.error

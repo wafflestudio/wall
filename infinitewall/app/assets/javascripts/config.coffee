@@ -1,11 +1,19 @@
 requirejs.config
-  baseUrl: '/assets/javascripts'
+  baseUrl: '/assets/javascripts/'
   paths: {
-      jquery: 'jquery-1.9.0.min'
-      "jquery-ui": 'jquery-ui-1.8.23.custom.min'
-      "jquery.ui.widget" : "jquery-ui-1.8.23.custom.min"
+      jquery: 'jquery-2.0.2.min'
+      "jquery-ui": 'jquery-ui.min'
+      "jquery.ui.widget" : "jquery.ui.widget"
       underscore: "underscore-min"
       raphael: "raphael-min"
+      "jquery.fileupload": "fileupload/jquery.fileupload"
+      #"jquery.fileupload-process": "fileupload/jquery.fileupload-process"
+      #"jquery.fileupload-image": "fileupload/jquery.fileupload-image"
+      "load-image": "fileupload/load-image"
+      #"load-image-meta": "fileupload/load-image-meta"
+      #"load-image-exif": "fileupload/load-image-exif"
+      #"load-image-ios": "fileupload/load-image-ios"
+      "canvas-to-blob": "fileupload/canvas-to-blob"
   },
   shim: {
       underscore: {
@@ -20,8 +28,15 @@ requirejs.config
       "jquery.animate-shadow": ["jquery"]
       "jquery.proximity": ["jquery"]
       "jquery.ba-resize": ["jquery"]
-      "jquery.iframe-transport": ["jquery"]
-      "jquery.fileupload": ["jquery", "jquery.iframe-transport"]
+      "jquery.fileupload": [
+        "jquery",
+        "jquery.ui.widget",
+        "canvas-to-blob",
+        "load-image",
+        #"jquery.iframe-transport",
+        #"jquery.fileupload-process"
+        #"jquery.fileupload-image"
+      ]
       "rangy-core" : {
         exports: "rangy"
         init: () ->

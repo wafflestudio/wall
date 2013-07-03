@@ -73,6 +73,16 @@
   background-size:50px;
 }
 
+#undoButton {
+  background-image:url("/assets/images/undo.png");
+  background-size:50px;
+}
+
+#redoButton {
+  background-image:url("/assets/images/redo.png");
+  background-size:50px;
+}
+
 #newSheetContainer {
   display:none;
 }

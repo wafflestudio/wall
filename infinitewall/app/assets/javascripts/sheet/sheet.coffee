@@ -23,13 +23,13 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
         if e.keyCode is 13
           curTitle = msg.substr(0, msg.length - 1) if curTitle.charAt(curTitle.length - 1) is '\n'
           if prevTitle isnt curTitle
-            @socketSetTitle()
+            @socketSetTitle(curTitle, prevTitle)
             @innerElement.find('.sheetTitle').blur()
             prevTitle = curTitle
             return false
       .focusout (e) =>
         curTitle = @innerElement.find('.sheetTitle').html()
-        @socketSetTitle() if prevTitle isnt curTitle
+        @socketSetTitle(curTitle, prevTitle) if prevTitle isnt curTitle
         prevTitle = curTitle
       .html(params.title)
       @attachHandler()
@@ -41,23 +41,35 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
     type: ->
       @element.attr('contentType')
      
-    socketMove: (params) ->
-      wallSocket.sendAction {action : 'move', params : $.extend(params, {sheetId : @id})}
+    socketMove: (params, histParams) ->
+      action = {action : 'move', params : $.extend(params, {sheetId : @id})}
+      histObj = {action : 'move', params : $.extend(histParams, {sheetId: @id})}
+      wallSocket.sendAction(action, histObj)
 
-    socketResize: (params) ->
-      wallSocket.sendAction {action : 'resize', params : $.extend(params, {sheetId : @id})}
+    socketResize: (params, histParams) ->
+      action = {action : 'resize', params : $.extend(params, {sheetId : @id})}
+      histObj = {action : 'resize', params : $.extend(histParams, {sheetId: @id})}
+      wallSocket.sendAction(action, histObj)
 
     socketRemove: ->
-      wallSocket.sendAction {action : 'remove', params : {sheetId : @id}}
+      action = {action : 'remove', params : {sheetId : @id}}
+      histObj = {action : 'remove', params : {sheetId: @id}}
+      wallSocket.sendAction(action, histObj)
 
-    socketSetTitle: ->
-      wallSocket.sendAction {action : 'setTitle', params : {sheetId : @id, title : @element.find('.sheetTitle').html()}}
+    socketSetTitle: (curTitle, prevTitle) ->
+      action = {action : 'setTitle', params : {sheetId : @id, title : curTitle}}
+      histObj = {action : 'setTitle', params : {sheetId : @id, title : prevTitle}}
+      wallSocket.sendAction(action, histObj)
 
     socketSetLink: (toSheetId) ->
-      wallSocket.sendAction {action : 'setLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
+      action = {action : 'setLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
+      histObj = {action : 'setLink', params: {sheetId: @id, fromSheetId: toSheetId, toSheetId: @id}}
+      wallSocket.sendAction(action, histObj)
       
     socketRemoveLink: (toSheetId) ->
-      wallSocket.sendAction {action : 'removeLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
+      action = {action : 'removeLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
+      histObj = {action : 'removeLink', params: {sheetId: @id, fromSheetId: toSheetId, toSheetId: toSheetId}}
+      wallSocket.sendAction(action, histObj)
 
     attachHandler: ->
 
@@ -154,6 +166,7 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
     undock: ->
       wall.undock(this)
       @docked = false
+
 
     glow: ->
       temp = "3px 4px 4px 2px #888"
