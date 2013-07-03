@@ -55,6 +55,8 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       @hasMoved = false
       @startx = @sheet.x * stage.zoom
       @starty = @sheet.y * stage.zoom
+      console.info("START_P")
+      console.info(@startx, @starty)
       @deltax = e.originalEvent.touches[@myTouch].pageX
       @deltay = e.originalEvent.touches[@myTouch].pageY
       $(document).on 'touchmove', @onTouchMove

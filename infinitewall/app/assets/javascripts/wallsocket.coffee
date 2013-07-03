@@ -50,6 +50,9 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
         @websocket.send(JSON.stringify(msg))
       else
         @comet.send(JSON.stringify(msg))
+      console.info("T")
+      console.info(JSON.stringify(msg))
+      stage.history.push(msg)
 
     sendAck: () ->
       msg = {action:'ack'}

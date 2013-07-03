@@ -1,4 +1,4 @@
-define ["jquery", "sheet/textSheet", "sheet/imageSheet", "wall", "minimap", "menu", "search", "statusbar", "wallsocket", "chat", "jquery.fileupload"], ($, TextSheet, ImageSheet, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
+define ["jquery", "sheet/textSheet", "sheet/imageSheet", "history", "wall", "minimap", "menu", "search", "statusbar", "wallsocket", "chat", "jquery.fileupload", "history"], ($, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
   class Stage
     currentUser: null
     activeSheet: null
@@ -20,6 +20,7 @@ define ["jquery", "sheet/textSheet", "sheet/imageSheet", "wall", "minimap", "men
       image: "image"
     }
     zCount: 1
+    history: null
 
     createSheet: (sheetId, params, timestamp) ->
       switch params.contentType
@@ -40,6 +41,7 @@ define ["jquery", "sheet/textSheet", "sheet/imageSheet", "wall", "minimap", "men
       @wallId = wallId
       @currentUser = currentUser
       @stickyMenu = $("#stickyMenu")
+      @history = new History()
 
       $(document).bind "contextmenu", -> return false
       $(window).resize -> minimap.refresh()

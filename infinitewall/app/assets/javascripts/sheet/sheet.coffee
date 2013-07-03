@@ -62,6 +62,8 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
     attachHandler: ->
 
     move: (params) ->
+      console.info("TT")
+      console.info(params)
       if this is stage.activeSheet # 내가 이 시트를 보고있는데 누가 이걸 움직인다면
         newX = wall.mL.x + @x - params.x
         newY = wall.mL.y + @y - params.y
