@@ -43,14 +43,14 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
             @comet.send(JSON.stringify(msg))
     
     sendAction: (msg, historyData) ->
-      msg.timestamp = @timestamp unless msg.timestamp?
-      msg.uuid = @uuid
+      msg.timestamp = historyData.timestamp = @timestamp unless msg.timestamp?
+      msg.uuid = historyData.uuid = @uuid
       @pending.push(msg)
       if @websocket.isConnected()
         @websocket.send(JSON.stringify(msg))
       else
         @comet.send(JSON.stringify(msg))
-      stage.history.push(historyData)
+      stage.history.push({from: historyData, to: msg})
 
     sendAck: () ->
       msg = {action:'ack'}

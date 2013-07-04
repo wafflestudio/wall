@@ -3,6 +3,7 @@ define [
   "sheet/textSheet",
   "sheet/imageSheet",
   "history",
+  "shortcut/keyboard",
   "wall",
   "minimap",
   "menu",
@@ -11,7 +12,7 @@ define [
   "wallsocket",
   "chat",
   "jquery.fileupload"
-  ], ($, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
+  ], ($, TextSheet, ImageSheet, History, KeyboardJS, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
   class Stage
     currentUser: null
     activeSheet: null
@@ -39,6 +40,7 @@ define [
       switch params.contentType
         when @contentTypeEnum.text then new TextSheet($.extend(params, {id : sheetId}), timestamp)
         when @contentTypeEnum.image then new ImageSheet($.extend(params, {id : sheetId}))
+      @history.update($.extend(params, {action: "create", timestamp: timestamp}))
 
     createSheetLink: (params, timestamp) ->
       @sheets[params.fromSheetId].setLink(params)
@@ -93,3 +95,7 @@ define [
               data.context = null
           )
       }
+      KeyboardJS.on 'ctrl + z, command + z', ->
+        console.info("[UNDO, key only] CTRL + Z or COMMAND + Z pressed")
+      KeyboardJS.on 'ctrl + shift + z, command + shift + z', ->
+        console.info("[REDO, key only] CTRL + SHIFT + Z or COMMAND + SHIFT + Z pressed")

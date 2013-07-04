@@ -52,8 +52,11 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       wallSocket.sendAction(action, histObj)
 
     socketRemove: ->
+      prevTitle = @innerElement.find('.sheetTitle').html()
+      prevContent = @innerElement.find('.sheetTitle').html()
+
       action = {action : 'remove', params : {sheetId : @id}}
-      histObj = {action : 'remove', params : {sheetId: @id}}
+      histObj = {action:"create", params:{x:@x, y:@y, width:@w, height:@h, title:prevTitle, contentType:"text", content:prevContent}}
       wallSocket.sendAction(action, histObj)
 
     socketSetTitle: (curTitle, prevTitle) ->
@@ -63,12 +66,12 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
 
     socketSetLink: (toSheetId) ->
       action = {action : 'setLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
-      histObj = {action : 'setLink', params: {sheetId: @id, fromSheetId: toSheetId, toSheetId: @id}}
+      histObj = {action : 'removeLink', params: {sheetId: @id, fromSheetId: toSheetId, toSheetId: @id}}
       wallSocket.sendAction(action, histObj)
       
     socketRemoveLink: (toSheetId) ->
       action = {action : 'removeLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
-      histObj = {action : 'removeLink', params: {sheetId: @id, fromSheetId: toSheetId, toSheetId: toSheetId}}
+      histObj = {action : 'setLink', params: {sheetId: @id, fromSheetId: toSheetId, toSheetId: toSheetId}}
       wallSocket.sendAction(action, histObj)
 
     attachHandler: ->

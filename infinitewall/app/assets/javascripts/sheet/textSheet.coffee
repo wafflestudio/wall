@@ -36,7 +36,9 @@ define ["jquery", "text/util", "text/operation","text/stringwithstate","./sheet"
 
       title = "Untitled Text"
 
-      wallSocket.sendAction({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}})
+      action = {action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}}
+      histObj = {action:"remove", params:{}}
+      wallSocket.sendAction(action, histObj)
 
     setElement: ->
       @element = $($(textTemplate).appendTo('#sheetLayer'))
