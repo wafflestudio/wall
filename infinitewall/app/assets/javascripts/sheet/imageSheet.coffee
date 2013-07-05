@@ -1,27 +1,4 @@
-imageTemplate = "<div class='sheetBox' tabindex='-1'>
-    <div class='sheet' contentType='image'>
-      <div class='sheetTopBar'>
-        <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
-      </div>
-      <div class='sheetImage'></div>
-      <!--<div class='sheetText'>-->
-        <!--<div class='sheetTextField' contenteditable='true'>-->
-        <!--</div>-->
-      <!--</div>-->
-      <div class='resizeHandleContainer'>
-        <div class='resizeHandle resizeEdge resizeTop'></div>
-        <div class='resizeHandle resizeEdge resizeBottom'></div>
-        <div class='resizeHandle resizeEdge resizeLeft'></div>
-        <div class='resizeHandle resizeEdge resizeRight'></div>
-        <div class='resizeHandle resizeCorner resizeTopLeft'></div>
-        <div class='resizeHandle resizeCorner resizeTopRight'></div>
-        <div class='resizeHandle resizeCorner resizeBottomLeft'></div>
-        <div class='resizeHandle resizeCorner resizeBottomRight'></div>
-      </div>
-    </div>
-  </div>"
-
-define ["./sheet", "./imageSheetHandler", "jquery"], (Sheet, ImageSheetHandler, $) ->
+define ["./sheet", "./imageSheetHandler", "templatefactory", "jquery"], (Sheet, ImageSheetHandler, TemplateFactory, $) ->
   class ImageSheet extends Sheet
     @create: (name = "Untitled Image", content, callback) ->
       img = new Image()
@@ -45,11 +22,14 @@ define ["./sheet", "./imageSheetHandler", "jquery"], (Sheet, ImageSheetHandler, 
         title = name
         
         wallSocket.sendAction({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
+        #일단 서버로 보내고, 응답이 오면 만들어짐
+
         if typeof callback is "function"
           callback()
 
     setElement: ->
-      @element = $($(imageTemplate).appendTo('#sheetLayer'))
+      imageTemplate = TemplateFactory.makeTemplate("imageSheet")
+      @element = $(imageTemplate).appendTo('#sheetLayer')
       @innerElement = @element.children('.sheet')
 
     constructor: (params) ->

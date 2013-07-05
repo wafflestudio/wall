@@ -1,10 +1,5 @@
-searchTemplate = "<div class='searchResult'>
-    <b id='title'></b>
-    <span id='content'></span>
-  </div>"
+define ["templatefactory", "jquery"], (TemplateFactory, $) ->
 
-
-define ["jquery"], ($) ->
   class Search
     constructor: ->
       @searchForm = $("#searchForm")
@@ -23,6 +18,7 @@ define ["jquery"], ($) ->
         $.get("/wall/search/#{stage.wallId}/#{keyword}", {},
           (res) =>
             $.each(res, (i, val) =>
+              searchTemplate = TemplateFactory.makeTemplate("search")
               element = $(searchTemplate).appendTo(@searchResults)
 
               element.find("#title").html(val.title)
@@ -39,7 +35,6 @@ define ["jquery"], ($) ->
             )
         )
       return
-
 
     clear: () =>
       @searchResults.html("")

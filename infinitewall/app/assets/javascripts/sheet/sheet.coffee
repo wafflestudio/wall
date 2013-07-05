@@ -6,7 +6,9 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
 
     @create: (content) ->
       #interface for random creation
+      #
     setElement: (params) ->
+
     constructor: (params) ->
       super(true)
       @id = params.sheetId
