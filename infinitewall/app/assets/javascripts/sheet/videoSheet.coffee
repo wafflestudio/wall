@@ -1,21 +1,11 @@
-define ["./sheet", "./videoSheetHandler", "jquery"], (Sheet, VideoSheetHandler, $) ->
-
-  videoTemplate = "<div class='sheetBox' tabindex='-1'>
-    <div class='sheet' contentType='image'>
-      <div class='sheetTopBar'>
-        <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
-      </div>
-      <div class='sheetVideo'></div>
-      <div class='resizeHandle'></div>
-    </div>
-  </div>"
-
+define ["./sheet", "./videoSheetHandler", "templatefactory", "jquery"], (Sheet, VideoSheetHandler, TemplateFactory, $) ->
 
   class VideoSheet extends Sheet
     @create: (name = "Untitled Video", content, callback) ->
 
     setElement: ->
-      @element = $($(videoTemplate).appendTo('#sheetLayer'))
+      videoTemplate = TemplateFactory.makeTemplate("videoSheet")
+      @element = $(videoTemplate).appendTo('#sheetLayer')
       @innerElement = @element.children('.sheet')
 
     constructor: (params) ->

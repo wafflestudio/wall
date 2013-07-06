@@ -1,31 +1,16 @@
-define ["jquery", "text/util", "text/operation","text/stringwithstate","./sheet", "./textSheetHandler", "rangy"], ($, TextUtil, Operation, StringWithState, Sheet, TextSheetHandler, rangy) ->
+define [
+  "jquery",
+  "text/util",
+  "text/operation",
+  "text/stringwithstate",
+  "./sheet",
+  "./textSheetHandler",
+  "templatefactory",
+  "rangy"], ($, TextUtil, Operation, StringWithState, Sheet, TextSheetHandler, TemplateFactory, rangy) ->
 
   # import module
   detectOperation = TextUtil.detectOperation
   spliceString = TextUtil.spliceString
-
-  textTemplate = "<div class='sheetBox' tabindex='-1'>
-      <div class='sheet' contentType='text'>
-        <!--<div class='sheetTopBar'>-->
-          <!--<h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>-->
-        <!--</div>-->
-        <div class='sheetText'>
-          <div class='sheetTextField' contenteditable='true'>
-          </div>
-        </div>
-        <div class='resizeHandleContainer'>
-          <div class='resizeHandle resizeEdge resizeTop'></div>
-          <div class='resizeHandle resizeEdge resizeBottom'></div>
-          <div class='resizeHandle resizeEdge resizeLeft'></div>
-          <div class='resizeHandle resizeEdge resizeRight'></div>
-          <div class='resizeHandle resizeCorner resizeTopLeft'></div>
-          <div class='resizeHandle resizeCorner resizeTopRight'></div>
-          <div class='resizeHandle resizeCorner resizeBottomLeft'></div>
-          <div class='resizeHandle resizeCorner resizeBottomRight'></div>
-        </div>
-      </div>
-    </div>"
-
 
   class TextSheet extends Sheet
     @create: (content) ->
@@ -33,7 +18,6 @@ define ["jquery", "text/util", "text/operation","text/stringwithstate","./sheet"
       y = Math.floor(Math.random() * ($(window).height() - 74) * 0.9 / stage.zoom - (stage.scaleLayerY + (parseInt ($('#moveLayer').css 'y')) * stage.zoom) / stage.zoom)
       w = 240
       h = 168
-
       title = "Untitled Text"
 
       action = {action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"text", content:content}}
@@ -41,6 +25,7 @@ define ["jquery", "text/util", "text/operation","text/stringwithstate","./sheet"
       wallSocket.sendAction(action, histObj)
 
     setElement: ->
+      textTemplate = TemplateFactory.makeTemplate("textSheet")
       @element = $($(textTemplate).appendTo('#sheetLayer'))
       @innerElement = @element.children('.sheet')
 
@@ -299,5 +284,3 @@ define ["jquery", "text/util", "text/operation","text/stringwithstate","./sheet"
         @savedText = @textfield.html()
         #console.log(range)
         @setRange(range[0], range[1])
-
-    
