@@ -1,4 +1,4 @@
-define ["sheet/textSheet", "sheet/videoSheet", "jquery"], (TextSheet, VideoSheet, $) ->
+define ["sheet/textSheet", "sheet/videoSheet", "jquery", "shortcut/keyboard"], (TextSheet, VideoSheet, $, KeyboardJS) ->
   class Menu
     constructor: ->
       @profile = $('#profilePic')
@@ -36,6 +36,16 @@ define ["sheet/textSheet", "sheet/videoSheet", "jquery"], (TextSheet, VideoSheet
       @tellButton.click -> stage.activeSheet.glow()
       @undoButton.click -> stage.history.undo()
       @redoButton.click -> stage.history.redo()
+
+      KeyboardJS.on 'ctrl + m, command + m', (e) ->
+        console.info("[NEW SHEET] CTRL + M or COMMAND + M pressed")
+        TextSheet.create("New Sheet")
+      KeyboardJS.on 'ctrl + z, command + z', (e) ->
+        console.info("[UNDO] CTRL + Z or COMMAND + Z pressed")
+        stage.history.undo()
+      KeyboardJS.on 'ctrl + shift + z, command + shift + z', (e) ->
+        console.info("[REDO] CTRL + SHIFT + Z or COMMAND + SHIFT + Z pressed")
+        stage.history.redo()
 
     activateDelete: ->
       @deleteSheet.css('background-image', 'url(/assets/images/delete_red.png)')

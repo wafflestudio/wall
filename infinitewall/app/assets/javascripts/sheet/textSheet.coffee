@@ -199,7 +199,10 @@ define ["jquery", "text/util", "text/operation","text/stringwithstate","./sheet"
           @msgId++
           operation.msgId = @msgId
           @pending.push(operation)
-          wallSocket.sendAction({action:"alterText", timestamp:@timestamp, params:{sheetId:@id, operations:@pending}})
+
+          action = {action:"alterText", timestamp:@timestamp, params:{sheetId:@id, operations:@pending}}
+          histObj = {action:"alterText", timestamp:@timestamp, params:{sheetId:@id, operations:@pending}}
+          wallSocket.sendAction(action, histObj)
           #for test: #wallSocket.sendActionDelayed({action:"alterText", timestamp:@timestamp, params:{sheetId:@id, operations:@pending}}, 2000)
 
       # activate focus event handlers:

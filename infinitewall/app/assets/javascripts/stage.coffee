@@ -3,7 +3,6 @@ define [
   "sheet/textSheet",
   "sheet/imageSheet",
   "history",
-  "shortcut/keyboard",
   "wall",
   "minimap",
   "menu",
@@ -12,7 +11,7 @@ define [
   "wallsocket",
   "chat",
   "jquery.fileupload"
-  ], ($, TextSheet, ImageSheet, History, KeyboardJS, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
+  ], ($, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
   class Stage
     currentUser: null
     activeSheet: null
@@ -95,7 +94,3 @@ define [
               data.context = null
           )
       }
-      KeyboardJS.on 'ctrl + z, command + z', ->
-        console.info("[UNDO, key only] CTRL + Z or COMMAND + Z pressed")
-      KeyboardJS.on 'ctrl + shift + z, command + shift + z', ->
-        console.info("[REDO, key only] CTRL + SHIFT + Z or COMMAND + SHIFT + Z pressed")
