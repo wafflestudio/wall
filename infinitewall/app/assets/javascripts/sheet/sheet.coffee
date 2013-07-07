@@ -73,7 +73,7 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       
     socketRemoveLink: (toSheetId) ->
       action = {action : 'removeLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
-      histObj = {action : 'setLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: @toSheetId}}
+      histObj = {action : 'setLink', params: {sheetId: @id, fromSheetId: @id, toSheetId: toSheetId}}
       wallSocket.sendAction(action, histObj)
 
     attachHandler: ->
