@@ -49,7 +49,7 @@ object Chat extends Controller with Login {
     val params = request.queryString
     val timestampOpt:Option[Long] = params.get("timestamp").map(_(0).toLong)
 
-    request.session.get("current_user_id") match {
+    request.session.get("current_user.id") match {
       case Some(id) =>
        ChatSystem.establish(roomId, id, timestampOpt)
       case None =>

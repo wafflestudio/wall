@@ -28,6 +28,7 @@ define ["sheet/textSheet", "sheet/videoSheet", "jquery", "shortcut/keyboard"], (
             console.log "videovideo"
 
       @deleteSheet.click =>
+        #TODO link action
         stage.activeSheet.socketRemove() if stage.activeSheet
         @deactivateDelete()
 

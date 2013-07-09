@@ -7,8 +7,9 @@ GET      /                                    controllers.Application.index
 GET      /about                               controllers.Application.about
 GET      /contact                             controllers.Application.contact
 
-POST     /authenticate                        controllers.Application.authenticate
-GET      /logout                              controllers.Application.logout
+POST     /login                        	  	  controllers.Session.login
+GET      /logout                              controllers.Session.logout
+
 GET      /me                                  controllers.Account.index
 GET      /signup                              controllers.Account.signup
 POST     /users/create                        controllers.Account.createNewUser

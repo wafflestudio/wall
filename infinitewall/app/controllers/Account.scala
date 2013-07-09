@@ -97,7 +97,7 @@ object Account extends Controller with Auth with Login {
             User.setPicture(user.id, placeUserFile(user, file))
           }
         }
-        Redirect(routes.Application.index).withSession("session_token" -> ActiveRecord.sessionToken,"current_user" -> user.email, "current_user_id" -> user.id.toString)
+        Redirect(routes.Application.index).withSession("session_token" -> ActiveRecord.sessionToken,"current_user.email" -> user.email, "current_user.id" -> user.id.toString)
 
       }
     )

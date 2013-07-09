@@ -1,10 +1,10 @@
 @(title: String)(head: Html)(content: Html)(implicit loginForm:Form[LoginData], request:play.api.mvc.Request[play.api.mvc.AnyContent])
 
 @mainWithHead(title) { @head } {
-	@if(request.session.get("current_user").isDefined) {
-  <!--	<div class="pull-right well-small">Logged in as @request.session.get("current_user").getOrElse("") | <a href="@routes.Application.logout">Logout</a></div> -->
+	@if(request.session.get("current_user.email").isDefined) {
+  <!--	<div class="pull-right well-small">Logged in as @request.session.get("current_user.email").getOrElse("") | <a href="@routes.Session.logout">Logout</a></div> -->
 	} else {
-		<form method="POST" action="@routes.Application.authenticate" class="pull-right well-small form-inline" style="margin:0;padding:5px">
+		<form method="POST" action="@routes.Session.login" class="pull-right well-small form-inline" style="margin:0;padding:5px">
 			<ul class="nav">
 				<input type="text" value='@loginForm("email").value' class="input-small" name="email" placeholder="email">
 				<input type="password" value='@loginForm("password").value' class="input-small" name="password" placeholder="password">
