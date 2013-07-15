@@ -1,6 +1,3 @@
-From chanil1218/elasticsearch-analysis-korean
-
-
 Korean Analysis for ElasticSearch
 ==================================
 
