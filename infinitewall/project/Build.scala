@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import play.Project._
+import spray.revolver.RevolverPlugin._
 
 object ApplicationBuild extends Build {
 
@@ -34,5 +35,6 @@ object ApplicationBuild extends Build {
 			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
 			).settings(
 				ScctPlugin.instrumentSettings : _*
-				).settings(parallelExecution in ScctPlugin.ScctTest := false)
+			).settings(parallelExecution in ScctPlugin.ScctTest := false
+			).settings(Revolver.settings: _*)
 }
