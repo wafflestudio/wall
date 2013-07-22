@@ -97,7 +97,7 @@ class PgSqlUserService(application: Application) extends UserServicePlugin(appli
 			Logger.debug("user = %s".format(user))
 		}
 
-		val socialUser = transactional { User.findByEmail(user.id.id).map (u =>
+		val socialUser = transactional { User.findById(user.id.id).map (u =>
 				SocialUser(
 					UserId(u.id, u.provider.get),
 					u.firstName.get,
