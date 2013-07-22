@@ -55,7 +55,7 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
   def search(wallId: String, keyword: String): List[JsValue] = {
     if(!play.Play.isTest)
     {
-      val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("wallId", wallId)).must(QueryBuilders.termQuery("wallId", wallId)))
+      val indexQuery = IndexQuery[SheetIndex]().withBuilder(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("wallId", wallId)).must(QueryBuilders.multiMatchQuery(keyword, "title", "content")))
       val indexResults: IndexResults[SheetIndex] = SheetIndexManager.search(indexQuery)
   
       Logger.info("SheetIndexManager.search() / multiQuery : " + indexResults.results)

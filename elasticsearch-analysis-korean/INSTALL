@@ -1,0 +1,16 @@
+Plugin originated from chanil1218/elasticsearch-analysis-korean
+
+
+HOW TO INSTALL
+======================
+build plugin jar using maven 
+ => mvn clean package
+
+create plugin folder in $ES_HOME
+ => mkdir $ES_HOME/plugins
+ => mkdir $ES_HOME/plugins/analysis-korean
+
+copy plugin jar file to plugin folder
+ => cp ./target/elasticsearch-analysis-korean-VERSION.jar $ES_HOME/plugins/analysis-korean/
+
+restart elasticsearch

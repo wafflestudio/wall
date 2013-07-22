@@ -8,7 +8,7 @@ object ApplicationBuild extends Build {
 	val appVersion = "1.0-M1"
 
 	val appDependencies = Seq(
-			jdbc, anorm, filters,
+			jdbc, /*anorm,*/ filters,
 			// Add your project dependencies here,
 			"postgresql" % "postgresql" % "9.1-901.jdbc4",
 			"ru.circumflex" % "circumflex-markeven" % "2.0",
@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
 			"net.fwbrasil" % "activate-play_2.10" % "1.2.1",
 			"net.fwbrasil" % "activate-jdbc_2.10" % "1.2.1",
 			//"net.fwbrasil" % "activate_2.10" % "1.2",
-			"com.clever-age" % "play2-elasticsearch" % "0.5.4",
+			"com.clever-age" % "play2-elasticsearch" % "0.6-SNAPSHOT",
 			"securesocial" %% "securesocial" % "master-SNAPSHOT",
 			"org.mindrot" % "jbcrypt" % "0.3m")
 
