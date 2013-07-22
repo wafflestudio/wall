@@ -80,6 +80,8 @@ class RenameGroupToUserGroup extends Migration {
 class DevMigration extends ManualMigration {
 
   def up = {
+    createTableForAllEntities
+      .ifNotExists
     createInexistentColumnsForAllEntities
     createReferencesForAllEntities
         .ifNotExists
