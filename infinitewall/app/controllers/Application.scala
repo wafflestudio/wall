@@ -19,18 +19,27 @@ import net.fwbrasil.activate.play.EntityForm._
 import models.ActiveRecord
 import models.ActiveRecord._
 import play.api.i18n.Lang
+import securesocial.core.{Identity, Authorization}
 
-object Application extends Controller with Login {
+object Application extends Controller with securesocial.core.SecureSocial {
 
-  def index = Action { implicit request =>
-    Ok(views.html.index())
-  }
+	def index = Action { implicit request =>
+		Ok(views.html.index())
+	}
 
-  def about = Action { implicit request =>
-    Ok(views.html.about()).withLang(Lang("en"))
-  }
+	def about = Action { implicit request =>
+		Ok(views.html.about())
+	}
 
-  def contact = Action { implicit request =>
-    Ok(views.html.contact()).withLang(Lang("kr"))
-  }
+	def contact = Action { implicit request =>
+		Ok(views.html.contact())
+	}
+	
+	def language(locale: String) = Action { implicit request =>
+		Ok(views.html.index()).withLang(Lang(locale))
+	}
+
+	def securetest = SecuredAction { implicit request =>
+		Ok(views.html.securetest(request.user))
+	}
 }

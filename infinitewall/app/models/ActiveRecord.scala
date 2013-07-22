@@ -50,13 +50,11 @@ abstract class ActiveRecord[ModelType <: Entity : Manifest] {
   def findAll() = transactional {
     all[ModelType]
   }
-  
 
   def delete(id:String) {
     transactional {
       byId[ModelType](id).map(_.delete)
     }
   }
- 
 }
 

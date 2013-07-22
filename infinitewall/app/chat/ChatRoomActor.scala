@@ -96,7 +96,7 @@ class ChatRoomActor(roomId: String) extends Actor {
                 "userId" -> user.id,
                 //"connectionId" -> connection.connectionId,
                 "email" -> user.email,
-                "nickname" -> user.nickname
+                "nickname" -> user.firstName
               )
             }
           }
@@ -113,8 +113,9 @@ class ChatRoomActor(roomId: String) extends Actor {
       sender ! JsArray(prev)
 
     case NotifyJoin(userId, connectionId) => {
-      val nickname = User.findById(userId).map(_.frozen).get.nickname
-      notifyAll("join", userId, connectionId, "has entered")
+		val user = User.findById(userId).map(_.frozen).get
+		val nickname = user.firstName + " " + user.lastName
+		notifyAll("join", userId, connectionId, "has entered")
     }
 
     case Talk(userId, connectionId:Int, text) => {
@@ -134,7 +135,7 @@ class ChatRoomActor(roomId: String) extends Actor {
 
     val user = User.findById(userId).map(_.frozen).get
     val email = user.email
-    val nickname = user.nickname
+    val nickname = user.firstName + " " + user.lastName
     
     val msg:JsValue = kind match {
       case "talk" =>

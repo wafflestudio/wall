@@ -15,13 +15,13 @@ class ChatLog(val kind: String, val message: String,
     val room:ChatRoom, val user:User) extends Entity
 {
   def frozen() = transactional {
-    ChatLog.Frozen(id, kind, message, timestamp, when, room.id, user.id, user.email, user.nickname)
+    ChatLog.Frozen(id, kind, message, timestamp, when, room.id, user.id, user.email, user.firstName + " " + user.lastName)
   }
 }
 
 object ChatLog extends ActiveRecord[ChatLog] {
   
-  case class Frozen(id:String, kind:String, message:String, timestamp:Long, when:Long, roomId:String, userId:String, email:String, nickname:String)
+  case class Frozen(id:String, kind:String, message:String, timestamp:Long, when:Long, roomId:String, userId:String, email:String, fullName:String)
   
   implicit def toJson(chatlog: Frozen): JsValue = {
     Json.obj(
@@ -29,7 +29,7 @@ object ChatLog extends ActiveRecord[ChatLog] {
       "userId" -> chatlog.userId,
       "kind" -> chatlog.kind,
       "email" -> chatlog.email,
-      "nickname" -> chatlog.nickname,
+      "nickname" -> chatlog.fullName,
       "when" -> chatlog.when,
       "message" -> chatlog.message
     )

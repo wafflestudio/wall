@@ -29,8 +29,8 @@ object Group extends ActiveRecord[Group] {
   }
 
   def findAllIncludesUserId(userId: String) = transactional {
+	val user = User.findById(userId)
     query {
-      val user = byId[User](userId)
       (group:Group, uig:UserInGroup) => where((uig.user :== user) :&& (group :== uig.group)) select(group)
     }.map(_.frozen)
   }

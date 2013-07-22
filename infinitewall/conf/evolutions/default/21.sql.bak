@@ -1,0 +1,36 @@
+# --- !Ups
+
+ALTER TABLE User add column provider varchar(100);
+ALTER TABLE User add column first_name varchar(200);
+ALTER TABLE User add column last_name varchar(200);
+
+CREATE TABLE Token (
+  uuid VARCHAR(100) NOT NULL PRIMARY KEY,
+  email VARCHAR(100),
+  created_at TIMESTAMP,
+  expire_at TIMESTAMP,
+  is_sign_up BOOLEAN
+);
+
+CREATE TABLE Authenticator (
+  id bigint(20) NOT NULL PRIMARY KEY,
+  user_id bigint(20) NOT NULL,
+  provider VARCHAR(64),
+  creation_date timestamp NOT NULL,
+  last_used timestamp not null,
+  expiration_date timestamp not null,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE SEQUENCE authenticator_seq start with 1000;
+
+# --- !Downs
+
+ALTER TABLE User drop column provider;
+ALTER TABLE User drop column first_name;
+ALTER TABLE User drop column last_name;
+
+DROP TABLE Token;
+DROP TABLE Authenticator;
+
+DROP SEQUENCE authenticator_seq;

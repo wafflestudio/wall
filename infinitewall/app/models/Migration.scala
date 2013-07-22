@@ -12,6 +12,7 @@ class CreateInitialTablesMigration extends Migration {
   def up = {
     removeAllEntitiesTables
       .ifExists
+	Logger.info("Table up")
     
     // make sure TextContent.text made as large
     table[TextContent].createTable(_.customColumn[String]("text","CLOB"))
@@ -23,7 +24,6 @@ class CreateInitialTablesMigration extends Migration {
         .ifNotExists
   }
 }
-
 class AddIndexToSequencer extends Migration {
   def timestamp = 201305102200L
 
@@ -34,16 +34,17 @@ class AddIndexToSequencer extends Migration {
   }
 }
 
+/*
 class AddDefaultUser extends Migration {
   def timestamp = 201305121400L
   
   def up = {
     customScript {
-      new User(email = "wall@wall.com", hashedPW = User.hashedPW("wallwall"), nickname = "admin", 
-          permission = GlobalPermission.Administrator, verified = true)
+      new User(email = "wall@wall.com", hashedPW = User.hashedPW("wallwall"), permission = GlobalPermission.Administrator)
     }
   }
 }
+*/
 
 class AddIndexToGroupReferences extends Migration {
   def timestamp = 201305121530L

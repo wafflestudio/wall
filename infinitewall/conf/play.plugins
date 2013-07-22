@@ -1,2 +1,12 @@
 100:net.fwbrasil.activate.play.ActivatePlayPlugin
 9000:com.github.cleverage.elasticsearch.plugin.IndexPlugin
+
+1500:com.typesafe.plugin.CommonsMailerPlugin
+9994:securesocial.core.support.pgsql.PgSqlAuthenticatorStore
+9995:securesocial.core.DefaultIdGenerator
+9996:securesocial.core.providers.utils.DefaultPasswordValidator
+9997:securesocial.controllers.CustomTemplatesPlugin 
+9998:securesocial.core.support.pgsql.PgSqlUserService
+9999:securesocial.core.providers.utils.BCryptPasswordHasher
+10001:securesocial.core.providers.FacebookProvider
+10004:securesocial.core.providers.UsernamePasswordProvider

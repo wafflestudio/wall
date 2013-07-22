@@ -16,8 +16,9 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 import play.api.libs.concurrent.Execution.Implicits._
+import securesocial.core.{Identity, Authorization}
 
-object Chat extends Controller with Login {
+object Chat extends Controller with securesocial.core.SecureSocial {
 
   // /* For development purpose. Not for production use: */
   //
@@ -25,12 +26,12 @@ object Chat extends Controller with Login {
   //		"title" -> nonEmptyText
   //	)
   /*
-	def index = AuthenticatedAction { implicit request =>
+	def index = SecuredAction { implicit request =>
 		val rooms = ChatRoom.list()
 		Ok(views.html.chat.index(rooms))
 	}
 
-	def room(roomId: Long) = AuthenticatedAction { implicit request =>
+	def room(roomId: Long) = SecuredAction { implicit request =>
 		Ok(views.html.chat.room(roomId))
 	}
 
@@ -45,13 +46,22 @@ object Chat extends Controller with Login {
 		Ok("")
 	}
 */
+
+ def page = UserAwareAction { implicit request =>
+    val userName = request.user match {
+        case Some(user) => user.fullName
+        case _ => "guest"
+    }
+     Ok("Hello %s".format(userName))
+  }
+
   def establish(roomId: String) = WebSocket.async[JsValue] { implicit request =>
     val params = request.queryString
     val timestampOpt:Option[Long] = params.get("timestamp").map(_(0).toLong)
 
-    request.session.get("current_user.id") match {
-      case Some(id) =>
-       ChatSystem.establish(roomId, id, timestampOpt)
+    securesocial.core.SecureSocial.currentUser match {
+      case Some(user) =>
+       ChatSystem.establish(roomId, user.id.id, timestampOpt)
       case None =>
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
@@ -60,7 +70,7 @@ object Chat extends Controller with Login {
     }
   }
   
-  def prevMessages(roomId: String) = AuthenticatedAction { implicit request =>
+  def prevMessages(roomId: String) = SecuredAction { implicit request =>
     val params = request.queryString
     // mandatory params
     val startTs:Long = params.get("startTs").get(0).toLong

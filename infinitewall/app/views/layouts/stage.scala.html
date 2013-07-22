@@ -1,4 +1,4 @@
-@(title: String)(content: Html)(implicit loginForm:Form[LoginData], request:play.api.mvc.Request[play.api.mvc.AnyContent])
+@(title: String)(content: Html)(implicit request:play.api.mvc.Request[play.api.mvc.AnyContent])
 
 @defaultWithHead(title) {
 <link type="text/css" rel="stylesheet" href="@routes.Assets.at("stylesheets/wall/stage.css")"/>

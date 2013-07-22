@@ -27,7 +27,7 @@ CREATE TABLE ChatLog (
 );
 
 CREATE TABLE ChatRoom (
-		id bigint(20) NOT NULL,
+	id bigint(20) NOT NULL,
     title varchar(255) NOT NULL,
     PRIMARY KEY (id)
 );

@@ -11,8 +11,8 @@ object Environment extends GlobalSettings {
 
   override def onStart(app: Application) {
     Migration.execute(models.ActiveRecord, new models.DevMigration)
-    transactional { /* force loading activate context */}
+    //Migration.update(models.ActiveRecord)
+    //transactional { /* force loading activate context */}
 //    Logger.info("ActiveRecord initialized at: " + ActiveRecord.timestamp.toString)
   }
-
 }

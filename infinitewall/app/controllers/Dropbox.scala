@@ -8,7 +8,7 @@ import play.api.Play.current
 import views._
 import helpers._
 import com.dropbox.client2.session.WebAuthSession
-import com.dropbox.client2.session.{Session => DropboxSession}
+import com.dropbox.client2.session.Session
 import com.dropbox.client2.session.AppKeyPair
 import com.dropbox.client2.session.AccessTokenPair
 import com.dropbox.client2.session.RequestTokenPair
@@ -26,7 +26,7 @@ object Dropbox extends Controller {
     val dropboxAppKey = conf.getString("dropbox.app_key")
     val dropboxAppSecret = conf.getString("dropbox.app_secret")
     val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
-    val session = new WebAuthSession(appKeyPair, DropboxSession.AccessType.DROPBOX);
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX);
 
     val info = session.getAuthInfo("http://" + request.host + "/dropbox/callback");
     val requestTokenPair = info.requestTokenPair
@@ -43,7 +43,7 @@ object Dropbox extends Controller {
     val dropboxAppKey = conf.getString("dropbox.app_key")
     val dropboxAppSecret = conf.getString("dropbox.app_secret")
     val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
-    val session = new WebAuthSession(appKeyPair, DropboxSession.AccessType.DROPBOX);
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX);
 
     var accessKey: String = request.session.get("access_key").getOrElse("")
     var accessSecret: String = request.session.get("access_secret").getOrElse("")
@@ -75,7 +75,7 @@ object Dropbox extends Controller {
     val accessSecret: String = request.session.get("access_secret").getOrElse("")
     val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-    val session = new WebAuthSession(appKeyPair, DropboxSession.AccessType.DROPBOX, accessTokenPair)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
     val dropboxApi = new DropboxAPI(session)
     val account = dropboxApi.accountInfo()
 
@@ -93,7 +93,7 @@ object Dropbox extends Controller {
     val accessSecret: String = request.session.get("access_secret").getOrElse("")
     val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-    val session = new WebAuthSession(appKeyPair, DropboxSession.AccessType.DROPBOX, accessTokenPair)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
     val dropboxApi = new DropboxAPI(session)
 
     var path: String = request.queryString("path").head
@@ -146,7 +146,7 @@ object Dropbox extends Controller {
     val accessSecret: String = request.session.get("access_secret").getOrElse("")
     val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-    val session = new WebAuthSession(appKeyPair, DropboxSession.AccessType.DROPBOX, accessTokenPair)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
     val dropboxApi = new DropboxAPI(session)
 
     var path: String = request.queryString("path").head
@@ -173,7 +173,7 @@ object Dropbox extends Controller {
     val accessSecret: String = request.session.get("access_secret").getOrElse("")
     val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-    val session = new WebAuthSession(appKeyPair, DropboxSession.AccessType.DROPBOX, accessTokenPair)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
     val dropboxApi = new DropboxAPI(session)
 
     var path: String = request.queryString("path").head
@@ -201,7 +201,7 @@ object Dropbox extends Controller {
     val accessSecret: String = request.session.get("access_secret").getOrElse("")
     val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-    val session = new WebAuthSession(appKeyPair, DropboxSession.AccessType.DROPBOX, accessTokenPair)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
     val dropboxApi = new DropboxAPI(session)
 
     Ok("Success")
@@ -218,7 +218,7 @@ object Dropbox extends Controller {
     val accessSecret: String = request.session.get("access_secret").getOrElse("")
     val accessTokenPair: AccessTokenPair = new AccessTokenPair(accessKey, accessSecret)
 
-    val session = new WebAuthSession(appKeyPair, DropboxSession.AccessType.DROPBOX, accessTokenPair)
+    val session = new WebAuthSession(appKeyPair, Session.AccessType.DROPBOX, accessTokenPair)
     val dropboxApi = new DropboxAPI(session)
 
     Ok("Success")

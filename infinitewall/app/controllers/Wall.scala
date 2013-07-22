@@ -27,12 +27,12 @@ import models.ActiveRecord._
 import play.api.libs.Comet
 import scala.actors.Future
 
-object Wall extends Controller with Auth with Login {
+object Wall extends Controller with securesocial.core.SecureSocial {
 
-  def index = AuthenticatedAction { implicit request =>
-    val sharedWalls = models.User.listSharedWalls(currentUserId).map(_.frozen)
-    val nonSharedWalls = models.User.listNonSharedWalls(currentUserId).map(_.frozen)
-    //val walls = models.User.listNonSharedWalls(currentUserId)
+  def index = SecuredAction { implicit request =>
+    val sharedWalls = models.User.listSharedWalls(request.user.id.id).map(_.frozen)
+    val nonSharedWalls = models.User.listNonSharedWalls(request.user.id.id).map(_.frozen)
+    //val walls = models.User.listNonSharedWalls(request.user.id.id)
     Ok(views.html.wall.index(nonSharedWalls, sharedWalls))
   }
 
@@ -48,22 +48,22 @@ object Wall extends Controller with Auth with Login {
     }
   }
 
-  def tree = AuthenticatedAction { implicit request =>
-    val tree = models.Wall.tree(currentUserId)
+  def tree = SecuredAction { implicit request =>
+    val tree = models.Wall.tree(request.user.id.id)
     Ok(resourceTree2Json(tree))
   }
 
-  def stage(wallId: String) = AuthenticatedAction { implicit request =>
+  def stage(wallId: String) = SecuredAction { implicit request =>
     val wall = transactional { models.Wall.findById(wallId).map(_.frozen) }
 
     wall match {
       case Some(w) =>
-        if (models.Wall.isValid(wallId, currentUserId)) {
+        if (models.Wall.isValid(wallId, request.user.id.id)) {
           val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
           val (timestamp, sheets, sheetlinks) = 
             (WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
     
-          val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
+          val pref = WallPreference.findOrCreate(request.user.id.id, wallId).frozen
           Ok(views.html.wall.stage(wallId, w.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
         }
         else {
@@ -74,10 +74,10 @@ object Wall extends Controller with Auth with Login {
     }
   }
 
-  def create = AuthenticatedAction { implicit request =>
+  def create = SecuredAction { implicit request =>
     val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
     val title = params.get("title").getOrElse(Seq("unnamed"))
-    val wallId = models.Wall.create(currentUserId, title(0)).frozen.id
+    val wallId = models.Wall.create(request.user.id.id, title(0)).frozen.id
     Redirect(routes.Wall.stage(wallId))
   }
 
@@ -86,9 +86,9 @@ object Wall extends Controller with Auth with Login {
     val uuid = params.get("uuid").get(0)
     val timestamp = params.get("timestamp").getOrElse(Seq("0"))(0).toLong
 
-    currentUserIdOption match {
-      case Some(userId) =>
-        WallSystem.establish(wallId, userId, uuid, timestamp)
+    securesocial.core.SecureSocial.currentUser match {
+      case Some(user) =>
+        WallSystem.establish(wallId, user.id.id, uuid, timestamp)
       case None =>
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
@@ -97,13 +97,13 @@ object Wall extends Controller with Auth with Login {
   }
 
   // http send by client
-  def speak(wallId: String) = AuthenticatedAction { implicit request =>
+  def speak(wallId: String) = SecuredAction { implicit request =>
     val GETParams = request.queryString
     val uuid = GETParams.get("uuid").get(0)
     Logger.info(s"speak1: ${request.body.asText.get.toString}")
     val action = Json.parse(Json.parse(request.body.asText.get).as[String])
     Logger.info(s"speak2: $action")
-    WallSystem.submitActions(wallId, currentUserId, uuid, 0, action)
+    WallSystem.submitActions(wallId, request.user.id.id, uuid, 0, action)
     Ok("")
   }
 
@@ -115,10 +115,10 @@ object Wall extends Controller with Auth with Login {
     val uuid = params.get("uuid").get(0)
     val timestamp = params.get("timestamp").get(0).toLong
     
-    currentUserIdOption match {
-      case Some(userId) =>
+    securesocial.core.SecureSocial.currentUser match {
+      case Some(user) =>
         Async {
-          WallSystem.establish(wallId, userId, uuid, timestamp).map { channels =>
+          WallSystem.establish(wallId, user.id.id, uuid, timestamp).map { channels =>
               // force disconnect after 3 seconds
               val timeoutEnumerator:Enumerator[JsValue] = Enumerator.fromCallback[JsValue] { () =>
                 Promise.timeout(Some(JsNumber(0)), 3.seconds)
@@ -136,38 +136,40 @@ object Wall extends Controller with Auth with Login {
     }
   }
 
-  def delete(id: String) = AuthenticatedAction { implicit request =>
-    models.Wall.deleteByUserId(currentUserId, id)
+  def delete(id: String) = SecuredAction { implicit request =>
+    models.Wall.deleteByUserId(request.user.id.id, id)
     Ok(Json.toJson("OK"))
   }
 
-  def setView(wallId: String) = AuthenticatedAction { implicit request =>
+  def setView(wallId: String) = SecuredAction { implicit request =>
     val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
     val x = params.get("x").getOrElse(Seq("0.0"))(0).toDouble
     val y = params.get("y").getOrElse(Seq("0.0"))(0).toDouble
     val zoom = params.get("zoom").getOrElse(Seq("1.0"))(0).toDouble
 
-    models.WallPreference.setView(currentUserId, wallId, x, y, zoom)
+    models.WallPreference.setView(request.user.id.id, wallId, x, y, zoom)
     Ok(Json.toJson("OK"))
   }
 
-  def search(wallId: String, keyword: String) = AuthenticatedAction { implicit request =>
+  def search(wallId: String, keyword: String) = SecuredAction { implicit request =>
     val results = SheetIndexManager.search(wallId, keyword)
     Ok(Json.toJson(results))
   }
 
-  def rename(wallId: String, name: String) = AuthenticatedAction { implicit request =>
+  def rename(wallId: String, name: String) = SecuredAction { implicit request =>
     models.Wall.rename(wallId, name)
     Ok(Json.toJson("OK"))
   }
 
-  def moveTo(wallId: String, folderId: String) = AuthenticatedAction { implicit request =>
+  def moveTo(wallId: String, folderId: String) = SecuredAction { implicit request =>
     models.Wall.moveTo(wallId, folderId)
     Ok(Json.toJson("OK"))
   }
 
   /**  uploaded files **/
-  def uploadFile(wallId: String) = AuthenticatedAction(parse.multipartFormData) { request =>
+  //def uploadFile(wallId: String) = SecuredAction(parse.multipartFormData) { request =>
+  def uploadFile(wallId: String) = SecuredAction { request =>
+	/*
     // FIXME: use more functional approach using val and foldleft
     var fileList: Seq[JsObject] =
       request.body.files.foldLeft[Seq[JsObject]](List()) { (fileList, picture) =>
@@ -190,6 +192,8 @@ object Wall extends Controller with Auth with Login {
         }
       }
     Ok(JsArray(fileList))
+	*/
+    Ok("ok")
   }
 
   def infoFile(wallId: String) = Action {
@@ -197,12 +201,12 @@ object Wall extends Controller with Auth with Login {
     Ok("")
   }
 
-  def replaceFile(wallId: String) = AuthenticatedAction { request =>
+  def replaceFile(wallId: String) = SecuredAction { request =>
     // TODO: implement
     Ok("")
   }
 
-  def deleteFile(wallId: String) = AuthenticatedAction { request =>
+  def deleteFile(wallId: String) = SecuredAction { request =>
     // TODO: implement
     Ok("")
   }

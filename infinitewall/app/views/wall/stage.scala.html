@@ -1,4 +1,4 @@
-@(wallId:String, wallName:String, pref:WallPreference.Frozen, sheets:List[Sheet.Frozen], sheetlinks:List[SheetLink.Frozen],timestamp:Long, chatId:String)(implicit loginForm:Form[LoginData], request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(wallId:String, wallName:String, pref:WallPreference.Frozen, sheets:List[Sheet.Frozen], sheetlinks:List[SheetLink.Frozen],timestamp:Long, chatId:String)(implicit request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
 
 @layouts.stage(wallName + " ::: Infinite Wall") {
   <div class="navigator"></div>
@@ -30,8 +30,8 @@
       <div id = "menuBar">
         <a href = "/me">
           <div id = "profileButton" class = "menuButton">
-            <div id = "profilePic" style="background-image:url(@Application.currentUserPicturePath)"></div>
-            <div id = "nickname">@Application.currentUserNickname</div>
+            <div id = "profilePic" style="background-image:url(@securesocial.core.SecureSocial.currentUser.get.email)"></div>
+            <div id = "nickname">@securesocial.core.SecureSocial.currentUser.get.fullName</div>
           </div>
         </a>
         <a href = "/logout"> <div id = "logoutButton" class = "menuButton"></div> </a>
@@ -154,7 +154,7 @@
       var chatURL = "@routes.Chat.establish(chatId).webSocketURL()"
 
       // prepare stage
-      window.stage = new Stage("@wallId", @timestamp, "@Application.currentUser", wallURLs, chatURL)
+      window.stage = new Stage("@wallId", @timestamp, "@securesocial.core.SecureSocial.currentUser.get.email", wallURLs, chatURL)
       wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
 
       // place sheets and sheet links

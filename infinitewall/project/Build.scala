@@ -7,32 +7,32 @@ object ApplicationBuild extends Build {
 	val appName = "InfiniteWall"
 	val appVersion = "1.0-M1"
 
-	
 	val appDependencies = Seq(
-		jdbc, /*anorm,*/ filters,
-		// Add your project dependencies here,
-		"postgresql" % "postgresql" % "9.1-901.jdbc4",
-		"ru.circumflex" % "circumflex-markeven" % "2.0",
-    "com.typesafe" %% "play-plugins-mailer" % "2.1.0",
-		"commons-lang" % "commons-lang" % "2.6",
-		"org.apache.commons" % "commons-email" % "1.2",
-    "commons-codec" % "commons-codec" % "1.6",
-    "com.github.theon" %% "scala-uri" % "0.3.2",
-    "net.fwbrasil" % "activate-core_2.10" % "1.2.1",
-    "net.fwbrasil" % "activate-play_2.10" % "1.2.1",
-    "net.fwbrasil" % "activate-jdbc_2.10" % "1.2.1",
-    //"net.fwbrasil" % "activate_2.10" % "1.2",
-    "com.clever-age" % "play2-elasticsearch" % "0.5.4",
-		"org.mindrot" % "jbcrypt" % "0.3m")
-	
+			jdbc, anorm, filters,
+			// Add your project dependencies here,
+			"postgresql" % "postgresql" % "9.1-901.jdbc4",
+			"ru.circumflex" % "circumflex-markeven" % "2.0",
+			"com.typesafe" %% "play-plugins-mailer" % "2.1.0",
+			"commons-lang" % "commons-lang" % "2.6",
+			"org.apache.commons" % "commons-email" % "1.2",
+			"commons-codec" % "commons-codec" % "1.6",
+			"com.github.theon" %% "scala-uri" % "0.3.2",
+			"net.fwbrasil" % "activate-core_2.10" % "1.2.1",
+			"net.fwbrasil" % "activate-play_2.10" % "1.2.1",
+			"net.fwbrasil" % "activate-jdbc_2.10" % "1.2.1",
+			//"net.fwbrasil" % "activate_2.10" % "1.2",
+			"com.clever-age" % "play2-elasticsearch" % "0.5.4",
+			"securesocial" %% "securesocial" % "master-SNAPSHOT",
+			"org.mindrot" % "jbcrypt" % "0.3m")
 
 	val main = play.Project(appName, appVersion, appDependencies).settings(
-		// Add your own project settings here
-    resolvers += Resolver.url("play-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
-    resolvers += Resolver.url("play-plugin-frozens", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-frozens/"))(Resolver.ivyStylePatterns),
-		coffeescriptOptions := Seq("native", "coffee -p"),
-    scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
-		).settings(
-            ScctPlugin.instrumentSettings : _*
-		).settings(parallelExecution in ScctPlugin.ScctTest := false)
+			// Add your own project settings here
+			resolvers += Resolver.url("play-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
+			resolvers += Resolver.url("play-plugin-frozens", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-frozens/"))(Resolver.ivyStylePatterns),
+			resolvers += Resolver.url("sbt-plugin-snapshots", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-snapshots/"))(Resolver.ivyStylePatterns),
+			coffeescriptOptions := Seq("native", "coffee -p"),
+			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
+			).settings(
+				ScctPlugin.instrumentSettings : _*
+				).settings(parallelExecution in ScctPlugin.ScctTest := false)
 }
