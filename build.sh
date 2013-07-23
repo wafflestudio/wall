@@ -34,7 +34,7 @@ if [ $USER == "jenkins_slave" ]; then
 fi
 
 # run tests
-play test
+#play test
 
 # start the server
 play stage
