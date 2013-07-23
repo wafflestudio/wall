@@ -38,7 +38,7 @@ play test
 
 # start the server
 play stage
-BUILD_ID=0 nohup target/start -Dhttp.port=9000 -DapplyEvolutions.default=true > log.log 2>&1 &
+BUILD_ID=0 nohup target/start -Dhttp.port=9000 -DapplyEvolutions.default=false > log.log 2>&1 &
 
 # for more detailed configuration:
 #target/start -Dconfig.file=/full/path/to/conf/application-prod.conf
@@ -46,5 +46,4 @@ BUILD_ID=0 nohup target/start -Dhttp.port=9000 -DapplyEvolutions.default=true > 
 sleep 10
 
 # apply any possible evolution scripts
-curl -X GET localhost:9000/@evolutions/apply/default > /dev/null
-
+#curl -X GET localhost:9000/@evolutions/apply/default > /dev/null
