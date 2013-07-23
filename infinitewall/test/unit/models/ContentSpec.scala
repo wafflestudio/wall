@@ -22,8 +22,9 @@ class ContentSpec extends Specification {
     "be accessed d by common id when the sheet was created" in {
       running(FakeApplication()) {
         transactional {
-          val user = User.signup("test@wall.com", "test", "test", "")
-          val wall = Wall.create(user.get.id, "test wall")
+          User.create("test@wall.com", "password", "test", "test", "test@wall.com", "pa$$word")
+          val user = User.findByEmail("test@wall.com").get
+          val wall = Wall.create(user.id, "test wall")
           val sheet = Sheet.create(0, 0, 100, 100, "test sheet", ContentType.TextType, "test content", wall.id)
           val contentId = transactional {
             select[Content] where(_.sheet :== sheet)
