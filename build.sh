@@ -1,5 +1,34 @@
 #!/bin/bash
 
+
+### ELASTICSEARCH KOREAN ANALYSIS PLUGIN
+cd elasticsearch-analysis-korean
+
+#clean and compile maven package of elasticsearch korean analysis plugin
+mvn clean package
+
+#check plugin version
+PLUGIN_NEW=$(find ./target -iregex '.*jar' -printf '%f\n')
+PLUGIN_OLD=$(find $ES_HOME/plugins/analysis-korean -iregex '.*jar' -printf '%f\n')
+
+if [ -z "$PLUGIN_OLD" ] && [ "$PLUGIN_NEW" != "$PLUGIN_OLD" ]
+then
+  #remove old plugin and copy new one
+  if [ -n "$PLUGIN_OLD" ]
+  then
+    rm $ES_HOME/plugins/analysis-korean/$PLUGIN_OLD -f
+  fi
+  cp ./target/$PLUGIN_NEW $ES_HOME/plugins/analysis-korean/
+
+  #restart elasticsearch
+  $ES_HOME/bin/service/elasticsearch restart
+else
+  echo "Korean Analysis plugin is up to date."
+fi
+
+cd ..
+
+### WALL
 cd infinitewall
 export PATH="$HOME/bin":"$HOME/bin/scala/bin":"`pwd`/Play20":$PATH
 set
