@@ -121,13 +121,13 @@ class PgSqlUserService(application: Application) extends UserServicePlugin(appli
 				Logger.debug("INSERT")
 			}
 
-			User.create(user.id.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.get.password)
+			User.create(user.id.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
 		} else { // user exists
 			if (Logger.isDebugEnabled) {
 				Logger.debug("UPDATE")
 			}
 
-			User.update(user.id.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.get.password)
+			User.update(user.id.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
 		} // end else
 		user
 	} // end save
