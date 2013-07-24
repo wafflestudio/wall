@@ -1,9 +1,7 @@
 Function::define = (prop, desc) ->
   Object.defineProperty(this.prototype, prop, desc)
 
-cellVal = 24
-
-define [], () ->
+define ["constants"], (Constants) ->
   class Movable
     id: null
     element: null
@@ -20,10 +18,10 @@ define [], () ->
           get: -> parseInt(@element.css('x'))
           set: (value) ->
             roundVal = Math.round(value)
-            diff = if roundVal > 0 then Math.abs(roundVal % cellVal) else cellVal - Math.abs(roundVal % cellVal)
+            diff = if roundVal > 0 then Math.abs(roundVal % Constants.cellVal) else Constants.cellVal - Math.abs(roundVal % Constants.cellVal)
 
-            if diff > cellVal / 2
-              @element.css {x: roundVal - diff + cellVal}
+            if diff > Constants.cellVal / 2
+              @element.css {x: roundVal - diff + Constants.cellVal}
             else
               @element.css {x: roundVal - diff}
         }
@@ -32,10 +30,10 @@ define [], () ->
           get: -> parseInt(@element.css('y'))
           set: (value) ->
             roundVal = Math.round(value)
-            diff = if roundVal > 0 then Math.abs(roundVal % cellVal) else cellVal - Math.abs(roundVal % cellVal)
+            diff = if roundVal > 0 then Math.abs(roundVal % Constants.cellVal) else Constants.cellVal - Math.abs(roundVal % Constants.cellVal)
 
-            if diff > cellVal / 2
-              @element.css {y: roundVal - diff + cellVal}
+            if diff > Constants.cellVal / 2
+              @element.css {y: roundVal - diff + Constants.cellVal}
             else
               @element.css {y: roundVal - diff}
         }
@@ -44,10 +42,10 @@ define [], () ->
           get: -> parseInt(@innerElement.css('width'))
           set: (value) ->
             roundVal = Math.round(value)
-            diff = roundVal % cellVal
+            diff = roundVal % Constants.cellVal
 
-            if diff > cellVal / 2
-              @innerElement.css {width: roundVal - diff + cellVal}
+            if diff > Constants.cellVal / 2
+              @innerElement.css {width: roundVal - diff + Constants.cellVal}
             else
               @innerElement.css {width: roundVal - diff}
         }
@@ -56,10 +54,10 @@ define [], () ->
           get: -> parseInt(@innerElement.css('height'))
           set: (value) ->
             roundVal = Math.round(value)
-            diff = roundVal % cellVal
+            diff = roundVal % Constants.cellVal
 
-            if diff > cellVal / 2
-              @innerElement.css {height: roundVal - diff + cellVal}
+            if diff > Constants.cellVal / 2
+              @innerElement.css {height: roundVal - diff + Constants.cellVal}
             else
               @innerElement.css {height: roundVal - diff}
         }

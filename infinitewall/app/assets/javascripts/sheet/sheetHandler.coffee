@@ -19,8 +19,6 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
 
   class SheetHandler
     sheet: null
-    sheetOutline: null
-    gridCell: null
     deltax: 0
     deltay: 0
     startx: 0
