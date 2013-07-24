@@ -34,6 +34,7 @@ class AddIndexToSequencer extends Migration {
   }
 }
 
+
 /*
 class AddDefaultUser extends Migration {
   def timestamp = 201305121400L
@@ -85,5 +86,26 @@ class DevMigration extends ManualMigration {
     createInexistentColumnsForAllEntities
     createReferencesForAllEntities
         .ifNotExists
+  }
+}
+
+class SetNullFieldForUser extends Migration {
+  def timestamp = 201307252312L
+
+  def up = {
+	  customScript {
+		  val connection = storage.directAccess
+		  try {
+			  connection
+				  .prepareStatement("update User user set user.ssid = user.email, user.provider = 'userpass', user.firstname = user.nickname, user.lastname = '' where user.ssid is null")
+				  .executeUpdate
+			  connection.commit
+		  } catch {
+			  case e =>
+				  connection.rollback
+				  throw e
+		  } finally
+			  connection.close
+	  }
   }
 }
