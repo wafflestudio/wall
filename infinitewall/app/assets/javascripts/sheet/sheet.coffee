@@ -3,6 +3,8 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
     links: null
     currentLink: null
     docked: false
+    sheetOutline: null
+    gridCell: null
 
     @create: (content) ->
       #interface for random creation
