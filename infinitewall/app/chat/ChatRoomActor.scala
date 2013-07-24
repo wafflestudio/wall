@@ -135,7 +135,7 @@ class ChatRoomActor(roomId: String) extends Actor {
 
     val user = User.findById(userId).map(_.frozen).get
     val email = user.email
-    val nickname = user.firstName + " " + user.lastName
+    val nickname = user.firstName.get + " " + user.lastName.get
     
     val msg:JsValue = kind match {
       case "talk" =>

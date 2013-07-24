@@ -168,8 +168,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 
   /**  uploaded files **/
   //def uploadFile(wallId: String) = SecuredAction(parse.multipartFormData) { request =>
-  def uploadFile(wallId: String) = SecuredAction { request =>
-	/*
+  def uploadFile(wallId: String) = UserAwareAction(parse.multipartFormData) { request =>
     // FIXME: use more functional approach using val and foldleft
     var fileList: Seq[JsObject] =
       request.body.files.foldLeft[Seq[JsObject]](List()) { (fileList, picture) =>
@@ -192,8 +191,6 @@ object Wall extends Controller with securesocial.core.SecureSocial {
         }
       }
     Ok(JsArray(fileList))
-	*/
-    Ok("ok")
   }
 
   def infoFile(wallId: String) = Action {

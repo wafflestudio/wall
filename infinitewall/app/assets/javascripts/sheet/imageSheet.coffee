@@ -21,7 +21,9 @@ define ["./sheet", "./imageSheetHandler", "templatefactory", "jquery"], (Sheet, 
         
         title = name
         
-        wallSocket.sendAction({action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}})
+        action = {action:"create", params:{x:x, y:y, width:w, height:h, title:title, contentType:"image", content:content}}
+        histObj = {action:"remove", params:{}}
+        wallSocket.sendAction(action, histObj)
         #일단 서버로 보내고, 응답이 오면 만들어짐
 
         if typeof callback is "function"
