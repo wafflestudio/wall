@@ -4,6 +4,11 @@
 ### ELASTICSEARCH KOREAN ANALYSIS PLUGIN
 cd elasticsearch-analysis-korean
 
+if [ -n $ES_HOME ]
+then
+  export ES_HOME=$HOME/elasticsearch-0.90.2
+end
+
 #clean and compile maven package of elasticsearch korean analysis plugin
 mvn clean package
 
