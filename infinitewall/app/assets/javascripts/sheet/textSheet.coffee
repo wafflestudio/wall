@@ -37,6 +37,7 @@ define [
         #if $(e.target).height() > @ih
           #@ih = $(e.target).height()
 
+      @contentType = "textSheet"
       @baseText = params.content # used for rebuilding with @pending 
       @pending = [] # {basetimestamp, userid, original change, }
       @msgId = 0

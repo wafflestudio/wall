@@ -43,8 +43,8 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
     
     onTouchStart: (e) =>
       console.log e
-      @sheetOutline = new SheetOutline(@sheet)
-      @gridCell = new GridCell(@sheet)
+      @sheet.sheetOutline = new SheetOutline(@sheet)
+      @sheet.gridCell = new GridCell(@sheet)
 
       stage.draggingSheet = @sheet
       @hasMoved = false
@@ -65,13 +65,13 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       e.stopPropagation()
 
     onTouchMove: (e) =>
-      @sheetOutline.show()
-      @gridCell.show()
+      @sheet.sheetOutline.show()
+      @sheet.gridCell.show()
       
-      @sheetOutline.x = (@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom
-      @sheetOutline.y = (@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom
-      @gridCell.x = (@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom
-      @gridCell.y = (@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom
+      @sheet.sheetOutline.x = (@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom
+      @sheet.sheetOutline.y = (@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom
+      @sheet.gridCell.x = (@startx + e.originalEvent.touches[@myTouch].pageX - @deltax) / stage.zoom
+      @sheet.gridCell.y = (@starty + e.originalEvent.touches[@myTouch].pageY - @deltay) / stage.zoom
       @hasMoved = true
 
       e.preventDefault()
@@ -84,7 +84,7 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
 
       if @hasMoved
         moveHistObj = {x: @sheet.x, y: @sheet.y}
-        @sheet.txy(@gridCell.x, @gridCell.y)
+        @sheet.txy(@sheet.gridCell.x, @sheet.gridCell.y)
         @sheet.socketMove({x: @sheet.x, y: @sheet.y}, moveHistObj)
         @sheet.element.find('.sheetTextField').blur()
         @sheet.element.find('.sheetTitle').blur()
@@ -113,10 +113,10 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
           wall.revealSheet()
           @onTouchEnd.lastTouch = t
 
-      @sheetOutline.element.remove()
-      @sheetOutline = null
-      @gridCell.element.remove()
-      @gridCell = null
+      @sheet.sheetOutline.element.remove()
+      @sheet.sheetOutline = null
+      @sheet.gridCell.element.remove()
+      @sheet.gridCell = null
 
       return false
 
@@ -177,7 +177,7 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
 
       if @hasMoved
         moveHistObj = {x: @sheet.x, y: @sheet.y}
-        @sheet.txy(@gridCell.x, @gridCell.y)
+        @sheet.txy(@sheet.gridCell.x, @sheet.gridCell.y)
         @sheet.socketMove({x: @sheet.x, y: @sheet.y}, moveHistObj)
         @sheet.element.find('.sheetTextField').blur()
         @sheet.element.find('.sheetTitle').blur()
@@ -191,29 +191,29 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
         @sheet.becomeActive()
         wall.revealSheet()
 
-      @sheetOutline.element.remove()
-      @sheetOutline = null
-      @gridCell.element.remove()
-      @gridCell = null
+      @sheet.sheetOutline.element.remove()
+      @sheet.sheetOutline = null
+      @sheet.gridCell.element.remove()
+      @sheet.gridCell = null
       return false
 
     onMouseMove: (e) =>
-      if stage.activeSheet is @sheet and @sheet.contentType is stage.contentTypeEnum.text
+      if stage.activeSheet is @sheet and @sheet.contentType == "textSheet"
         return false
       else
-        @sheetOutline.show()
-        @gridCell.show()
+        @sheet.sheetOutline.show()
+        @sheet.gridCell.show()
 
-        @sheetOutline.x = (@startx + e.pageX - @deltax) / stage.zoom
-        @sheetOutline.y = (@starty + e.pageY - @deltay) / stage.zoom
-        @gridCell.x = (@startx + e.pageX - @deltax) / stage.zoom
-        @gridCell.y = (@starty + e.pageY - @deltay) / stage.zoom
+        @sheet.sheetOutline.x = (@startx + e.pageX - @deltax) / stage.zoom
+        @sheet.sheetOutline.y = (@starty + e.pageY - @deltay) / stage.zoom
+        @sheet.gridCell.x = (@startx + e.pageX - @deltax) / stage.zoom
+        @sheet.gridCell.y = (@starty + e.pageY - @deltay) / stage.zoom
         @hasMoved = true
 
     onMouseDown: (e) =>
       if e.which is 1 # left click
-        @sheetOutline = new SheetOutline(@sheet)
-        @gridCell = new GridCell(@sheet)
+        @sheet.sheetOutline = new SheetOutline(@sheet)
+        @sheet.gridCell = new GridCell(@sheet)
 
         stage.leftClick = true
         stage.draggingSheet = @sheet
