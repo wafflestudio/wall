@@ -93,14 +93,10 @@ define ["jquery","jquery.transit", "jquery.mousewheel", "movable", "wall", "shee
     undock: (sheet) -> @bringToTop(sheet)
 
     bringToTop: (sheet) ->
-      #sheet.element.css("z-index", stage.zCount++)
-      #setTimeout(
-        #() ->
-          #$("#sheetLayer").append sheet.element
-          #sheet.element.css("z-index", "")
-          #stage.zCount = 1
-        #, 500)
-    
+      $("#sheetLayer").append sheet.element
+      $("#sheetLayer").append sheet.sheetOutline.element
+      $("#sheetLayer").append sheet.gridCell.element
+   
     loadPref: (zoom, panX, panY) ->
       stage.zoom = zoom
       @sL.setZoom()

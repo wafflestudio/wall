@@ -35,6 +35,7 @@ define ["./sheet", "./imageSheetHandler", "templatefactory", "jquery"], (Sheet, 
     constructor: (params) ->
       super(params)
       @innerElement.children('.sheetImage').css 'background-image', "url('#{params.content}')"
+      @contentType = "imageSheet"
 
     attachHandler: ->
       @handler = new ImageSheetHandler(this)
