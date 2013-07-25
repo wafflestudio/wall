@@ -1,4 +1,4 @@
-@(rooms:List[ChatRoom])(implicit request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(rooms:List[ChatRoom])(implicit request: RequestHeader)
 
 @layouts.default("Chat Rooms ::: Infinite Wall") {
 

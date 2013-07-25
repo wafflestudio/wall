@@ -23,23 +23,19 @@ import securesocial.core.{Identity, Authorization}
 
 object Application extends Controller with securesocial.core.SecureSocial {
 
-	def index = Action { implicit request =>
+	def index = UserAwareAction { implicit request =>
 		Ok(views.html.index())
 	}
 
-	def about = Action { implicit request =>
+	def about = UserAwareAction { implicit request =>
 		Ok(views.html.about())
 	}
 
-	def contact = Action { implicit request =>
+	def contact = UserAwareAction { implicit request =>
 		Ok(views.html.contact())
 	}
 	
-	def language(locale: String) = Action { implicit request =>
+	def language(locale: String) = UserAwareAction { implicit request =>
 		Ok(views.html.index()).withLang(Lang(locale))
-	}
-
-	def securetest = SecuredAction { implicit request =>
-		Ok(views.html.securetest(request.user))
 	}
 }

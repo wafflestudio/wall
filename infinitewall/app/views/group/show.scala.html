@@ -1,4 +1,4 @@
-@(users:List[User.Frozen], walls:List[models.Wall.Frozen], nonSharedWalls:List[models.Wall.Frozen], groupId:String)(implicit request: play.api.mvc.Request[play.api.mvc.AnyContent]) 
+@(users:List[User.Frozen], walls:List[models.Wall.Frozen], nonSharedWalls:List[models.Wall.Frozen], groupId:String)(implicit request: RequestHeader)
 
 @layouts.default("Walls ::: Infinite Wall") {
 

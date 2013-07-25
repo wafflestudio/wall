@@ -14,14 +14,8 @@ import models.ActiveRecord
 import models.ActiveRecord._
 
 object Account extends Controller with securesocial.core.SecureSocial {
+
   def index = SecuredAction { implicit request =>
 	Ok(views.html.account.index(request.user))
   }
-
-/*
-        request.session.get("redirect_uri") match {
-          case Some(uri) => Redirect(uri).withSession("redirect_uri" -> "/", "session_token" -> ActiveRecord.sessionToken, "current_user.email" -> user.email, "current_user.id" -> user.id)
-          case None => Redirect(routes.Application.index).withSession("session_token" -> ActiveRecord.sessionToken, "current_user.email" -> user.email, "current_user.id" -> user.id)
-        }
-*/
 }

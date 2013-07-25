@@ -7,7 +7,6 @@ GET      /                                    controllers.Application.index
 GET      /about                               controllers.Application.about
 GET      /contact                             controllers.Application.contact
 GET      /language/:locale                    controllers.Application.language(locale: String)
-GET      /securetest                          controllers.Application.securetest
 
 
 GET      /me                                  controllers.Account.index

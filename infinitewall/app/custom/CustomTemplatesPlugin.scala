@@ -147,8 +147,8 @@ class CustomTemplatesPlugin(application: Application) extends TemplatesPlugin
 	override def getLoginPage[A](implicit request: Request[A], form: Form[(String, String)],
 			msg: Option[String] = None): Html =
 	{
-		securesocial.views.html.login(form, msg)
-		//views.custom.html.login(form, msg)
+		//securesocial.views.html.login(form, msg)
+		views.html.custom.securesocial.login(form, msg)
 	}
 	override def getSignUpPage[A](implicit request: Request[A], form: Form[RegistrationInfo], token: String): Html = {
 		//securesocial.views.html.Registration.signUp(form, token)
@@ -160,51 +160,52 @@ class CustomTemplatesPlugin(application: Application) extends TemplatesPlugin
 	}
 
 	override def getStartResetPasswordPage[A](implicit request: Request[A], form: Form[String]): Html = {
-		securesocial.views.html.Registration.startResetPassword(form)
-		//views.custom.html.Registration.startResetPassword(form)
+		//securesocial.views.html.Registration.startResetPassword(form)
+		views.html.custom.securesocial.Registration.startResetPassword(form)
 	}
 
 	def getResetPasswordPage[A](implicit request: Request[A], form: Form[(String, String)], token: String): Html = {
-		securesocial.views.html.Registration.resetPasswordPage(form, token)
-		//views.custom.html.Registration.resetPasswordPage(form, token)
+		//securesocial.views.html.Registration.resetPasswordPage(form, token)
+		views.html.custom.securesocial.Registration.resetPasswordPage(form, token)
 	}
 
 	def getPasswordChangePage[A](implicit request: SecuredRequest[A], form: Form[ChangeInfo]):Html = {
-		securesocial.views.html.passwordChange(form)
-		//views.custom.html.passwordChange(form)
+		//securesocial.views.html.passwordChange(form)
+		views.html.custom.securesocial.passwordChange(form)
 	}
 
 	def getNotAuthorizedPage[A](implicit request: Request[A]): Html = {
+		//securesocial.views.html.notAuthorized()
 		securesocial.views.html.notAuthorized()
 	}
 
 	def getSignUpEmail(token: String)(implicit request: RequestHeader): (Option[Txt], Option[Html]) = {
-		(None, Some(securesocial.views.html.mails.signUpEmail(token)))
-		//views.custom.html.mails.signUpEmail(token).body
+		//(None, Some(securesocial.views.html.mails.signUpEmail(token)))
+		(None, Some(views.html.custom.securesocial.mails.signUpEmail(token)))
 	}
 
 	def getAlreadyRegisteredEmail(user: Identity)(implicit request: RequestHeader): (Option[Txt], Option[Html]) = {
-		(None, Some(securesocial.views.html.mails.alreadyRegisteredEmail(user)))
-		//views.custom.html.mails.alreadyRegisteredEmail(user).body
+		//(None, Some(securesocial.views.html.mails.alreadyRegisteredEmail(user)))
+		(None, Some(views.html.custom.securesocial.mails.alreadyRegisteredEmail(user)))
 	}
 
 	def getWelcomeEmail(user: Identity)(implicit request: RequestHeader): (Option[Txt], Option[Html]) = {
-		(None, Some(securesocial.views.html.mails.welcomeEmail(user)))
-		//views.custom.html.mails.welcomeEmail(user).body
+		//(None, Some(securesocial.views.html.mails.welcomeEmail(user)))
+		(None, Some(views.html.custom.securesocial.mails.welcomeEmail(user)))
 	}
 
 	def getUnknownEmailNotice()(implicit request: RequestHeader): (Option[Txt], Option[Html]) = {
-		(None, Some(securesocial.views.html.mails.unknownEmailNotice(request)))
-		//views.custom.html.mails.unknownEmailNotice(request).body
+		//(None, Some(securesocial.views.html.mails.unknownEmailNotice(request)))
+		(None, Some(views.html.custom.securesocial.mails.unknownEmailNotice(request)))
 	}
 
 	def getSendPasswordResetEmail(user: Identity, token: String)(implicit request: RequestHeader): (Option[Txt], Option[Html]) = {
-		(None, Some(securesocial.views.html.mails.passwordResetEmail(user, token)))
-		//views.custom.html.mails.passwordResetEmail(user, token).body
+		//(None, Some(securesocial.views.html.mails.passwordResetEmail(user, token)))
+		(None, Some(views.html.custom.securesocial.mails.passwordResetEmail(user, token)))
 	}
 
 	def getPasswordChangedNoticeEmail(user: Identity)(implicit request: RequestHeader): (Option[Txt], Option[Html]) = {
-		(None, Some(securesocial.views.html.mails.passwordChangedNotice(user)))
-		//views.custom.html.mails.passwordChangedNotice(user).body
+		//(None, Some(securesocial.views.html.mails.passwordChangedNotice(user)))
+		(None, Some(views.html.custom.securesocial.mails.passwordChangedNotice(user)))
 	}
 }
