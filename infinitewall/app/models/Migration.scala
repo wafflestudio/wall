@@ -96,9 +96,14 @@ class SetNullFieldForUser extends Migration {
 	  customScript {
 		  val connection = storage.directAccess
 		  try {
-			  connection
-				  .prepareStatement("update User user set user.ssid = user.email, user.provider = 'userpass', user.firstname = user.nickname, user.lastname = '' where user.ssid is null")
-				  .executeUpdate
+			  val nicknameFieldExists = connection
+				  .prepareStatement("select * from information_schema.columns where table_name = 'USER' and column_name = 'NICKNAME'").executeQuery.next
+				  if(nicknameFieldExists) {
+					  connection
+						  .prepareStatement("""
+								  update User user set user.ssid = user.email, user.provider = 'userpass', user.firstname = user.nickname, user.lastname = '' where user.ssid is null
+								  """).executeUpdate
+				  }
 			  connection.commit
 		  } catch {
 			  case e =>
