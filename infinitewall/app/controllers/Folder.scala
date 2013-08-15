@@ -8,7 +8,7 @@ import play.api.db.DB
 
 object Folder extends Controller with securesocial.core.SecureSocial {
   def create(name: String, parentId: String) = SecuredAction { implicit request =>
-    models.Folder.create(name, request.user.id.id, Some(parentId))
+    models.Folder.create(name, request.user.identityId.id, Some(parentId))
     Ok("")
   }
 

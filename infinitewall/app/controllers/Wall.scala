@@ -30,9 +30,9 @@ import scala.actors.Future
 object Wall extends Controller with securesocial.core.SecureSocial {
 
   def index = SecuredAction { implicit request =>
-    val sharedWalls = models.User.listSharedWalls(request.user.id.id).map(_.frozen)
-    val nonSharedWalls = models.User.listNonSharedWalls(request.user.id.id).map(_.frozen)
-    //val walls = models.User.listNonSharedWalls(request.user.id.id)
+    val sharedWalls = models.User.listSharedWalls(request.user.identityId.id).map(_.frozen)
+    val nonSharedWalls = models.User.listNonSharedWalls(request.user.identityId.id).map(_.frozen)
+    //val walls = models.User.listNonSharedWalls(request.user.identityId.id)
     Ok(views.html.wall.index(nonSharedWalls, sharedWalls))
   }
 
@@ -49,7 +49,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   }
 
   def tree = SecuredAction { implicit request =>
-    val tree = models.Wall.tree(request.user.id.id)
+    val tree = models.Wall.tree(request.user.identityId.id)
     Ok(resourceTree2Json(tree))
   }
 
@@ -58,12 +58,12 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 
     wall match {
       case Some(w) =>
-        if (models.Wall.isValid(wallId, request.user.id.id)) {
+        if (models.Wall.isValid(wallId, request.user.identityId.id)) {
           val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
           val (timestamp, sheets, sheetlinks) = 
             (WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
     
-          val pref = WallPreference.findOrCreate(request.user.id.id, wallId).frozen
+          val pref = WallPreference.findOrCreate(request.user.identityId.id, wallId).frozen
           Ok(views.html.wall.stage(wallId, w.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
         }
         else {
@@ -77,7 +77,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   def create = SecuredAction { implicit request =>
     val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
     val title = params.get("title").getOrElse(Seq("unnamed"))
-    val wallId = models.Wall.create(request.user.id.id, title(0)).frozen.id
+    val wallId = models.Wall.create(request.user.identityId.id, title(0)).frozen.id
     Redirect(routes.Wall.stage(wallId))
   }
 
@@ -88,7 +88,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 
     securesocial.core.SecureSocial.currentUser match {
       case Some(user) =>
-        WallSystem.establish(wallId, user.id.id, uuid, timestamp)
+        WallSystem.establish(wallId, user.identityId.id, uuid, timestamp)
       case None =>
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
@@ -103,7 +103,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
     Logger.info(s"speak1: ${request.body.asText.get.toString}")
     val action = Json.parse(Json.parse(request.body.asText.get).as[String])
     Logger.info(s"speak2: $action")
-    WallSystem.submitActions(wallId, request.user.id.id, uuid, 0, action)
+    WallSystem.submitActions(wallId, request.user.identityId.id, uuid, 0, action)
     Ok("")
   }
 
@@ -118,7 +118,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
     securesocial.core.SecureSocial.currentUser match {
       case Some(user) =>
         Async {
-          WallSystem.establish(wallId, user.id.id, uuid, timestamp).map { channels =>
+          WallSystem.establish(wallId, user.identityId.id, uuid, timestamp).map { channels =>
               // force disconnect after 3 seconds
               val timeoutEnumerator:Enumerator[JsValue] = Enumerator.fromCallback[JsValue] { () =>
                 Promise.timeout(Some(JsNumber(0)), 3.seconds)
@@ -137,7 +137,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   }
 
   def delete(id: String) = SecuredAction { implicit request =>
-    models.Wall.deleteByUserId(request.user.id.id, id)
+    models.Wall.deleteByUserId(request.user.identityId.id, id)
     Ok(Json.toJson("OK"))
   }
 
@@ -147,7 +147,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
     val y = params.get("y").getOrElse(Seq("0.0"))(0).toDouble
     val zoom = params.get("zoom").getOrElse(Seq("1.0"))(0).toDouble
 
-    models.WallPreference.setView(request.user.id.id, wallId, x, y, zoom)
+    models.WallPreference.setView(request.user.identityId.id, wallId, x, y, zoom)
     Ok(Json.toJson("OK"))
   }
 

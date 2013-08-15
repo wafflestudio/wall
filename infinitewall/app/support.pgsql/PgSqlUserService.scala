@@ -97,7 +97,7 @@ class PgSqlUserService(application: Application) extends UserServicePlugin(appli
 			Logger.debug("user = %s".format(user))
 		}
 
-		val socialUser = transactional { User.findById(user.id.id).map (u =>
+		val socialUser = transactional { User.findById(user.identityId.id).map (u =>
 				SocialUser(
 					UserId(u.id, u.provider.get),
 					u.firstName.get,
@@ -121,13 +121,13 @@ class PgSqlUserService(application: Application) extends UserServicePlugin(appli
 				Logger.debug("INSERT")
 			}
 
-			User.create(user.id.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
+			User.create(user.identityId.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
 		} else { // user exists
 			if (Logger.isDebugEnabled) {
 				Logger.debug("UPDATE")
 			}
 
-			User.update(user.id.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
+			User.update(user.identityId.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
 		} // end else
 		user
 	} // end save
