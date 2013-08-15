@@ -4,7 +4,7 @@ import _root_.java.util.{Date, UUID}
 
 import securesocial.core._
 import providers.Token
-import securesocial.core.UserId
+import securesocial.core.IdentityId
 import securesocial.core.PasswordInfo
 import scala.Some
 
@@ -23,15 +23,15 @@ import scala.Some
 
 class PgSqlUserService(application: Application) extends UserServicePlugin(application) {
 
-	def find(id: UserId) = {
+	def find(id: IdentityId) = {
 		if (Logger.isDebugEnabled) {
 			Logger.debug("find...")
-				Logger.debug("id = %s".format(id.id))
+				Logger.debug("id = %s".format(id.userId))
 		}
 
-		val socialUser = transactional {User.findById(id.id).map(user =>
+		val socialUser = transactional {User.findById(id.userId).map(user =>
 				SocialUser(
-					UserId(user.id, user.provider.get),
+					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
 					user.lastName.get,
 					user.firstName.get + " " + user.lastName.get,
@@ -65,7 +65,7 @@ class PgSqlUserService(application: Application) extends UserServicePlugin(appli
 
 		val socialUser = transactional { User.findByEmailAndProvider(email, providerId).map(user =>
 				SocialUser(
-					UserId(user.id, user.provider.get),
+					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
 					user.lastName.get,
 					user.firstName.get + " " + user.lastName.get,
@@ -97,9 +97,9 @@ class PgSqlUserService(application: Application) extends UserServicePlugin(appli
 			Logger.debug("user = %s".format(user))
 		}
 
-		val socialUser = transactional { User.findById(user.identityId.id).map (u =>
+		val socialUser = transactional { User.findById(user.identityId.userId).map (u =>
 				SocialUser(
-					UserId(u.id, u.provider.get),
+					IdentityId(u.id, u.provider.get),
 					u.firstName.get,
 					u.lastName.get,
 					u.firstName.get + " " + u.lastName.get,
@@ -121,13 +121,13 @@ class PgSqlUserService(application: Application) extends UserServicePlugin(appli
 				Logger.debug("INSERT")
 			}
 
-			User.create(user.identityId.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
+			User.create(user.identityId.userId, user.identityId.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
 		} else { // user exists
 			if (Logger.isDebugEnabled) {
 				Logger.debug("UPDATE")
 			}
 
-			User.update(user.identityId.id, user.id.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
+			User.update(user.identityId.userId, user.identityId.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
 		} // end else
 		user
 	} // end save

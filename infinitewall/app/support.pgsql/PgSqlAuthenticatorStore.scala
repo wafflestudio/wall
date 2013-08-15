@@ -11,7 +11,7 @@ import scala.Error
 import scala.Some
 
 import org.joda.time.DateTime
-import securesocial.core.{Authenticator, UserId, AuthenticatorStore}
+import securesocial.core.{Authenticator, IdentityId, AuthenticatorStore}
 
 class PgSqlAuthenticatorStore(app: Application) extends AuthenticatorStore(app) {
 
@@ -31,13 +31,13 @@ class PgSqlAuthenticatorStore(app: Application) extends AuthenticatorStore(app) 
 				Logger.debug("INSERT")
 			}
 
-			UserAuthenticator.create(authenticator.id, authenticator.userId.id, authenticator.userId.providerId, authenticator.creationDate.getMillis, authenticator.lastUsed.getMillis, authenticator.expirationDate.getMillis)
+			UserAuthenticator.create(authenticator.id, authenticator.identityId.userId, authenticator.identityId.providerId, authenticator.creationDate.getMillis, authenticator.lastUsed.getMillis, authenticator.expirationDate.getMillis)
 		} else { // user exists
 			if (Logger.isDebugEnabled) {
 				Logger.debug("UPDATE")
 			}
 
-			UserAuthenticator.update(authenticator.id, authenticator.userId.id, authenticator.userId.providerId, authenticator.creationDate.getMillis, authenticator.lastUsed.getMillis, authenticator.expirationDate.getMillis)
+			UserAuthenticator.update(authenticator.id, authenticator.identityId.userId, authenticator.identityId.providerId, authenticator.creationDate.getMillis, authenticator.lastUsed.getMillis, authenticator.expirationDate.getMillis)
 		} // end else
 
 		Right(())
@@ -51,7 +51,7 @@ class PgSqlAuthenticatorStore(app: Application) extends AuthenticatorStore(app) 
 		val authenticator = transactional { UserAuthenticator.findBySid(id).map (userAuthenticator =>
 				Authenticator(
 					userAuthenticator.sid,
-					UserId(userAuthenticator.user.id, userAuthenticator.provider.get),
+					IdentityId(userAuthenticator.user.id, userAuthenticator.provider.get),
 					new DateTime(userAuthenticator.creationDate),
 					new DateTime(userAuthenticator.lastUsed),
 					new DateTime(userAuthenticator.expirationDate)

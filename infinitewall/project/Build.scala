@@ -23,7 +23,7 @@ object ApplicationBuild extends Build {
 			"net.fwbrasil" % "activate-jdbc_2.10" % "1.2.1",
 			//"net.fwbrasil" % "activate_2.10" % "1.2",
 			"com.clever-age" % "play2-elasticsearch" % "0.6-SNAPSHOT",
-			"securesocial" %% "securesocial" % "master-SNAPSHOT",
+			"securesocial" % "securesocial_2.10" % "2.1.1",
 			"org.mindrot" % "jbcrypt" % "0.3m")
 
 	val main = play.Project(appName, appVersion, appDependencies).settings(
@@ -31,6 +31,7 @@ object ApplicationBuild extends Build {
 			resolvers += Resolver.url("play-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
 			resolvers += Resolver.url("play-plugin-frozens", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-frozens/"))(Resolver.ivyStylePatterns),
 			resolvers += Resolver.url("sbt-plugin-snapshots", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-snapshots/"))(Resolver.ivyStylePatterns),
+			resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
 			coffeescriptOptions := Seq("native", "coffee -p"),
 			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
 			).settings(

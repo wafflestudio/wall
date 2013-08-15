@@ -61,7 +61,7 @@ object Chat extends Controller with securesocial.core.SecureSocial {
 
     securesocial.core.SecureSocial.currentUser match {
       case Some(user) =>
-       ChatSystem.establish(roomId, user.identityId.id, timestampOpt)
+       ChatSystem.establish(roomId, user.identityId.userId, timestampOpt)
       case None =>
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
