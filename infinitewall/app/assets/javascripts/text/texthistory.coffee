@@ -3,7 +3,7 @@ define ["jquery", "./util", "./operation", "./stringwithstate" ], ($, TextUtil, 
 	# action: operation with range
 
 	class Log
-		constructor:(@action, @isMine) ->
+		constructor:(@action, @undoStr, @isMine) ->
 
 
 	class TextHistory
@@ -26,8 +26,9 @@ define ["jquery", "./util", "./operation", "./stringwithstate" ], ($, TextUtil, 
 		# add to pending and log and remove all undone records in log
 		write: (action, undoStr) ->
 			# add to pending
-			@pending.push(action)
 			@msgId += 1
+			action.msgId = @msgId
+			@pending.push(action)
 
 			# remove all 'mine' records behind cursor
 			i = @cursor
@@ -38,58 +39,83 @@ define ["jquery", "./util", "./operation", "./stringwithstate" ], ($, TextUtil, 
 					i = i + 1
 
 			# write operation to log tail
-			@log.push(new Log(action, true))
-			@cursor += 1
+			@log.push(new Log(action, undoStr, true))
+			@cursor = @log.length
+
+			@baseText = TextUtil.spliceString(@baseText, action.from, action.length, action.content)
 
 			@msgId
 
 		undo:(range) ->
-			if @cursor <= 0
-				throw 'undo: cursor <= 0'
+			i = @cursor-1
+			while i >= 0
+				if @log[i].isMine
+					break
+				i -= 1
+			
+			if i < 0
+				return false
 
-			action = @getUndoAction()
+			@cursor = i
+			
+			action = @getUndoAction(i)
 
 			[newText, unused, newRange] = @merge(@baseText, [], action, range)
-			@baseText = alteredText
+			console.log(@baseText, "->", newText)
+			@baseText = newText
 
 			#add to @pending
-			@pending.push(undoAction)
-			@cursor -= 1
+			@msgId += 1
+			action.msgId = @msgId
+			@pending.push(action)
 
 			[@baseText, newRange]
 
 		redo:(range) ->
-			if @cursor >= @log.length
-				throw 'redo: cursor >= length'
+			i = @cursor
+			i = 0 if i < 0
+			
+			while i < @log.length
+				if @log[i].isMine
+					break
+				i += 1
+			
+			if i >= @log.length
+				return false
 
-			action = @getRedoAction()
+			@cursor = i + 1
+
+			action = @getRedoAction(i)
 
 			[newText, unused, newRange] = @merge(@baseText, [], action, range)
-			@baseText = alteredText
+			console.log(@baseText, "->", newText)
+			@baseText = newText
 
 			#add to @pending
-			@pending.push(undoAction)
-			@cursor += 1
+			@msgId += 1
+			action.msgId = @msgId
+			@pending.push(action)
 
 			[@baseText, newRange]
 
-		getUndoAction: () ->
-			if @cursor <= 0
-				throw 'invalid operation'
-			
-			action = @log[@cursor-1].action
-			undoAction = new Operation(action.from, action.content.length, @log[@cursor-1].undoStr)
+		getUndoAction: (i) ->
+
+			if i < 0
+				return false
+
+			action = @log[i].action
+			undoAction = new Operation(action.from, action.content.length, @log[i].undoStr)
 			# recompute undoAction based on consolidated other's records
 			# 1. get baseText towards undo position by rolling back other's records
 			i = @log.length-1
 			baseText = @baseText
 			others = []
 
-			_(@log.slice(@cursor-1, @log.length)).filter((log) -> not log.isMine).map (log) ->
+			_(@log.slice(i, @log.length)).filter((log) -> not log.isMine).map (log) ->
 				a = log.action
 				others.push(a)
 				u = new Operation(a.from, a.content.length, log.undoStr)
-				baseText = spliceString(baseText, u.from, u.length, u.content)
+				baseText = TextUtil.spliceString(baseText, u.from, u.length, u.content)
 
 			# 2. merge the undo action with all other's records, applying forward
 			ss = new StringWithState(baseText)
@@ -100,11 +126,11 @@ define ["jquery", "./util", "./operation", "./stringwithstate" ], ($, TextUtil, 
 			
 			undoAction
 
-		getRedoAction: () ->
-			if @cursor >= @log.length
-				throw 'invalid operation'
+		getRedoAction: (i) ->
+			if i >= @log.length
+				return false
 
-			@log[@cursor].action
+			@log[i].action
 
 		merge:(baseText, pending, operation, range) ->
 			ss = new StringWithState(baseText)
@@ -122,7 +148,6 @@ define ["jquery", "./util", "./operation", "./stringwithstate" ], ($, TextUtil, 
 			# find where the selection range is by applying in to the string
 			rangeop = [new Operation(range[0], 0, ""), new Operation(range[1], 0, "")]
 			newRange = [ss2.apply(rangeop[0], 1).from, ss3.apply(rangeop[1], 1).from]
-			
 			[newText, newPending, newRange]
 
 		consolidateMine: (operation) ->
@@ -130,11 +155,9 @@ define ["jquery", "./util", "./operation", "./stringwithstate" ], ($, TextUtil, 
 			if @pending.length > 0 and @pending[0].msgId == operation.msgId
 				# remove received bit from @pending, as it is no longer used
 				head = @pending.shift()
-				# new base text
-				@baseText = TextUtil.spliceString(@baseText, head.from, head.length, head.content)
-				
 				true
 			else
+				console.warn('bad message', @pending, operation.msgId)
 				false
 
 		consolidateOther:(operation, range) ->

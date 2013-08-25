@@ -49,7 +49,7 @@ define ["EventDispatcher", "jquery"], (EventDispatcher, $) ->
     # @override
     onReceive: (e) =>
       data = JSON.parse(e.data)
-      console.log(@scope, data)
+      #console.log(@scope, data)
       @trigger('receive', data)
 
     onOpen: (e) =>

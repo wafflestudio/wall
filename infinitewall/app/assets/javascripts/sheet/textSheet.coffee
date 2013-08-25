@@ -70,7 +70,21 @@ define [
 
 			# activate key event handlers
 			$(@textfield).on 'keypress', (e)=>
+				console.log('keypress', e.keyCode, e.which)
 				@detectChangeAndUpdate()
+
+			$(@textfield).on 'keydown', (e)=>
+				if e.keyCode == 83 and e.altKey
+					console.log('testing undo')
+					@undo()
+					return false
+				if e.keyCode == 68 and e.altKey
+					console.log('testing redo')
+					@redo()
+					return false
+				else
+					console.log('keydown', e.keyCode, e.which)
+				
 
 
 			# check for any update by the browser
@@ -99,7 +113,7 @@ define [
 			if @savedText != $(@textfield).html()
 				@savedText = $(@textfield).html()
 				[operation, undoStr] = TextUtil.detectOperation(oldText, @savedText, @savedRange)
-				operation.msgId = @history.write(operation)
+				operation.msgId = @history.write(operation, undoStr)
 
 				action = {action:"alterText", timestamp: @history.timestamp, params:{sheetId:@id, operations:@history.getPending()}}
 				histObj = {action:"alterText", timestamp: @history.timestamp, params:{sheetId:@id, operations:@history.getPending()}}
@@ -152,14 +166,18 @@ define [
 			if not range
 				range = [0,0,0]
 
-			[html, range] = @history.undo(range)
+			[html, newRange] = @history.undo(range)
+			
+			if not @history.hasPending()
+				return
+
 			@textfield.html(html)
 			@savedText = @textfield.html()
-			#RangeUtil.setRange
+			console.log("applied:", @savedText)
 			action = {action:"alterText", timestamp: @history.timestamp, params:{sheetId:@id, operations:@history.getPending()}}
 			wallSocket.sendAction(action)
-
-			RangeUtil.setRange(@textfield, range[0], range[1])
+			if newRange
+				RangeUtil.setRange(@textfield, newRange[0], newRange[1])
 
 		redo: ->
 			# TODO: properly set range
@@ -167,14 +185,17 @@ define [
 			if not range
 				range = [0,0,0]
 
-			[html, range] = @history.redo(range)
+			[html, newRange] = @history.redo(range)
+			if not @history.hasPending()
+				return
+
 			@textfield.html(html)
 			@savedText = @textfield.html()
-			#RangeUtil.setRange
+			console.log("applied:", @savedText)
 			action = {action:"alterText", timestamp: @history.timestamp, params:{sheetId:@id, operations:@history.getPending()}}
 			wallSocket.sendAction(action)
-
-			RangeUtil.setRange(@textfield, range[0], range[1])
+			if newRange
+				RangeUtil.setRange(@textfield, newRange[0], newRange[1])
 
 
 			
