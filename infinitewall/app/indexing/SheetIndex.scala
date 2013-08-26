@@ -29,7 +29,8 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
         SheetIndexManager.index(si)
         Logger.info("SheetIndexManager.index() / updateTitle : " + title)
       case None => None
-        Logger.info("SheetIndexManager.index() / updateTitle : ERROR(No Index)")
+        SheetIndexSystem.indexSheet(id)
+        Logger.info("SheetIndexManager.index() / updateTitle : ERROR(No Index) => Reindexing Sheet")
     }
   }
 
@@ -41,13 +42,21 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
         SheetIndexManager.index(si)
         Logger.info("SheetIndexManager.index() / updateContent : " + content)
       case None => None
-        Logger.info("SheetIndexManager.index() / updateContent : ERROR(No Index)")
+        SheetIndexSystem.indexSheet(id)
+        Logger.info("SheetIndexManager.index() / updateContent : ERROR(No Index) => Reindexing Sheet")
     }
   }
 
   def remove(id: String) = if(!play.Play.isTest) {
-    var deleteRes = SheetIndexManager.delete(id)
-    Logger.info("SheetIndexManager.remove() : " + id + " / " + deleteRes)
+    var sheetIndex = SheetIndexManager.get(id)
+    sheetIndex match { 
+      case Some(si: SheetIndex) =>
+        var deleteRes = SheetIndexManager.delete(id)
+        Logger.info("SheetIndexManager.remove() : " + id + " / " + deleteRes)
+      case None => None
+        Logger.info("SheetIndexManager.remove() : ERROR(No Index)")
+    }
+
   }
 
   //Sheet Index Retreival
@@ -67,4 +76,5 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
     else
       List()
   }
+ 
 }
