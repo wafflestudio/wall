@@ -20,6 +20,7 @@ package org.apache.lucene.analysis.kr;
 
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents;
+import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -146,8 +147,11 @@ public class KoreanAnalyzer extends StopwordAnalyzerBase {
 	
 	
    @Override
-   protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-     final KoreanTokenizer src = new KoreanTokenizer(matchVersion, reader);
+   protected TokenStreamComponents createComponents(final String fieldName, Reader reader) {
+     CharFilter htmlReader = new HTMLStripCharFilter(reader);
+     final KoreanTokenizer src = new KoreanTokenizer(matchVersion, htmlReader);
+     //final KoreanTokenizer src = new KoreanTokenizer(matchVersion, reader);
+     
      src.setMaxTokenLength(maxTokenLength);
      TokenStream tok = new KoreanFilter(src, bigrammable, hasOrigin, exactMatch, originCNoun);
      tok = new LowerCaseFilter(matchVersion, tok);
@@ -156,7 +160,8 @@ public class KoreanAnalyzer extends StopwordAnalyzerBase {
        @Override
        protected void setReader(final Reader reader) throws IOException {
          src.setMaxTokenLength(KoreanAnalyzer.this.maxTokenLength);
-         super.setReader(reader);
+         //super.setReader(reader);
+         super.setReader(new HTMLStripCharFilter(reader));
        }
      };
    }
