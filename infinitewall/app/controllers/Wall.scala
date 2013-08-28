@@ -26,6 +26,7 @@ import indexing._
 import models.ActiveRecord._
 import play.api.libs.Comet
 import scala.actors.Future
+import org.apache.tika.Tika
 
 object Wall extends Controller with securesocial.core.SecureSocial {
 
@@ -171,7 +172,8 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   def uploadFile(wallId: String) = UserAwareAction(parse.multipartFormData) { request =>
     val fileList: Seq[JsObject] =
       request.body.files.flatMap { picture =>
-        val contentType:String = picture.contentType.getOrElse("application/null")
+		val tika = new Tika()
+        val contentType:String = tika.detect(picture.ref.file)
 
 		val imageContentTypePattern = "^image/(\\w)+".r
 		contentType match {
@@ -188,7 +190,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 					))
 				  case Failure(_) => None
 				}
-			case _ => None
+			case _ => Logger.info("Invalid mime-type: " + contentType); None
 		}
       }
     Ok(JsArray(fileList))
