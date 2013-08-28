@@ -36,6 +36,5 @@ object FileSystem {
       case None =>
         Failure(throw new java.io.IOException("error placing temp file"))
     }
-
   }
 }

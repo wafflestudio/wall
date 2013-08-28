@@ -169,26 +169,27 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   /**  uploaded files **/
   //def uploadFile(wallId: String) = SecuredAction(parse.multipartFormData) { request =>
   def uploadFile(wallId: String) = UserAwareAction(parse.multipartFormData) { request =>
-    // FIXME: use more functional approach using val and foldleft
-    var fileList: Seq[JsObject] =
-      request.body.files.foldLeft[Seq[JsObject]](List()) { (fileList, picture) =>
-        // FIXME: make use of content type
-        val contentType = picture.contentType
+    val fileList: Seq[JsObject] =
+      request.body.files.flatMap { picture =>
+        val contentType:String = picture.contentType.getOrElse("application/null")
 
-        utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
-          case Success(pair) =>
-            val (filename, file) = pair
-            fileList :+ Json.obj(
-              "name" -> filename,
-              "size" -> file.length,
-              "url" -> ("/upload/" + filename),
-              "delete_url" -> ("/wall/file/" + wallId),
-              "delete_type" -> "delete"
-            )
-          case Failure(_) =>
-            // TODO: add message? that a file upload failed
-            fileList
-        }
+		val imageContentTypePattern = "^image/(\\w)+".r
+		contentType match {
+			case imageContentTypePattern(c) => 
+				Logger.info("match")
+				utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
+				  case Success((filename, file)) =>
+					Some(Json.obj(
+					  "name" -> filename,
+					  "size" -> file.length,
+					  "url" -> ("/upload/" + filename),
+					  "delete_url" -> ("/wall/file/" + wallId),
+					  "delete_type" -> "delete"
+					))
+				  case Failure(_) => None
+				}
+			case _ => None
+		}
       }
     Ok(JsArray(fileList))
   }
