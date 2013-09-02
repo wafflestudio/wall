@@ -26,6 +26,7 @@ import indexing._
 import models.ActiveRecord._
 import play.api.libs.Comet
 import scala.actors.Future
+import org.apache.tika.Tika
 
 object Wall extends Controller with securesocial.core.SecureSocial {
 
@@ -169,26 +170,28 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   /**  uploaded files **/
   //def uploadFile(wallId: String) = SecuredAction(parse.multipartFormData) { request =>
   def uploadFile(wallId: String) = UserAwareAction(parse.multipartFormData) { request =>
-    // FIXME: use more functional approach using val and foldleft
-    var fileList: Seq[JsObject] =
-      request.body.files.foldLeft[Seq[JsObject]](List()) { (fileList, picture) =>
-        // FIXME: make use of content type
-        val contentType = picture.contentType
+    val fileList: Seq[JsObject] =
+      request.body.files.flatMap { picture =>
+		val tika = new Tika()
+        val contentType:String = tika.detect(picture.ref.file)
 
-        utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
-          case Success(pair) =>
-            val (filename, file) = pair
-            fileList :+ Json.obj(
-              "name" -> filename,
-              "size" -> file.length,
-              "url" -> ("/upload/" + filename),
-              "delete_url" -> ("/wall/file/" + wallId),
-              "delete_type" -> "delete"
-            )
-          case Failure(_) =>
-            // TODO: add message? that a file upload failed
-            fileList
-        }
+		val imageContentTypePattern = "^image/(\\w)+".r
+		contentType match {
+			case imageContentTypePattern(c) => 
+				Logger.info("match")
+				utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
+				  case Success((filename, file)) =>
+					Some(Json.obj(
+					  "name" -> filename,
+					  "size" -> file.length,
+					  "url" -> ("/upload/" + filename),
+					  "delete_url" -> ("/wall/file/" + wallId),
+					  "delete_type" -> "delete"
+					))
+				  case Failure(_) => None
+				}
+			case _ => Logger.info("Invalid mime-type: " + contentType); None
+		}
       }
     Ok(JsArray(fileList))
   }

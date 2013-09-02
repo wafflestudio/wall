@@ -1,4 +1,4 @@
-package securesocial.core.support.pgsql
+package securesocial.core.support.h2
 
 import models.{Authenticator => UserAuthenticator}
 import models.ActiveRecord
@@ -13,7 +13,7 @@ import scala.Some
 import org.joda.time.DateTime
 import securesocial.core.{Authenticator, IdentityId, AuthenticatorStore}
 
-class PgSqlAuthenticatorStore(app: Application) extends AuthenticatorStore(app) {
+class H2AuthenticatorStore(app: Application) extends AuthenticatorStore(app) {
 
 	def save(authenticator: Authenticator): Either[Error, Unit] = {
 		if (Logger.isDebugEnabled) {

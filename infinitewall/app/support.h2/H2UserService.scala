@@ -1,4 +1,4 @@
-package securesocial.core.support.pgsql
+package securesocial.core.support.h2
 
 import _root_.java.util.{Date, UUID}
 
@@ -21,7 +21,7 @@ import models.ActiveRecord._
 import play.api.Play.current
 import scala.Some
 
-class PgSqlUserService(application: Application) extends UserServicePlugin(application) {
+class H2UserService(application: Application) extends UserServicePlugin(application) {
 
 	def find(id: IdentityId) = {
 		if (Logger.isDebugEnabled) {
