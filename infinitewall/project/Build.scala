@@ -25,7 +25,8 @@ object ApplicationBuild extends Build {
 			"com.clever-age" % "play2-elasticsearch" % "0.6-SNAPSHOT",
 			"securesocial" % "securesocial_2.10" % "2.1.1",
 			"org.mindrot" % "jbcrypt" % "0.3m",
-			"org.apache.tika" % "tika-bundle" % "1.2"
+			"org.apache.tika" % "tika-bundle" % "1.2",
+			"se.digiplant" %% "play-scalr" % "1.0.1"
 			)
 
 	val main = play.Project(appName, appVersion, appDependencies).settings(
@@ -35,10 +36,14 @@ object ApplicationBuild extends Build {
 			resolvers += Resolver.url("sbt-plugin-snapshots", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-snapshots/"))(Resolver.ivyStylePatterns),
 			resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
 			resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/repo1-cache/"))(Resolver.ivyStylePatterns),
+			resolvers += "OSS Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
 			coffeescriptOptions := Seq("native", "coffee -p"),
 			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
 			).settings(
 				ScctPlugin.instrumentSettings : _*
 			).settings(parallelExecution in ScctPlugin.ScctTest := false
 			).settings(Revolver.settings: _*)
+			templatesImport ++= Seq(
+				"se.digiplant._"
+			)
 }

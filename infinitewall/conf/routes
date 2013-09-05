@@ -60,9 +60,15 @@ GET      /dropbox/media                       controllers.Dropbox.media
 GET      /dropbox/files                       controllers.Dropbox.downloadFiles
 POST     /dropbox/files                       controllers.Dropbox.uploadFiles
 
+# Image scaling for play-res plugin
+GET    /res/:width/:height/:file      se.digiplant.scalr.ScalrResAssets.at(file, width: Int, height: Int)
+# Image resizing for any folder specified as path parameter (will cache thumbnails using play-res plugin)
+GET    /scalr/:width/:height/*file    se.digiplant.scalr.ScalrAssets.at(path="/public/files", file, width: Int, height: Int)
+
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file                        controllers.Assets.at(path="/public", file)
 GET      /upload/*file                        controllers.File.serve(file)
+GET      /thumb/:width/:height/*file   		  controllers.File.thumb(file, width, height)
 
 ########################
 # Secure Social Routing

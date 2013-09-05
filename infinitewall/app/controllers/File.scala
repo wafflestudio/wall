@@ -15,6 +15,7 @@ import helpers._
 import play.api.libs.json._
 import org.apache.commons.codec.digest.DigestUtils
 import views.html.defaultpages.notFound
+import se.digiplant.scalr._
 
 object File extends Controller {
 
@@ -55,6 +56,8 @@ object File extends Controller {
 		Ok("")
 	}
 	*/
+	//def thumb(file: String) = ScalrResAssets.at(file, 120, 120, mode = "crop", source="fit_to_width")
+	def thumb(file: String, width = 200, height = 200) = ScalrAssets.at("public/files", file, width, height, "fit_to_width")
 
   def serve(filePath: String) = Action {
     Logger.info("serving file : " + filePath)
