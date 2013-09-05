@@ -68,7 +68,7 @@ GET    /scalr/:width/:height/*file    se.digiplant.scalr.ScalrAssets.at(path="/p
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file                        controllers.Assets.at(path="/public", file)
 GET      /upload/*file                        controllers.File.serve(file)
-GET      /thumb/:width/:height/*file   		  controllers.File.thumb(file, width, height)
+GET      /thumb/:width/:height/*file   		  controllers.File.thumb(file:String, width:Integer, height:Integer)
 
 ########################
 # Secure Social Routing
