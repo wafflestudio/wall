@@ -1,8 +1,5 @@
 define ["jquery"], ($) ->
   class History
-    undoStack: []
-    redoStack: []
-
     constructor: () ->
       @undoStack = []
       @redoStack = []
@@ -79,8 +76,11 @@ define ["jquery"], ($) ->
       @redoStack = @updateStack(detail, @redoStack)
 
     push: (action) ->
-      @undoStack.push(action)
-      @redoStack = []
+      switch action.from.action
+        when "alterText" then console.log "skipped"
+        else
+          @undoStack.push(action)
+          @redoStack = []
 
     repush: (action) ->
       @redoStack.push(action)

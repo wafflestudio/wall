@@ -251,6 +251,7 @@ define ["jquery","jquery.transit", "jquery.mousewheel", "movable", "wall", "shee
 
       $(document).on 'mousemove', @onMouseMove
       $(document).on 'mouseup', @onMouseUp
+
       e.preventDefault()
       
     onMouseWheel: (e, delta, deltaX, deltaY) =>

@@ -55,9 +55,12 @@ define [
 			@savedRange = null
 			
 			# activate focus event handlers:
-			$(@textfield).focusin ()=>
+			$(@textfield).focusin (e)=>
+				console.log("focus text field")
 				@savedRange = RangeUtil.getRange(@textfield)
 				intervalId = setInterval(@detectChangeAndUpdate, 8000)
+				shortcut.onKeydown('ctrl + z, command + z', () => console.log("textsheet undo"); @undo())
+				shortcut.onKeydown('ctrl + shift + z, command + shift + z', () => console.log("textsheet redo"); @redo())
 
 				# deactivate when focused out
 				deactivate = ()=>
@@ -67,25 +70,16 @@ define [
 					$(@textfield).get(0).normalize()
 
 				$(@textfield).on 'focusout', deactivate
+				e.preventDefault()
+
+			$(@textfield).focusout (e)=>
+				shortcut.onKeydown('ctrl + z, command + z', () => console.log("textsheet undo"); stage.history.undo())
+				shortcut.onKeydown('ctrl + shift + z, command + shift + z', () => console.log("textsheet redo"); stage.history.redo())
 
 			# activate key event handlers
 			$(@textfield).on 'keypress', (e)=>
 				console.log('keypress', e.keyCode, e.which)
 				@detectChangeAndUpdate()
-
-			$(@textfield).on 'keydown', (e)=>
-				if e.keyCode == 83 and e.altKey
-					console.log('testing undo')
-					@undo()
-					return false
-				if e.keyCode == 68 and e.altKey
-					console.log('testing redo')
-					@redo()
-					return false
-				else
-					console.log('keydown', e.keyCode, e.which)
-				
-
 
 			# check for any update by the browser
 			$(

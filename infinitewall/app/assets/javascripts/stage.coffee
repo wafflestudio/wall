@@ -1,5 +1,6 @@
 define [
   "jquery",
+  "shortcut/shortcut",
   "sheet/textSheet",
   "sheet/imageSheet",
   "history",
@@ -11,7 +12,7 @@ define [
   "wallsocket",
   "chat",
   "jquery.fileupload"
-  ], ($, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
+  ], ($, Shortcut, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
   class Stage
     currentUser: null
     activeSheet: null
@@ -52,10 +53,14 @@ define [
       window.statusbar = new Statusbar()
       window.wallSocket = new WallSocket(wallSocketURLs, timestamp)
       window.chat = new Chat(chatURL)
+      window.shortcut = new Shortcut()
       @wallId = wallId
       @currentUser = currentUser
       @stickyMenu = $("#stickyMenu")
       @history = new History()
+
+      shortcut.onKeydown('ctrl + z, command + z', () => console.log("history undo"); @history.undo())
+      shortcut.onKeydown('ctrl + shift + z, command + shift + z', () => console.log("history redo"); @history.redo())
 
       $(document).bind "contextmenu", -> return false
       $(window).resize -> minimap.refresh()

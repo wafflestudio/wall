@@ -504,6 +504,7 @@
 			var bI;
 			for(bI = 0; bI < subBindings.length; bI += 1) {
 				bindings.splice(bindings.indexOf(subBindings[bI]), 1);
+				subBindings.splice(bI, 1); bI -= 1;
 			}
 		}
 
@@ -571,11 +572,17 @@
 	 * @param  {String}	keyCombo
 	 */
 	function removeBindingByKeyCombo(keyCombo) {
-		var bI, binding, keyName;
+		var bI, binding, subBinding, keyName;
 		for(bI = 0; bI < bindings.length; bI += 1) {
 			binding = bindings[bI];
 			if(compareCombos(keyCombo, binding.keyCombo)) {
 				bindings.splice(bI, 1); bI -= 1;
+			}
+		}
+		for(bI = 0; bI < subBindings.length; bI += 1) {
+			subBinding = subBindings[bI];
+			if(compareCombos(keyCombo, subBinding.keyCombo)) {
+				subBindings.splice(bI, 1); bI -= 1;
 			}
 		}
 	}
@@ -585,19 +592,29 @@
 	 * @param  {String}	keyName
 	 */
 	function removeBindingByKeyName(keyName) {
-		var bI, cI, binding;
+		var bI, kI, binding, subBinding;
 		if(keyName) {
 			for(bI = 0; bI < bindings.length; bI += 1) {
 				binding = bindings[bI];
-				for(cI = 0; cI < binding.keyCombo.length; cI += 1) {
+				for(kI = 0; kI < binding.keyCombo.length; kI += 1) {
 					if(binding.keyCombo[kI].indexOf(keyName) > -1) {
 						bindings.splice(bI, 1); bI -= 1;
-						break;
+						//break;
+					}
+				}
+			}
+			for(bI = 0; bI < subBindings.length; bI += 1) {
+				subBinding = subBindings[bI];
+				for(kI = 0; kI < subBinding.keyCombo.length; kI += 1) {
+					if(subBinding.keyCombo[kI].indexOf(keyName) > -1) {
+						subBindings.splice(bI, 1); bI -= 1;
+						//break;
 					}
 				}
 			}
 		} else {
 			bindings = [];
+			subBindings = [];
 		}
 	}
 
@@ -607,7 +624,7 @@
 	 * @param  {KeyboardEvent}	event	The keyboard event.
 	 */
 	function executeBindings(event) {
-		var bI, sBI, binding, bidningKeys, remainingKeys, cI, killEventBubble, kI, bindingKeysSatisfied,
+		var bI, sBI, binding, bindingKeys, remainingKeys, cI, killEventBubble, kI, bindingKeysSatisfied,
 		index, sortedBindings = [], bindingWeight;
 
 		remainingKeys = [].concat(activeKeys);
