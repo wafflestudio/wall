@@ -33,7 +33,10 @@ define [
 					evt.stopPropagation()
 			).hallo({
 				plugins:
-					'halloformat' : {"bold": true, "italic": true, "strikethrough": true, "underline": false}
+					'halloformat' : {formattings: {"bold": true, "italic": true, "strikethrough": true, "underline": true}}
+					'halloheadings' : {heading: [1,2,3,4,5,6]}
+					'hallojustify' : {}
+					'hallolists': {}
 			})
 			@innerElement = @element.children('.sheet')
 
