@@ -56,7 +56,7 @@ object WallSystem {
       case Connected(producer, prevMessages, connectionId) =>
         // Create an Iteratee to consume the feed
         val consumer: Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] { json: JsValue =>
-          Logger.info("received: " + json.toString)
+          Logger.debug("received: " + json.toString)
           actor ! ActionInWall(wallId, userId, uuid, connectionId, json)
         }.mapDone { _ =>
           actor ! QuitWall(wallId, userId, uuid, connectionId, syncOnce)
