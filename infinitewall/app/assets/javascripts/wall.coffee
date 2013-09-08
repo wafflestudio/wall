@@ -270,7 +270,7 @@ define ["jquery","jquery.transit", "jquery.mousewheel", "movable", "wall", "shee
       delta /= 2.5
       tempDelta = if Math.abs(delta) < 0.15 then delta else (delta / Math.abs(delta)) * 0.15
       stage.zoom += tempDelta
-      stage.zoom = if stage.zoom < 0.2 then 0.2 else (if stage.zoom > 1 then 1 else Math.round(stage.zoom * 100) / 100)
+      stage.zoom = if stage.zoom < 0.2 then 0.2 else (if stage.zoom > 1.5 then 1.5 else Math.round(stage.zoom * 100) / 100)
           
       xNew = (xWall - @xScaleLayer) / stage.zoom
       yNew = (yWall - @yScaleLayer) / stage.zoom
