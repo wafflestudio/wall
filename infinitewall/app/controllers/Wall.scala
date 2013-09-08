@@ -178,7 +178,6 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 		val imageContentTypePattern = "^image/(\\w)+".r
 		contentType match {
 			case imageContentTypePattern(c) => 
-				Logger.info("match")
 				utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
 				  case Success((filename, file)) =>
 					Some(Json.obj(

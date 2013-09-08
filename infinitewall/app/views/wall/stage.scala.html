@@ -30,7 +30,7 @@
       <div id = "menuBar">
         <a href = "/me">
           <div id = "profileButton" class = "menuButton">
-            <div id = "profilePic" style="background-image:url(@securesocial.core.SecureSocial.currentUser.get.email)"></div>
+            <div id = "profilePic" style="background-image:url(@routes.File.serveUserProfilePicture(securesocial.core.SecureSocial.currentUser.get.identityId.userId))"></div>
             <div id = "nickname">@securesocial.core.SecureSocial.currentUser.get.fullName</div>
           </div>
         </a>

@@ -10,7 +10,9 @@ GET      /language/:locale                    controllers.Application.language(l
 
 
 GET      /me                                  controllers.Account.index
-GET      /users/:userId/profile               controllers.File.serveUserProfilePicture(userId: String )
+GET      /me/edit                             controllers.Account.edit
+POST     /me                             	  controllers.Account.update
+GET      /users/:userId/profile               controllers.File.serveUserProfilePicture(userId: String)
 
 
 # Chat routes available only for testing
