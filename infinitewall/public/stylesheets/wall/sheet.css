@@ -58,6 +58,11 @@
   margin: 0
 }
 
+/* active */ 
+.sheet:not(.activeSheet) .sheetText {
+	cursor:move
+}
+
 .sheet[contentType='text'] > .sheetText {
 	/*padding-top:4px;*/
 	width:100%;
@@ -85,6 +90,7 @@
 
 .sheet[contentType='text'] > .sheetText > .sheetTextField {
   font-size: 14px;
+	height:100%;
 }
 
 .sheetTextField {
