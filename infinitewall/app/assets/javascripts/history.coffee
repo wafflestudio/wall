@@ -75,12 +75,13 @@ define ["jquery"], ($) ->
       @undoStack = @updateStack(detail, @undoStack)
       @redoStack = @updateStack(detail, @redoStack)
 
-    push: (action) ->
+    push: (action, from_redo) ->
+      from_redo = from_redo || false
       switch action.from.action
         when "alterText" then console.log "skipped"
         else
           @undoStack.push(action)
-          @redoStack = []
+          @redoStack = [] if !from_redo
 
     repush: (action) ->
       @redoStack.push(action)
@@ -94,7 +95,7 @@ define ["jquery"], ($) ->
         when "move" then sheet.move(detail.params) unless isMine
         when "resize" then sheet.resize(detail.params) unless isMine
         when "remove" then sheet.remove(detail.params)
-        #when "setTitle" then sheet.setTitle(detail.params) unless isMine
+        when "setTitle" then sheet.setTitle(detail.params) unless isMine
         when "setLink" then console.info("Nothing to do, just wait")#sheet.setLink(detail.params)
         when "removeLink" then console.info("Nothing to do, just wait")#sheet.removeLink(detail.params)
         else console.error("Not supported action", detail)
