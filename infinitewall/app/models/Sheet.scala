@@ -106,7 +106,7 @@ object Sheet extends ActiveRecord[Sheet] {
 
 		try {
 			val (alteredText, undo) = operation.applyAndCreateUndo(baseText)
-			Logger.info("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"" + " " + undo.toString())
+			Logger.debug("original text:\"" + baseText + "\",altered Text:\"" + alteredText + "\"" + " " + undo.toString())
 
 			setText(id, alteredText)
 			(baseText, undo)
