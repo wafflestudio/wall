@@ -93,7 +93,7 @@ object WallLog extends ActiveRecord[WallLog] {
       val msgId = (r \ "msgId").as[Long]
       val resultText = pair._2
       val baseText = undo.apply(resultText)
-      val record = AlterTextRecord(timestamp = log.timestamp, baseTimestamp = timestamp, uuid = uuid, msgId = 1, 
+      val record = AlterTextRecord(timestamp = log.timestamp, baseTimestamp = timestamp, uuid = uuid, msgId = msgId, 
           operation = redo, baseText = baseText, resultText = resultText)
       val list = pair._1
       (list :+ record, baseText)
