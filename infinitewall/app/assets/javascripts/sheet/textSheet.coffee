@@ -28,11 +28,15 @@ define [
 			textTemplate = TemplateFactory.makeTemplate("textSheet")
 			@element = $($(textTemplate).appendTo('#sheetLayer'))
 			
-			@element.find(".sheetTextField").hallo({
+			@element.find(".sheetTextField").mousedown((evt) =>
+				if @innerElement.hasClass('activeSheet')
+					evt.stopPropagation()
+			).hallo({
 				plugins:
 					'halloformat' : {"bold": true, "italic": true, "strikethrough": true, "underline": false}
 			})
 			@innerElement = @element.children('.sheet')
+
 
 		constructor: (params, timestamp) ->
 			super(params)
