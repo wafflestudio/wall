@@ -1,7 +1,6 @@
 package models
 
 import net.fwbrasil.activate.entity.Entity
-import net.fwbrasil.activate.entity.Alias
 import net.fwbrasil.activate.migration.Migration
 import models.ActiveRecord._
 import play.Logger
@@ -106,7 +105,7 @@ class SetNullFieldForUser extends Migration {
 				  }
 			  connection.commit
 		  } catch {
-			  case e =>
+			  case e:Throwable =>
 				  connection.rollback
 				  throw e
 		  } finally

@@ -5,6 +5,7 @@ import akka.actor._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import scala.concurrent.Future
+import scala.concurrent.Promise
 import akka.pattern.ask
 import play.api.libs.concurrent._
 import play.api.Play.current
@@ -27,7 +28,7 @@ class WallActor(wallId: String) extends Actor {
 	implicit def toLong(value: JsValue) = { value.as[Long] }
 
 	val connectionUsage = new UsageSet
-	case class Connection(enumerator: PushEnumerator[JsValue], uuid: String, connectionId: Int, isVolatile: Boolean = false)
+	case class Connection(channel:Concurrent.Channel[JsValue], uuid: String, connectionId: Int, isVolatile: Boolean = false)
 
 	// key: userId, values: list of sessions user have
 	var connections = Map.empty[String, List[Connection]]
@@ -36,9 +37,9 @@ class WallActor(wallId: String) extends Actor {
 	// shutdown timer activated when no connection is left to the actor
 	var shutdownTimer: Option[akka.actor.Cancellable] = None
 
-	def addConnection(userId: String, uuid: String, enumerator: PushEnumerator[JsValue]) = {
+	def addConnection(userId: String, uuid: String, channel: Concurrent.Channel[JsValue]) = {
 		val connectionId = connectionUsage.allocate
-		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(enumerator, uuid, connectionId)))
+		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(channel, uuid, connectionId)))
 		connectionId
 	}
 
@@ -67,32 +68,43 @@ class WallActor(wallId: String) extends Actor {
 		case Join(userId, uuid, timestamp, syncOnce) => {
 			// Create an Enumerator to write to this socket
 			val wallActor = self
-			lazy val producer: PushEnumerator[JsValue] = Enumerator.imperative[JsValue]()
-			val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
-
-			if (false /* maximum connection per user constraint here*/ ) {
-				sender ! CannotConnect("Wall has reached maximum number of connections.")
+			
+			val channelPromise = Promise[Concurrent.Channel[JsValue]]()
+			
+			val producer: Enumerator[JsValue] = Concurrent.unicast[JsValue] { channel =>
+				channelPromise.success(channel)
 			}
-			else {
-				// deactivate shutdown timer if activated
-				shutdownTimer.map { cancellable =>
-					cancellable.cancel()
-					shutdownTimer = None
-				}
-				// update connections map
-
-				val connectionId = addConnection(userId, uuid, producer)
-				sender ! Connected(producer, prev, connectionId)
-				if (syncOnce) {
-					Logger.info(s"[Wall] user $userId:($uuid) syncing with wall $wallId")
-				}
-				else {
-					Logger.info(s"[Wall] user $userId:($uuid / $connectionId) joined to wall $wallId")
-					Logger.info("[Wall] Number of active connections for wall(" + wallId + "): " + numConnections)
-
-					Logger.info(s"[Wall] connections: (${connectionsAsString})")
-				}
+			
+			channelPromise.future.onSuccess {
+				case channel =>
+    				val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
+    
+        			if (false /* maximum connection per user constraint here*/ ) {
+        				sender ! CannotConnect("Wall has reached maximum number of connections.")
+        			}
+        			else {
+        				// deactivate shutdown timer if activated
+        				shutdownTimer.map { cancellable =>
+        					cancellable.cancel()
+        					shutdownTimer = None
+        				}
+        				// update connections map
+        				val connectionId = addConnection(userId, uuid, channel)
+        				sender ! Connected(channel, prev >>> producer, connectionId)
+        				if (syncOnce) {
+        					Logger.info(s"[Wall] user $userId:($uuid) syncing with wall $wallId")
+        				}
+        				else {
+        					Logger.info(s"[Wall] user $userId:($uuid / $connectionId) joined to wall $wallId")
+        					Logger.info("[Wall] Number of active connections for wall(" + wallId + "): " + numConnections)
+        
+        					Logger.info(s"[Wall] connections: (${connectionsAsString})")
+        				}
+        			}
 			}
+			
+			
+			
 		}
 		case RetryFinish =>
 			//start scheduling shutdown if no connections left
@@ -180,8 +192,8 @@ class WallActor(wallId: String) extends Actor {
 		connections.foreach {
 			case (_, userConns) =>
 				userConns.foreach { connection =>
-					val producer = connection.enumerator
-					producer.push(msg)
+					val channel = connection.channel
+					channel.push(msg)
 				}
 		}
 		log.id

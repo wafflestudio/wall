@@ -5,7 +5,6 @@ import net.fwbrasil.activate.storage.relational.PooledJdbcRelationalStorage
 import net.fwbrasil.activate.storage.relational.idiom.h2Dialect
 import net.fwbrasil.activate.storage.memory.TransientMemoryStorage
 import net.fwbrasil.activate.entity.Entity
-import net.fwbrasil.activate.entity.Alias
 import scala.reflect.runtime.universe._
 import scala.language.postfixOps
 import com.typesafe.config.ConfigFactory

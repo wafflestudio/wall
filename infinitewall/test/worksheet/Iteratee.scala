@@ -33,7 +33,7 @@ object Server {
   lazy val actorRef = Akka.system.actorOf(Props[Server], name = "server")
 
   def join() = {
-    actorRef ? Join
+    actorRef ? Join()
   }
 
   def talk(from:String, msg:String) = {

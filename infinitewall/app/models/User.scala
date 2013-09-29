@@ -10,7 +10,6 @@ import scala.util.Try
 import ActiveRecord._
 import java.util.Calendar
 import net.fwbrasil.activate.entity.Entity
-import net.fwbrasil.activate.entity.Alias
 
 
 

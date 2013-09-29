@@ -4,6 +4,7 @@ import play.api.libs.iteratee._
 import akka.actor._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
+import scala.concurrent.Promise
 import akka.pattern.ask
 import play.api.libs.concurrent._
 import play.api.Play.current
@@ -23,11 +24,12 @@ import scala.collection.mutable.BitSet
 import utils.UsageSet
 
 
+case class Connection(channel: Concurrent.Channel[JsValue], connectionId:Int)
+
 
 class ChatRoomActor(roomId: String) extends Actor {
 
   val connectionUsage = new UsageSet
-  case class Connection(enumerator: PushEnumerator[JsValue], connectionId:Int)
   private var connections = Map.empty[String, List[Connection]] 
 
   def prevMessages(timestampOpt: Option[Long]) = {
@@ -48,10 +50,10 @@ class ChatRoomActor(roomId: String) extends Actor {
     (ChatLog.create(kind, roomId, userId, message, when).frozen.timestamp, when)
   }
   
-  def quit(userId: String, producer: Enumerator[JsValue]) = {
+  def quit(userId: String, channel: Concurrent.Channel[JsValue]) = {
     // clear sessions for userid. if none exists for a userid, remove userid key.
     connections.get(userId).foreach { userConns =>
-      val newUserConns = userConns.filterNot(_.enumerator == producer)
+      val newUserConns = userConns.filterNot(_.channel == channel)
 
       if (newUserConns.isEmpty)
         connections = connections - userId
@@ -78,13 +80,16 @@ class ChatRoomActor(roomId: String) extends Actor {
       else {
         
         val connectionId = connectionUsage.allocate
+        val consumer = Promise[Concurrent.Channel[JsValue]]()
         // Create an Enumerator to write to this socket
-        val producer = Enumerator.imperative[JsValue](onStart = () => self ! NotifyJoin(userId, connectionId))
+        val producer = Concurrent.unicast[JsValue] { channel =>
+        	self ! NotifyJoin(userId, connectionId)
+        	consumer.success(channel)
+        	connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(channel, connectionId)))
+        }
         // previous messages
         val prev = Enumerator(prevMessages(timestampOpt).map { chatlog => ChatLog.toJson(chatlog) }: _*)
         
-        connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(producer, connectionId)))
-    
         // welcome message with connection id
         Logger.info(connections.toString)
         val welcome:Enumerator[JsValue] = Enumerator(Json.obj(
@@ -104,7 +109,7 @@ class ChatRoomActor(roomId: String) extends Actor {
         ))
      
         ChatRoom.addUser(roomId, userId)
-        sender ! Connected(producer, prev >>> welcome)
+        sender ! Connected(consumer, producer, prev >>> welcome)
       }
     }
     
@@ -122,8 +127,8 @@ class ChatRoomActor(roomId: String) extends Actor {
       notifyAll("talk", userId, connectionId, text)
     }
 
-    case Quit(userId, producer) => {
-      quit(userId, producer)  
+    case Quit(userId, channel) => {
+      quit(userId, channel)  
       ChatRoom.removeUser(roomId, userId)
       notifyAll("quit", userId, 0, "has left")
       Logger.info(s"[CHAT] user $userId quit from room $roomId")
@@ -173,7 +178,7 @@ class ChatRoomActor(roomId: String) extends Actor {
   
     connections.foreach { case (_, connectionForUser) =>
       connectionForUser.foreach {
-        case Connection(producer,_) => producer.push(msg.as[JsObject] ++ Json.obj("timestamp" -> timestamp, "when" -> when))
+        case Connection(channel,_) => channel.push(msg.as[JsObject] ++ Json.obj("timestamp" -> timestamp, "when" -> when))
       }
     }
   }

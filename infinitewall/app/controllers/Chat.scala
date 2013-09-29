@@ -1,5 +1,6 @@
 package controllers
 
+import scala.concurrent.Future
 import play.api.mvc.Controller
 import play.api.mvc.Action
 import play.api.mvc.WebSocket
@@ -66,7 +67,7 @@ object Chat extends Controller with securesocial.core.SecureSocial {
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
 
-        Promise.pure(consumer, producer)
+        Future.successful(consumer, producer)
     }
   }
   

@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 import play.Project._
-import spray.revolver.RevolverPlugin._
+//import spray.revolver.RevolverPlugin._
 
 object ApplicationBuild extends Build {
 
@@ -12,18 +12,17 @@ object ApplicationBuild extends Build {
 			jdbc, /*anorm,*/ filters,
 			// Add your project dependencies here,
 			"postgresql" % "postgresql" % "9.1-901.jdbc4",
-			"ru.circumflex" % "circumflex-markeven" % "2.0",
-			"com.typesafe" %% "play-plugins-mailer" % "2.1.0",
+			"ru.circumflex" % "circumflex-markeven" % "2.1",
 			"commons-lang" % "commons-lang" % "2.6",
 			"org.apache.commons" % "commons-email" % "1.2",
 			"commons-codec" % "commons-codec" % "1.6",
-			"com.github.theon" %% "scala-uri" % "0.3.2",
-			"net.fwbrasil" % "activate-core_2.10" % "1.2.1",
-			"net.fwbrasil" % "activate-play_2.10" % "1.2.1",
-			"net.fwbrasil" % "activate-jdbc_2.10" % "1.2.1",
+			"com.github.theon" %% "scala-uri" % "0.3.6",
+			"net.fwbrasil" % "activate-core_2.10" % "1.3.2"  //exclude("org.scala-stm", "scala-stm_2.10.0"),
+			"net.fwbrasil" % "activate-play_2.10" % "1.3.2"  //exclude("org.scala-stm", "scala-stm_2.10.0"),
+			"net.fwbrasil" % "activate-jdbc_2.10" % "1.3.2"  //exclude("org.scala-stm", "scala-stm_2.10.0"),
 			//"net.fwbrasil" % "activate_2.10" % "1.2",
-			"com.clever-age" % "play2-elasticsearch" % "0.6-SNAPSHOT",
-			"securesocial" % "securesocial_2.10" % "2.1.1",
+			"com.clever-age" % "play2-elasticsearch" % "0.7-SNAPSHOT"  //exclude("org.scala-stm", "scala-stm_2.10.0"),
+			"securesocial" % "securesocial_2.10" % "2.1.1"  //exclude("org.scala-stm", "scala-stm_2.10.0"),
 			"org.mindrot" % "jbcrypt" % "0.3m",
 			"org.apache.tika" % "tika-bundle" % "1.2",
 			"se.digiplant" %% "play-scalr" % "1.0.1"
@@ -35,14 +34,16 @@ object ApplicationBuild extends Build {
 			resolvers += Resolver.url("play-plugin-frozens", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-frozens/"))(Resolver.ivyStylePatterns),
 			resolvers += Resolver.url("sbt-plugin-snapshots", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-snapshots/"))(Resolver.ivyStylePatterns),
 			resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
-			resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/repo1-cache/"))(Resolver.ivyStylePatterns),
 			resolvers += "OSS Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
 			coffeescriptOptions := Seq("native", "coffee -p"),
 			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
-			).settings(
+			)
+			
+			/*.settings(
 				ScctPlugin.instrumentSettings : _*
 			).settings(parallelExecution in ScctPlugin.ScctTest := false
-			).settings(Revolver.settings: _*)
+			).settings(Revolver.settings: _*)*/
+
 			templatesImport ++= Seq(
 				"se.digiplant._"
 			)

@@ -3,7 +3,6 @@ package models
 import play.api.Play.current
 import ActiveRecord._
 import net.fwbrasil.activate.entity.Entity
-import net.fwbrasil.activate.entity.Alias
 
 @Alias("UserAuthenticator") // override with securesocial and activate
 class Authenticator(var sid: String,
