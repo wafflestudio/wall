@@ -65,13 +65,13 @@ class ChatRoomActor(roomId: String) extends Actor {
 	
 	def addConnection(userId:String, producer:Enumerator[JsValue], channel:Concurrent.Channel[JsValue], connectionId:Int) = {
 		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(producer, channel, connectionId)))
-		Logger.info(connections.toString)
+		Logger.info("[Chat] Connection established: " + connections.toString)
 	}
-
-	def quit(userId: String, producer: Enumerator[JsValue], connectionId:Int) = {
+	
+	def removeConnection(userId:String, connectionId:Int) = {
 		// clear sessions for userid. if none exists for a userid, remove userid key.
 		connections.get(userId).foreach { userConns =>
-			val newUserConns = userConns.filterNot(_.enumerator == producer)
+			val newUserConns = userConns.filterNot(_.connectionId == connectionId)
 			connectionUsage.free(connectionId)
 			if (newUserConns.isEmpty)
 				connections = connections - userId
@@ -79,6 +79,11 @@ class ChatRoomActor(roomId: String) extends Actor {
 				connections = connections + (userId -> newUserConns)
 
 		}
+	}
+
+	def quit(userId: String, producer: Enumerator[JsValue], connectionId:Int) = {
+		
+		removeConnection(userId, connectionId)
 
 		val numConnections = connections.foldLeft(0) { (num, connection) =>
 			num + connection._2.length
