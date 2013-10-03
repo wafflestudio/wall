@@ -23,12 +23,12 @@ import scala.collection.mutable.BitSet
 import utils.UsageSet
 
 case class Join(userId: String, timestampOpt: Option[Long])
-case class Quit(userId: String, producer: Enumerator[JsValue])
+case class Quit(userId: String, producer: Enumerator[JsValue], connectionId:Int)
 case class Talk(userId: String, connectionId: Int, text: String)
 case class NotifyJoin(userId: String, connectionId: Int)
 case class GetPrevMessages(startTs: Long, endTs: Long)
 
-case class Connected(enumerator: Enumerator[JsValue], prev: Enumerator[JsValue])
+case class Connected(enumerator: Enumerator[JsValue], prev: Enumerator[JsValue], connectionId:Int)
 case class CannotConnect(msg: String)
 
 case class Message(kind: String, email: String, text: String)
@@ -55,12 +55,12 @@ object ChatSystem {
 		val joinResult = room(roomId) ? Join(userId, timestamp)
 
 		joinResult.map {
-			case Connected(producer, prev) =>
+			case Connected(producer, prev, connectionId) =>
 				// Create an Iteratee to consume the feed
 				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
 					room(roomId) ! Talk(userId, (event \ "connectionId").as[Int], (event \ "text").as[String])
 				}.mapDone { _ =>
-					room(roomId) ! Quit(userId, producer)
+					room(roomId) ! Quit(userId, producer, connectionId)
 				}
 
 				(consumer, prev >>> producer)

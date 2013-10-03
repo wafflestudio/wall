@@ -68,11 +68,11 @@ class ChatRoomActor(roomId: String) extends Actor {
 		Logger.info(connections.toString)
 	}
 
-	def quit(userId: String, producer: Enumerator[JsValue]) = {
+	def quit(userId: String, producer: Enumerator[JsValue], connectionId:Int) = {
 		// clear sessions for userid. if none exists for a userid, remove userid key.
 		connections.get(userId).foreach { userConns =>
 			val newUserConns = userConns.filterNot(_.enumerator == producer)
-
+			connectionUsage.free(connectionId)
 			if (newUserConns.isEmpty)
 				connections = connections - userId
 			else
@@ -100,14 +100,16 @@ class ChatRoomActor(roomId: String) extends Actor {
 				// Create an Enumerator to write to this socket
 				//val producer = Enumerator.imperative[JsValue](onStart = () => self ! NotifyJoin(userId, connectionId))
 				val savedSelf = self
-				lazy val producer:Enumerator[JsValue] = Concurrent.unicast[JsValue] { channel =>
+				lazy val producer:Enumerator[JsValue] = Concurrent.unicast[JsValue](onStart = { channel =>
 					addConnection(userId, producer, channel, connectionId)
 					ChatRoom.addUser(roomId, userId)
 					self ! NotifyJoin(userId, connectionId)
-				}
+				}, onError = { (msg, input) => 
+					connectionUsage.free(connectionId)
+				})
 				// previous messages
 				val prev = Enumerator(prevMessages(timestampOpt).map { chatlog => ChatLog.toJson(chatlog) }: _*)
-				sender ! Connected(producer, prev >>> welcomeMessage(connectionId))
+				sender ! Connected(producer, prev >>> welcomeMessage(connectionId), connectionId)
 			}
 		}
 
@@ -125,8 +127,8 @@ class ChatRoomActor(roomId: String) extends Actor {
 			notifyAll("talk", userId, connectionId, text)
 		}
 
-		case Quit(userId, producer) => {
-			quit(userId, producer)
+		case Quit(userId, producer, connectionId) => {
+			quit(userId, producer, connectionId)
 			ChatRoom.removeUser(roomId, userId)
 			notifyAll("quit", userId, 0, "has left")
 			Logger.info(s"[CHAT] user $userId quit from room $roomId")
