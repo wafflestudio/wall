@@ -121,7 +121,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
         Async {
           WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
               // force disconnect after 3 seconds
-              val timeoutEnumerator:Enumerator[JsValue] = Enumerator.fromCallback[JsValue] { () =>
+              val timeoutEnumerator:Enumerator[JsValue] = Enumerator.generateM[JsValue] {
                 Promise.timeout(Some(JsNumber(0)), 3.seconds)
               }.mapInput {
                 case _ => Input.EOF

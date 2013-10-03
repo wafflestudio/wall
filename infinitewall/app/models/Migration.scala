@@ -106,7 +106,7 @@ class SetNullFieldForUser extends Migration {
 				  }
 			  connection.commit
 		  } catch {
-			  case e =>
+			  case e:Throwable =>
 				  connection.rollback
 				  throw e
 		  } finally
