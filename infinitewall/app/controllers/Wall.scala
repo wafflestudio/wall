@@ -138,7 +138,10 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   }
 
   def delete(id: String) = SecuredAction { implicit request =>
-    models.Wall.deleteByUserId(request.user.identityId.userId, id)
+    val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
+	val verified = params.get("verified").getOrElse(Seq("false"))(0).toBoolean
+	if(verified)
+	    models.Wall.deleteByUserId(request.user.identityId.userId, id)
     Ok(Json.toJson("OK"))
   }
 

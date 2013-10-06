@@ -25,9 +25,12 @@ object Wall extends ActiveRecord[Wall] {
     new Wall(name, user, folder)
   }
 
-
+  // only owner can delete the wall
   def deleteByUserId(userId: String, id: String) = transactional {
-    select[Wall] where(w => (w.id :== id) :&& (w.user.id :== userId))
+    val walls = select[Wall] where(w => (w.id :== id) :&& (w.user.id :== userId))
+	walls.map { wall =>
+		delete(wall.id)
+	}
   }
   
 
