@@ -37,11 +37,7 @@ object ApplicationBuild extends Build {
 			resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
 			resolvers += "OSS Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
 			coffeescriptOptions := Seq("native", "coffee -p"),
-			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls"),
-			requireJs += "config.js",
-			requireJs += "jquery.js",
-			requireJs += "stage.js",
-			requireJs += "folder/folder_view.js"
+			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
 			).settings(
 				ScctPlugin.instrumentSettings : _*
 			).settings(parallelExecution in ScctPlugin.ScctTest := false

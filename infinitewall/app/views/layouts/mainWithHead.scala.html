@@ -7,7 +7,7 @@
     <title>@title</title>
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
     <link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
-	@helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/config").url)
+    <script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
     <meta name="viewport" content="user-scalable=no"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     @head
