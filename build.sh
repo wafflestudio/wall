@@ -74,7 +74,7 @@ fi
 
 # start the server
 play stage
-BUILD_ID=0 nohup target/start -Dhttp.port=9000 -DapplyEvolutions.default=false > log.log 2>&1 &
+BUILD_ID=0 nohup target/start -Dhttp.port=9000 -Dhttps.port=9443 -DapplyEvolutions.default=false > log.log 2>&1 &
 
 # for more detailed configuration:
 #target/start -Dconfig.file=/full/path/to/conf/application-prod.conf
