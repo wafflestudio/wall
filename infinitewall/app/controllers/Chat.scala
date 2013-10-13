@@ -47,14 +47,6 @@ object Chat extends Controller with securesocial.core.SecureSocial {
 	}
 */
 
- def page = UserAwareAction { implicit request =>
-    val userName = request.user match {
-        case Some(user) => user.fullName
-        case _ => "guest"
-    }
-     Ok("Hello %s".format(userName))
-  }
-
   def establish(roomId: String) = WebSocket.async[JsValue] { implicit request =>
     val params = request.queryString
     val timestampOpt:Option[Long] = params.get("timestamp").map(_(0).toLong)

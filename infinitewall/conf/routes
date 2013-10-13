@@ -27,9 +27,9 @@ GET      /chat/log/:roomId                    controllers.Chat.prevMessages(room
 # list walls
 GET      /wall                                controllers.Wall.index
 # create new wall
-POST     /wall/create                         controllers.Wall.create
+POST     /wall		                          controllers.Wall.create
 # delete wall
-DELETE /wall/:wallId                          controllers.Wall.delete(wallId:String)
+DELETE	 /wall/:wallId                        controllers.Wall.delete(wallId:String)
 # list walls as tree
 GET      /tree                                controllers.Wall.tree
 # access wall as stage

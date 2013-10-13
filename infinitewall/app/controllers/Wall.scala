@@ -90,7 +90,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
     securesocial.core.SecureSocial.currentUser match {
       case Some(user) =>
         WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp)
-      case None =>
+      case _ =>
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
         Promise.pure(consumer, producer)
@@ -109,14 +109,14 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   }
 
   // http receive
-  def listen(wallId: String) = Action { implicit request =>
+  def listen(wallId: String) = UserAwareAction { implicit request =>
     import play.api.templates.Html
     import play.api.libs.concurrent.Execution.Implicits._
     val params = request.queryString
     val uuid = params.get("uuid").get(0)
     val timestamp = params.get("timestamp").get(0).toLong
     
-    securesocial.core.SecureSocial.currentUser match {
+    request.user match {
       case Some(user) =>
         Async {
           WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
@@ -132,7 +132,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
               Ok.stream(stream)
             }
           }
-      case None =>
+      case _ =>
         Forbidden("Request wall with id " + wallId + " not accessible")
     }
   }
@@ -171,45 +171,46 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   }
 
   /**  uploaded files **/
-  //def uploadFile(wallId: String) = SecuredAction(parse.multipartFormData) { request =>
-  def uploadFile(wallId: String) = UserAwareAction(parse.multipartFormData) { request =>
-    val fileList: Seq[JsObject] =
-      request.body.files.flatMap { picture =>
-		val tika = new Tika()
-        val contentType:String = tika.detect(picture.ref.file)
+  def uploadFile(wallId: String) = UserAwareAction(parse.multipartFormData) { implicit request =>
+      request.user match {
+        case Some(currentUser) => {
+          val fileList: Seq[JsObject] =
+            request.body.files.flatMap { picture =>
+              val tika = new Tika()
+              val contentType:String = tika.detect(picture.ref.file)
 
-		val imageContentTypePattern = "^image/(\\w)+".r
-		contentType match {
-			case imageContentTypePattern(c) => 
-				utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
-				  case Success((filename, file)) =>
-					Some(Json.obj(
-					  "name" -> filename,
-					  "size" -> file.length,
-					  "url" -> ("/upload/" + filename),
-					  "delete_url" -> ("/wall/file/" + wallId),
-					  "delete_type" -> "delete"
-					))
-				  case Failure(_) => None
-				}
-			case _ => Logger.info("Invalid mime-type: " + contentType); None
-		}
+              val imageContentTypePattern = "^image/(\\w)+".r
+              contentType match {
+                case imageContentTypePattern(c) => 
+                  utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
+                    case Success((filename, file)) =>
+                      Some(Json.obj(
+                        "name" -> filename,
+                        "size" -> file.length,
+                        "url" -> ("/upload/" + filename),
+                        "delete_url" -> ("/wall/file/" + wallId),
+                        "delete_type" -> "delete"
+                      ))
+                    case Failure(_) => None
+                  }
+                case _ => Logger.info("Invalid mime-type: " + contentType); None
+              }
+            }
+          Ok(JsArray(fileList))
+        }
+        case _ => Unauthorized
       }
-    Ok(JsArray(fileList))
   }
 
-  def infoFile(wallId: String) = Action {
-    // TODO: implement
-    Ok("")
+  def infoFile(wallId: String) = SecuredAction { implicit request =>
+    NotImplemented
   }
 
-  def replaceFile(wallId: String) = SecuredAction { request =>
-    // TODO: implement
-    Ok("")
+  def replaceFile(wallId: String) = SecuredAction { implicit request =>
+    NotImplemented
   }
 
-  def deleteFile(wallId: String) = SecuredAction { request =>
-    // TODO: implement
-    Ok("")
+  def deleteFile(wallId: String) = SecuredAction { implicit request =>
+    NotImplemented
   }
 }
