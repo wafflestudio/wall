@@ -1,6 +1,6 @@
 @(roomId:String)(implicit request: RequestHeader)
 
-@layouts.default("Chat ::: Infinite Wall") {
+@layouts.main("Chat ::: Infinite Wall") {
 
 	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
 	<div id="log">

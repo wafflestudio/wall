@@ -1,43 +1,70 @@
 @(users:List[User.Frozen], walls:List[models.Wall.Frozen], nonSharedWalls:List[models.Wall.Frozen], groupId:String)(implicit request: RequestHeader)
 
-@layouts.default("Walls ::: Infinite Wall") {
+@layouts.main("Walls ::: Infinite Wall") {
+<div class="row contact">
+	<div class="col-lg-12">
+		<div class="well">
+			<form method="POST" action="@routes.Group.addUser(groupId)" class="form-inline">
+				<div class="input-group">
+					<input name="email" class="form-control" type="text" placeholder="User email">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button">Add</button>
+					</span>
+				</div><!-- /input-group -->
+			</form>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">Users</div>
+			<div class="panel-body">
+				<div class="list-group">
+					@users.map { user =>
+					<p class="list-group-item">@user.email <a href="@routes.Group.removeUser(groupId, user.id)">remove</a></p>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
 
-	<h3>User List</h3>
-	<form method="POST" action="@{routes.Group.addUser(groupId)}" class="form-inline">
-		<input name="email" type="text" placeholder="User email"> <button class="btn">Add</button/>
-	</form>
-	@if(users.length == 0)  {
-		<p> No User </p>
-	}
-	<ul>
-	@for(user <- users) {
-		<li>@user.email <a href="@{routes.Group.removeUser(groupId, user.id)}">remove</a></li>
-	}
-	</ul>
+	<div class="col-lg-12">
+		<div class="well">
+			<form method="POST" action="@routes.Group.createWall(groupId)" class="form-inline">
+				<div class="input-group">
+					<input name="title" class="form-control" type="text" placeholder="Wall name">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button">Create</button>
+					</span>
+				</div><!-- /input-group -->
+			</form>
+			<form method="POST" action="@routes.Group.addWallPost(groupId)" class="form-inline">
+				<div class="input-group">
+					<input name="wall_id" class="form-control" type="text" placeholder="Wall ID">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button">Add</button>
+					</span>
+				</div><!-- /input-group -->
+			</form>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">My Walls</div>
+			<div class="panel-body">
+				<div class="list-group">
+					@nonSharedWalls.map { wall =>
+					<p>@wall.name <a href="@routes.Group.addWall(groupId, wall.id)">add to Group</a></p>
+					}
+				</div>
+			</div>
+		</div>
 
-	<h3>Wall List</h3>
-	<form method="POST" action="@{routes.Group.createWall(groupId)}" class="form-inline">
-		<input name="title" type="text" placeholder="Wall name"> <button class="btn">Create</button/>
-	</form>
-	<form method="POST" action="@{routes.Group.addWallPost(groupId)}" class="form-inline">
-		<input name="wall_id" type="text" placeholder="Wall ID"> <button class="btn">Add</button/>
-	</form>
-	<h5>My Walls</h5>
-	@if(nonSharedWalls.length == 0)  {
-		<p> No Wall </p>
-	}
-	<ul>
-	@for(wall <- nonSharedWalls) {
-		<li>@wall.name <a href="@{routes.Group.addWall(groupId, wall.id)}">add to Group</a></li>
-	}
-	</ul>
-	<h5>Group's Walls</h5>
-	@if(walls.length == 0)  {
-		<p> No Wall </p>
-	}
-	<ul>
-	@for(wall <- walls) {
-		<li>@wall.name <a href="@{routes.Group.removeWall(groupId, wall.id)}">remove</a></li>
-	}
-	</ul>
+		<div class="panel panel-default">
+			<div class="panel-heading">Group's Walls</div>
+			<div class="panel-body">
+				<div class="list-group">
+					@walls.map { wall =>
+					<p>@wall.name <a href="@routes.Group.removeWall(groupId, wall.id)">Remove</a></p>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 }

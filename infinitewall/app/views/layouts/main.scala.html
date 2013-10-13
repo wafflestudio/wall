@@ -1,47 +1,105 @@
-@(title: String)(header: Html)(content: Html, footer: Html = Html(""))(implicit request: RequestHeader, lang: Lang)
+@(title: String)(content: Html)(implicit request: RequestHeader, lang: Lang)
 
 <!DOCTYPE html>
-
 <html>
-    <head>
-        <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
-        <script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
-        <meta name="viewport" content="user-scalable=no"/>
-        <meta name="apple-mobile-web-app-capable" content="yes"/>
-    </head>
-    <body>
-      <div class="navbar navbar-fixed-top navbar-inverse">
-        <div class="navbar-inner">
-          <div class="container">
-			  <a href="/" id="logoImage"><img class = "brand" src ="@routes.Assets.at("images/logo.png")"></a>
-        <!--<div id="logoMenu"></div>-->
-            @header
-          </div>
-        </div>
-      </div>
-    
-      <div class="main container">
-      @request.flash.get("msg").map { message =>
-          <div class="alert-success">
-              <p>
-                  <strong> @message </strong>
-              </p>
-          </div>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="user-scalable=no"/>
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<title>@title</title>
 
-      }
-      @request.flash.get("error").map { errorMessage =>   
-        <div class="alert-error">
-            <p>
-                <strong> @errorMessage </strong>
-            </p>
-        </div>
-        
-      }
-        @content
-      </div>
-      @footer
-    </body>
+		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
+		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+		<link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
+		<script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
+		<script type = "text/javascript">
+			require(["config"], function() {
+				require(["bootstrap"], function() {
+				})
+			})
+		</script>
+	</head>
+	<body>
+		<!-- Fixed navbar -->
+		<div class="navbar navbar-default navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<!-- <a class="navbar-brand" href="@routes.Application.index" id="logoImage"><img src="@routes.Assets.at("images/logo.png")"></a> -->
+					<a class="navbar-brand" href="@routes.Application.index" id="logoImage">Infinite Wall</a>
+				</div>
+				<div class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="@routes.Application.index">Home</a></li>
+						<li><a href="@routes.Application.about">About</a></li>
+						<li><a href="@routes.Application.contact">Contact</a></li>
+						@if(securesocial.core.SecureSocial.currentUser.isDefined) {
+						<li><a href="@routes.Wall.index">Walls</a></li>
+						<li><a href="@routes.Group.index">Groups</a></li>
+						}
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						@if(securesocial.core.SecureSocial.currentUser.isDefined) {
+						<li></li>
+						<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Logged in as @securesocial.core.SecureSocial.currentUser.get.email <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li>
+							<a href="@routes.Account.index">
+								<span class="glyphicon glyphicon-user"></span>
+								Account
+							</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+							<a href="@securesocial.controllers.routes.LoginPage.logout">
+								<span class="glyphicon glyphicon-cog"></span>
+								Logout
+							</a>
+							</li>
+						</ul>
+						</li>
+						} else {
+						<li><a href="@securesocial.controllers.routes.LoginPage.login">Login</a></li>
+						}
+					</ul>
+				</div><!--/.nav-collapse -->
+			</div>
+		</div>
+
+		<div class="container">
+			<!-- Main component for a primary marketing message or call to action -->
+			<div class="jumbotron">
+				<h1>Welcome to InfiniteWall</h1>
+				<p>This example is a quick exercise to illustrate how the default, static and fixed to top navbar work. It includes the responsive CSS and HTML, so it also adapts to your viewport and device.</p>
+				<p>To see the difference between static and fixed top navbars, just scroll.</p>
+				<p>
+				<a class="btn btn-lg btn-primary" href="/">View navbar docs &raquo;</a>
+				</p>
+			</div>
+
+			<div class="row">
+				@request.flash.get("msg").map { message =>
+				<div class="alert-success">
+					<p>
+					<strong> @message </strong>
+					</p>
+				</div>
+				}
+				@request.flash.get("error").map { errorMessage =>   
+				<div class="alert-error">
+					<p>
+					<strong> @errorMessage </strong>
+					</p>
+				</div>
+				}
+			</div>
+			@content
+			@layouts.footer()
+		</div> <!-- /container -->
+	</body>
 </html>

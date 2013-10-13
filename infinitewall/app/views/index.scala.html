@@ -1,17 +1,15 @@
 @()(implicit request: RequestHeader)
 
-@layouts.default("Walls ::: Infinite Wall") {
-
-@if(securesocial.core.SecureSocial.currentUser.isDefined)  {
-  <p><a href="/wall">Walls</a></p>
-  <p><a href="/group">Manage Groups</a></p>
-  <p><a href="/me">My Account</a></p>
-} else {
-  <h2> Infinite Wall </h2>
-  <h4> Motto </h4>
-  <ul>
-    <li> 인간의 사고를 확장하는 도구</li>
-    <li> Notetaking that scales </li>
-  </ul>
-}
+@layouts.main("Walls ::: Infinite Wall") {
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">Infinite Wall</div>
+			<div class="panel-body">
+				<p>인간의 사고를 확장하는 도구</p>
+				<p>Notetaking that scales</p>
+			</div>
+		</div>
+	</div>
+</div>
 }
