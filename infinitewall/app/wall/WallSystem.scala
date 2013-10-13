@@ -35,7 +35,7 @@ case class Quit(userId: String, uuid: String, connectionId: Int, wasPersistent: 
 case class Action(json: JsValue, uuid: String, connectionId: Int, parsed: ActionDetail)
 
 // Wall Actor reply
-case class Connected(channel: Concurrent.Channel[JsValue], prevMessages: Enumerator[JsValue], connectionId: Int)
+case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[JsValue], connectionId: Int)
 case class CannotConnect(msg: String)
 
 // Wall System (Delegate + Actor)
@@ -53,7 +53,7 @@ object WallSystem {
 		val joinResult = actor ? JoinWall(wallId, userId, uuid, timestamp, syncOnce)
 
 		joinResult.map {
-			case Connected(channel, producer, connectionId) =>
+			case Connected(producer, prevMessages, connectionId) =>
 				// Create an Iteratee to consume the feed
 				val consumer: Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] { json: JsValue =>
 					Logger.debug("received: " + json.toString)
@@ -62,7 +62,7 @@ object WallSystem {
 					actor ! QuitWall(wallId, userId, uuid, connectionId, syncOnce)
 				}
 
-				(consumer, producer)
+				(consumer, prevMessages >>> producer)
 
 			case CannotConnect(error) =>
 				// A finished Iteratee sending EOF

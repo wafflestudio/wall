@@ -1,4 +1,17 @@
 Infinite Wall Play Framework Project
 =====================================
 
-test
+Enable HTTPS
+-----------------
+
+Certificate
+
+- Create a free certificate and key following the instruction on StartSSL.com
+
+Convert to Java Key Store (need to create password)
+
+- $ keytool -importkeystore -srckeystore server.p12 -destkeystore scalableidea_com.jks -srcstoretype pkcs12 
+
+Assign as argument to 'start' command (use the created password)
+
+- Refer build.sh

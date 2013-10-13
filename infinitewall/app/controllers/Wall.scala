@@ -7,7 +7,6 @@ import play.api.libs.iteratee._
 import play.api.libs.concurrent._
 import akka.actor._
 import scala.concurrent.duration._
-import scala.concurrent.Future
 import akka.pattern.ask
 import akka.util.Timeout
 import play.api.Play.current
@@ -26,7 +25,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import indexing._
 import models.ActiveRecord._
 import play.api.libs.Comet
-import scala.actors.Future
+import scala.concurrent.Future
 import org.apache.tika.Tika
 
 object Wall extends Controller with securesocial.core.SecureSocial {
@@ -94,7 +93,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
       case None =>
         val consumer = Done[JsValue, Unit]((), Input.EOF)
         val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
-        Future.successful(consumer, producer)
+        Promise.pure(consumer, producer)
     }
   }
 
@@ -122,12 +121,12 @@ object Wall extends Controller with securesocial.core.SecureSocial {
         Async {
           WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
               // force disconnect after 3 seconds
-//              val timeoutEnumerator:Enumerator[JsValue] = Enumerator.generateM[JsValue] { () =>
-//                Promise.timeout(Some(JsNumber(0)), 3.seconds)
-//              }.mapInput {
-//                case _ => Input.EOF
-//              }
-//              timeoutEnumerator.apply(channels._1)
+              val timeoutEnumerator:Enumerator[JsValue] = Enumerator.generateM[JsValue] {
+                Promise.timeout(Some(JsNumber(0)), 3.seconds)
+              }.mapInput {
+                case _ => Input.EOF
+              }
+              timeoutEnumerator.apply(channels._1)
               // convert to comet stream
               val stream = channels._2 &> Comet(callback = "triggerOnReceive")
               Ok.stream(stream)
@@ -139,7 +138,10 @@ object Wall extends Controller with securesocial.core.SecureSocial {
   }
 
   def delete(id: String) = SecuredAction { implicit request =>
-    models.Wall.deleteByUserId(request.user.identityId.userId, id)
+    val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
+	val verified = params.get("verified").getOrElse(Seq("false"))(0).toBoolean
+	if(verified)
+	    models.Wall.deleteByUserId(request.user.identityId.userId, id)
     Ok(Json.toJson("OK"))
   }
 

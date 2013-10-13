@@ -18,18 +18,17 @@ import models.ChatLog
 import models.ChatRoom
 import java.sql.Timestamp
 import scala.concurrent.Future
-import scala.concurrent.Promise
 import akka.util.Timeout
 import scala.collection.mutable.BitSet
 import utils.UsageSet
 
-case class Join(userId: String, timestampOpt:Option[Long])
-case class Quit(userId: String, channel: Concurrent.Channel[JsValue])
-case class Talk(userId: String, connectionId:Int, text: String)
-case class NotifyJoin(userId: String, connectionId:Int)
+case class Join(userId: String, timestampOpt: Option[Long])
+case class Quit(userId: String, producer: Enumerator[JsValue], connectionId:Int)
+case class Talk(userId: String, connectionId: Int, text: String)
+case class NotifyJoin(userId: String, connectionId: Int)
 case class GetPrevMessages(startTs: Long, endTs: Long)
 
-case class Connected(channel:Promise[Concurrent.Channel[JsValue]], enumerator: Enumerator[JsValue], prev: Enumerator[JsValue])
+case class Connected(enumerator: Enumerator[JsValue], prev: Enumerator[JsValue], connectionId:Int)
 case class CannotConnect(msg: String)
 
 case class Message(kind: String, email: String, text: String)
@@ -37,56 +36,53 @@ case class Message(kind: String, email: String, text: String)
 // FIXME: check for any concurrency issue especially accessing rooms
 object ChatSystem {
 
-  implicit val timeout = Timeout(1 second)
+	implicit val timeout = Timeout(1 second)
 
-  var rooms: Map[String, ActorRef] = Map()
+	var rooms: Map[String, ActorRef] = Map()
 
-  def room(roomId: String): ActorRef = {
-    rooms.get(roomId) match {
-      case Some(room) => room
-      case None =>
-        val newRoom = Akka.system.actorOf(Props(new ChatRoomActor(roomId)))
-        rooms = rooms + (roomId -> newRoom)
-        newRoom
-    }
-  }
+	def room(roomId: String): ActorRef = {
+		rooms.get(roomId) match {
+			case Some(room) => room
+			case None =>
+				val newRoom = Akka.system.actorOf(Props(new ChatRoomActor(roomId)))
+				rooms = rooms + (roomId -> newRoom)
+				newRoom
+		}
+	}
 
-  def establish(roomId: String, userId: String, timestamp: Option[Long]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+	def establish(roomId: String, userId: String, timestamp: Option[Long]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
-    val joinResult = room(roomId) ? Join(userId, timestamp)
+		val joinResult = room(roomId) ? Join(userId, timestamp)
 
-    joinResult.flatMap {
-      case Connected(channel, producer, prev) =>
-        // Create an Iteratee to consume the feed
-    	
-    	channel.future.map { channel =>
-            val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
-              room(roomId) ! Talk(userId, (event \ "connectionId").as[Int], (event \ "text").as[String])
-            }.mapDone { _ =>
-              room(roomId) ! Quit(userId, channel)
-            }
-            
-            (consumer, prev >>> producer)
-    	} 
-    
-      case CannotConnect(error) =>
+		joinResult.map {
+			case Connected(producer, prev, connectionId) =>
+				// Create an Iteratee to consume the feed
+				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
+					room(roomId) ! Talk(userId, (event \ "connectionId").as[Int], (event \ "text").as[String])
+				}.mapDone { _ =>
+					room(roomId) ! Quit(userId, producer, connectionId)
+				}
 
-        // Connection error
+				(consumer, prev >>> producer)
 
-        // A finished Iteratee sending EOF
-        val consumer = Done[JsValue, Unit]((), Input.EOF)
+			case CannotConnect(error) =>
 
-        // Send an error and close the socket
-        val producer = Enumerator[JsValue](Json.obj("error" -> error)).andThen(Enumerator.enumInput(Input.EOF))
+				// Connection error
 
-        Future(consumer, producer)
+				// A finished Iteratee sending EOF
+				val consumer = Done[JsValue, Unit]((), Input.EOF)
 
-    }
+				// Send an error and close the socket
+				val producer = Enumerator[JsValue](Json.obj("error" -> error)).andThen(Enumerator.enumInput(Input.EOF))
 
-  }
-  
-  def prevMessages(roomId: String, startTs: Long, endTs: Long) = {
-    (room(roomId) ? GetPrevMessages(startTs, endTs)).mapTo[JsValue]
-  }
+				(consumer, producer)
+
+		}
+
+	}
+
+	def prevMessages(roomId: String, startTs: Long, endTs: Long) = {
+		(room(roomId) ? GetPrevMessages(startTs, endTs)).mapTo[JsValue]
+	}
 
 }

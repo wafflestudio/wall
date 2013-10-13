@@ -6,6 +6,21 @@
 # states: CONNECTED <=> TRYING
 define ["EventDispatcher", "jquery"], (EventDispatcher, $) ->
 
+  # get websocket url adjusted to current viewing protocol (http->ws/https->wss)
+  websocketURLAdjusted = (url) ->
+    if location.protocol == "https:"
+      protocol = "wss:"
+    else
+      protocol = "ws:"
+
+    if url.match(/^wss:\/\//)? or url.match(/^ws:\/\//)?
+      url = url.replace(/^(wss|ws):\/\//,  protocol + "//")
+    else
+      url = protocol + "//" + url
+
+    url
+
+
   class PersistentWebsocket extends EventDispatcher
     
     constructor: (@url, scope = "WS", @timestamp) ->
@@ -16,6 +31,8 @@ define ["EventDispatcher", "jquery"], (EventDispatcher, $) ->
       @scope = "[#{scope}]"
       @buffered = [] # emergency buffer
       @pending = []
+
+      @url = websocketURLAdjusted(@url)
 
       if @WS?
       	@connect()
