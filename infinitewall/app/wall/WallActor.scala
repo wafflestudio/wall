@@ -27,7 +27,7 @@ class WallActor(wallId: String) extends Actor {
 	implicit def toLong(value: JsValue) = { value.as[Long] }
 
 	val connectionUsage = new UsageSet
-	case class Connection(enumerator: PushEnumerator[JsValue], uuid: String, connectionId: Int, isVolatile: Boolean = false)
+	case class Connection(enumerator: Enumerator[JsValue], channel:Concurrent.Channel[JsValue], uuid: String, connectionId: Int, isVolatile: Boolean = false)
 
 	// key: userId, values: list of sessions user have
 	var connections = Map.empty[String, List[Connection]]
@@ -36,13 +36,12 @@ class WallActor(wallId: String) extends Actor {
 	// shutdown timer activated when no connection is left to the actor
 	var shutdownTimer: Option[akka.actor.Cancellable] = None
 
-	def addConnection(userId: String, uuid: String, enumerator: PushEnumerator[JsValue]) = {
-		val connectionId = connectionUsage.allocate
-		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(enumerator, uuid, connectionId)))
-		connectionId
+	def addConnection(userId: String, uuid: String, enumerator: Enumerator[JsValue], channel:Concurrent.Channel[JsValue], connectionId:Int) = {
+		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(enumerator, channel, uuid, connectionId)))
 	}
 
 	def removeConnection(userId: String, connectionId: Int) = {
+		connectionUsage.free(connectionId)
 		connections.get(userId).foreach { userConns =>
 			val newUserConns = userConns.filter(_.connectionId != connectionId)
 			if (newUserConns.isEmpty)
@@ -67,9 +66,7 @@ class WallActor(wallId: String) extends Actor {
 		case Join(userId, uuid, timestamp, syncOnce) => {
 			// Create an Enumerator to write to this socket
 			val wallActor = self
-			lazy val producer: PushEnumerator[JsValue] = Enumerator.imperative[JsValue]()
-			val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
-
+			
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("Wall has reached maximum number of connections.")
 			}
@@ -79,10 +76,20 @@ class WallActor(wallId: String) extends Actor {
 					cancellable.cancel()
 					shutdownTimer = None
 				}
-				// update connections map
-
-				val connectionId = addConnection(userId, uuid, producer)
+				
+				val connectionId = connectionUsage.allocate
+			
+    			lazy val producer: Enumerator[JsValue] = Concurrent.unicast[JsValue](onStart = { channel =>
+    				// update connections map
+					addConnection(userId, uuid, producer, channel, connectionId)	
+    			}, onError = { (msg, input) => 
+					connectionUsage.free(connectionId)
+				})
+    			
+    			val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
+				
 				sender ! Connected(producer, prev, connectionId)
+				
 				if (syncOnce) {
 					Logger.info(s"[Wall] user $userId:($uuid) syncing with wall $wallId")
 				}
@@ -180,8 +187,7 @@ class WallActor(wallId: String) extends Actor {
 		connections.foreach {
 			case (_, userConns) =>
 				userConns.foreach { connection =>
-					val producer = connection.enumerator
-					producer.push(msg)
+					connection.channel.push(msg)
 				}
 		}
 		log.id

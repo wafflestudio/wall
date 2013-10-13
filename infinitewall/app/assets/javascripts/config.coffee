@@ -1,5 +1,5 @@
 requirejs.config
-  baseUrl: '/assets/javascripts/'
+  #baseUrl: '/assets/javascripts-min/'
   paths: {
       jquery: 'jquery-2.0.2.min'
       "jquery-ui": 'jquery-ui.min'
