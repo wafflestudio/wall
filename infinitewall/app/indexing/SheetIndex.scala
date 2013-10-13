@@ -22,7 +22,7 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
   }
 
   def setTitle(id: String, title: String) = if(!play.Play.isTest) {
-    var sheetIndex = SheetIndexManager.get(id)
+    val sheetIndex = SheetIndexManager.get(id)
     sheetIndex match { 
       case Some(si: SheetIndex) =>
         si.title = title
@@ -35,7 +35,7 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
   }
 
   def setText(id: String, content:String) = if(!play.Play.isTest) {
-    var sheetIndex = SheetIndexManager.get(id)
+    val sheetIndex = SheetIndexManager.get(id)
     sheetIndex match { 
       case Some(si: SheetIndex) =>
         si.content = content
@@ -48,10 +48,10 @@ object SheetIndexManager extends IndexableManager[SheetIndex] {
   }
 
   def remove(id: String) = if(!play.Play.isTest) {
-    var sheetIndex = SheetIndexManager.get(id)
+    val sheetIndex = SheetIndexManager.get(id)
     sheetIndex match { 
       case Some(si: SheetIndex) =>
-        var deleteRes = SheetIndexManager.delete(id)
+        val deleteRes = SheetIndexManager.delete(id)
         Logger.info("SheetIndexManager.remove() : " + id + " / " + deleteRes)
       case None => None
         Logger.info("SheetIndexManager.remove() : ERROR(No Index)")
