@@ -8,10 +8,12 @@ Certificate
 
 - Create a free certificate and key following the instruction on StartSSL.com
 
+- May need to encrypt using `openssl rsa -in ssl.key -out ssl.key`
+
 Convert to Java Key Store (need to create password)
 
 - $ keytool -importkeystore -srckeystore server.p12 -destkeystore scalableidea_com.jks -srcstoretype pkcs12 
 
-Assign as argument to 'start' command (use the created password)
+Assign (the keystore and password) as arguments to 'start' command (use the created password)
 
-- Refer build.sh
+- Refer to build.sh
