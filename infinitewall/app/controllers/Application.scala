@@ -45,6 +45,6 @@ object Application extends Controller with securesocial.core.SecureSocial {
 	}
 	
 	def language(locale: String) = UserAwareAction { implicit request =>
-		Ok(views.html.index()).withLang(Lang(locale))
+	    Redirect(routes.Application.index()).withLang(Lang(locale))
 	}
 }

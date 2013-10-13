@@ -1,8 +1,8 @@
-@()
+@()(implicit lang: Lang)
 
 <!-- footer -->
 <hr>
 <footer>
-<p>&copy; Wafflestudio 2013</p>
+<p>&copy; <a href="http://www.wafflestudio.com" target="_blank">Wafflestudio</a> 2013 &middot; <a href="@routes.Application.language("kr")">@Messages("language.korean")</a> &middot; <a href="@routes.Application.language("en")">@Messages("language.english")</a></p>
 </footer>
 <!-- footer ended -->

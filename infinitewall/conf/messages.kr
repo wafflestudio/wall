@@ -1,1 +1,18 @@
 application.name = 인피니티 월
+
+navigation.home = 홈
+navigation.about = 소개
+navigation.contact = 연락
+navigation.wall = 월
+navigation.group = 그룹
+
+navigation.login = 로그인
+navigation.logout = 로그아웃
+navigation.current_user = {0} 님
+
+navigation.account = 계정
+
+language.korean = 한국어
+language.english = 영어
+
+user.guset = 방문자

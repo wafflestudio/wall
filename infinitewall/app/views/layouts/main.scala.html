@@ -32,41 +32,41 @@
 						<span class="icon-bar"></span>
 					</button>
 					<!-- <a class="navbar-brand" href="@routes.Application.index" id="logoImage"><img src="@routes.Assets.at("images/logo.png")"></a> -->
-					<a class="navbar-brand" href="@routes.Application.index" id="logoImage">Infinite Wall</a>
+					<a class="navbar-brand" href="@routes.Application.index" id="logoImage">@Messages("application.name")</a>
 				</div>
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="@routes.Application.index">Home</a></li>
-						<li><a href="@routes.Application.about">About</a></li>
-						<li><a href="@routes.Application.contact">Contact</a></li>
+						<li class="active"><a href="@routes.Application.index">@Messages("navigation.home")</a></li>
+						<li><a href="@routes.Application.about">@Messages("navigation.about")</a></li>
+						<li><a href="@routes.Application.contact">@Messages("navigation.contact")</a></li>
 						@if(currentUser.isDefined) {
-						<li><a href="@routes.Wall.index">Walls</a></li>
-						<li><a href="@routes.Group.index">Groups</a></li>
+						<li><a href="@routes.Wall.index">@Messages("navigation.wall")</a></li>
+						<li><a href="@routes.Group.index">@Messages("navigation.group")</a></li>
 						}
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						@if(currentUser.isDefined) {
 						<li></li>
 						<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Logged in as @currentUser.get.email <b class="caret"></b></a>
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">@Messages("navigation.current_user", currentUser.get.email.getOrElse(Messages("user.guest"))) <b class="caret"></b></a>
 						<ul class="dropdown-menu">
 							<li>
 							<a href="@routes.Account.index">
 								<span class="glyphicon glyphicon-user"></span>
-								Account
+								@Messages("navigation.account")
 							</a>
 							</li>
 							<li class="divider"></li>
 							<li>
 							<a href="@securesocial.controllers.routes.LoginPage.logout">
 								<span class="glyphicon glyphicon-cog"></span>
-								Logout
+								@Messages("navigation.logout")
 							</a>
 							</li>
 						</ul>
 						</li>
 						} else {
-						<li><a href="@securesocial.controllers.routes.LoginPage.login">Login</a></li>
+						<li><a href="@securesocial.controllers.routes.LoginPage.login">@Messages("navigation.login")</a></li>
 						}
 					</ul>
 				</div><!--/.nav-collapse -->

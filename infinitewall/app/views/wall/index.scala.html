@@ -1,4 +1,4 @@
-@(nonSharedWalls:List[models.Wall.Frozen], sharedWalls:List[models.Wall.Frozen])(implicit request: RequestHeader)
+@(nonSharedWalls:List[models.Wall.Frozen], sharedWalls:List[models.Wall.Frozen])(implicit request: RequestHeader, lang: Lang)
 
 @layouts.main("Walls ::: Infinite Wall") {
 <div class="row contact">
