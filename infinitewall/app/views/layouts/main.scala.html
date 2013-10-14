@@ -25,12 +25,12 @@
 		<script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
 		<script type = "text/javascript">
 			require(["config"], function() {
-				require(["bootstrap"], function() {
+				require(["angularapp", "bootstrap"], function() {
 				})
 			})
 		</script>
 	</head>
-	<body>
+	<body ng-app="WallApp">
 		<!-- Fixed navbar -->
 		<div class="navbar navbar-default navbar-fixed-top">
 			<div class="container">
@@ -43,14 +43,13 @@
 					<!-- <a class="navbar-brand" href="@routes.Application.index" id="logoImage"><img src="@routes.Assets.at("images/logo.png")"></a> -->
 					<a class="navbar-brand" href="@routes.Application.index" id="logoImage">@Messages("application.name")</a>
 				</div>
-				<div class="navbar-collapse collapse">
+				<div class="navbar-collapse collapse" ng-controller="MenuCtrl">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="@routes.Application.index">@Messages("navigation.home")</a></li>
-						<li><a href="@routes.Application.about">@Messages("navigation.about")</a></li>
-						<li><a href="@routes.Application.contact">@Messages("navigation.contact")</a></li>
+						<li ng-class="{active: isActive('@routes.Application.about')}"><a href="@routes.Application.about">@Messages("navigation.about")</a></li>
+						<li ng-class="{active: isActive('@routes.Application.contact')}"><a href="@routes.Application.contact">@Messages("navigation.contact")</a></li>
 						@if(currentUser.isDefined) {
-						<li><a href="@routes.Wall.index">@Messages("navigation.wall")</a></li>
-						<li><a href="@routes.Group.index">@Messages("navigation.group")</a></li>
+						<li ng-class="{active: isActive('@routes.Wall.index')}"><a href="@routes.Wall.index">@Messages("navigation.wall")</a></li>
+						<li ng-class="{active: isActive('@routes.Group.index')}"><a href="@routes.Group.index">@Messages("navigation.group")</a></li>
 						}
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
@@ -75,7 +74,7 @@
 						</ul>
 						</li>
 						} else {
-						<li><a href="@securesocial.controllers.routes.LoginPage.login">@Messages("navigation.login")</a></li>
+						<li ng-class="{active: isActive('@securesocial.controllers.routes.LoginPage.login')}"><a href="@securesocial.controllers.routes.LoginPage.login">@Messages("navigation.login")</a></li>
 						}
 					</ul>
 				</div><!--/.nav-collapse -->

@@ -15,6 +15,7 @@ requirejs.config
       #"load-image-ios": "fileupload/load-image-ios"
       "canvas-to-blob": "fileupload/canvas-to-blob"
       bootstrap: "bootstrap.min"
+      angularjs: "angular"
   },
   shim: {
       hallo : {
