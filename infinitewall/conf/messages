@@ -15,4 +15,4 @@ navigation.account = Account
 language.korean = Korean
 language.english = English
 
-user.guset = Guest
+user.guest = Guest
