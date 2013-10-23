@@ -8,6 +8,8 @@ define ["constants"], (Constants) ->
     innerElement: null
     handler: null
     timer: 0
+    cache: {}
+    buffer: {}
 
     #i 는 안에 들어있는 element에 대한것
     #c 는 중심의 좌표
@@ -15,27 +17,33 @@ define ["constants"], (Constants) ->
       if isCell
 
         Object.defineProperty @, 'x', {
-          get: -> parseInt(@element.css('x'))
+          get: ->
+            @cache.x
           set: (value) ->
             roundVal = Math.round(value)
             diff = if roundVal > 0 then Math.abs(roundVal % Constants.cellVal) else Constants.cellVal - Math.abs(roundVal % Constants.cellVal)
 
             if diff > Constants.cellVal / 2
               @element.css {x: roundVal - diff + Constants.cellVal}
+              @cache.x = roundVal - diff + Constants.cellVal
             else
               @element.css {x: roundVal - diff}
+              @cache.x = roundVal - diff
         }
 
         Object.defineProperty @, 'y', {
-          get: -> parseInt(@element.css('y'))
+          get: ->
+            @cache.y
           set: (value) ->
             roundVal = Math.round(value)
             diff = if roundVal > 0 then Math.abs(roundVal % Constants.cellVal) else Constants.cellVal - Math.abs(roundVal % Constants.cellVal)
 
             if diff > Constants.cellVal / 2
               @element.css {y: roundVal - diff + Constants.cellVal}
+              @cache.y = roundVal - diff + Constants.cellVal
             else
               @element.css {y: roundVal - diff}
+              @cache.y = roundVal - diff
         }
 
         Object.defineProperty @, 'iw', {
@@ -128,15 +136,47 @@ define ["constants"], (Constants) ->
     smoothmove: (endx, endy) ->
       clearTimeout(@timer)
       @timer = setInterval (=>
-        if Math.abs(@x() - endx) < 2 and Math.abs(@y() - endy) < 2
-          @x(endx)
-          @y(endy)
+        if Math.abs(@x - endx) < 2 and Math.abs(@y - endy) < 2
+          @x = endx
+          @y = endy
           clearTimeout(@timer)
 
-        interx = 0.9 * @x() + 0.1 * endx
-        intery = 0.9 * @y() + 0.1 * endy
-        @x(interx)
-        @y(intery)), 5
+        interx = 0.9 * @x + 0.1 * endx
+        intery = 0.9 * @y + 0.1 * endy
+        @x = interx
+        @y = intery), 5
+
+    startFramedMove: ->
+      clearTimeout(@frameTimer)
+      @initBuffer()
+      moveFunc = () =>
+        return if @x is @buffer.x and @y is @buffer.y
+        @ltxy(@buffer.x, @buffer.y, 45)
+        @x = @buffer.x
+        @y = @buffer.y
+
+      @frameTimer = setInterval(moveFunc, 45)
+
+    endFramedMove: ->
+      clearTimeout(@frameTimer)
+      @clearBuffer()
+
+    initBuffer: ->
+      @buffer.x = @x
+      @buffer.y = @y
+
+    fillBuffer: (x, y) ->
+      @buffer.x = Math.round(x)
+      @buffer.y = Math.round(y)
+
+    clearBuffer: ->
+      @buffer = {}
+
+    ltxy: (x, y, duration) ->
+      @element.transition {
+        x: Math.round(x)
+        y: Math.round(y)
+      }, duration, 'linear'
 
     txy: (x, y, duration, callback) ->
       console.log "txy: ", x, y
