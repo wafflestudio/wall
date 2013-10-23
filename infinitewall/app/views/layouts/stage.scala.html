@@ -1,6 +1,6 @@
 @(title: String)(content: Html)(implicit request: RequestHeader)
 
-@defaultWithHead(title) {
+@mainWithHead(title) {
 <link type="text/css" rel="stylesheet" href="@routes.Assets.at("stylesheets/wall/stage.css")"/>
 <link type="text/css" rel="stylesheet" href="@routes.Assets.at("stylesheets/wall/statusbar.css")"/>
 <link type="text/css" rel="stylesheet" href="@routes.Assets.at("stylesheets/wall/menu.css")"/>
@@ -10,5 +10,5 @@
 <link type="text/css" rel="stylesheet" href="@routes.Assets.at("stylesheets/wall/chat.css")"/>
 <link type="text/css" rel="stylesheet" href="@routes.Assets.at("stylesheets/folder.css")"/>
 <link type="text/css" rel="stylesheet" href="@routes.Assets.at("stylesheets/jquery-ui-1.10.3.custom.min.css")"/>
-
+<link type="text/css" rel="stylesheet" href="@routes.Assets.at("font-awesome/css/font-awesome.min.css")"/>
 } { @content }

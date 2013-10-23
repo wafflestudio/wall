@@ -10,7 +10,9 @@ GET      /language/:locale                    controllers.Application.language(l
 
 
 GET      /me                                  controllers.Account.index
-GET      /users/:userId/profile               controllers.File.serveUserProfilePicture(userId: String )
+GET      /me/edit                             controllers.Account.edit
+POST     /me                             	  controllers.Account.update
+GET      /users/:userId/profile               controllers.File.serveUserProfilePicture(userId: String)
 
 
 # Chat routes available only for testing
@@ -20,13 +22,25 @@ GET      /users/:userId/profile               controllers.File.serveUserProfileP
 GET      /chat/establish/:roomId              controllers.Chat.establish(roomId:String)
 GET      /chat/log/:roomId                    controllers.Chat.prevMessages(roomId:String)
 
+
+## WALL management
+# list walls
 GET      /wall                                controllers.Wall.index
+# create new wall
+POST     /wall		                          controllers.Wall.create
+# delete wall
+DELETE	 /wall/:wallId                        controllers.Wall.delete(wallId:String)
+# list walls as tree
 GET      /tree                                controllers.Wall.tree
+# access wall as stage
 GET      /wall/:wallId                        controllers.Wall.stage(wallId:String)
-POST     /wall/create                         controllers.Wall.create
+
+# websocket API
 GET      /wall/sync/:wallId                   controllers.Wall.sync(wallId:String)
+# HTTP API
 GET      /wall/comet/:wallId                  controllers.Wall.listen(wallId:String)
 POST     /wall/comet/:wallId                  controllers.Wall.speak(wallId:String)
+# misc. 
 POST     /wall/view/:wallId                   controllers.Wall.setView(wallId:String)
 GET      /wall/search/:wallId/:keyword        controllers.Wall.search(wallId:String, keyword:String)
 
@@ -38,18 +52,13 @@ DELETE   /wall/file/:wallId                   controllers.Wall.deleteFile(wallId
 
 GET      /group                               controllers.Group.index
 GET      /group/:groupId                      controllers.Group.show(groupId:String)
-POST     /group/create                        controllers.Group.create
+POST     /group			                      controllers.Group.create
 POST     /group/:groupId/addUser              controllers.Group.addUser(groupId:String)
 GET      /group/:groupId/removeUser/:userId   controllers.Group.removeUser(groupId:String, userId:String)
 POST     /group/:groupId/createWall           controllers.Group.createWall(groupId:String)
 POST     /group/:groupId/addWall              controllers.Group.addWallPost(groupId:String)
 GET      /group/:groupId/addWall/:wallId      controllers.Group.addWall(groupId:String, wallId:String)
 GET      /group/:groupId/removeWall/:wallId   controllers.Group.removeWall(groupId:String, wallId:String)
-
-#POST    /file                 				  controllers.File.upload
-#GET     /file                 				  controllers.File.info
-#PUT     /file                 				  controllers.File.replace
-#DELETE  /file                 				  controllers.File.delete
 
 GET      /dropbox/authorize                   controllers.Dropbox.authorize
 GET      /dropbox/callback                    controllers.Dropbox.callback
@@ -69,6 +78,11 @@ GET    /scalr/:width/:height/*file    se.digiplant.scalr.ScalrAssets.at(path="/p
 GET      /assets/*file                        controllers.Assets.at(path="/public", file)
 GET      /upload/*file                        controllers.File.serve(file)
 GET      /thumb/:width/:height/*file   		  controllers.File.thumb(file:String, width:Integer, height:Integer)
+#POST    /file                 				  controllers.File.upload
+#GET     /file                 				  controllers.File.info
+#PUT     /file                 				  controllers.File.replace
+#DELETE  /file                 				  controllers.File.delete
+
 
 ########################
 # Secure Social Routing

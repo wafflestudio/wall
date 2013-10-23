@@ -1,1 +1,18 @@
 application.name = Infinite Wall
+
+navigation.home = Home
+navigation.about = About
+navigation.contact = Contact
+navigation.wall = Wall
+navigation.group = Group
+
+navigation.login = Login
+navigation.logout = Logout
+navigation.current_user = Loggined as {0}
+
+navigation.account = Account
+
+language.korean = Korean
+language.english = English
+
+user.guest = Guest

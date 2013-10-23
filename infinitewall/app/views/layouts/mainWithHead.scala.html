@@ -1,28 +1,49 @@
-@(title: String)(head: Html)(header: Html)(content: Html)(implicit request: RequestHeader)
+@(title: String)(head: Html)(content: Html)(implicit request: RequestHeader)
+
+@import securesocial.core.SecureSocial._
 
 <!DOCTYPE html>
-
 <html>
-  <head>
-    <title>@title</title>
-    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
-    <link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
-    <script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
-    <meta name="viewport" content="user-scalable=no"/>
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    @head
-  </head>
-  <body>
-    @header
-    <div class="main container">
-      @request.flash.get("error").map { errorMessage =>   
-        <div class="alert-message error">
-          <p>
-          <strong> @errorMessage </strong>
-          </p>
-        </div>
-      }
-      @content
-    </div>
-  </body>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="user-scalable=no"/>
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta content='Infinite Wall' property='og:title'>
+		<meta content='website' property='og:type'>
+		<meta content='http://wall.wafflestudio.com' property='og:url'>
+		<meta content='http://wall.wafflestudio.com/logo.png' property='og:image'>
+		<meta content='Infinite Wall Description' property='og:description'>
+		<meta name="keywords" content="WaffleStudio, 와플스튜디오, 웹개발, Web Development, snuev, 서울대학교" />
+		<meta name="description" content="맛있는 웹을 만드는 동아리, 와플스튜디오입니다." />
+		<meta name="author" content="Wafflestudio" />
+		<meta name="publisher" content="Won-wook Hong" />
+		<title>@title</title>
+
+		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
+		<link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
+		<script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
+		@head
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				@request.flash.get("msg").map { message =>
+				<div class="alert-success">
+					<p>
+					<strong> @message </strong>
+					</p>
+				</div>
+				}
+				@request.flash.get("error").map { errorMessage =>   
+				<div class="alert-error">
+					<p>
+					<strong> @errorMessage </strong>
+					</p>
+				</div>
+				}
+			</div>
+			@content
+			@layouts.footer()
+		</div> <!-- /container -->
+	</body>
 </html>

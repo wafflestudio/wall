@@ -1,6 +1,6 @@
 @(rooms:List[ChatRoom])(implicit request: RequestHeader)
 
-@layouts.default("Chat Rooms ::: Infinite Wall") {
+@layouts.main("Chat Rooms ::: Infinite Wall") {
 
 	@if(rooms.length == 0)  {
 		<p> No rooms available </p>

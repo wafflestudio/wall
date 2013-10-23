@@ -1,27 +1,39 @@
-@(nonSharedWalls:List[models.Wall.Frozen], sharedWalls:List[models.Wall.Frozen])(implicit request: RequestHeader)
+@(nonSharedWalls:List[models.Wall.Frozen], sharedWalls:List[models.Wall.Frozen])(implicit request: RequestHeader, lang: Lang)
 
-@layouts.default("Walls ::: Infinite Wall") {
+@layouts.main("Walls ::: Infinite Wall") {
+<div class="row contact">
+	<div class="col-lg-12">
+	<div class="well">
+		<form method="POST" action="@{routes.Wall.create}" class="form-inline">
+			<div class="input-group">
+				<input name="title" class="form-control" type="text" placeholder="Wall name">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button">Create</button>
+				</span>
+			</div><!-- /input-group -->
+		</form>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">Non Shared Walls</div>
+			<div class="panel-body">
+				<div class="list-group">
+					@nonSharedWalls.map { wall =>
+					<a class="list-group-item" href="/wall/@wall.id">@wall.name</a>
+					}
+				</div>
+			</div>
+		</div>
 
-	<h3>Non Shared Walls</h3>
-	<form method="POST" action="@{routes.Wall.create}" class="form-inline">
-		<input name="title" type="text" placeholder="Wall name"><button class="btn">Create</button/>
-	</form>
-	@if(nonSharedWalls.length == 0)  {
-		<p> No non shared walls available </p>
-	}
-	<ul>
-	@for(wall <- nonSharedWalls) {
-		<li><a href="/wall/@wall.id">@wall.name</a></li>
-	}
-	</ul>
-
-	<h3>Shared Walls</h3>
-	@if(sharedWalls.length == 0)  {
-		<p> No shared walls available </p>
-	}
-	<ul>
-		@for(wall <- sharedWalls) {
-		<li><a href="/wall/@wall.id">@wall.name</a></li>
-		}
-	</ul>
+		<div class="panel panel-default">
+			<div class="panel-heading">Shared Walls</div>
+			<div class="panel-body">
+				<div class="list-group">
+					@sharedWalls.map { wall =>
+					<a class="list-group-item" href="/wall/@wall.id">@wall.name</a>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 }

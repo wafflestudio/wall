@@ -49,13 +49,19 @@ object User extends ActiveRecord[User] {
   }
 
   def getGravatar(id: String) = transactional {    
-    getGravatarByEmail(findById(id).get.frozen.email)
+    getGravatarByEmail(Some(findById(id).get.frozen.email))
   }
 
-  def getGravatarByEmail(email: String) = {
-    val md5 = MessageDigest.getInstance("MD5")
-    val hash = md5.digest(email.getBytes).map("%02x".format(_)).mkString
-    "http://www.gravatar.com/avatar/" + hash + "?d=http%3A%2F%2Fdeity.mintengine.com%2Fssk.png&s=65"
+  def getGravatarByEmail(email: Option[String]) = {
+    email match {
+        case Some(email) => {
+          val md5 = MessageDigest.getInstance("MD5")
+          val hash = md5.digest(email.getBytes).map("%02x".format(_)).mkString
+          //"http://www.gravatar.com/avatar/" + hash + "?d=http%3A%2F%2Fdeity.mintengine.com%2Fssk.png&s=65"
+          "http://www.gravatar.com/avatar/" + hash + "?s=65"
+        }
+        case _ => "http://zoo.snu.ac/animal_pics/zoo-theme.jpg"
+    }
   }
 
   def findByEmail(email: String) = transactional {
@@ -71,6 +77,15 @@ object User extends ActiveRecord[User] {
   override def findById(id: String) = transactional {
     (select[User] where (user => (user.id :== id) :|| (user.ssid :== id) :|| (user.email :== id)))
     .headOption
+  }
+   
+  def update(id: String, firstName: String, lastName: String) {
+    transactional {
+      findById(id).map { user =>
+        user.firstName = Some(firstName)
+        user.lastName = Some(lastName)
+      }
+    }
   }
   
   private def tenMinutesAgo() = {

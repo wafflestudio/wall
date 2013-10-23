@@ -20,7 +20,7 @@ define ["sheet/textSheet", "sheet/videoSheet", "jquery"], (TextSheet, VideoSheet
       @newSheetButtons.click ->
         switch $(this).attr('rel')
           when 'text'
-            TextSheet.create("New Sheet")
+            TextSheet.create(" New Sheet ")
           when 'image'
             $("#fileupload").click()
           when 'video'
