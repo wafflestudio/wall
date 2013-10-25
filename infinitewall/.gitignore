@@ -19,7 +19,7 @@ activatedwall.lock.db
 data/
 
 nohup.out
-
+*.sublime-project
 .target
 .history
 .cache
