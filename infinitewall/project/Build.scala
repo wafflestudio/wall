@@ -41,7 +41,9 @@ object ApplicationBuild extends Build {
 			).settings(
 				ScctPlugin.instrumentSettings : _*
 			).settings(parallelExecution in ScctPlugin.ScctTest := false
-			).settings(Revolver.settings: _*)
+			).settings(Revolver.settings: _*
+			).settings(com.typesafe.sbt.SbtScalariform.scalariformSettings: _*)
+
 			templatesImport ++= Seq(
 				"se.digiplant._"
 			)

@@ -20,6 +20,8 @@ data/
 
 nohup.out
 *.sublime-project
+*.sublime-workspace
+.scalastyle
 .target
 .history
 .cache
