@@ -36,8 +36,7 @@ object Sheet extends ActiveRecord[Sheet] {
 						case _: ImageContent.Frozen => "image"
 						case _ => "misc"
 					}
-				}
-			).toString()
+				}).toString()
 		}
 
 	}
@@ -56,9 +55,8 @@ object Sheet extends ActiveRecord[Sheet] {
 		if (contentType == "text") {
 			try {
 				SheetIndexManager.create(sheet.frozen.id, wallId, title, content) //indexing
-			}
-			catch {
-				case e:Throwable => Logger.warn("SheetIndexManager: " + e.getMessage())
+			} catch {
+				case e: Throwable => Logger.warn("SheetIndexManager: " + e.getMessage())
 			}
 		}
 
@@ -69,9 +67,8 @@ object Sheet extends ActiveRecord[Sheet] {
 		delete(id)
 		try {
 			SheetIndexManager.remove(id) //indexing
-		}
-		catch {
-			case e:Throwable => Logger.warn("SheetIndexManager: " + e.getMessage())
+		} catch {
+			case e: Throwable => Logger.warn("SheetIndexManager: " + e.getMessage())
 		}
 	}
 
@@ -95,9 +92,8 @@ object Sheet extends ActiveRecord[Sheet] {
 		}
 		try {
 			SheetIndexManager.setText(id, text) //indexing
-		}
-		catch {
-			case e:Throwable => Logger.warn("SheetIndexManager: " + e.getMessage())
+		} catch {
+			case e: Throwable => Logger.warn("SheetIndexManager: " + e.getMessage())
 		}
 	}
 
@@ -110,8 +106,7 @@ object Sheet extends ActiveRecord[Sheet] {
 
 			setText(id, alteredText)
 			(baseText, undo)
-		}
-		catch {
+		} catch {
 			case e: Exception =>
 				Logger.error("bad alter text operation:[" + e.getMessage() + "] operation: " + operation + ", baseText" + baseText)
 				throw e
@@ -124,9 +119,8 @@ object Sheet extends ActiveRecord[Sheet] {
 		}
 		try {
 			SheetIndexManager.setTitle(id, title) //indexing
-		}
-		catch {
-			case e:Throwable => Logger.warn("SheetIndexManager: " + e.getMessage())
+		} catch {
+			case e: Throwable => Logger.warn("SheetIndexManager: " + e.getMessage())
 		}
 	}
 

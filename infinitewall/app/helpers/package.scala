@@ -7,33 +7,33 @@ import views.html.helper._
  */
 package object infiniteWall {
 
-  /**
-   * Twitter bootstrap input structure.
-   *
-   * {{{
-   * <dl>
-   *   <dt><label for="username"></dt>
-   *   <dd><input type="text" name="username" id="username"></dd>
-   *   <dd class="error">This field is required!</dd>
-   *   <dd class="info">Required field.</dd>
-   * </dl>
-   * }}}
-   */
-  import views._
+	/**
+	 * Twitter bootstrap input structure.
+	 *
+	 * {{{
+	 * <dl>
+	 *   <dt><label for="username"></dt>
+	 *   <dd><input type="text" name="username" id="username"></dd>
+	 *   <dd class="error">This field is required!</dd>
+	 *   <dd class="info">Required field.</dd>
+	 * </dl>
+	 * }}}
+	 */
+	import views._
 
-  implicit val twitterBootstrapField = new FieldConstructor {
-    def apply(elements: FieldElements) = views.html.forms.defaultFieldConstructor(elements)
-  }
+	implicit val twitterBootstrapField = new FieldConstructor {
+		def apply(elements: FieldElements) = views.html.forms.defaultFieldConstructor(elements)
+	}
 
-  import com.github.theon.uri.Uri._
-  def encodeURIComponent(str: String) = {
-    parseUri(str).toString
-  }
-  
-  def decodeURIComponent(str: String) = {
-    // TODO: review this
-    import java.net.URLDecoder
-    URLDecoder.decode(str, "UTF-8")
-  }
+	import com.github.theon.uri.Uri._
+	def encodeURIComponent(str: String) = {
+		parseUri(str).toString
+	}
+
+	def decodeURIComponent(str: String) = {
+		// TODO: review this
+		import java.net.URLDecoder
+		URLDecoder.decode(str, "UTF-8")
+	}
 
 }

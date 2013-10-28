@@ -27,7 +27,7 @@ class WallActor(wallId: String) extends Actor {
 	implicit def toLong(value: JsValue) = { value.as[Long] }
 
 	val connectionUsage = new UsageSet
-	case class Connection(enumerator: Enumerator[JsValue], channel:Concurrent.Channel[JsValue], uuid: String, connectionId: Int, isVolatile: Boolean = false)
+	case class Connection(enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], uuid: String, connectionId: Int, isVolatile: Boolean = false)
 
 	// key: userId, values: list of sessions user have
 	var connections = Map.empty[String, List[Connection]]
@@ -36,7 +36,7 @@ class WallActor(wallId: String) extends Actor {
 	// shutdown timer activated when no connection is left to the actor
 	var shutdownTimer: Option[akka.actor.Cancellable] = None
 
-	def addConnection(userId: String, uuid: String, enumerator: Enumerator[JsValue], channel:Concurrent.Channel[JsValue], connectionId:Int) = {
+	def addConnection(userId: String, uuid: String, enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], connectionId: Int) = {
 		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(enumerator, channel, uuid, connectionId)))
 	}
 
@@ -66,34 +66,32 @@ class WallActor(wallId: String) extends Actor {
 		case Join(userId, uuid, timestamp, syncOnce) => {
 			// Create an Enumerator to write to this socket
 			val wallActor = self
-			
+
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("Wall has reached maximum number of connections.")
-			}
-			else {
+			} else {
 				// deactivate shutdown timer if activated
 				shutdownTimer.map { cancellable =>
 					cancellable.cancel()
 					shutdownTimer = None
 				}
-				
+
 				val connectionId = connectionUsage.allocate
-			
-    			lazy val producer: Enumerator[JsValue] = Concurrent.unicast[JsValue](onStart = { channel =>
-    				// update connections map
-					addConnection(userId, uuid, producer, channel, connectionId)	
-    			}, onError = { (msg, input) => 
+
+				lazy val producer: Enumerator[JsValue] = Concurrent.unicast[JsValue](onStart = { channel =>
+					// update connections map
+					addConnection(userId, uuid, producer, channel, connectionId)
+				}, onError = { (msg, input) =>
 					connectionUsage.free(connectionId)
 				})
-    			
-    			val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
-				
+
+				val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
+
 				sender ! Connected(producer, prev, connectionId)
-				
+
 				if (syncOnce) {
 					Logger.info(s"[Wall] user $userId:($uuid) syncing with wall $wallId")
-				}
-				else {
+				} else {
 					Logger.info(s"[Wall] user $userId:($uuid / $connectionId) joined to wall $wallId")
 					Logger.info("[Wall] Number of active connections for wall(" + wallId + "): " + numConnections)
 
@@ -130,15 +128,14 @@ class WallActor(wallId: String) extends Actor {
 							WallLog.listAlterTextRecord(wallId, action.sheetId, action.timestamp)
 						}
 						var pending = action.operations // all mine with > a.timestamp
-						
+
 						records.foreach { record =>
 							if (record.uuid == action.uuid) {
 								// drop already consolidated. 
 								if (pending.head.msgId != record.msgId)
 									Logger.warn(s"pending: ${pending.head.msgId} != record: ${record.msgId}")
 								pending = pending.drop(1)
-							}
-							else { // apply arrived consolidated record
+							} else { // apply arrived consolidated record
 								val ss = new StringWithState(record.baseText)
 								ss.apply(record.operation, 1)
 								// transform pending

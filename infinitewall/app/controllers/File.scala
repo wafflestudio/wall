@@ -19,7 +19,7 @@ import se.digiplant.scalr._
 
 object File extends Controller {
 
-  /*
+	/*
 	def upload = Action(parse.multipartFormData) { request =>
 		
 		var fileList:Seq[JsObject] = List()
@@ -57,21 +57,21 @@ object File extends Controller {
 	}
 	*/
 	//def thumb(file: String) = ScalrResAssets.at(file, 120, 120, mode = "crop", source="fit_to_width")
-	def thumb(file: String, width:Integer, height: Integer) = ScalrAssets.at("public/files", helpers.infiniteWall.decodeURIComponent(file), width, height, "fit_to_width")
+	def thumb(file: String, width: Integer, height: Integer) = ScalrAssets.at("public/files", helpers.infiniteWall.decodeURIComponent(file), width, height, "fit_to_width")
 
-  def serve(filePath: String) = Action {
-    Logger.info("serving file : " + filePath)
-    val file = new java.io.File("public/files/" + helpers.infiniteWall.decodeURIComponent(filePath))
-    if(file.exists)
-      Ok.sendFile(content = file, inline = true)
-    else
-      NotFound("File not found:" + filePath + "(" + helpers.infiniteWall.decodeURIComponent(filePath) + ")")
-  }
-  
-  def serveUserProfilePicture(userId: String) = Action {
-    val url = User.getPictureOrGravatarUrl(userId)
-    
-    Redirect(url)
-  }
+	def serve(filePath: String) = Action {
+		Logger.info("serving file : " + filePath)
+		val file = new java.io.File("public/files/" + helpers.infiniteWall.decodeURIComponent(filePath))
+		if (file.exists)
+			Ok.sendFile(content = file, inline = true)
+		else
+			NotFound("File not found:" + filePath + "(" + helpers.infiniteWall.decodeURIComponent(filePath) + ")")
+	}
+
+	def serveUserProfilePicture(userId: String) = Action {
+		val url = User.getPictureOrGravatarUrl(userId)
+
+		Redirect(url)
+	}
 
 }

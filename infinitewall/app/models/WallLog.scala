@@ -29,8 +29,7 @@ object WallLog extends ActiveRecord[WallLog] {
 				"username" -> email,
 				"detail" -> message,
 				"timestamp" -> timestamp,
-				"basetimestamp" -> basetime
-			)
+				"basetimestamp" -> basetime)
 		}
 	}
 

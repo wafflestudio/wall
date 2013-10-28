@@ -19,7 +19,7 @@ import net.fwbrasil.activate.play.EntityForm._
 import models.ActiveRecord
 import models.ActiveRecord._
 import play.api.i18n.Lang
-import securesocial.core.{Identity, Authorization}
+import securesocial.core.{ Identity, Authorization }
 
 object Application extends Controller with securesocial.core.SecureSocial {
 
@@ -32,19 +32,18 @@ object Application extends Controller with securesocial.core.SecureSocial {
 	}
 
 	def contact = UserAwareAction { implicit request =>
-	    // (name, facebook account)
-	    val members: List[(String, String)] = List(
-          ("Taekmin Kim", "taekmin.kim"), 
-          ("Jaeho Jeon", "serendipitydeity"), 
-          ("Jineok Kim", "Gin1231"), 
-          ("Sungmin Choi", "tini839"), 
-          ("Joosik Yoon", "jooshikyoon"), 
-          ("Won-wook Hong", "wonwook.hong")
-        )
+		// (name, facebook account)
+		val members: List[(String, String)] = List(
+			("Taekmin Kim", "taekmin.kim"),
+			("Jaeho Jeon", "serendipitydeity"),
+			("Jineok Kim", "Gin1231"),
+			("Sungmin Choi", "tini839"),
+			("Joosik Yoon", "jooshikyoon"),
+			("Won-wook Hong", "wonwook.hong"))
 		Ok(views.html.contact(members))
 	}
-	
+
 	def language(locale: String) = UserAwareAction { implicit request =>
-	    Redirect(routes.Application.index()).withLang(Lang(locale))
+		Redirect(routes.Application.index()).withLang(Lang(locale))
 	}
 }
