@@ -8,11 +8,11 @@ navigation.group = Group
 
 navigation.login = Login
 navigation.logout = Logout
-navigation.current_user = Loggined as {0}
+navigation.current_user = Logged in as {0}
 
 navigation.account = Account
 
-language.korean = Korean
+language.korean = 한국어
 language.english = English
 
 user.guest = Guest
