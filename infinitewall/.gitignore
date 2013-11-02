@@ -8,6 +8,7 @@ public/files
 RUNNING_PID
 public/coverage
 screenshot/*.png
+test/worksheet
 
 dist
 infinitewall.h2.db
@@ -33,3 +34,4 @@ nohup.out
 .scala_dependencies
 .ensime
 .sass-cache
+.worksheet
