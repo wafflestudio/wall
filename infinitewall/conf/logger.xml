@@ -3,13 +3,13 @@
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>${application.home}/logs/application.log</file>
         <encoder>
-            <pattern>%date{yy.MM.dd HH:mm:ss} %coloredLevel %-20replace(%caller{3}){'(Caller\+0.*\n)|(Caller\+1.*\n)|(Caller\+2.*\()|(\))|(\n)',''} %replace( %logger{15} -){"\ application\ \-",""} %message%n%xException{5}</pattern>
+            <pattern>%date{yy.MM.dd HH:mm:ss} %coloredLevel %-20replace(%caller{3}){'(Caller\+0.*\n)|(Caller\+1.*\n)|(Caller\+2.*\()|(\))|(\n)',''} %replace( %logger{15} -){"\ application\ \-",""} %message%n%xException{15}</pattern>
             <!-- <pattern>%date - [%level] - from %logger in %thread %n%message%n%xException%n%replace(%caller{3}){'(Caller\+0.*\n)|(Caller\+1.*\n)|(Caller\+2\s)',''}</pattern>-->
         </encoder>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%date{yy.MM.dd HH:mm:ss} %coloredLevel %message [%replace(%caller{3}){'(Caller\+0.*\n)|(Caller\+1.*\n)|(Caller\+2.*\()|(\))|(\n)',''}]%n%xException{5} </pattern>
+            <pattern>%date{yy.MM.dd HH:mm:ss} %coloredLevel %message [%replace(%caller{3}){'(Caller\+0.*\n)|(Caller\+1.*\n)|(Caller\+2.*\()|(\))|(\n)',''}]%n%xException{15} </pattern>
             <!-- Includes component: <pattern>%date{yy.MM.dd HH:mm:ss} %coloredLevel %message [%replace(%logger{15} - ){"\ application\ \-",""}%replace(%caller{3}){'(Caller\+0.*\n)|(Caller\+1.*\n)|(Caller\+2.*\()|(\))|(\n)',''}]%n%xException{5} </pattern>-->
             <!--<pattern>%date{yy.MM.dd HH:mm:ss} %coloredLevel %-20replace(%caller{3}){'(Caller\+0.*\n)|(Caller\+1.*\n)|(Caller\+2.*\()|(\))|(\n)',''} %replace( %logger{15} -){"\ application\ \-",""} %message%n%xException{5}</pattern>-->
         </encoder>
