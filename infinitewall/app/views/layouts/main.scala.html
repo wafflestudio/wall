@@ -1,47 +1,115 @@
-@(title: String)(header: Html)(content: Html, footer: Html = Html(""))(implicit request: RequestHeader, lang: Lang)
+@(title: String)(content: Html)(implicit request: RequestHeader, lang: Lang)
+
+@import securesocial.core.SecureSocial._
 
 <!DOCTYPE html>
-
 <html>
-    <head>
-        <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
-        <script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
-        <meta name="viewport" content="user-scalable=no"/>
-        <meta name="apple-mobile-web-app-capable" content="yes"/>
-    </head>
-    <body>
-      <div class="navbar navbar-fixed-top navbar-inverse">
-        <div class="navbar-inner">
-          <div class="container">
-			  <a href="/" id="logoImage"><img class = "brand" src ="@routes.Assets.at("images/logo.png")"></a>
-        <!--<div id="logoMenu"></div>-->
-            @header
-          </div>
-        </div>
-      </div>
-    
-      <div class="main container">
-      @request.flash.get("msg").map { message =>
-          <div class="alert-success">
-              <p>
-                  <strong> @message </strong>
-              </p>
-          </div>
+	<head>
+		<meta charset="utf-8"/>
+		<meta content='width=device-width, initial-scale=1.0' name='viewport'>
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta content='Infinite Wall' property='og:title'>
+		<meta content='website' property='og:type'>
+		<meta content='http://wall.wafflestudio.com' property='og:url'>
+		<meta content='http://wall.wafflestudio.com/logo.png' property='og:image'>
+		<meta content='Infinite Wall Description' property='og:description'>
+		<meta name="keywords" content="WaffleStudio, 와플스튜디오, 웹개발, Web Development, snuev, 서울대학교" />
+		<meta name="description" content="맛있는 웹을 만드는 동아리, 와플스튜디오입니다." />
+		<meta name="author" content="Wafflestudio" />
+		<meta name="publisher" content="Won-wook Hong" />
+		<title>@title</title>
 
-      }
-      @request.flash.get("error").map { errorMessage =>   
-        <div class="alert-error">
-            <p>
-                <strong> @errorMessage </strong>
-            </p>
-        </div>
-        
-      }
-        @content
-      </div>
-      @footer
-    </body>
+		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
+		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+		<link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
+		<script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
+		<script type = "text/javascript">
+			require(["config"], function() {
+				require(["angularapp", "bootstrap"], function() {
+				})
+			})
+		</script>
+	</head>
+	<body ng-app="WallApp">
+		<!-- Fixed navbar -->
+		<div class="navbar navbar-default navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<!-- <a class="navbar-brand" href="@routes.Application.index" id="logoImage"><img src="@routes.Assets.at("images/logo.png")"></a> -->
+					<a class="navbar-brand" href="@routes.Application.index" id="logoImage">@Messages("application.name")</a>
+				</div>
+				<div class="navbar-collapse collapse" ng-controller="MenuCtrl">
+					<ul class="nav navbar-nav">
+						<li ng-class="{active: isActive('@routes.Application.about')}"><a href="@routes.Application.about">@Messages("navigation.about")</a></li>
+						<li ng-class="{active: isActive('@routes.Application.contact')}"><a href="@routes.Application.contact">@Messages("navigation.contact")</a></li>
+						@if(currentUser.isDefined) {
+						<li ng-class="{active: isActive('@routes.Wall.index')}"><a href="@routes.Wall.index">@Messages("navigation.wall")</a></li>
+						<li ng-class="{active: isActive('@routes.Group.index')}"><a href="@routes.Group.index">@Messages("navigation.group")</a></li>
+						}
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						@if(currentUser.isDefined) {
+						<li></li>
+						<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">@Messages("navigation.current_user", currentUser.get.email.getOrElse(Messages("user.guest"))) <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li>
+							<a href="@routes.Account.index">
+								<span class="glyphicon glyphicon-user"></span>
+								@Messages("navigation.account")
+							</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+							<a href="@securesocial.controllers.routes.LoginPage.logout">
+								<span class="glyphicon glyphicon-cog"></span>
+								@Messages("navigation.logout")
+							</a>
+							</li>
+						</ul>
+						</li>
+						} else {
+						<li ng-class="{active: isActive('@securesocial.controllers.routes.LoginPage.login')}"><a href="@securesocial.controllers.routes.LoginPage.login">@Messages("navigation.login")</a></li>
+						}
+					</ul>
+				</div><!--/.nav-collapse -->
+			</div>
+		</div>
+
+		<div class="container">
+			<!-- Main component for a primary marketing message or call to action -->
+			<div class="jumbotron">
+				<h1>Welcome to InfiniteWall</h1>
+				<p>This example is a quick exercise to illustrate how the default, static and fixed to top navbar work. It includes the responsive CSS and HTML, so it also adapts to your viewport and device.</p>
+				<p>To see the difference between static and fixed top navbars, just scroll.</p>
+				<p>
+				<a class="btn btn-lg btn-primary" href="/">View navbar docs &raquo;</a>
+				</p>
+			</div>
+
+			<div class="row">
+				@request.flash.get("msg").map { message =>
+				<div class="alert-success">
+					<p>
+					<strong> @message </strong>
+					</p>
+				</div>
+				}
+				@request.flash.get("error").map { errorMessage =>   
+				<div class="alert-error">
+					<p>
+					<strong> @errorMessage </strong>
+					</p>
+				</div>
+				}
+			</div>
+			@content
+			@layouts.footer()
+		</div> <!-- /container -->
+	</body>
 </html>

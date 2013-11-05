@@ -14,9 +14,11 @@ resolvers += "scct-github-repository" at "http://mtkopone.github.com/scct/maven-
 
 resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 
+resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases/"
+
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.0")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.1")
 
 addSbtPlugin("org.ensime" % "ensime-sbt-cmd" % "0.1.2")
 
@@ -24,5 +26,11 @@ addSbtPlugin("org.ensime" % "ensime-sbt-cmd" % "0.1.2")
 //addSbtPlugin("reaktor" % "scct" % "0.2-SNAPSHOT")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.6.2")
+
+addSbtPlugin("com.orrsella" % "sbt-sublime" % "1.0.9")
+
+addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.3.2")
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-scalariform" % "1.2.0")
 
 //addSbtPlugin("net.litola" % "play-sass" % "0.1.2" from "http://deity.mintengine.com/play-sass-0.1.2.jar")

@@ -1,6 +1,6 @@
 package securesocial.core.support.securesocial
 
-import _root_.java.util.{Date, UUID}
+import _root_.java.util.{ Date, UUID }
 
 import securesocial.core._
 import providers.Token
@@ -8,13 +8,13 @@ import securesocial.core.IdentityId
 import securesocial.core.PasswordInfo
 import scala.Some
 
-import play.api.{Logger, Application}
+import play.api.{ Logger, Application }
 import securesocial.core._
 import org.joda.time.DateTime
 import securesocial.core.providers.Token
 import securesocial.core.providers.Token
 
-import models.{User, Token => UserToken}
+import models.{ User, Token => UserToken }
 import models.ActiveRecord
 import models.ActiveRecord._
 
@@ -26,10 +26,11 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	def find(id: IdentityId) = {
 		if (Logger.isDebugEnabled) {
 			Logger.debug("find...")
-				Logger.debug("id = %s".format(id.userId))
+			Logger.debug("id = %s".format(id.userId))
 		}
 
-		val socialUser = transactional {User.findById(id.userId).map(user =>
+		val socialUser = transactional {
+			User.findById(id.userId).map(user =>
 				SocialUser(
 					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
@@ -40,9 +41,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					AuthenticationMethod("userPassword"),
 					None,
 					None,
-					Some(PasswordInfo("bcrypt", user.hashedPW, None))
-					)
-			)}
+					Some(PasswordInfo("bcrypt", user.hashedPW, None))))
+		}
 
 		if (Logger.isDebugEnabled) {
 			Logger.debug("socialUser = %s".format(socialUser))
@@ -50,7 +50,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 
 		socialUser
 	} // end find
-
 
 	/**
 	 * findByEmailAndProvider user
@@ -63,7 +62,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 			Logger.debug("providerId = %s".format(providerId))
 		}
 
-		val socialUser = transactional { User.findByEmailAndProvider(email, providerId).map(user =>
+		val socialUser = transactional {
+			User.findByEmailAndProvider(email, providerId).map(user =>
 				SocialUser(
 					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
@@ -74,9 +74,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					AuthenticationMethod("userPassword"),
 					None,
 					None,
-					Some(PasswordInfo("bcrypt", user.hashedPW, None))
-				)
-			)}
+					Some(PasswordInfo("bcrypt", user.hashedPW, None))))
+		}
 
 		if (Logger.isDebugEnabled) {
 			Logger.debug("socialUser = %s".format(socialUser))
@@ -85,19 +84,19 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 		socialUser
 	} // end findByEmailAndProvider
 
-
 	/**
 	 * save user
 	 * (actually save or update)
 	 *
 	 */
-	def save(user: Identity):Identity = {
+	def save(user: Identity): Identity = {
 		if (Logger.isDebugEnabled) {
 			Logger.debug("save...")
 			Logger.debug("user = %s".format(user))
 		}
 
-		val socialUser = transactional { User.findById(user.identityId.userId).map (u =>
+		val socialUser = transactional {
+			User.findById(user.identityId.userId).map(u =>
 				SocialUser(
 					IdentityId(u.id, u.provider.get),
 					u.firstName.get,
@@ -108,9 +107,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					AuthenticationMethod("userPassword"),
 					None,
 					None,
-					Some(PasswordInfo("bcrypt", u.hashedPW, None))
-					)
-			)}
+					Some(PasswordInfo("bcrypt", u.hashedPW, None))))
+		}
 
 		if (Logger.isDebugEnabled) {
 			Logger.debug("socialUser = %s".format(socialUser))
@@ -161,14 +159,15 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 			Logger.debug("token = %s".format(token))
 		}
 
-		val foundToken = transactional { UserToken.findByToken(token).map(userToken =>
+		val foundToken = transactional {
+			UserToken.findByToken(token).map(userToken =>
 				Token(
 					userToken.uuid,
 					userToken.email.get,
 					new DateTime(userToken.createdAt.get),
 					new DateTime(userToken.expireAt.get),
-					userToken.isSignUp.get
-				))}
+					userToken.isSignUp.get))
+		}
 
 		if (Logger.isDebugEnabled) {
 			Logger.debug("foundToken = %s".format(foundToken))
@@ -177,7 +176,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 		foundToken
 	} // end findToken
 
-
 	/**
 	 * deleteToken
 	 *
@@ -185,12 +183,11 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	def deleteToken(uuid: String) {
 		if (Logger.isDebugEnabled) {
 			Logger.debug("deleteToken...")
-				Logger.debug("uuid = %s".format(uuid))
+			Logger.debug("uuid = %s".format(uuid))
 		}
 
 		UserToken.deleteByToken(uuid)
 	} // end deleteToken
-
 
 	/**
 	 * deleteTokens

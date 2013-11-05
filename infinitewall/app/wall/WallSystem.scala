@@ -132,9 +132,8 @@ class WallSystem extends Actor {
 			if (System.currentTimeMillis() - lastAccessedTime(wallId) > WallSystem.shutdownFinalizeTimeout) {
 				Logger.info("shutting down wall actor (" + wallId + ") due to inactivity")
 				wallActors = wallActors - wallId
-				akka.pattern.gracefulStop(sender, 1 seconds)//(context.system)
-			}
-			else
+				akka.pattern.gracefulStop(sender, 1 seconds) //(context.system)
+			} else
 				sender ! RetryFinish
 	}
 }

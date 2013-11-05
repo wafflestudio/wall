@@ -46,15 +46,12 @@ case class AlterTextAction(userId: String, uuid: String, sheetId: String, timest
 				"length" -> last.op.length,
 				"content" -> last.op.content,
 				"msgId" -> last.msgId,
-				"sheetId" -> sheetId
-			),
+				"sheetId" -> sheetId),
 			"undo" -> Json.obj(
 				"from" -> undoOperation.from,
 				"length" -> undoOperation.length,
-				"content" -> undoOperation.content
-			),
-			"uuid" -> uuid
-		)
+				"content" -> undoOperation.content),
+			"uuid" -> uuid)
 
 	}
 }

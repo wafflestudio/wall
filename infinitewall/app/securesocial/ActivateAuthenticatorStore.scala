@@ -1,17 +1,17 @@
 package securesocial.core.support.securesocial
 
-import models.{Authenticator => UserAuthenticator}
+import models.{ Authenticator => UserAuthenticator }
 import models.ActiveRecord
 import models.ActiveRecord._
 
 import play.api.Play.current
 
-import play.api.{Logger, Application}
+import play.api.{ Logger, Application }
 import scala.Error
 import scala.Some
 
 import org.joda.time.DateTime
-import securesocial.core.{Authenticator, IdentityId, AuthenticatorStore}
+import securesocial.core.{ Authenticator, IdentityId, AuthenticatorStore }
 
 class ActivateAuthenticatorStore(app: Application) extends AuthenticatorStore(app) {
 
@@ -48,14 +48,15 @@ class ActivateAuthenticatorStore(app: Application) extends AuthenticatorStore(ap
 			Logger.debug("Find Authenticator with Id = '%s' ...".format(id))
 		}
 
-		val authenticator = transactional { UserAuthenticator.findBySid(id).map (userAuthenticator =>
+		val authenticator = transactional {
+			UserAuthenticator.findBySid(id).map(userAuthenticator =>
 				Authenticator(
 					userAuthenticator.sid,
 					IdentityId(userAuthenticator.user.id, userAuthenticator.provider.get),
 					new DateTime(userAuthenticator.creationDate),
 					new DateTime(userAuthenticator.lastUsed),
-					new DateTime(userAuthenticator.expirationDate)
-				))}
+					new DateTime(userAuthenticator.expirationDate)))
+		}
 
 		Right((authenticator))
 	} // end find

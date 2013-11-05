@@ -1,19 +1,10 @@
-div.main.container {
-  margin-top: 50px;
+body {
+  min-height: 2000px;
+  padding-top: 70px;
 }
 
 form .actions {
 	text-align:center
-}
-
-.navbar .container {
-	width:auto;
-	height:38px;
-}
-
-.navbar .brand {
-	margin-left:-6px;
-	padding:6px 20px 12px;
 }
 
 #logoMenu {
@@ -26,4 +17,9 @@ form .actions {
   -webkit-border-radius: 0 0px 5px 5px;
   -moz-border-radius: 0 0px 5px 5px;
   border-radius: 0 0px 5px 5px;
+}
+
+.contact .col-lg-4 {
+	text-align: center;
+	margin-bottom: 20px;
 }

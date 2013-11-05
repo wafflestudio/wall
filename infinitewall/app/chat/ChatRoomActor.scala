@@ -46,7 +46,7 @@ class ChatRoomActor(roomId: String) extends Actor {
 		(ChatLog.create(kind, roomId, userId, message, when).frozen.timestamp, when)
 	}
 
-	def welcomeMessage(connectionId:Int):Enumerator[JsValue] = {
+	def welcomeMessage(connectionId: Int): Enumerator[JsValue] = {
 		Enumerator(Json.obj(
 			"kind" -> "welcome",
 			"connectionId" -> connectionId,
@@ -56,19 +56,17 @@ class ChatRoomActor(roomId: String) extends Actor {
 						"userId" -> user.id,
 						//"connectionId" -> connection.connectionId,
 						"email" -> user.email,
-						"nickname" -> user.firstName
-					)
+						"nickname" -> user.firstName)
 				}
-			}
-		))
+			}))
 	}
-	
-	def addConnection(userId:String, producer:Enumerator[JsValue], channel:Concurrent.Channel[JsValue], connectionId:Int) = {
+
+	def addConnection(userId: String, producer: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], connectionId: Int) = {
 		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(producer, channel, connectionId)))
 		Logger.info("[Chat] Connection established: " + connections.toString)
 	}
-	
-	def removeConnection(userId:String, connectionId:Int) = {
+
+	def removeConnection(userId: String, connectionId: Int) = {
 		// clear sessions for userid. if none exists for a userid, remove userid key.
 		connections.get(userId).foreach { userConns =>
 			val newUserConns = userConns.filterNot(_.connectionId == connectionId)
@@ -81,8 +79,8 @@ class ChatRoomActor(roomId: String) extends Actor {
 		}
 	}
 
-	def quit(userId: String, producer: Enumerator[JsValue], connectionId:Int) = {
-		
+	def quit(userId: String, producer: Enumerator[JsValue], connectionId: Int) = {
+
 		removeConnection(userId, connectionId)
 
 		val numConnections = connections.foldLeft(0) { (num, connection) =>
@@ -99,17 +97,16 @@ class ChatRoomActor(roomId: String) extends Actor {
 
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("You have reached your maximum number of connections.")
-			}
-			else {
+			} else {
 				val connectionId = connectionUsage.allocate
 				// Create an Enumerator to write to this socket
 				//val producer = Enumerator.imperative[JsValue](onStart = () => self ! NotifyJoin(userId, connectionId))
 				val savedSelf = self
-				lazy val producer:Enumerator[JsValue] = Concurrent.unicast[JsValue](onStart = { channel =>
+				lazy val producer: Enumerator[JsValue] = Concurrent.unicast[JsValue](onStart = { channel =>
 					addConnection(userId, producer, channel, connectionId)
 					ChatRoom.addUser(roomId, userId)
 					self ! NotifyJoin(userId, connectionId)
-				}, onError = { (msg, input) => 
+				}, onError = { (msg, input) =>
 					connectionUsage.free(connectionId)
 				})
 				// previous messages
@@ -154,8 +151,7 @@ class ChatRoomActor(roomId: String) extends Actor {
 					"userId" -> userId,
 					"email" -> email,
 					"message" -> message,
-					"connectionId" -> connectionId
-				)
+					"connectionId" -> connectionId)
 
 			case "join" =>
 				val connectionCountForUser = connections.count(_._1 == userId)
@@ -166,8 +162,7 @@ class ChatRoomActor(roomId: String) extends Actor {
 					"email" -> email,
 					"nickname" -> nickname,
 					"message" -> Json.obj("nickname" -> nickname, "numConnections" -> connectionCountForUser).toString,
-					"connectionId" -> connectionId
-				)
+					"connectionId" -> connectionId)
 			case "quit" =>
 				val connectionCountForUser = connections.count(_._1 == userId)
 
@@ -175,8 +170,7 @@ class ChatRoomActor(roomId: String) extends Actor {
 					"kind" -> kind,
 					"userId" -> userId,
 					"email" -> email,
-					"message" -> Json.obj("numConnections" -> connectionCountForUser).toString
-				)
+					"message" -> Json.obj("numConnections" -> connectionCountForUser).toString)
 		}
 
 		val (timestamp, when) = logMessage(kind, userId, (msg \ "message").as[String])
