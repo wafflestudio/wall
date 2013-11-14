@@ -69,6 +69,8 @@ GET      /dropbox/media                       controllers.Dropbox.media
 GET      /dropbox/files                       controllers.Dropbox.downloadFiles
 POST     /dropbox/files                       controllers.Dropbox.uploadFiles
 
+GET     /sandbox/editor                       controllers.Sandbox.editor
+
 # Image scaling for play-res plugin
 GET    /res/:width/:height/:file      se.digiplant.scalr.ScalrResAssets.at(file, width: Int, height: Int)
 # Image resizing for any folder specified as path parameter (will cache thumbnails using play-res plugin)
@@ -108,3 +110,4 @@ GET     /authenticate/:provider     securesocial.controllers.ProviderController.
 POST    /authenticate/:provider     securesocial.controllers.ProviderController.authenticateByPost(provider)
 GET     /not-authorized             securesocial.controllers.ProviderController.notAuthorized
 ####### Secure Social End
+

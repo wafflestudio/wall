@@ -1,0 +1,25 @@
+@()
+<html>
+<head>
+<title>editor test</title>
+
+<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/editor.css")"></style>
+<script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
+    <script type = "text/javascript">
+      require(["config"], function() {
+        require(["editor", "bootstrap"], function(Editor) {
+          $(function() {
+            new Editor($("#editor"))
+          })
+          
+        })
+      })
+    </script>
+</head>
+
+<body>
+
+  <div id="editor">placeholder</div>
+
+</body>
+</html>
