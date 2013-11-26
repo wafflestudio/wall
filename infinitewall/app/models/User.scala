@@ -65,7 +65,7 @@ object User extends ActiveRecord[User] {
 	}
 
 	def findByEmailAndProvider(email: String, provider: String) = transactional {
-		(select[User] where (_.email :== email, _.provider :== provider))
+		(select[User] where (user => (user.email :== email) :&& (user.provider :== provider)))
 			.headOption
 	}
 
