@@ -46,7 +46,7 @@ play compile
 
 # kill previous server process
 if [ -e RUNNING_PID ]; then
-	kill `cat RUNNING_PID`
+	kill `cat target/universal/stage/RUNNING_PID`
 fi
 # DO it again in more general form for verification
 #ps aux | grep play | awk '{ print $2 }' | xargs -I {} kill {}
