@@ -11,6 +11,8 @@ then
   export ES_HOME=$HOME/elasticsearch-$ES_VERSION
 fi
 
+TARGET_PATH="target/universal/stage"
+
 #clean and compile maven package of elasticsearch korean analysis plugin
 mvn clean package
 
@@ -45,36 +47,44 @@ play clean
 play compile
 
 # kill previous server process
-if [ -e RUNNING_PID ]; then
-	kill `cat target/universal/stage/RUNNING_PID`
+if [ -e $TARGET_PATH/RUNNING_PID ]; then
+	kill `cat $TARGET_PATH/RUNNING_PID`
 fi
 # DO it again in more general form for verification
 #ps aux | grep play | awk '{ print $2 }' | xargs -I {} kill {}
 
-if [ -e infinitewall.h2.db ]; then
-	echo "H2 database already exists."
-else
-	echo "Creating symbolic links to H2 database"
-	if [ -n $INFINITEWALL_H2_PATH ]; then
-		ln -s $INFINITEWALL_H2_PATH/infinitewall.h2.db infinitewall.h2.db
-		ln -s $INFINITEWALL_H2_PATH/infinitewall.trace.db infinitewall.trace.db
-		ln -s $INFINITEWALL_H2_PATH/infinitewall.lock.db infinitewall.lock.db
-	fi
-fi
-
-# use existing files
-if [ $USER == "jenkins_slave" ]; then
-	if [ ! -d "public/files" ]; then
-    ln -s /home/jenkins_slave/infinitewall_custom/public/files public/files
-  fi
-fi
 
 # run tests
 #play test
 
-# start the server
+# create stage
 play stage
-BUILD_ID=0 nohup target/universal/stage/bin/infinitewall -Dhttp.port=9000 -Dhttps.port=9443 -Dhttps.keyStore=conf/scalableidea_com.jks -Dhttps.keyStorePassword="scalableidea302" -DapplyEvolutions.default=false -Dsecuresocial.ssl=true > log.log 2>&1 &
+
+
+if [ $USER == "jenkins_slave" ]; then
+# copy files
+#	if [ -e $TARGET_PATH/infinitewall.h2.db ]; then
+#		echo "H2 database already exists."
+#	else
+#		echo "Creating symbolic links to H2 database"
+#		if [ -n $INFINITEWALL_H2_PATH ]; then
+#			ln -s $INFINITEWALL_H2_PATH/infinitewall.h2.db infinitewall.h2.db
+#			ln -s $INFINITEWALL_H2_PATH/infinitewall.trace.db infinitewall.trace.db
+#			ln -s $INFINITEWALL_H2_PATH/infinitewall.lock.db infinitewall.lock.db
+#		fi
+#	fi
+
+# use existing public/* files
+	if [ ! -d "$TARGET_PATH/public/files" ]; then
+    ln -s /home/jenkins_slave/infinitewall_custom/public/files $TARGET_PATH/public/files
+  fi
+fi
+
+
+
+# start the server
+
+BUILD_ID=0 nohup $TARGET_PATH/bin/infinitewall -Dhttp.port=9000 -Dhttps.port=9443 -Dhttps.keyStore=conf/scalableidea_com.jks -Dhttps.keyStorePassword="scalableidea302" -DapplyEvolutions.default=false -Dsecuresocial.ssl=true > log.log 2>&1 &
 
 # for more detailed configuration:
 #target/start -Dconfig.file=/full/path/to/conf/application-prod.conf
