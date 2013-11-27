@@ -16,8 +16,15 @@ import play.api.libs.json._
 import org.apache.commons.codec.digest.DigestUtils
 import views.html.defaultpages.notFound
 import se.digiplant.scalr._
+import com.typesafe.config.ConfigFactory
 
 object File extends Controller {
+
+	lazy val config = ConfigFactory.load()
+	lazy val rootPath = {
+		val mode = if (play.Play.isProd) "production" else if (play.Play.isDev) "development" else "test"
+		config.getString(s"${mode}.file.rootpath")
+	}
 
 	/*
 	def upload = Action(parse.multipartFormData) { request =>
@@ -57,11 +64,11 @@ object File extends Controller {
 	}
 	*/
 	//def thumb(file: String) = ScalrResAssets.at(file, 120, 120, mode = "crop", source="fit_to_width")
-	def thumb(file: String, width: Integer, height: Integer) = ScalrAssets.at("public/files", helpers.infiniteWall.decodeURIComponent(file), width, height, "fit_to_width")
+	def thumb(file: String, width: Integer, height: Integer) = ScalrAssets.at(rootPath, helpers.infiniteWall.decodeURIComponent(file), width, height, "fit_to_width")
 
 	def serve(filePath: String) = Action {
 		Logger.info("serving file : " + filePath)
-		val file = new java.io.File("public/files/" + helpers.infiniteWall.decodeURIComponent(filePath))
+		val file = new java.io.File(rootPath + "/" + helpers.infiniteWall.decodeURIComponent(filePath))
 		if (file.exists)
 			Ok.sendFile(content = file, inline = true)
 		else
