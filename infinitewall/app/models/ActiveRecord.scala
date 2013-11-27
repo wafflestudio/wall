@@ -3,6 +3,7 @@ package models
 import net.fwbrasil.activate.ActivateContext
 import net.fwbrasil.activate.storage.relational.PooledJdbcRelationalStorage
 import net.fwbrasil.activate.storage.relational.idiom.h2Dialect
+import net.fwbrasil.activate.storage.relational.idiom.postgresqlDialect
 import net.fwbrasil.activate.storage.memory.TransientMemoryStorage
 import net.fwbrasil.activate.entity.Entity
 import scala.reflect.runtime.universe._
@@ -15,16 +16,17 @@ import java.util.Date
 object ActiveRecord extends ActivateContext {
 	lazy val config = ConfigFactory.load()
 	lazy val host = config.getString("smtp.host")
+	lazy val mode = if (play.Play.isProd) "production" else if (play.Play.isDev) "development" else "test"
 
 	if (play.Play.isTest)
 		Logger.info("Activating ActiveRecord in test mode")
 
 	val storage = new PooledJdbcRelationalStorage {
-		val jdbcDriver = "org.h2.Driver"
-		val user = "infinitewall"
-		val password = ""
-		val url = if (play.Play.isTest) "jdbc:h2:mem:infinitewall;DB_CLOSE_DELAY=-1" else "jdbc:h2:activatedwall"
-		val dialect = h2Dialect
+		val jdbcDriver = config.getString(s"${mode}.db.driver")
+		val user = config.getString(s"${mode}.db.user")
+		val password = config.getString(s"${mode}.db.password")
+		val url = config.getString(s"${mode}.db.url")
+		val dialect = if (play.Play.isProd) postgresqlDialect else h2Dialect
 	}
 
 	lazy val sessionToken = transactional {
