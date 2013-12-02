@@ -26,7 +26,11 @@ object ActiveRecord extends ActivateContext {
 		val user = config.getString(s"${mode}.db.user")
 		val password = config.getString(s"${mode}.db.password")
 		val url = config.getString(s"${mode}.db.url")
-		val dialect = if (play.Play.isProd) postgresqlDialect else h2Dialect
+		val dialect = jdbcDriver match {
+			case "org.postgresql.Driver" => postgresqlDialect
+			case "org.h2.Driver" => h2Dialect
+			case _ => h2Dialect
+		}
 	}
 
 	lazy val sessionToken = transactional {

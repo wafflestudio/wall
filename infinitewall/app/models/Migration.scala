@@ -113,3 +113,12 @@ class SetNullFieldForUser extends Migration {
 		}
 	}
 }
+
+class ModifyExistingEmailFieldTypeOfUserTable extends Migration {
+	def timestamp = 201312011811L
+
+	def up = {
+		table[User].modifyColumnType(_.customColumn[String]("email", "varchar(1000)"))
+			.ifExists
+	}
+}
