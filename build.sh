@@ -76,9 +76,9 @@ if [ $USER == "jenkins_slave" ]; then
 
 # use existing h2 database (Dev)
   if [ ! -e "$TARGET_PATH/activatedwall.h2.db" ]; then
-    ln -s activatedwall.h2.db $TARGET_PATH/activatedwall.h2.db
-    ln -s activatedwall.lock.db $TARGET_PATH/activatedwall.lock.db
-    ln -s activatedwall.trace.db $TARGET_PATH/activatedwall.trace.db
+    ln -s `pwd`/activatedwall.h2.db $TARGET_PATH/activatedwall.h2.db
+    ln -s `pwd`/activatedwall.lock.db $TARGET_PATH/activatedwall.lock.db
+    ln -s `pwd`/activatedwall.trace.db $TARGET_PATH/activatedwall.trace.db
   fi
 
 
@@ -86,7 +86,7 @@ if [ $USER == "jenkins_slave" ]; then
 
   if [ ! -d "$TARGET_PATH/public/files" ]; then
     mkdir -p $TARGET_PATH/public
-    ln -s /home/jenkins_slave/infinitewall/public/files $TARGET_PATH/public/files
+    ln -s /home/jenkins_slave/infinitewall/public/files `pwd`/$TARGET_PATH/public/files
   fi
 fi
 
