@@ -75,7 +75,8 @@ if [ $USER == "jenkins_slave" ]; then
 #	fi
 
 # use existing public/* files
-	if [ ! -d "$TARGET_PATH/public/files" ]; then
+  if [ ! -d "$TARGET_PATH/public/files" ]; then
+    mkdir -p $TARGET_PATH/public
     ln -s /home/jenkins_slave/infinitewall/public/files $TARGET_PATH/public/files
   fi
 fi
