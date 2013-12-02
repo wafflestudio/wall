@@ -30,7 +30,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 		}
 
 		val socialUser = transactional {
-			User.findById(id.userId).map(_.frozen).map(user =>
+			User.findById(id.userId).map { user =>
+				Logger.debug(user.toString)
 				SocialUser(
 					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
@@ -41,7 +42,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					AuthenticationMethod("userPassword"),
 					None,
 					None,
-					Some(PasswordInfo("bcrypt", user.hashedPW, None))))
+					Some(PasswordInfo("bcrypt", user.hashedPW, None)))
+			}
 		}
 
 		if (Logger.isDebugEnabled) {

@@ -16,7 +16,6 @@ class User(var email: String,
 		var picturePath: Option[String] = None,
 		var walls: List[Wall] = List(),
 		var permission: String = "Normal",
-
 		var ssid: Option[String] = None,
 		var provider: Option[String] = None,
 		var firstName: Option[String] = None,
