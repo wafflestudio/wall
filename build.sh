@@ -74,7 +74,16 @@ if [ $USER == "jenkins_slave" ]; then
 #		fi
 #	fi
 
+# use existing h2 database (Dev)
+  if [ ! -e "$TARGET_PATH/activatedwall.h2.db" ]; then
+    ln -s activatedwall.h2.db $TARGET_PATH/activatedwall.h2.db
+    ln -s activatedwall.lock.db $TARGET_PATH/activatedwall.lock.db
+    ln -s activatedwall.trace.db $TARGET_PATH/activatedwall.trace.db
+  fi
+
+
 # use existing public/* files
+
   if [ ! -d "$TARGET_PATH/public/files" ]; then
     mkdir -p $TARGET_PATH/public
     ln -s /home/jenkins_slave/infinitewall/public/files $TARGET_PATH/public/files
