@@ -22,13 +22,13 @@ class User(var email: String,
 		var firstName: Option[String] = None,
 		var lastName: Option[String] = None) extends Entity {
 	def frozen = transactional {
-		User.Frozen(id, email, permission, picturePath, ssid, provider, firstName, lastName)
+		User.Frozen(id, email, hashedPW, permission, picturePath, ssid, provider, firstName, lastName)
 	}
 }
 
 object User extends ActiveRecord[User] {
 
-	case class Frozen(id: String, val email: String, val permission: String, val picturePath: Option[String], val ssid: Option[String], provider: Option[String], firstName: Option[String], lastName: Option[String])
+	case class Frozen(id: String, email: String, hashedPW: String, permission: String, picturePath: Option[String], ssid: Option[String], provider: Option[String], firstName: Option[String], lastName: Option[String])
 
 	def getPictureUrl(id: String) = transactional {
 		findById(id).get.picturePath.getOrElse(getGravatar(id)).replaceFirst("public/", "/assets/")

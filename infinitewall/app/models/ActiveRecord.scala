@@ -40,6 +40,7 @@ object ActiveRecord extends ActivateContext {
 		else tokens.map(_.token).head
 	}
 
+	reinitializeContext
 }
 
 class SessionToken(val token: String) extends Entity

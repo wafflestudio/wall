@@ -7,7 +7,7 @@ import net.fwbrasil.activate.entity.Entity
 @Alias("UserAuthenticator") // override with securesocial and activate
 class Authenticator(var sid: String,
 		var user: User,
-		var provider: Option[String] = None,
+		var provider: Option[String],
 		var creationDateSS: Long,
 		var lastUsed: Long,
 		var expirationDate: Long,

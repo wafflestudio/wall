@@ -13,6 +13,6 @@ object Environment extends GlobalSettings {
 		Migration.execute(models.ActiveRecord, new models.DevMigration)
 		//Migration.update(models.ActiveRecord)
 		transactional { /* force loading activate context */ }
-		//    Logger.info("ActiveRecord initialized at: " + ActiveRecord.timestamp.toString)
+		//Logger.info("ActiveRecord initialized at: " + ActiveRecord.timestamp.toString)
 	}
 }

@@ -30,7 +30,7 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 		}
 
 		val socialUser = transactional {
-			User.findById(id.userId).map(user =>
+			User.findById(id.userId).map(_.frozen).map(user =>
 				SocialUser(
 					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
