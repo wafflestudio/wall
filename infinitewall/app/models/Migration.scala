@@ -15,6 +15,8 @@ class CreateInitialTablesMigration extends Migration {
 
 		// make sure TextContent.text made as large
 		table[TextContent].createTable(_.customColumn[String]("text", "CLOB"))
+		// Unknown issue #106
+		table[User].createTable(_.customColumn[String]("email", "VARCHAR(1000)"))
 
 		createTableForAllEntities
 			.ifNotExists
