@@ -31,7 +31,10 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 
 		val socialUser = transactional {
 			User.findById(id.userId).map { user =>
-				Logger.debug(user.toString)
+				val frozen = user.frozen
+				Logger.debug(frozen.toString)
+				frozen
+			}.map { user =>
 				SocialUser(
 					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
