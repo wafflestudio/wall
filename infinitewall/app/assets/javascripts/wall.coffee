@@ -226,11 +226,8 @@ define ["jquery","jquery.transit", "jquery.mousewheel", "movable", "wall", "shee
       @save()
 
     onMouseMove: (e) =>
-      newX = (@startx + e.pageX - @deltax) / stage.zoom
-      newY = (@starty + e.pageY - @deltay) / stage.zoom
-      @mL.fillBuffer(newX, newY)
-      #@mL.x = newX
-      #@mL.y = newY
+      @mL.x = (@startx + e.pageX - @deltax) / stage.zoom
+      @mL.y = (@starty + e.pageY - @deltay) / stage.zoom
       @hasMoved = true
       minimap.refresh()
 
@@ -239,14 +236,12 @@ define ["jquery","jquery.transit", "jquery.mousewheel", "movable", "wall", "shee
       $(document).off 'mousemove', @onMouseMove
       $(document).off 'mouseup', @onMouseUp
       @save()
-      @mL.endFramedMove()
 
       if stage.activeSheet and not @hasMoved
         stage.activeSheet.resignActive()
     
     onMouseDown: (e) =>
-      @mL.startFramedMove()
-
+      console.log e.pageX, e.pageY
       stage.leftClick = true
       @hasMoved = false
       @startx = @mL.x * stage.zoom
