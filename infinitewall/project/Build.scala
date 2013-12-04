@@ -36,6 +36,7 @@ object ApplicationBuild extends Build {
 			resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
 			resolvers += "OSS Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
 			coffeescriptOptions := Seq("native", "coffee -p"),
+            scalaVersion := "2.10.3",
 			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")						
 			).settings(com.typesafe.sbt.SbtScalariform.scalariformSettings: _*)
 			/*.settings(

@@ -16,26 +16,18 @@ import securesocial.core.{ Authenticator, IdentityId, AuthenticatorStore }
 class ActivateAuthenticatorStore(app: Application) extends AuthenticatorStore(app) {
 
 	def save(authenticator: Authenticator): Either[Error, Unit] = {
-		if (Logger.isDebugEnabled) {
-			Logger.debug("Save authenticator [%s]".format(authenticator))
-		}
+		Logger.debug("Save authenticator [%s]".format(authenticator))
 
 		val foundAuthenticator = transactional { UserAuthenticator.findBySid(authenticator.id) }
 
-		if (Logger.isDebugEnabled) {
-			Logger.debug("authenticator = %s".format(foundAuthenticator))
-		}
+		Logger.debug("authenticator = %s".format(foundAuthenticator))
 
 		if (foundAuthenticator == None) { // user not exists
-			if (Logger.isDebugEnabled) {
-				Logger.debug("INSERT")
-			}
+			Logger.debug("INSERT")
 
 			UserAuthenticator.create(authenticator.id, authenticator.identityId.userId, authenticator.identityId.providerId, authenticator.creationDate.getMillis, authenticator.lastUsed.getMillis, authenticator.expirationDate.getMillis)
 		} else { // user exists
-			if (Logger.isDebugEnabled) {
-				Logger.debug("UPDATE")
-			}
+			Logger.debug("UPDATE")
 
 			UserAuthenticator.update(authenticator.id, authenticator.identityId.userId, authenticator.identityId.providerId, authenticator.creationDate.getMillis, authenticator.lastUsed.getMillis, authenticator.expirationDate.getMillis)
 		} // end else
@@ -44,9 +36,7 @@ class ActivateAuthenticatorStore(app: Application) extends AuthenticatorStore(ap
 	} // end save
 
 	def find(id: String): Either[Error, Option[Authenticator]] = {
-		if (Logger.isDebugEnabled) {
-			Logger.debug("Find Authenticator with Id = '%s' ...".format(id))
-		}
+		Logger.debug("Find Authenticator with Id = '%s' ...".format(id))
 
 		val authenticator = transactional {
 			UserAuthenticator.findBySid(id).map(userAuthenticator =>
@@ -62,10 +52,8 @@ class ActivateAuthenticatorStore(app: Application) extends AuthenticatorStore(ap
 	} // end find
 
 	def delete(id: String): Either[Error, Unit] = {
-		if (Logger.isDebugEnabled) {
-			Logger.debug("delete authenticator...")
-			Logger.debug("Authenticator Id = %s".format(id))
-		}
+		Logger.debug("delete authenticator...")
+		Logger.debug("Authenticator Id = %s".format(id))
 
 		transactional { UserAuthenticator.deleteBySid(id) }
 
