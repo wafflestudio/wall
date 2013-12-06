@@ -92,7 +92,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 			case _ =>
 				val consumer = Done[JsValue, Unit]((), Input.EOF)
 				val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
-				Promise.pure(consumer, producer)
+				Future.successful(consumer, producer)
 		}
 	}
 
@@ -108,7 +108,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 	}
 
 	// http receive
-	def listen(wallId: String) = UserAwareAction { implicit request =>
+	def listen(wallId: String) = UserAwareAction.async { implicit request =>
 		import play.api.templates.Html
 		import play.api.libs.concurrent.Execution.Implicits._
 		val params = request.queryString
@@ -117,22 +117,20 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 
 		request.user match {
 			case Some(user) =>
-				Async {
-					WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
-						// force disconnect after 3 seconds
-						val timeoutEnumerator: Enumerator[JsValue] = Enumerator.generateM[JsValue] {
-							Promise.timeout(Some(JsNumber(0)), 3.seconds)
-						}.mapInput {
-							case _ => Input.EOF
-						}
-						timeoutEnumerator.apply(channels._1)
-						// convert to comet stream
-						val stream = channels._2 &> Comet(callback = "triggerOnReceive")
-						Ok.stream(stream)
+				WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
+					// force disconnect after 3 seconds
+					val timeoutEnumerator: Enumerator[JsValue] = Enumerator.generateM[JsValue] {
+						Promise.timeout(Some(JsNumber(0)), 3.seconds)
+					}.mapInput {
+						case _ => Input.EOF
 					}
+					timeoutEnumerator.apply(channels._1)
+					// convert to comet stream
+					val stream = channels._2 &> Comet(callback = "triggerOnReceive")
+					Ok.chunked(stream)
 				}
 			case _ =>
-				Forbidden("Request wall with id " + wallId + " not accessible")
+				Future(Forbidden("Request wall with id " + wallId + " not accessible"))
 		}
 	}
 

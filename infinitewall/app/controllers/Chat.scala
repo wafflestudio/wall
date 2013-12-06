@@ -63,16 +63,14 @@ object Chat extends Controller with securesocial.core.SecureSocial {
 		}
 	}
 
-	def prevMessages(roomId: String) = SecuredAction { implicit request =>
+	def prevMessages(roomId: String) = SecuredAction.async { implicit request =>
 		val params = request.queryString
 		// mandatory params
 		val startTs: Long = params.get("startTs").get(0).toLong
 		val endTs: Long = params.get("endTs").get(0).toLong
 
-		Async {
-			ChatSystem.prevMessages(roomId, startTs, endTs).map { json =>
-				Ok(json)
-			}
+		ChatSystem.prevMessages(roomId, startTs, endTs).map { json =>
+			Ok(json)
 		}
 	}
 
