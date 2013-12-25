@@ -41,15 +41,19 @@ cd ..
 cd infinitewall
 export PATH="$HOME/bin":"$HOME/bin/scala/bin":"`pwd`/Play20":$PATH
 set
-# clean
-play clean
-# compile
-play compile
 
 # kill previous server process
 if [ -e $TARGET_PATH/RUNNING_PID ]; then
 	kill `cat $TARGET_PATH/RUNNING_PID`
 fi
+
+
+# clean
+play clean
+# compile
+play compile
+
+
 # DO it again in more general form for verification
 #ps aux | grep play | awk '{ print $2 }' | xargs -I {} kill {}
 
