@@ -9,7 +9,8 @@ define [
 	"templatefactory",
 	"rangy",
 	"text/texthistory",
-	"hallo"], ($, TextUtil, Operation, StringWithState, RangeUtil, Sheet, TextSheetHandler, TemplateFactory, rangy, TextHistory, hallo) ->
+	"editor",
+	"hallo"], ($, TextUtil, Operation, StringWithState, RangeUtil, Sheet, TextSheetHandler, TemplateFactory, rangy, TextHistory, Editor, hallo) ->
 
 
 	class TextSheet extends Sheet
@@ -28,6 +29,7 @@ define [
 			textTemplate = TemplateFactory.makeTemplate("textSheet")
 			@element = $($(textTemplate).appendTo('#sheetLayer'))
 			
+			# add hallo TODO: remove this
 			@element.find(".sheetTextField").mousedown((evt) =>
 				if @innerElement.hasClass('activeSheet')
 					evt.stopPropagation()
@@ -39,23 +41,26 @@ define [
 					'hallolists': {}
 			})
 			@innerElement = @element.children('.sheet')
-
+			
+		attachHandler: ->
+			@handler = new TextSheetHandler(this)
 
 		constructor: (params, timestamp) ->
 			super(params)
-			textfield = @element.find('.sheetTextField')
 			@contentType = "textSheet"
+			@id = params.sheetId
+			@textfield = @element.find('.sheetTextField')
+
 			#textfield.on 'resize', (e) =>
 				#if $(e.target).height() > @ih
 					#@ih = $(e.target).height()
-			@id = params.sheetId
 			
-			@textfield = textfield
-			@element.find('.sheetTextField').html(params.content)
 			@textfield.html(params.content)
 
 			if @textfield.html() != params.content
 				console.warn("browser altered content! :", @textfield.html(), ":", params.content)
+
+			@textfield.Editor()
 
 			@history = new TextHistory(params.content, timestamp)
 			@savedText = params.content # saved text based on actual textfield value
@@ -63,40 +68,22 @@ define [
 			
 			# activate focus event handlers:
 			$(@textfield).focusin (e)=>
-				console.log("focus text field")
 				@savedRange = RangeUtil.getRange(@textfield)
-				intervalId = setInterval(@detectChangeAndUpdate, 8000)
+				# undo/redo
 				shortcut.onKeydown('ctrl + z, command + z', () => console.log("textsheet undo"); @undo())
 				shortcut.onKeydown('ctrl + shift + z, command + shift + z', () => console.log("textsheet redo"); @redo())
 
 				# deactivate when focused out
 				deactivate = ()=>
-					@detectChangeAndUpdate() # check change for the last time
-					clearInterval(intervalId)
 					@textfield.off 'focusout', deactivate
-					$(@textfield).get(0).normalize()
 
 				$(@textfield).on 'focusout', deactivate
-				e.preventDefault()
 
 			$(@textfield).focusout (e)=>
 				shortcut.onKeydown('ctrl + z, command + z', () => console.log("textsheet undo"); stage.history.undo())
 				shortcut.onKeydown('ctrl + shift + z, command + shift + z', () => console.log("textsheet redo"); stage.history.redo())
 
-			# activate key event handlers
-			$(@textfield).on 'keypress', (e)=>
-				console.log('keypress', e.keyCode, e.which)
-				@detectChangeAndUpdate()
-
-			# check for any update by the browser
-			$(
-				() =>
-					setTimeout @detectChangeAndUpdate
-			,
-			200)
-
-		attachHandler: ->
-			@handler = new TextSheetHandler(this)
+			$(@textfield).on('changeText', @detectChangeAndUpdate)
 
 
 
@@ -104,9 +91,6 @@ define [
 			oldText = @savedText
 
 			currentRange = RangeUtil.getRange(@textfield)
-
-			if not currentRange
-				return
 
 			if !@savedRange or @savedRange[0] != currentRange[0] or @savedRange[1] != currentRange[1]
 				@savedRange = currentRange

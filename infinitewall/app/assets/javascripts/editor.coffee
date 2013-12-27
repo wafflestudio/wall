@@ -1,38 +1,68 @@
-define ["jquery", "underscore"], ($, _) ->
+define ["jquery", "underscore", "text/util", "rangeutil"], ($, _, TextUtil, RangeUtil) ->
 
-  class Editor
 
-    constructor: (el) ->
-      # add contenteditable attr
-      $(el).attr('contenteditable', 'true')
+  $ () ->
 
-      # capture keypress
-      $(el).keypress () ->
-        console.log('keypress')
+      $.fn.Editor = (options) ->
+        @each () ->
+          textfield = $(this)
+          $(textfield).attr('contenteditable', 'true')
 
-      # capture copy & paste
-      $(el).bind 'paste', () -> 
-        console.log('paste')
+          dispatchChangeEvent = () =>
+            console.log('alteration detected')
+            textfield.trigger('changeText')
 
-      # add timer
-      # precheck before sending
-      # throttled
+          # capture copy & paste
+          $(textfield).bind 'paste', () ->
+            console.log('paste')
+            dispatchChangeEvent()
 
-    amend: ()->
-      
-      # overlapping range
-        # <div> | </div> <div> | </div>
-        # cut/paste -> automatically adjusted by browser
-        # check for validity/simplify
+          # activate focus event handlers:
+          $(textfield).focusin (e)=>
+            console.log("focus text field")
+            intervalId = setInterval(dispatchChangeEvent, 8000)
+            # deactivate when focused out
+            deactivate = ()=>
+              dispatchChangeEvent() # check change for the last time
+              clearInterval(intervalId)
+              textfield.off 'focusout', deactivate
+              $(textfield).get(0).normalize()
 
-      # simplify elements
-        # remove javascript and events
-        # <Br>
-        # <li>, <ol><ul>
-        # <p>
-        # <a>
-        # <h1> ~ <h6>
-        # <section> ~ ... (html5)
-        #
+            $(textfield).on 'focusout', deactivate
+            e.preventDefault()
 
-    
+          # activate key event handlers
+          $(textfield).on 'keypress', (e)=>
+            console.log('keypress', e.keyCode, e.which)
+            dispatchChangeEvent()
+
+          # check for any update by the browser
+          $(
+            () =>
+              setTimeout dispatchChangeEvent
+          ,
+          200)
+
+          console.log("initialized Editor plugin")
+
+          # overlapping range
+            # <div> | </div> <div> | </div>
+            # cut/paste -> automatically adjusted by browser
+            # check for validity/simplify
+
+          # simplify elements
+            # remove javascript and attributes events
+            # <Br>
+            # <li>, <ol><ul>
+          
+          # simplify styles
+            # <p>
+            # <a>
+            # <h1> ~ <h6>
+            # <section> ~ ... (html5)
+            #
+
+        this
+
+
+        

@@ -7,9 +7,9 @@
 <script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
     <script type = "text/javascript">
       require(["config"], function() {
-        require(["editor", "bootstrap"], function(Editor) {
+        require(["editor", "bootstrap"], function() {
           $(function() {
-            new Editor($("#editor"))
+            $("#editor").Editor()
           })
           
         })

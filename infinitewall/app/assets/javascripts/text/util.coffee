@@ -26,6 +26,9 @@ define ["./operation"], (Operation) ->
       # add
       # delete
       # replace
+
+      if !range?
+        range = [0, current.length -1]
       
       range[0] = if range[0] <= current.length then range[0] else current.length-1
       range[1] = if range[1] <= current.length then range[1] else current.length-1

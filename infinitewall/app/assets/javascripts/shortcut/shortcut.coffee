@@ -1,4 +1,4 @@
-define ["jquery", "shortcut/keyboard"], ($, KeyboardJS) ->
+define ["jquery", "./keyboard"], ($, KeyboardJS) ->
   class Shortcut
     constructor: ->
       @list = {}
