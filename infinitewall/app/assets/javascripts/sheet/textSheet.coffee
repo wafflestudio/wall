@@ -33,13 +33,15 @@ define [
 			@element.find(".sheetTextField").mousedown((evt) =>
 				if @innerElement.hasClass('activeSheet')
 					evt.stopPropagation()
-			).hallo({
+			)
+			###.hallo({
 				plugins:
 					'halloformat' : {formattings: {"bold": true, "italic": true, "strikethrough": true, "underline": true}}
 					'halloheadings' : {heading: [1,2,3,4,5,6]}
 					'hallojustify' : {}
 					'hallolists': {}
-			})
+			})###
+
 			@innerElement = @element.children('.sheet')
 			
 		attachHandler: ->
