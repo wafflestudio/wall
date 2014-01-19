@@ -1,11 +1,11 @@
 requirejs.config
   #baseUrl: '/assets/javascripts-min/'
   paths: {
-      jquery: 'jquery-2.0.2.min'
-      "jquery-ui": 'jquery-ui.min'
-      "jquery.ui.widget" : "jquery.ui.widget"
-      underscore: "underscore-min"
-      raphael: "raphael-min"
+      jquery: 'webjars!jquery'
+      "jquery-ui": 'webjars!jquery-ui'
+      "jquery.ui.widget" : "webjars!jquery.ui.widget"
+      underscore: "webjars!underscore"
+      raphael: "webjars!raphael"
       "jquery.fileupload": "fileupload/jquery.fileupload"
       #"jquery.fileupload-process": "fileupload/jquery.fileupload-process"
       #"jquery.fileupload-image": "fileupload/jquery.fileupload-image"
@@ -14,8 +14,8 @@ requirejs.config
       #"load-image-exif": "fileupload/load-image-exif"
       #"load-image-ios": "fileupload/load-image-ios"
       "canvas-to-blob": "fileupload/canvas-to-blob"
-      bootstrap: "bootstrap.min"
-      angularjs: "angular"
+      bootstrap: "webjars!bootstrap"
+      angular: "webjars!angular"
   },
   shim: {
       hallo : {

@@ -25,7 +25,17 @@ object ApplicationBuild extends Build {
 			"securesocial" % "securesocial_2.10" % "2.1.2"  exclude("org.scala-stm", "scala-stm_2.10.0"),
 			"org.mindrot" % "jbcrypt" % "0.3m",
 			"org.apache.tika" % "tika-bundle" % "1.2",
-			"se.digiplant" %% "play-scalr" % "1.0.1"
+			"se.digiplant" %% "play-scalr" % "1.0.1",
+            "org.webjars" %% "webjars-play" % "2.2.1",
+            "org.webjars" % "jquery" % "2.0.3-1",
+            "org.webjars" % "jquery-ui" % "1.10.3",
+            "org.webjars" % "jquery-ui-themes" % "1.10.3",
+            "org.webjars" % "angularjs" % "1.2.8",
+            "org.webjars" % "bootstrap" % "3.0.3",
+            "org.webjars" % "raphaeljs" % "2.1.2",
+            "org.webjars" % "underscorejs" % "1.5.2-1",
+            "org.webjars" % "jquery-transit" % "0.9.9",
+            "org.webjars" % "jquery-file-upload" % "9.5.2"
 			)
 
 	val main = play.Project(appName, appVersion, appDependencies).settings(

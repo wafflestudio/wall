@@ -21,7 +21,7 @@
 
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
 		<link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
-		<script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
+		<script data-main='@routes.Assets.at("javascripts/config.js")' type='text/javascript' src='@routes.WebJarAssets.requirejs()'></script>
 		@head
 	</head>
 	<body>
