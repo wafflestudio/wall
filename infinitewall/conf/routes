@@ -111,6 +111,3 @@ POST    /authenticate/:provider     securesocial.controllers.ProviderController.
 GET     /not-authorized             securesocial.controllers.ProviderController.notAuthorized
 ####### Secure Social End
 
-### webjar support (http://www.webjars.org)
-GET     /webjars/*file                    controllers.WebJarAssets.at(file)
-GET     /require.js  controllers.WebJarAssets.requirejs
