@@ -12,8 +12,6 @@ Infinite Wall
 - CoffeeScript compiler (coffee)
 - SASS rails gem
 
-#### Run
-    $ play 
-    [Infinite Wall] $ compile
-    [Infinite Wall] $ run
-    [Infinite Wall] $ ~run # runtime is automatically updated when source changes
+#### Live Demo 
+
+- https://infinitwall.com
