@@ -18,6 +18,7 @@ activatedwall.h2.db
 activatedwall.trace.db
 activatedwall.lock.db
 data/
+conf/*.jks
 
 nohup.out
 *.sublime-project
