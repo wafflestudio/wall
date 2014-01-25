@@ -3,16 +3,17 @@ Infinite Wall
 
 #### Motto
 
-- 인간의 사고를 확장하는 도구.
+- Tool to help expand human minds.
 - Notetaking that scales
 - Ideas that scale
 
 #### Requirements
 
-- coffeescript 컴파일러
-- sass rails gem
+- CoffeeScript compiler (coffee)
+- SASS rails gem
 
-#### 자동 컴파일 및 실행
+#### Run
     $ play 
-    [Infinite Wall] $ compile 
-    [Infinite Wall] $ ~run
+    [Infinite Wall] $ compile
+    [Infinite Wall] $ run
+    [Infinite Wall] $ ~run # runtime is automatically updated when source changes

@@ -6,6 +6,7 @@ navigation.contact = Contact
 navigation.walls = Walls
 navigation.groups = Groups
 
+navigation.signup = Signup
 navigation.login = Login
 navigation.logout = Logout
 navigation.current_user = Logged in as 

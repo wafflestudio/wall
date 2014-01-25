@@ -74,6 +74,8 @@
 						</ul>
 						</li>
 						} else {
+
+						<li ng-class="{active: isActive('@securesocial.controllers.routes.LoginPage.login')}"><a href="@securesocial.controllers.routes.Registration.startSignUp">@Messages("navigation.signup")</a></li>
 						<li ng-class="{active: isActive('@securesocial.controllers.routes.LoginPage.login')}"><a href="@securesocial.controllers.routes.LoginPage.login">@Messages("navigation.login")</a></li>
 						}
 					</ul>
