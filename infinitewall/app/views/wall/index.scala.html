@@ -3,18 +3,21 @@
 @layouts.main("Walls ::: Infinite Wall") {
 <div class="row contact">
 	<div class="col-lg-12">
-	<div class="well">
-		<form method="POST" action="@{routes.Wall.create}" class="form-inline">
-			<div class="input-group">
-				<input name="title" class="form-control" type="text" placeholder="Wall name">
-				<span class="input-group-btn">
-					<button class="btn btn-default" type="button">Create</button>
-				</span>
-			</div><!-- /input-group -->
-		</form>
+		<div class="panel panel-default">
+			<div class="panel-heading">Create new wall</div>
+			<div class="well">
+			<form method="POST" action="@{routes.Wall.create}" class="form-inline">
+				<div class="input-group">
+					<input name="title" class="form-control" type="text" placeholder="Wall name">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button">Create</button>
+					</span>
+				</div><!-- /input-group -->
+			</form>
+			</div>
 		</div>
 		<div class="panel panel-default">
-			<div class="panel-heading">Non Shared Walls</div>
+			<div class="panel-heading">My Walls</div>
 			<div class="panel-body">
 				<div class="list-group">
 					@nonSharedWalls.map { wall =>

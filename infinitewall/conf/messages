@@ -3,12 +3,12 @@ application.name = Infinite Wall
 navigation.home = Home
 navigation.about = About
 navigation.contact = Contact
-navigation.wall = Wall
-navigation.group = Group
+navigation.walls = Walls
+navigation.groups = Groups
 
 navigation.login = Login
 navigation.logout = Logout
-navigation.current_user = Logged in as {0}
+navigation.current_user = Logged in as 
 
 navigation.account = Account
 
