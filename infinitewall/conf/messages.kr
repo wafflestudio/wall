@@ -3,6 +3,7 @@ application.name = 인피니트 월
 navigation.home = 홈
 navigation.about = 소개
 navigation.contact = 개발팀
+navigation.contribute = 참여
 navigation.walls = 월
 navigation.groups = 그룹관리
 
@@ -32,4 +33,7 @@ wall.button_create = 생성
 group.create = 그룹 만들기
 group.groups = 내 그룹
 group.button_create = 생성
+
+contact.members = 팀원
+contact.previousmembers = 이전 팀원
 

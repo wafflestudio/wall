@@ -5,10 +5,10 @@
 	unicode-range:U+AC00–D7AF;
 }
 
-.jumbotron {
+.jumbotron h4 {
 	font-family:'Nanum Myeongjo', 'Unbatang', 'batang', serif
 }
-h1 {
+.jumbotron h1 {
 	font-family:'Nanum Myeongjo', 'Unbatang', 'batang', serif
 }
 
@@ -37,4 +37,8 @@ form .actions {
 .contact .col-lg-4 {
 	text-align: center;
 	margin-bottom: 20px;
+}
+
+footer {
+	color:gray;
 }

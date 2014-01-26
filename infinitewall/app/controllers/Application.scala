@@ -31,6 +31,10 @@ object Application extends Controller with securesocial.core.SecureSocial {
 		Ok(views.html.about())
 	}
 
+	def contribute = UserAwareAction { implicit request =>
+		Ok(views.html.contribute())
+	}
+
 	def contact = UserAwareAction { implicit request =>
 		// (name, facebook account)
 		val members: List[(String, String)] = List(
@@ -42,7 +46,7 @@ object Application extends Controller with securesocial.core.SecureSocial {
 			("Jineok Kim", "Gin1231"),
 			("Sungmin Choi", "tini839"))
 
-		Ok(views.html.contact(members))
+		Ok(views.html.contact(members, prevmembers))
 	}
 
 	def language(locale: String) = UserAwareAction { implicit request =>

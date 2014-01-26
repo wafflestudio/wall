@@ -5,6 +5,7 @@
 # Home page
 GET      /                                    controllers.Application.index
 GET      /about                               controllers.Application.about
+GET      /contribute                               controllers.Application.contribute
 GET      /contact                             controllers.Application.contact
 GET      /language/:locale                    controllers.Application.language(locale: String)
 

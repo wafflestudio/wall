@@ -3,6 +3,7 @@ application.name = Infinite Wall
 navigation.home = Home
 navigation.about = About
 navigation.contact = The Team
+navigation.contribute = Contribute
 navigation.walls = Walls
 navigation.groups = Groups
 
@@ -32,3 +33,17 @@ group.create = Create New Group
 group.groups = My Groups
 group.button_create = Create
 
+contact.members = Current Team
+contact.previousmembers = Previous Members
+
+contribute.title = Contribute
+contribute.header1 = Open Source Project
+contribute.content1 = First started as an internal project in WaffleStudio, we''ve made a progress to make it this far. As there are still much, much more to fulfill ahead, we seek contributions and lovers outside the community to make our beloved project flourish. Developers can fork the source at github and make pull requests for your facinationg improvements. 
+
+contribute.header2 = Join the Team
+contribute.content2 = If you would like to have deeper commitment to the project, please contact us to join the team.
+contribute.header3 = Other Contributions
+contribute.content3 = You can also contribute in various ways. If you are a designer and you'd want to contribute to the design of the project, or if you have a new idea that would bring the experience to a whole new level, please contact us by the official email address. Of course, any other informal discourses and comments in using the app are always welcome. 
+
+
+securesocial.login.forgotPassword = Forgot password
