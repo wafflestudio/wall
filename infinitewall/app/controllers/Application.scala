@@ -36,11 +36,12 @@ object Application extends Controller with securesocial.core.SecureSocial {
 		val members: List[(String, String)] = List(
 			("Taekmin Kim", "taekmin.kim"),
 			("Jaeho Jeon", "serendipitydeity"),
-			// prev members:
-			// ("Jineok Kim", "Gin1231"),
-			// ("Sungmin Choi", "tini839"),
 			("Joosik Yoon", "jooshikyoon"),
 			("Won-wook Hong", "wonwook.hong"))
+		val prevmembers = List(
+			("Jineok Kim", "Gin1231"),
+			("Sungmin Choi", "tini839"))
+
 		Ok(views.html.contact(members))
 	}
 

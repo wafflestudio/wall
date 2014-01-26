@@ -4,21 +4,21 @@
 <div class="row contact">
 	<div class="col-lg-12">
 		<div class="panel panel-default">
-			<div class="panel-heading">Create new group</div>
+			<div class="panel-heading">@Messages("group.create")</div>
 
 			<div class="well">
 			<form method="POST" action="@routes.Group.create" class="form-inline">
 				<div class="input-group">
 					<input name="name" class="form-control" type="text" placeholder="Group name">
 					<span class="input-group-btn">
-						<button class="btn btn-default" type="button">Create</button>
+						<button class="btn btn-default" type="button">@Messages("group.button_create")</button>
 					</span>
 				</div><!-- /input-group -->
 			</form>
 			</div>
 		</div>
 		<div class="panel panel-default">
-			<div class="panel-heading">My Groups</div>
+			<div class="panel-heading">@Messages("group.groups")</div>
 			<div class="panel-body">
 				<div class="list-group">
 					@groups.map { group =>

@@ -1,3 +1,18 @@
+
+/* korean font tweak */
+@font-face {
+	font-family:'Nanum Myeongjo','Unbatang', 'batang',serif;
+	unicode-range:U+AC00–D7AF;
+}
+
+.jumbotron {
+	font-family:'Nanum Myeongjo', 'Unbatang', 'batang', serif
+}
+h1 {
+	font-family:'Nanum Myeongjo', 'Unbatang', 'batang', serif
+}
+
+
 body {
   padding-top: 70px;
   background-color: #292C35

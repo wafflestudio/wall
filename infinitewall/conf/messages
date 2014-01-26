@@ -17,3 +17,18 @@ language.korean = 한국어
 language.english = English
 
 user.guest = Guest
+
+
+content.banner = Welcome to Infinite Wall
+content.banner_sub = Revolutionize your thoughts
+content.button_more = Find out more
+
+wall.create = Create New Wall
+wall.walls = My Walls
+wall.sharedwalls = Shared Walls
+wall.button_create = Create
+
+group.create = Create New Group
+group.groups = My Groups
+group.button_create = Create
+
