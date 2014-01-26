@@ -49,8 +49,8 @@
 						@if(currentUser.isDefined) {
 						<li ng-class="{active: isActive('@routes.Wall.index')}"><a href="@routes.Wall.index">@Messages("navigation.walls")</a></li>
 						<li ng-class="{active: isActive('@routes.Group.index')}"><a href="@routes.Group.index">@Messages("navigation.groups")</a></li>
-						<li ng-class="{active: isActive('@routes.Application.contact')}"><a href="@routes.Application.contact">@Messages("navigation.contact")</a></li>
 						}
+						<li ng-class="{active: isActive('@routes.Application.contact')}"><a href="@routes.Application.contact">@Messages("navigation.contact")</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						@if(currentUser.isDefined) {
