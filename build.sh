@@ -101,7 +101,7 @@ fi
 
 # start the server
 
-BUILD_ID=0 nohup $TARGET_PATH/bin/infinitewall -Dhttp.port=9000 -Dhttps.port=9443 -Dhttps.keyStore=conf/infinitwall_com.jks -Dhttps.keyStorePassword="infinitwall302" -DapplyEvolutions.default=false -Dsecuresocial.ssl=true > log.log 2>&1 &
+BUILD_ID=0 nohup $TARGET_PATH/bin/infinitewall -Dhttp.port=9000 -Dhttps.port=9443 -Dhttps.keyStore=conf/infinitwall_com.jks -Dhttps.keyStorePassword="infinitwall302" -Dhttps.ciphersuites="EECDH+ECDSA+AESGCM,EECDH+aRSA+AESGCM,EECDH+ECDSA+SHA384,EECDH+ECDSA+SHA256,EECDH+aRSA+SHA384,EECDH+aRSA+SHA256 EECDH+aRSA+RC4,EECDH,EDH+aRSA,RC4,!aNULL,!eNULL,!LOW,!3DES,!MD5,!EXP,!PSK,!SRP,!DSS" -DapplyEvolutions.default=false -Dsecuresocial.ssl=true > log.log 2>&1 &
 
 # for more detailed configuration:
 #target/start -Dconfig.file=/full/path/to/conf/application-prod.conf
