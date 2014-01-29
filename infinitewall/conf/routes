@@ -8,6 +8,7 @@ GET      /about                               controllers.Application.about
 GET      /contribute                               controllers.Application.contribute
 GET      /contact                             controllers.Application.contact
 GET      /language/:locale                    controllers.Application.language(locale: String)
+GET      /language2/:lang/:country            controllers.Application.language2(lang:String, country:String)
 
 
 GET      /me                                  controllers.Account.index

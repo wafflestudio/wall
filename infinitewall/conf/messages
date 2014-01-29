@@ -38,12 +38,13 @@ contact.previousmembers = Previous Members
 
 contribute.title = Contribute
 contribute.header1 = Open Source Project
-contribute.content1 = First started as an internal project in WaffleStudio, we''ve made a progress to make it this far. As there are still much, much more to fulfill ahead, we seek contributions and lovers outside the community to make our beloved project flourish. Developers can fork the source at github and make pull requests for your facinationg improvements. 
+contribute.content1 = First started as an internal project in WaffleStudio, we''ve made a progress to make it this far. As there are still much, much more to fulfill ahead, we seek contributions and lovers outside the community to make our beloved project flourish. Developers can fork the source at github and make pull requests for the fixes and improvements. 
 
 contribute.header2 = Join the Team
-contribute.content2 = If you would like to have deeper commitment to the project, please contact us to join the team.
+contribute.content2 = If you would like to have deeper commitment to the project, please contact us to join the team. The team is open to anyone interested, regardless of where you're from, what language you speak as mother tongue (but at least some English or Korean is required).
 contribute.header3 = Other Contributions
-contribute.content3 = You can also contribute in various ways. If you are a designer and you'd want to contribute to the design of the project, or if you have a new idea that would bring the experience to a whole new level, please contact us by the official email address. Of course, any other informal discourses and comments in using the app are always welcome. 
+contribute.content3 = You can also contribute in various ways. If you are a designer and you'd want to contribute to the design of the project, or if you have a new idea that would bring the app experience to a whole new level, please contact us by the official email address. Other discourses and comments in using the app are always welcome. 
 
 
 securesocial.login.forgotPassword = Forgot password
+securesocial.login.title = Login

@@ -46,10 +46,16 @@ object Application extends Controller with securesocial.core.SecureSocial {
 			("Jineok Kim", "Gin1231"),
 			("Sungmin Choi", "tini839"))
 
+		Logger.info(request.acceptLanguages.toString)
 		Ok(views.html.contact(members, prevmembers))
 	}
 
 	def language(locale: String) = UserAwareAction { implicit request =>
 		Redirect(routes.Application.index()).withLang(Lang(locale))
 	}
+
+	def language2(lang: String, country: String) = UserAwareAction { implicit request =>
+		Redirect(routes.Application.index()).withLang(Lang(lang, country))
+	}
+
 }

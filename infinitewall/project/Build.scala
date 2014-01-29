@@ -22,7 +22,7 @@ object ApplicationBuild extends Build {
 			"net.fwbrasil" % "activate-play_2.10" % "1.4.4",  //exclude("org.scala-stm", "scala-stm_2.10.0"),
 			"net.fwbrasil" % "activate-jdbc_2.10" % "1.4.4",  //exclude("org.scala-stm", "scala-stm_2.10.0"),
 			"com.clever-age" % "play2-elasticsearch" % "0.8-SNAPSHOT",  //exclude("org.scala-stm", "scala-stm_2.10.0"),
-			"securesocial" % "securesocial_2.10" % "2.1.2"  exclude("org.scala-stm", "scala-stm_2.10.0"),
+			"ws.securesocial" % "securesocial_2.10" % "2.1.3"  exclude("org.scala-stm", "scala-stm_2.10.0"),
 			"org.mindrot" % "jbcrypt" % "0.3m",
 			"org.apache.tika" % "tika-bundle" % "1.2",
 			"se.digiplant" %% "play-scalr" % "1.0.1"

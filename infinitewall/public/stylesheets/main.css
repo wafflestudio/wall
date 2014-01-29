@@ -15,7 +15,8 @@
 
 body {
   padding-top: 70px;
-  background-color: #292C35
+  background-color: #292C35;
+  word-break:keep-all;
 }
 
 form .actions {
