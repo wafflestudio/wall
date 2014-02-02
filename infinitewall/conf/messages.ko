@@ -48,3 +48,11 @@ contribute.content3 = 이외에도 다양한 방법으로 기여하실 수 있�
 
 securesocial.login.forgotPassword = 비밀번호 찾기
 securesocial.login.title = 로그인
+securesocial.login.instructions = 다음의 SNS 계정을 이용하여 로그인할 수 있습니다.
+securesocial.login.useEmailAndPassword = 혹은 가입한 계정의 이메일과 패스워드를 이용하여 로그인할 수도 있습니다.
+securesocial.login.useEmailAndPasswordOnly = 가입한 계정의 이메일과 패스워드를 입력하세요.
+securesocial.login.signUp = 계정이 필요한 경우 가입은
+securesocial.login.here = 이곳에서.
+securesocial.signup.username = 아이디
+securesocial.signup.email1 = 이메일
+securesocial.signup.password1 = 패스워드

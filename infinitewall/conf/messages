@@ -48,3 +48,11 @@ contribute.content3 = You can also contribute in various ways. If you are a desi
 
 securesocial.login.forgotPassword = Forgot password
 securesocial.login.title = Login
+securesocial.login.instructions = Use your existing account on one of the following networks to log in.
+securesocial.login.useEmailAndPassword = Or log in using username and password.
+securesocial.login.useEmailAndPasswordOnly = Log in with username and password.
+securesocial.login.signUp = If you don't have an account with us yet you can sign up
+securesocial.login.here = here
+securesocial.signup.username = Username 
+securesocial.signup.email1 = Email
+securesocial.signup.password1 = Password

@@ -31,7 +31,10 @@ object Application extends Controller with securesocial.core.SecureSocial {
 		Ok(views.html.about())
 	}
 
+	def logLanguage(implicit lang: Lang) = Logger.info(lang.toString)
+
 	def contribute = UserAwareAction { implicit request =>
+		logLanguage
 		Ok(views.html.contribute())
 	}
 
