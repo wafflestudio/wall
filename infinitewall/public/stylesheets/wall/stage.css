@@ -186,4 +186,10 @@ body {
   left:0;
   width: 1px;
   height: 1px;
+  overflow:visible
+}
+
+/* without it, arrow can be clipped */
+.linkLine svg {
+	overflow:visible !important;
 }

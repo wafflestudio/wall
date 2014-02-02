@@ -7,6 +7,7 @@
 
 .sheet {
 	box-shadow: 5px 5px 8px 3px rgba(0,0,0, 0.15);
+  opacity:0.5;
 }
 
 .sheet[contentType='text']{
