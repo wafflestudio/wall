@@ -56,8 +56,8 @@ define ["EventDispatcher", "jquery"], (EventDispatcher, $) ->
       @socket.onclose = @onClose
 
     send: (msg) ->
-      @socket.send(msg)
       console.info(@scope, "sending #{msg.length} characters", msg)
+      @socket.send(msg)
 
     close: ()->
       @socket.close()

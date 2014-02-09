@@ -193,3 +193,10 @@ body {
 .linkLine svg {
 	overflow:visible !important;
 }
+
+#alert-disconnect {
+  position:absolute;
+  right:30px;
+  margin:5px;
+
+}

@@ -105,6 +105,8 @@ GET     /reset/:token               securesocial.controllers.Registration.resetP
 POST    /reset/:token               securesocial.controllers.Registration.handleResetPassword(token)
 GET     /password                   securesocial.controllers.PasswordChange.page
 POST    /password                   securesocial.controllers.PasswordChange.handlePasswordChange
+# renew session timeout (usually for websockets) 
+GET		/renew						controllers.Application.renewSession
 
 # Providers entry points
 GET     /authenticate/:provider     securesocial.controllers.ProviderController.authenticate(provider)

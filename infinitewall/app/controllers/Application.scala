@@ -57,4 +57,13 @@ object Application extends Controller with securesocial.core.SecureSocial {
 		Redirect(routes.Application.index()).withLang(Lang(locale))
 	}
 
+	def renewSession() = UserAwareAction { implicit request =>
+		request.user match {
+			case Some(user) =>
+				Ok("")
+			case None =>
+				Unauthorized("")
+		}
+	}
+
 }

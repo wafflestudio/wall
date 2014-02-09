@@ -64,6 +64,10 @@ define ["jquery", "EventDispatcher", "websocket"], ($, EventDispatcher, Persiste
       @chatInput.val("")
       @socket.send JSON.stringify({connectionId:@connectionId, text: msg})
 
+    close: ->
+      console.log('close called')
+      @socket.close()
+
     toggle: -> @chatWindow.fadeToggle()
 
     setUsers: (users) ->

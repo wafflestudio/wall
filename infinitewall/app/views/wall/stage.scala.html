@@ -54,12 +54,16 @@
       </div>
     </div>
     <div id = "searchWrapper">
-      <div id = "searchForm">
-        <input type="text" id="searchInput" />
-        <a href="#" id="searchButton">Search</a>
-      </div>
-      <div id = "searchResults">
+        <div class="row">
+            <div class="input-group">
+              <input id="searchInput" type="text" class="form-control">
+              <span class="input-group-btn">
+                <button href="#" id="searchButton" class="btn btn-default" type="button">Search</button>
+              </span>
+            </div>
+        </div>
 
+      <div id = "searchResults">
       </div>
     </div>
 
@@ -103,11 +107,30 @@
     </div>
     -->
 
+
+	<div id="alert-disconnect" class="alert alert-danger alert-dismissable hidden">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		<strong>Disconnected!</strong> You were disconnected. Please refresh the page to reconnect.
+	</div>
+
+
   </div><!-- wallcontainer -->
+
+
 
   <script type = "text/javascript">
   require(["config"], function() {
-  require(["jquery", "stage", "folder/folder_view" ], function($, Stage, FolderView) {
+  require(["jquery", "stage", "folder/folder_view", "bootstrap" ], function($, Stage, FolderView) {
+
+    $(function()
+    {
+        setInterval( function() {    
+            $.get('/renew', function(data, textStatus, xhr) {
+                if(xhr.status != 200)
+                    $('#alert-disconnect').show()
+            })
+        }, 36000) // 3 minutes
+    })
 
     $(function()
     {
