@@ -4,7 +4,7 @@ define ["jquery"], ($) ->
       "<div class='sheetBox' tabindex='-1'>
         <div class='sheet' contentType='image'>
           <div class='sheetTopBar'>
-            <h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>
+            <h1 class='sheetTitle' contenteditable='true'></h1>
           </div>
           <div class='sheetImage'></div>
           <div class='resizeHandleContainer'>
@@ -24,10 +24,10 @@ define ["jquery"], ($) ->
       "<div class='sheetBox' tabindex='-1'>
           <div class='sheet' contentType='text'>
             <!--<div class='sheetTopBar'>-->
-              <!--<h1 class='sheetTitle' contenteditable='true'> New Sheet </h1>-->
+              <!--<h1 class='sheetTitle' contenteditable='true'></h1>-->
             <!--</div>-->
             <div class='sheetText'>
-              <div class='sheetTextField'>
+              <div class='sheetTextField' data-placeholder=' Click or tap to edit '>
               </div>
             </div>
             <div class='resizeHandleContainer'>

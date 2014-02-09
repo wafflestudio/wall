@@ -93,6 +93,15 @@
 	height:100%;
 }
 
+/* placeholder for text sheet */
+.sheetTextField[contentEditable=true]:empty:not(:focus):before 
+{
+	color: #adadad;
+	content:attr(data-placeholder)
+}
+
+
+
 .sheetTextField {
 	width:100%;
   min-height:100%;
