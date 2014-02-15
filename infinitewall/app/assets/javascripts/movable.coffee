@@ -128,15 +128,16 @@ define ["constants"], (Constants) ->
     smoothmove: (endx, endy) ->
       clearTimeout(@timer)
       @timer = setInterval (=>
-        if Math.abs(@x() - endx) < 2 and Math.abs(@y() - endy) < 2
-          @x(endx)
-          @y(endy)
+        if Math.abs(@x - endx) < 2 and Math.abs(@y - endy) < 2
+          @x = endx
+          @y = endy
           clearTimeout(@timer)
 
-        interx = 0.9 * @x() + 0.1 * endx
-        intery = 0.9 * @y() + 0.1 * endy
-        @x(interx)
-        @y(intery)), 5
+        interx = 0.9 * @x + 0.1 * endx
+        intery = 0.9 * @y + 0.1 * endy
+        @x = interx
+        @y = intery
+      ), 5
 
     txy: (x, y, duration, callback) ->
       console.log "txy: ", x, y
