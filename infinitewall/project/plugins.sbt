@@ -16,6 +16,8 @@ resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
+resolvers += Classpaths.sbtPluginReleases
+
 
 // Use the Play sbt plugin for Play projects
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.1")
@@ -32,5 +34,7 @@ addSbtPlugin("com.orrsella" % "sbt-sublime" % "1.0.9")
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.3.2")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-scalariform" % "1.2.0")
+
+addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.95.7")
 
 //addSbtPlugin("net.litola" % "play-sass" % "0.1.2" from "http://deity.mintengine.com/play-sass-0.1.2.jar")
