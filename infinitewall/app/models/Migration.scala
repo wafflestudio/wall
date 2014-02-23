@@ -122,3 +122,4 @@ class ModifyExistingEmailFieldTypeOfUserTable extends Migration {
 			.ifExists
 	}
 }
+

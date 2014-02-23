@@ -13,15 +13,15 @@
 		<meta content='http://wall.wafflestudio.com' property='og:url'>
 		<meta content='http://wall.wafflestudio.com/logo.png' property='og:image'>
 		<meta content='Infinite Wall Description' property='og:description'>
-		<meta name="keywords" content="WaffleStudio, 와플스튜디오, 웹개발, Web Development, snuev, 서울대학교" />
-		<meta name="description" content="맛있는 웹을 만드는 동아리, 와플스튜디오입니다." />
-		<meta name="author" content="Wafflestudio" />
-		<meta name="publisher" content="Won-wook Hong" />
+		<meta name="keywords" content="app,notetaking,collaboration,organizer" />
+		<meta name="description" content="Lets you to organize notes and ideas in a whole new way" />
+		<meta name="publisher" content="Wafflestudio" />
+		<meta name="author" content="Won-wook Hong, Jaeho Jeon, Taekmin Kim, Joosik Yoon" />
 		<title>@title</title>
 
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
 		<link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
-		<script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
+		@Html(org.webjars.play.RequireJS.setup("javascripts/config"))
 		@head
 	</head>
 	<body>

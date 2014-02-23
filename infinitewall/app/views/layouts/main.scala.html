@@ -12,7 +12,7 @@
 		<meta content='website' property='og:type'>
 		<meta content='http://wall.wafflestudio.com' property='og:url'>
 		<meta content='http://wall.wafflestudio.com/logo.png' property='og:image'>
-		<meta content='Infinite Wall property='og:description'>
+		<meta content='Infinite Wall' property='og:description'>
 		<meta name="keywords" content="app,notetaking,collaboration,organizer" />
 		<meta name="description" content="Lets you to organize notes and ideas in a whole new way" />
 		<meta name="publisher" content="Wafflestudio" />
@@ -22,15 +22,15 @@
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
 		<link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
-		<script type="text/javascript" data-main="@routes.Assets.at("javascripts/config.js")" src="@routes.Assets.at("javascripts/require.js")"></script>
+		@Html(org.webjars.play.RequireJS.setup("javascripts/config"))
 		<script type = "text/javascript">
 			require(["config"], function() {
-				require(["angularapp", "bootstrap"], function() {
+				require(["wallApp", "bootstrap"], function() {
 				})
 			})
 		</script>
 	</head>
-	<body ng-app="WallApp">
+	<body>
 		<!-- Fixed navbar -->
 		<div class="navbar navbar-default navbar-fixed-top">
 			<div class="container">

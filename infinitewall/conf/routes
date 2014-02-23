@@ -28,11 +28,14 @@ GET      /chat/log/:roomId                    controllers.Chat.prevMessages(room
 # list walls
 GET      /wall                                controllers.Wall.index
 # create new wall
-POST     /wall		                          controllers.Wall.create
+POST     /wall                                controllers.Wall.create
 # delete wall
-DELETE	 /wall/:wallId                        controllers.Wall.delete(wallId:String)
+DELETE   /wall/:wallId                        controllers.Wall.delete(wallId:String)
 # list walls as tree
 GET      /tree                                controllers.Wall.tree
+
+# static view only page
+#GET      /wall/:wallId/view                   controllers.Wall.view(wallId:String)
 # access wall as stage
 GET      /wall/:wallId                        controllers.Wall.stage(wallId:String)
 
@@ -53,13 +56,16 @@ DELETE   /wall/file/:wallId                   controllers.Wall.deleteFile(wallId
 
 GET      /group                               controllers.Group.index
 GET      /group/:groupId                      controllers.Group.show(groupId:String)
-POST     /group			                      controllers.Group.create
-POST     /group/:groupId/addUser              controllers.Group.addUser(groupId:String)
-GET      /group/:groupId/removeUser/:userId   controllers.Group.removeUser(groupId:String, userId:String)
-POST     /group/:groupId/createWall           controllers.Group.createWall(groupId:String)
-POST     /group/:groupId/addWall              controllers.Group.addWallPost(groupId:String)
-GET      /group/:groupId/addWall/:wallId      controllers.Group.addWall(groupId:String, wallId:String)
-GET      /group/:groupId/removeWall/:wallId   controllers.Group.removeWall(groupId:String, wallId:String)
+POST     /group                               controllers.Group.create
+GET      /group/:groupId/user.json            controllers.Group.getUsers(groupId:String)
+# add user to group with user email
+POST     /group/:groupId/user/with_email      controllers.Group.addUser(groupId:String)
+DELETE   /group/:groupId/user/:userId/id      controllers.Group.removeUser(groupId:String, userId:String)
+GET      /group/:groupId/wall.json            controllers.Group.getWalls(groupId:String)
+GET      /group/:groupId/wall/shared.json     controllers.Group.getSharedWalls(groupId:String)
+POST     /group/:groupId/wall                 controllers.Group.createWall(groupId:String)
+POST     /group/:groupId/wall/:wallId         controllers.Group.addWall(groupId:String, wallId:String)
+DELETE   /group/:groupId/wall/:wallId         controllers.Group.removeWall(groupId:String, wallId:String)
 
 GET      /dropbox/authorize                   controllers.Dropbox.authorize
 GET      /dropbox/callback                    controllers.Dropbox.callback
@@ -77,6 +83,8 @@ GET    /res/:width/:height/:file      se.digiplant.scalr.ScalrResAssets.at(file,
 # Image resizing for any folder specified as path parameter (will cache thumbnails using play-res plugin)
 GET    /scalr/:width/:height/*file    se.digiplant.scalr.ScalrAssets.at(path="/public/files", file, width: Int, height: Int)
 
+# Webjars
+GET      /webjars/*file                    controllers.WebJarAssets.at(file)
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file                        controllers.Assets.at(path="/public", file)
 GET      /upload/*file                        controllers.File.serve(file)
@@ -85,6 +93,7 @@ GET      /thumb/:width/:height/*file   		  controllers.File.thumb(file:String, w
 #GET     /file                 				  controllers.File.info
 #PUT     /file                 				  controllers.File.replace
 #DELETE  /file                 				  controllers.File.delete
+
 
 
 ########################

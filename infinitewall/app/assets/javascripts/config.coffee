@@ -15,7 +15,8 @@ requirejs.config
       #"load-image-ios": "fileupload/load-image-ios"
       "canvas-to-blob": "fileupload/canvas-to-blob"
       bootstrap: "bootstrap.min"
-      angularjs: "angular"
+      angular: "webjars!angular"
+      "angular-route": "webjars!angular-route"
   },
   shim: {
       hallo : {
@@ -55,4 +56,11 @@ requirejs.config
       #"rangy-textrange" : ["rangy-core"]
       #"rangy-cssclassapplier" : ["rangy-core"]
       "rangy-selectionsaverestore" : ["rangy-core"]
+      angular: {
+        exports: "angular"
+        deps: ["jquery"]
+      }
+      "angular-route": {
+        deps: ["angular"]
+      }
   }

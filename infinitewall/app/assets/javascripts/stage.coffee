@@ -45,7 +45,7 @@ define [
     createSheetLink: (params, timestamp) ->
       @sheets[params.fromSheetId].setLink(params)
 
-    constructor: (wallId, timestamp, currentUser, wallSocketURLs, chatURL) ->
+    constructor: (wallId, timestamp, currentUser, wallSocketURLs, chatURL, edit = true) ->
       window.wall = new Wall()
       window.minimap = new Minimap()
       window.menu = new Menu()
@@ -59,43 +59,47 @@ define [
       @stickyMenu = $("#stickyMenu")
       @history = new History()
 
-      shortcut.onKeydown('ctrl + z, command + z', () => console.log("history undo"); @history.undo())
-      shortcut.onKeydown('ctrl + shift + z, command + shift + z', () => console.log("history redo"); @history.redo())
 
       $(document).bind "contextmenu", -> return false
       $(window).resize -> minimap.refresh()
-      $('#fileupload').fileupload  {
-        dataType: 'json'
-        process: [
-          {
-            action: 'loadImage'
-            fileTypes: /^image\/(gif|jpeg|png)$/
-            maxFileSize: 20000000
-          },
-          {
-            action: 'resizeImage'
-            maxWidth: 500
-            maxHeight: 500
-          },
-          {
-            action: 'saveImage'
-          }
-        ]
-        #sequentialUploads: true
-        add: (e, data) ->
-          $.each data.files, (index, file) ->
-            data.context = statusbar.addStatus("#{file.name}", "0%")
-            data.submit()
-        change: (e, data) ->
-          statusbar.instantStatus("Hint: Drag and dropping works! :)", 3500)
-        progress : (e, data) ->
-          progress = parseInt(data.loaded / data.total * 100) + "%"
-          data.context.changeRightText(progress)
-        done : (e, data) ->
-          $.each(data.result, (index, file) ->
-            data.context.changeText("Loading " + file.name, "")
-            ImageSheet.create file.name.replace(/\.[^/.]+$/, ""), "/upload/#{file.name}", =>
-              statusbar.removeStatus(data.context.id, 0)
-              data.context = null
-          )
-      }
+
+
+      if edit
+        shortcut.onKeydown('ctrl + z, command + z', () => console.log("history undo"); @history.undo())
+        shortcut.onKeydown('ctrl + shift + z, command + shift + z', () => console.log("history redo"); @history.redo())
+
+        $('#fileupload').fileupload  {
+          dataType: 'json'
+          process: [
+            {
+              action: 'loadImage'
+              fileTypes: /^image\/(gif|jpeg|png)$/
+              maxFileSize: 20000000
+            },
+            {
+              action: 'resizeImage'
+              maxWidth: 500
+              maxHeight: 500
+            },
+            {
+              action: 'saveImage'
+            }
+          ]
+          #sequentialUploads: true
+          add: (e, data) ->
+            $.each data.files, (index, file) ->
+              data.context = statusbar.addStatus("#{file.name}", "0%")
+              data.submit()
+          change: (e, data) ->
+            statusbar.instantStatus("Hint: Drag and dropping works! :)", 3500)
+          progress : (e, data) ->
+            progress = parseInt(data.loaded / data.total * 100) + "%"
+            data.context.changeRightText(progress)
+          done : (e, data) ->
+            $.each(data.result, (index, file) ->
+              data.context.changeText("Loading " + file.name, "")
+              ImageSheet.create file.name.replace(/\.[^/.]+$/, ""), "/upload/#{file.name}", =>
+                statusbar.removeStatus(data.context.id, 0)
+                data.context = null
+            )
+        }

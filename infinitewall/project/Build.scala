@@ -25,7 +25,10 @@ object ApplicationBuild extends Build {
 			"ws.securesocial" % "securesocial_2.10" % "2.1.3"  exclude("org.scala-stm", "scala-stm_2.10.0"),
 			"org.mindrot" % "jbcrypt" % "0.3m",
 			"org.apache.tika" % "tika-bundle" % "1.2",
-			"se.digiplant" %% "play-scalr" % "1.0.1"
+			"se.digiplant" %% "play-scalr" % "1.0.1",
+            "org.webjars" %% "webjars-play" % "2.2.1-2",
+            "org.webjars" % "requirejs" % "2.1.1",
+            "org.webjars" % "angularjs" % "1.2.13"
 			)
 
 	val main = play.Project(appName, appVersion, appDependencies).settings(
@@ -38,7 +41,8 @@ object ApplicationBuild extends Build {
 			coffeescriptOptions := Seq("native", "coffee -p"),
             scalaVersion := "2.10.3",
 			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
-			).settings(com.typesafe.sbt.SbtScalariform.scalariformSettings: _*)
+			).settings(com.typesafe.sbt.SbtScalariform.scalariformSettings: _*
+            ).settings(play.Project.playScalaSettings: _*)
 			/*.settings(
 				ScctPlugin.instrumentSettings : _*
 			).settings(parallelExecution in ScctPlugin.ScctTest := false

@@ -8,15 +8,15 @@ import ActiveRecord._
 class ResourceTree(val node: TreeNode, val children: Seq[ResourceTree])
 class ResourceLeaf(node: TreeNode) extends ResourceTree(node, List())
 
-class Wall(var name: String, var user: User, var folder: Option[Folder]) extends Entity {
+class Wall(var name: String, var user: User, var folder: Option[Folder], var permission: Permission.PermissionValue = Permission.privateWrite) extends Entity {
 	def frozen = transactional {
-		Wall.Frozen(id, name, user.id, folder.map(_.id))
+		Wall.Frozen(id, name, user.id, folder.map(_.id), permission)
 	}
 }
 
 object Wall extends ActiveRecord[Wall] {
 
-	case class Frozen(id: String, val name: String, userId: String, folderId: Option[String]) extends TreeNode
+	case class Frozen(id: String, val name: String, userId: String, folderId: Option[String], permission: Permission.PermissionValue) extends TreeNode
 
 	def create(userId: String, name: String, folderId: Option[String] = None) = transactional {
 		val user = User.findById(userId).get
@@ -36,8 +36,12 @@ object Wall extends ActiveRecord[Wall] {
 		select[Wall] where (_.user.id :== userId)
 	}
 
-	def isValid(id: String, userId: String) = transactional {
+	def hasEditPermission(id: String, userId: String) = transactional {
 		findAllOwnedByUserId(userId).exists(_.id == id) || User.listSharedWalls(userId).exists(_.id == id)
+	}
+
+	def hasReadPermission(id: String, userId: String) = transactional {
+		hasEditPermission(id, userId)
 	}
 
 	private def buildSubtree(folder: Folder.Frozen, folders: List[Folder.Frozen], walls: List[Wall.Frozen]): ResourceTree = {

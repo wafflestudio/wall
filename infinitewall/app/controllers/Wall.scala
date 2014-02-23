@@ -54,12 +54,32 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 		Ok(resourceTree2Json(tree))
 	}
 
+	def view(wallId: String) = SecuredAction { implicit request =>
+		val wall = transactional { models.Wall.findById(wallId).map(_.frozen) }
+
+		wall match {
+			case Some(w) =>
+				if (models.Wall.hasReadPermission(wallId, request.user.identityId.userId)) {
+					val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
+					val (timestamp, sheets, sheetlinks) =
+						(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
+
+					val pref = WallPreference.findOrCreate(request.user.identityId.userId, wallId).frozen
+					Ok(views.html.wall.view(wallId, w.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
+				} else {
+					Forbidden("Request wall with id " + wallId + " not accessible")
+				}
+			case None =>
+				Forbidden("Request wall with id " + wallId + " not accessible")
+		}
+	}
+
 	def stage(wallId: String) = SecuredAction { implicit request =>
 		val wall = transactional { models.Wall.findById(wallId).map(_.frozen) }
 
 		wall match {
 			case Some(w) =>
-				if (models.Wall.isValid(wallId, request.user.identityId.userId)) {
+				if (models.Wall.hasEditPermission(wallId, request.user.identityId.userId)) {
 					val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
 					val (timestamp, sheets, sheetlinks) =
 						(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
