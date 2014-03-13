@@ -70,7 +70,7 @@ object Wall extends ActiveRecord[Wall] {
 	}
 
 	private def buildTree(folders: List[Folder.Frozen], walls: List[Wall.Frozen]): ResourceTree = {
-
+        // folders positioned directly at root
 		val subfolders = folders.flatMap { folder =>
 			folder.parentId match {
 				case Some(_) => None
@@ -78,6 +78,7 @@ object Wall extends ActiveRecord[Wall] {
 			}
 		}
 
+        // walls positioned directly at root
 		val containedWalls = walls.flatMap { wall =>
 			wall.folderId match {
 				case Some(_) => None
