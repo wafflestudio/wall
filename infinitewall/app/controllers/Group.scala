@@ -14,10 +14,7 @@ object Group extends Controller with securesocial.core.SecureSocial {
 	}
 
 	def show(id: String) = SecuredAction { implicit request =>
-		val users = models.Group.listUsers(id).map(_.frozen)
-		val walls = models.User.listSharedWalls(request.user.identityId.userId).map(_.frozen)
-		val nonSharedWalls = models.User.listNonSharedWalls(request.user.identityId.userId).map(_.frozen)
-		Ok(views.html.group.show(users, walls, nonSharedWalls, id))
+		Ok(views.html.group.show(id))
 	}
 
 	def create = SecuredAction { implicit request =>

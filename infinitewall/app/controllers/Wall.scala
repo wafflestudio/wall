@@ -31,10 +31,22 @@ import org.apache.tika.Tika
 object Wall extends Controller with securesocial.core.SecureSocial {
 
 	def index = SecuredAction { implicit request =>
-		val sharedWalls = models.User.listSharedWalls(request.user.identityId.userId).map(_.frozen)
-		val nonSharedWalls = models.User.listNonSharedWalls(request.user.identityId.userId).map(_.frozen)
-		//val walls = models.User.listNonSharedWalls(request.user.identityId.userId)
-		Ok(views.html.wall.index(nonSharedWalls, sharedWalls))
+		Ok(views.html.wall.index())
+	}
+
+	def getUserWalls = SecuredAction { implicit request =>
+		val walls = models.User.listNonSharedWalls(request.user.identityId.userId).map(_.frozen)
+		Ok(Json.toJson(walls.map { wall =>
+			(wall.id, wall.name)
+		}.toMap))
+	}
+
+	// FIXME: properly show group and wall as folder structure
+	def getSharedWalls = SecuredAction { request =>
+		val walls = models.User.listSharedWalls(request.user.identityId.userId).map(_.frozen)
+		Ok(Json.toJson(walls.map { wall =>
+			(wall.id, wall.name)
+		}.toMap))
 	}
 
 	implicit def resourceTree2Json(implicit tree: ResourceTree): JsValue = {
@@ -95,9 +107,11 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 	}
 
 	def create = SecuredAction { implicit request =>
-		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-		val title = params.get("title").getOrElse(Seq("unnamed"))
-		val wallId = models.Wall.create(request.user.identityId.userId, title(0)).frozen.id
+		val params = request.body.asJson.get
+		Logger.info("create Wall:" + params.toString)
+		val title = (params \ "title").asOpt[String].getOrElse("unnamed")
+
+		val wallId = models.Wall.create(request.user.identityId.userId, title).frozen.id
 		Redirect(routes.Wall.stage(wallId))
 	}
 

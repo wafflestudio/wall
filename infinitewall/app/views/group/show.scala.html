@@ -1,6 +1,6 @@
-@(users:List[User.Frozen], walls:List[models.Wall.Frozen], nonSharedWalls:List[models.Wall.Frozen], groupId:String)(implicit request: RequestHeader, lang: Lang)
+@(groupId:String)(implicit request: RequestHeader, lang: Lang)
 
-@layouts.main("Walls ::: Infinite Wall") {
+@layouts.main("Groups ::: Infinite Wall") {
 <div class="row contact" ng-controller="Groups" ng-init="init('@groupId')">
 
 	<div class="col-lg-12">

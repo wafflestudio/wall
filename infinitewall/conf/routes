@@ -27,6 +27,8 @@ GET      /chat/log/:roomId                    controllers.Chat.prevMessages(room
 ## WALL management
 # list walls
 GET      /wall                                controllers.Wall.index
+GET      /wall.json                           controllers.Wall.getUserWalls
+GET      /wall/shared.json                    controllers.Wall.getSharedWalls
 # create new wall
 POST     /wall                                controllers.Wall.create
 # delete wall

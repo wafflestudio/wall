@@ -7,6 +7,26 @@ define ["jquery", "angularbootstrap"], ($) ->
         console.log parentLocation
         return window.location.pathname.substring(0, parentLocation.length) is parentLocation
     ]
+
+  wallApp.controller 'Walls', ['$scope', '$http', ($scope, $http) ->
+     
+      refresh = () ->
+        $http.get("/wall.json").success (data, status) ->
+          $scope.nonSharedWalls = data
+        $http.get("/wall/shared.json").success (data, status) ->
+          $scope.sharedWalls = data
+
+      $scope.init = () ->
+        refresh()
+      
+      $scope.newWall = {}
+
+      $scope.createWall = () ->
+        $http.post("/wall", $scope.newWall).success (data, status) ->
+          refresh()
+          $scope.newWall.title = ""
+    ]
+
   
   wallApp.controller 'Groups', ['$scope', '$http', ($scope, $http) ->
      
@@ -29,8 +49,6 @@ define ["jquery", "angularbootstrap"], ($) ->
         $http.post("/group/#{$scope.groupId}/user/with_email", $scope.newWall).success (data, status) ->
           refresh()
           $scope.newUser.email = ""
-
-
 
       $scope.createWall = () ->
         $http.post("/group/#{$scope.groupId}/wall", $scope.newWall).success (data, status) ->
