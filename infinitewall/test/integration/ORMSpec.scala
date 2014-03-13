@@ -11,6 +11,6 @@ import java.sql.Timestamp
 import models.ActiveRecord._
 
 class ORMSpec extends Specification {
-  sequential
+	sequential
 
 }

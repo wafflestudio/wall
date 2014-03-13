@@ -18,29 +18,29 @@ import play.Logger
  */
 class ContentSpec extends Specification {
 
-  "Content of a Sheet" should {
-    "be accessed d by common id when the sheet was created" in {
-      running(FakeApplication()) {
-        transactional {
-          User.create("test@wall.com", "password", "test", "test", "test@wall.com", "pa$$word")
-          val user = User.findByEmail("test@wall.com").get
-          val wall = Wall.create(user.id, "test wall")
-          val sheet = Sheet.create(0, 0, 100, 100, "test sheet", ContentType.TextType, "test content", wall.id)
-          val contentId = transactional {
-            select[Content] where(_.sheet :== sheet)
-          }.map { c =>
-            Logger.info(c.id)
-            c.id
-          }.head
-          
-          byId[Content](contentId).map { c=>
-            Logger.info(c.id)
-          }
-          
-          byId[TextContent](contentId).map(c => Logger.info(c.id))
-          true
-        }
-      }
-    }
-  }
+	"Content of a Sheet" should {
+		"be accessed d by common id when the sheet was created" in {
+			running(FakeApplication()) {
+				transactional {
+					User.create("test@wall.com", "password", "test", "test", "test@wall.com", "pa$$word")
+					val user = User.findByEmail("test@wall.com").get
+					val wall = Wall.create(user.id, "test wall")
+					val sheet = Sheet.create(0, 0, 100, 100, "test sheet", ContentType.TextType, "test content", wall.id)
+					val contentId = transactional {
+						select[Content] where (_.sheet :== sheet)
+					}.map { c =>
+						Logger.info(c.id)
+						c.id
+					}.head
+
+					byId[Content](contentId).map { c =>
+						Logger.info(c.id)
+					}
+
+					byId[TextContent](contentId).map(c => Logger.info(c.id))
+					true
+				}
+			}
+		}
+	}
 }
