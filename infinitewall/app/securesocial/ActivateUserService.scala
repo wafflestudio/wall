@@ -27,12 +27,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 		Logger.debug("find...")
 		Logger.debug("id = %s".format(id.userId))
 
-		val socialUser = transactional {
-			User.findById(id.userId).map { user =>
-				val frozen = user.frozen
-				Logger.debug(frozen.toString)
-				frozen
-			}.map { user =>
+		val socialUser =
+			User.findById(id.userId).map(_.frozen).map { user =>
 				SocialUser(
 					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
@@ -45,7 +41,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					None,
 					Some(PasswordInfo("bcrypt", user.hashedPW, None)))
 			}
-		}
 
 		Logger.debug("socialUser = %s".format(socialUser))
 
@@ -61,8 +56,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 		Logger.debug("email = %s".format(email))
 		Logger.debug("providerId = %s".format(providerId))
 
-		val socialUser = transactional {
-			User.findByEmailAndProvider(email, providerId).map(user =>
+		val socialUser =
+			User.findByEmailAndProvider(email, providerId).map(_.frozen).map { user =>
 				SocialUser(
 					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
@@ -73,8 +68,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					AuthenticationMethod("userPassword"),
 					None,
 					None,
-					Some(PasswordInfo("bcrypt", user.hashedPW, None))))
-		}
+					Some(PasswordInfo("bcrypt", user.hashedPW, None)))
+			}
 
 		Logger.debug("socialUser = %s".format(socialUser))
 
@@ -90,8 +85,8 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 		Logger.debug("save...")
 		Logger.debug("user = %s".format(user))
 
-		val socialUser = transactional {
-			User.findById(user.identityId.userId).map(u =>
+		val socialUser =
+			User.findById(user.identityId.userId).map(_.frozen).map(u =>
 				SocialUser(
 					IdentityId(u.id, u.provider.get),
 					u.firstName.get,
@@ -103,7 +98,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					None,
 					None,
 					Some(PasswordInfo("bcrypt", u.hashedPW, None))))
-		}
 
 		Logger.debug("socialUser = %s".format(socialUser))
 
@@ -142,15 +136,14 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 		Logger.debug("findToken...")
 		Logger.debug("token = %s".format(token))
 
-		val foundToken = transactional {
-			UserToken.findByToken(token).map(userToken =>
+		val foundToken =
+			UserToken.findByToken(token).map(_.frozen).map(userToken =>
 				Token(
 					userToken.uuid,
 					userToken.email.get,
 					new DateTime(userToken.createdAt.get),
 					new DateTime(userToken.expireAt.get),
 					userToken.isSignUp.get))
-		}
 
 		Logger.debug("foundToken = %s".format(foundToken))
 
