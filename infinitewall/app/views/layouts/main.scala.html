@@ -40,18 +40,18 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<!-- <a class="navbar-brand" href="@routes.Application.index" id="logoImage"><img src="@routes.Assets.at("images/logo.png")"></a> -->
-					<a class="navbar-brand" href="@routes.Application.index" id="logoImage">@Messages("application.name")</a>
+					<!-- <a class="navbar-brand" href="@routes.ApplicationController.index" id="logoImage"><img src="@routes.Assets.at("images/logo.png")"></a> -->
+					<a class="navbar-brand" href="@routes.ApplicationController.index" id="logoImage">@Messages("application.name")</a>
 				</div>
 				<div class="navbar-collapse collapse" ng-controller="MenuCtrl">
 					<ul class="nav navbar-nav">
-						<li ng-class="{active: isActive('@routes.Application.about')}"><a href="@routes.Application.about">@Messages("navigation.about")</a></li>
+						<li ng-class="{active: isActive('@routes.ApplicationController.about')}"><a href="@routes.ApplicationController.about">@Messages("navigation.about")</a></li>
 						@if(currentUser.isDefined) {
-						<li ng-class="{active: isActive('@routes.Wall.index')}"><a href="@routes.Wall.index">@Messages("navigation.walls")</a></li>
-						<li ng-class="{active: isActive('@routes.Group.index')}"><a href="@routes.Group.index">@Messages("navigation.groups")</a></li>
+						<li ng-class="{active: isActive('@routes.WallController.index')}"><a href="@routes.WallController.index">@Messages("navigation.walls")</a></li>
+						<li ng-class="{active: isActive('@routes.GroupController.index')}"><a href="@routes.GroupController.index">@Messages("navigation.groups")</a></li>
 						}
-						<li ng-class="{active: isActive('@routes.Application.contact')}"><a href="@routes.Application.contact">@Messages("navigation.contact")</a></li>
-						<li ng-class="{active: isActive('@routes.Application.contribute')}"><a href="@routes.Application.contribute">@Messages("navigation.contribute")</a></li>
+						<li ng-class="{active: isActive('@routes.ApplicationController.contact')}"><a href="@routes.ApplicationController.contact">@Messages("navigation.contact")</a></li>
+						<li ng-class="{active: isActive('@routes.ApplicationController.contribute')}"><a href="@routes.ApplicationController.contribute">@Messages("navigation.contribute")</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						@if(currentUser.isDefined) {
@@ -60,7 +60,7 @@
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">@Messages("navigation.current_user") <b>@currentUser.get.email.getOrElse(Messages("user.guest"))</b> <b class="caret"></b></a>
 						<ul class="dropdown-menu">
 							<li>
-							<a href="@routes.Account.index">
+							<a href="@routes.AccountController.index">
 								<span class="glyphicon glyphicon-user"></span>
 								@Messages("navigation.account")
 							</a>

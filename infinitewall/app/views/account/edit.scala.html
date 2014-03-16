@@ -7,7 +7,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">Edit Account</div>
 			<div class="panel-body">
-				@helper.form(action = routes.Account.update(), 'method -> "POST", 'enctype -> "multipart/form-data") {
+				@helper.form(action = routes.AccountController.update(), 'method -> "POST", 'enctype -> "multipart/form-data") {
 				@helper.inputText(userForm("firstName"))
 				@helper.inputText(userForm("lastName"))
 				@helper.inputFile(userForm("photo"))

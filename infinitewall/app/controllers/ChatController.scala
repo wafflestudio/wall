@@ -18,7 +18,7 @@ import play.api.data.validation.Constraints._
 import play.api.libs.concurrent.Execution.Implicits._
 import securesocial.core.{ Identity, Authorization }
 
-object Chat extends Controller with SecureSocial {
+object ChatController extends Controller with SecureSocial {
 
 	// /* For development purpose. Not for production use: */
 	//
@@ -50,7 +50,7 @@ object Chat extends Controller with SecureSocial {
 	def establish(roomId: String) = WebSocket.async[JsValue] { implicit request =>
 		val timestamp: Long = queryParam("timestamp").toLong
 
-		securesocial.core.SecureSocial.currentUser match {
+		currentUser match {
 			case Some(user) =>
 				ChatSystem.establish(roomId, user.identityId.userId, Some(timestamp))
 			case None =>

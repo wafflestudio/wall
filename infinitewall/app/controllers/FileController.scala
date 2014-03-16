@@ -18,7 +18,7 @@ import views.html.defaultpages.notFound
 import se.digiplant.scalr._
 import com.typesafe.config.ConfigFactory
 
-object File extends Controller {
+object FileController extends Controller {
 
 	lazy val config = ConfigFactory.load()
 	lazy val rootPath = {

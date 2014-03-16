@@ -15,7 +15,7 @@ import models.ActiveRecord._
 
 case class AccountParam(firstName: String, lastName: String)
 
-object Account extends Controller with securesocial.core.SecureSocial {
+object AccountController extends Controller with securesocial.core.SecureSocial {
 	val userForm: Form[AccountParam] = Form(
 		mapping(
 			"firstName" -> nonEmptyText,
@@ -41,7 +41,7 @@ object Account extends Controller with securesocial.core.SecureSocial {
 							User.setPicture(currentUser.email.getOrElse(""), photo.filename)
 						}
 						User.update(currentUser.email.getOrElse(""), user.firstName, user.lastName)
-						Redirect(routes.Account.edit())
+						Redirect(routes.AccountController.edit())
 					})
 			}
 			case _ => Unauthorized

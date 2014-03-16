@@ -6,7 +6,7 @@ import play.api.libs.json._
 import play.api.Play.current
 import play.api.db.DB
 
-object Folder extends Controller with SecureSocial {
+object FolderController extends Controller with SecureSocial {
 	def create(parentId: String = "") = SecuredAction { implicit request =>
 		val name = jsonParam("name")
 

@@ -3,91 +3,91 @@
 # ~~~~
 
 # Home page
-GET      /                                    controllers.Application.index
-GET      /about                               controllers.Application.about
-GET      /contribute                               controllers.Application.contribute
-GET      /contact                             controllers.Application.contact
-GET      /language/:locale                    controllers.Application.language(locale: String)
+GET      /                                    controllers.ApplicationController.index
+GET      /about                               controllers.ApplicationController.about
+GET      /contribute                               controllers.ApplicationController.contribute
+GET      /contact                             controllers.ApplicationController.contact
+GET      /language/:locale                    controllers.ApplicationController.language(locale: String)
 
 
-GET      /me                                  controllers.Account.index
-GET      /me/edit                             controllers.Account.edit
-POST     /me                             	  controllers.Account.update
-GET      /users/:userId/profile               controllers.File.serveUserProfilePicture(userId: String)
+GET      /me                                  controllers.AccountController.index
+GET      /me/edit                             controllers.AccountController.edit
+POST     /me                             	  controllers.AccountController.update
+GET      /users/:userId/profile               controllers.FileController.serveUserProfilePicture(userId: String)
 
 
 # Chat routes available only for testing
-# GET     /chat                       		  controllers.Chat.index
-# GET     /chat/:roomId               		  controllers.Chat.room(roomId:Long)
-# POST    /chat/create                		  controllers.Chat.create
-GET      /chat/establish/:roomId              controllers.Chat.establish(roomId:String)
-GET      /chat/log/:roomId                    controllers.Chat.prevMessages(roomId:String)
+# GET     /chat                       		  controllers.ChatController.index
+# GET     /chat/:roomId               		  controllers.ChatController.room(roomId:Long)
+# POST    /chat/create                		  controllers.ChatController.create
+GET      /chat/establish/:roomId              controllers.ChatController.establish(roomId:String)
+GET      /chat/log/:roomId                    controllers.ChatController.prevMessages(roomId:String)
 
 
 ## FOLDER management
 # create new folder 
-POST     /folder/:parentId                    controllers.Folder.create(parentId:String)
+POST     /folder/:parentId                    controllers.FolderController.create(parentId:String)
 # delete folder
-DELETE   /folder/:folderId                    controllers.Folder.delete(folderId:String)
+DELETE   /folder/:folderId                    controllers.FolderController.delete(folderId:String)
 # move folder to new position
-PUT      /folder/:folderId/moveTo/:parentId               controllers.Folder.move(folderId:String, parentId:String)
+PUT      /folder/:folderId/moveTo/:parentId               controllers.FolderController.move(folderId:String, parentId:String)
 # rename folder
-PUT      /folder/:folderId/rename             controllers.Folder.rename(folderId:String)
+PUT      /folder/:folderId/rename             controllers.FolderController.rename(folderId:String)
 
 
 ## WALL management
 # list walls
-GET      /wall                                controllers.Wall.index
-GET      /wall.json                           controllers.Wall.getUserWalls
-GET      /wall/shared.json                    controllers.Wall.getSharedWalls
+GET      /wall                                controllers.WallController.index
+GET      /wall.json                           controllers.WallController.getUserWalls
+GET      /wall/shared.json                    controllers.WallController.getSharedWalls
 # create new wall
-POST     /wall                                controllers.Wall.create
+POST     /wall                                controllers.WallController.create
 # delete wall
-DELETE   /wall/:wallId                        controllers.Wall.delete(wallId:String)
+DELETE   /wall/:wallId                        controllers.WallController.delete(wallId:String)
 # list walls as tree
-GET      /tree                                controllers.Wall.tree
+GET      /tree                                controllers.WallController.tree
 
 # static view only page
-#GET      /wall/:wallId/view                   controllers.Wall.view(wallId:String)
+#GET      /wall/:wallId/view                   controllers.WallController.view(wallId:String)
 # access wall as stage
-GET      /wall/:wallId                        controllers.Wall.stage(wallId:String)
+GET      /wall/:wallId                        controllers.WallController.stage(wallId:String)
 
 # websocket API
-GET      /wall/sync/:wallId                   controllers.Wall.sync(wallId:String)
+GET      /wall/sync/:wallId                   controllers.WallController.sync(wallId:String)
 # HTTP API
-GET      /wall/comet/:wallId                  controllers.Wall.listen(wallId:String)
-POST     /wall/comet/:wallId                  controllers.Wall.speak(wallId:String)
+GET      /wall/comet/:wallId                  controllers.WallController.listen(wallId:String)
+POST     /wall/comet/:wallId                  controllers.WallController.speak(wallId:String)
 # misc. 
-POST     /wall/view/:wallId                   controllers.Wall.setView(wallId:String)
-GET      /wall/search/:wallId/:keyword        controllers.Wall.search(wallId:String, keyword:String)
+POST     /wall/view/:wallId                   controllers.WallController.setView(wallId:String)
+GET      /wall/search/:wallId/:keyword        controllers.WallController.search(wallId:String, keyword:String)
 
 
-POST     /wall/file/:wallId                   controllers.Wall.uploadFile(wallId:String)
-GET      /wall/file/:wallId                   controllers.Wall.infoFile(wallId:String)
-PUT      /wall/file/:wallId                   controllers.Wall.replaceFile(wallId:String)
-DELETE   /wall/file/:wallId                   controllers.Wall.deleteFile(wallId:String)
+POST     /wall/file/:wallId                   controllers.WallController.uploadFile(wallId:String)
+GET      /wall/file/:wallId                   controllers.WallController.infoFile(wallId:String)
+PUT      /wall/file/:wallId                   controllers.WallController.replaceFile(wallId:String)
+DELETE   /wall/file/:wallId                   controllers.WallController.deleteFile(wallId:String)
 
-GET      /group                               controllers.Group.index
-GET      /group/:groupId                      controllers.Group.show(groupId:String)
-POST     /group                               controllers.Group.create
-GET      /group/:groupId/user.json            controllers.Group.getUsers(groupId:String)
+GET      /group                               controllers.GroupController.index
+GET      /group/:groupId                      controllers.GroupController.show(groupId:String)
+POST     /group                               controllers.GroupController.create
+GET      /group/:groupId/user.json            controllers.GroupController.getUsers(groupId:String)
 # add user to group with user email
-POST     /group/:groupId/user/with_email      controllers.Group.addUser(groupId:String)
-DELETE   /group/:groupId/user/:userId/id      controllers.Group.removeUser(groupId:String, userId:String)
-GET      /group/:groupId/wall.json            controllers.Group.getWalls(groupId:String)
-GET      /group/:groupId/wall/shared.json     controllers.Group.getSharedWalls(groupId:String)
-POST     /group/:groupId/wall                 controllers.Group.createWall(groupId:String)
-POST     /group/:groupId/wall/:wallId         controllers.Group.addWall(groupId:String, wallId:String)
-DELETE   /group/:groupId/wall/:wallId         controllers.Group.removeWall(groupId:String, wallId:String)
+POST     /group/:groupId/user/with_email      controllers.GroupController.addUser(groupId:String)
+DELETE   /group/:groupId/user/:userId/id      controllers.GroupController.removeUser(groupId:String, userId:String)
+GET      /group/:groupId/wall.json            controllers.GroupController.getWalls(groupId:String)
+GET      /group/:groupId/wall/shared.json     controllers.GroupController.getSharedWalls(groupId:String)
+POST     /group/:groupId/wall                 controllers.GroupController.createWall(groupId:String)
+POST     /group/:groupId/wall/:wallId         controllers.GroupController.addWall(groupId:String, wallId:String)
+DELETE   /group/:groupId/wall/:wallId         controllers.GroupController.removeWall(groupId:String, wallId:String)
 
-GET      /dropbox/authorize                   controllers.Dropbox.authorize
-GET      /dropbox/callback                    controllers.Dropbox.callback
-GET      /dropbox/account/info                controllers.Dropbox.account
-GET      /dropbox/metadata                    controllers.Dropbox.metadata
-GET      /dropbox/shares                      controllers.Dropbox.shares
-GET      /dropbox/media                       controllers.Dropbox.media
-GET      /dropbox/files                       controllers.Dropbox.downloadFiles
-POST     /dropbox/files                       controllers.Dropbox.uploadFiles
+GET      /dropbox/authorize                   controllers.DropboxController.authorize
+GET      /dropbox/callback                    controllers.DropboxController.callback
+GET      /dropbox/account/info                controllers.DropboxController.account
+GET      /dropbox/metadata                    controllers.DropboxController.metadata
+GET      /dropbox/shares                      controllers.DropboxController.shares
+GET      /dropbox/media                       controllers.DropboxController.media
+GET      /dropbox/files                       controllers.DropboxController.downloadFiles
+POST     /dropbox/files                       controllers.DropboxController.uploadFiles
 
 GET     /sandbox/editor                       controllers.Sandbox.editor
 
@@ -100,12 +100,12 @@ GET    /scalr/:width/:height/*file    se.digiplant.scalr.ScalrAssets.at(path="/p
 GET      /webjars/*file                    controllers.WebJarAssets.at(file)
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file                        controllers.Assets.at(path="/public", file)
-GET      /upload/*file                        controllers.File.serve(file)
-GET      /thumb/:width/:height/*file   		  controllers.File.thumb(file:String, width:Integer, height:Integer)
-#POST    /file                 				  controllers.File.upload
-#GET     /file                 				  controllers.File.info
-#PUT     /file                 				  controllers.File.replace
-#DELETE  /file                 				  controllers.File.delete
+GET      /upload/*file                        controllers.FileController.serve(file)
+GET      /thumb/:width/:height/*file   		  controllers.FileController.thumb(file:String, width:Integer, height:Integer)
+#POST    /file                 				  controllers.FileController.upload
+#GET     /file                 				  controllers.FileController.info
+#PUT     /file                 				  controllers.FileController.replace
+#DELETE  /file                 				  controllers.FileController.delete
 
 
 
@@ -128,7 +128,7 @@ POST    /reset/:token               securesocial.controllers.Registration.handle
 GET     /password                   securesocial.controllers.PasswordChange.page
 POST    /password                   securesocial.controllers.PasswordChange.handlePasswordChange
 # renew session timeout (usually for websockets) 
-GET		/renew						controllers.Application.renewSession
+GET		/renew						controllers.ApplicationController.renewSession
 
 # Providers entry points
 GET     /authenticate/:provider     securesocial.controllers.ProviderController.authenticate(provider)

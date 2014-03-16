@@ -18,7 +18,7 @@ import com.typesafe.config._
 import scala.collection.JavaConversions._
 import play.api.libs.json._
 
-object Dropbox extends Controller {
+object DropboxController extends Controller {
 
 	// get request_token, secret(=oauth_token, secret) and generate access_token
 	def authorize() = Action { request =>
@@ -60,7 +60,7 @@ object Dropbox extends Controller {
 				new AccessTokenPair(accessKey, accessSecret)
 			}
 
-		Redirect(routes.Account.index).withSession(request.session + ("access_key" -> accessTokenPair.key) + ("access_secret" -> accessTokenPair.secret))
+		Redirect(routes.AccountController.index).withSession(request.session + ("access_key" -> accessTokenPair.key) + ("access_secret" -> accessTokenPair.secret))
 	}
 
 	// /account/info

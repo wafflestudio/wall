@@ -21,7 +21,7 @@ import models.ActiveRecord._
 import play.api.i18n.Lang
 import securesocial.core.{ Identity, Authorization }
 
-object Application extends Controller with SecureSocial {
+object ApplicationController extends Controller with SecureSocial {
 
 	def index = UserAwareAction { implicit request =>
 		Ok(views.html.index())
@@ -54,7 +54,7 @@ object Application extends Controller with SecureSocial {
 	}
 
 	def language(locale: String) = UserAwareAction { implicit request =>
-		Redirect(routes.Application.index()).withLang(Lang(locale))
+		Redirect(routes.ApplicationController.index()).withLang(Lang(locale))
 	}
 
 	def renewSession() = UserAwareAction { implicit request =>

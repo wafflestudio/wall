@@ -28,7 +28,7 @@ import play.api.libs.Comet
 import scala.concurrent.Future
 import org.apache.tika.Tika
 
-object Wall extends Controller with SecureSocial {
+object WallController extends Controller with SecureSocial {
 
 	def index = SecuredAction { implicit request =>
 		Ok(views.html.wall.index())
@@ -111,14 +111,14 @@ object Wall extends Controller with SecureSocial {
 		val title = (jsonParams \ "title").asOpt[String].getOrElse("unnamed")
 
 		val wallId = models.Wall.create(currentUserId, title).frozen.id
-		Redirect(routes.Wall.stage(wallId))
+		Redirect(routes.WallController.stage(wallId))
 	}
 
 	def sync(wallId: String) = WebSocket.async[JsValue] { implicit request =>
 		val uuid = queryParam("uuid")
 		val timestamp = queryParam("timestamp").toLong
 
-		securesocial.core.SecureSocial.currentUser match {
+		currentUser match {
 			case Some(user) =>
 				WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp)
 			case _ =>

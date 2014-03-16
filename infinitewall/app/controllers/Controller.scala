@@ -43,6 +43,8 @@ class Controller extends play.api.mvc.Controller {
 
 trait SecureSocial extends securesocial.core.SecureSocial { self: Controller =>
 
+	def currentUser(implicit header: RequestHeader) = securesocial.core.SecureSocial.currentUser
+
 	def currentUserId(implicit request: SecuredRequest[AnyContent]) = request.user.identityId.userId
 
 }

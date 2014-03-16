@@ -6,7 +6,7 @@ import play.api.libs.json._
 import play.api.Play.current
 import play.api.db.DB
 
-object Group extends Controller with SecureSocial {
+object GroupController extends Controller with SecureSocial {
 
 	def index = SecuredAction { implicit request =>
 		val groups = models.User.listGroups(currentUserId).map(_.frozen)
@@ -21,7 +21,7 @@ object Group extends Controller with SecureSocial {
 		val name = formParam("name")
 		val groupId = models.Group.createForUser(name, currentUserId).frozen.id
 		models.Group.addUser(groupId, request.user.identityId.userId)
-		Redirect(routes.Group.show(groupId))
+		Redirect(routes.GroupController.show(groupId))
 	}
 
 	def getUsers(groupId: String) = SecuredAction { implicit request =>
@@ -46,7 +46,7 @@ object Group extends Controller with SecureSocial {
 				Logger.info(u.email)
 				models.Group.addUser(groupId, u.id)
 			}
-			Redirect(routes.Group.show(groupId))
+			Redirect(routes.GroupController.show(groupId))
 		} else {
 			Forbidden("Invalid Request")
 		}
@@ -63,7 +63,7 @@ object Group extends Controller with SecureSocial {
 			Logger.info(w.name)
 			models.Group.addWall(groupId, w.id)
 		}
-		Redirect(routes.Wall.stage(wallId))
+		Redirect(routes.WallController.stage(wallId))
 	}
 
 	def addWallPost(groupId: String) = SecuredAction { implicit request =>
@@ -74,7 +74,7 @@ object Group extends Controller with SecureSocial {
 			wall.map { w =>
 				models.Group.addWall(groupId, w.id)
 			}
-			Redirect(routes.Group.show(groupId))
+			Redirect(routes.GroupController.show(groupId))
 		} else {
 			Forbidden("Invalid Request")
 		}
@@ -103,7 +103,7 @@ object Group extends Controller with SecureSocial {
 			wall.map { w =>
 				models.Group.addWall(groupId, w.id)
 			}
-			Redirect(routes.Group.show(groupId))
+			Redirect(routes.GroupController.show(groupId))
 		} else {
 			Forbidden("Invalid Request")
 		}
@@ -111,12 +111,12 @@ object Group extends Controller with SecureSocial {
 
 	def removeUser(groupId: String, userId: String) = SecuredAction { implicit request =>
 		models.Group.removeUser(groupId, userId)
-		Redirect(routes.Group.show(groupId))
+		Redirect(routes.GroupController.show(groupId))
 	}
 
 	def removeWall(groupId: String, wallId: String) = SecuredAction { implicit request =>
 		models.Group.removeWall(groupId, wallId)
-		Redirect(routes.Group.show(groupId))
+		Redirect(routes.GroupController.show(groupId))
 	}
 
 	def rename(id: String, name: String) = SecuredAction { implicit request =>

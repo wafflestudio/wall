@@ -30,7 +30,7 @@
       <div id = "menuBar">
         <a href = "/me">
           <div id = "profileButton" class = "menuButton">
-            <div id = "profilePic" style="background-image:url(@routes.File.serveUserProfilePicture(currentUser.get.identityId.userId))"></div>
+            <div id = "profilePic" style="background-image:url(@routes.FileController.serveUserProfilePicture(currentUser.get.identityId.userId))"></div>
             <div id = "nickname">@currentUser.get.fullName</div>
           </div>
         </a>
@@ -147,10 +147,10 @@
     $(function() {
       // open sockets
       var wallURLs = { 
-        websocket: "@routes.Wall.sync(wallId).webSocketURL()", 
-        speak: "@routes.Wall.speak(wallId)", 
-        listen: "@routes.Wall.listen(wallId)" }
-      var chatURL = "@routes.Chat.establish(chatId).webSocketURL()"
+        websocket: "@routes.WallController.sync(wallId).webSocketURL()", 
+        speak: "@routes.WallController.speak(wallId)", 
+        listen: "@routes.WallController.listen(wallId)" }
+      var chatURL = "@routes.ChatController.establish(chatId).webSocketURL()"
 
       // prepare stage
       window.stage = new Stage("@wallId", @timestamp, "@currentUser.get.email", wallURLs, chatURL)

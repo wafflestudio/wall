@@ -40,7 +40,7 @@
 				@user.passwordInfo.map { info =>
 				<a class="btn btn-default" href="@securesocial.core.providers.utils.RoutesHelper.changePasswordPage.absoluteURL(IdentityProvider.sslEnabled)">Change Password</a>
 				}
-				<a class="btn btn-default" href="@routes.Account.edit">Edit Account</a>
+				<a class="btn btn-default" href="@routes.AccountController.edit">Edit Account</a>
 				<a class="btn btn-default" href="@securesocial.controllers.routes.LoginPage.logout()">Logout</a>
 			</div>
 		</div>
