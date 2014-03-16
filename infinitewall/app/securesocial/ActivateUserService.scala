@@ -1,25 +1,12 @@
 package securesocial.core.support.securesocial
 
-import _root_.java.util.{ Date, UUID }
-
-import securesocial.core._
-import providers.Token
-import securesocial.core.IdentityId
-import securesocial.core.PasswordInfo
-import scala.Some
-
-import play.api.{ Logger, Application }
-import securesocial.core._
 import org.joda.time.DateTime
-import securesocial.core.providers.Token
-import securesocial.core.providers.Token
 
-import models.{ User, Token => UserToken }
-import models.ActiveRecord
-import models.ActiveRecord._
-
-import play.api.Play.current
-import scala.Some
+import models.ActiveRecord.Alias
+import models.{ Token => UserToken, User }
+import play.api.{ Application, Logger }
+import securesocial.core._
+import securesocial.core.providers.Token
 
 class ActivateUserService(application: Application) extends UserServicePlugin(application) {
 

@@ -1,25 +1,17 @@
 package chat
 
-import play.api.libs.iteratee._
-import akka.actor._
-import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
-import akka.pattern.ask
-import play.api.libs.concurrent._
-import play.api.Play.current
-import play.api.mvc.Result
-import java.util.Date
-import java.text.SimpleDateFormat
-import java.util.Locale
-import play.api.Logger
-import play.api.libs.json._
-import models.User
+
+import akka.actor._
 import models.ChatLog
 import models.ChatRoom
-import java.sql.Timestamp
-import scala.concurrent.Future
-import akka.util.Timeout
-import scala.collection.mutable.BitSet
+import models.User
+import play.api.Logger
+import play.api.libs.concurrent._
+import play.api.libs.concurrent.Execution.Implicits._
+
+import play.api.libs.iteratee._
+import play.api.libs.json._
 import utils.UsageSet
 
 class ChatRoomActor(roomId: String) extends Actor {

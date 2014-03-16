@@ -1,8 +1,11 @@
 package utils
 
 import java.io.File
+
+import scala.Stream
+import scala.util.{ Failure, Try }
+
 import play.api.libs.Files.TemporaryFile
-import util.{ Failure, Try }
 
 /**
  * User: kindone

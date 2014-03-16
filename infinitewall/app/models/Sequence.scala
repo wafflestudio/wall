@@ -1,4 +1,5 @@
 package models
+
 import ActiveRecord._
 
 class Sequence(val name: String, var value: Long) extends Entity

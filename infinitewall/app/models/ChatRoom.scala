@@ -1,6 +1,5 @@
 package models
 
-import play.api.Play.current
 import ActiveRecord._
 
 class ChatRoom(var title: String, var users: List[User] = List(), var wall: Option[Wall] = None) extends Entity {

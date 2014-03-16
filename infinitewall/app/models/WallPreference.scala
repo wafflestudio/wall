@@ -1,6 +1,5 @@
 package models
 
-import play.api.Play.current
 import ActiveRecord._
 
 class WallPreference(var alias: Option[String], var panX: Double, var panY: Double, var zoom: Double, val user: User, val wall: Wall) extends Entity {

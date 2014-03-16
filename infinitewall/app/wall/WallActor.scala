@@ -1,25 +1,17 @@
 package wall
 
-import play.api.libs.iteratee._
-import akka.actor._
-import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.duration._
-import scala.concurrent.Future
-import akka.pattern.ask
-import play.api.libs.concurrent._
-import play.api.Play.current
+import scala.concurrent.duration.DurationInt
+
+import akka.actor.{ Actor, actorRef2Scala }
+import models.{ AlterTextRecord, Sheet, SheetLink, WallLog }
+import models.ActiveRecord.transactional
 import play.api.Logger
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.iteratee.{ Concurrent, Enumerator }
+import play.api.libs.json.{ JsObject, JsValue, Json }
 import play.api.libs.json._
-import models.User
-import models.WallLog
-import models.Sheet
-import models.SheetLink
-import utils.StringWithState
-import utils.Operation
-import akka.util.Timeout
-import models.ActiveRecord._
-import utils.UsageSet
-import models.AlterTextRecord
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import utils.{ StringWithState, UsageSet }
 
 class WallActor(wallId: String) extends Actor {
 

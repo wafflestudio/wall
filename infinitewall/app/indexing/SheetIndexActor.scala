@@ -1,16 +1,10 @@
 package indexing
 
 import akka.actor._
-import play.api.libs.json._
+import models.{ Sheet, TextContent }
 import play.api.Logger
-import akka.pattern.ask
-import play.api.libs.concurrent._
 import play.api.Play.current
-import play.api.mvc.Result
-import models.Sheet
-import models.Content
-import models.ContentType._
-import models.TextContent
+import play.api.libs.concurrent.Akka
 
 abstract class IndexAction
 case class IndexWall(wallId: String) extends IndexAction

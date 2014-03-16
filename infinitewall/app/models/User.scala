@@ -1,14 +1,10 @@
 package models
 
-import org.mindrot.jbcrypt.BCrypt
-import play.api.Logger
-import utils.Mailer
-import GlobalPermission._
-import java.util.Date
 import java.security.MessageDigest
-import scala.util.Try
-import ActiveRecord._
 import java.util.Calendar
+
+import ActiveRecord._
+import GlobalPermission._
 import net.fwbrasil.activate.entity.Entity
 
 class User(var email: String,

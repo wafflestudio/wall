@@ -1,10 +1,10 @@
 package utils
 
-import play.api.Play.current
-import org.apache.commons.mail._
+import org.apache.commons.mail.{ DefaultAuthenticator, Email, HtmlEmail }
+
 import com.typesafe.config.ConfigFactory
-import models._
-import play.api.Logger
+
+import models.User
 
 object Mailer {
 

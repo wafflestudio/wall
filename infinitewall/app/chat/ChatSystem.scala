@@ -1,26 +1,17 @@
 package chat
 
-import play.api.libs.iteratee._
-import akka.actor._
-import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.duration._
-import akka.pattern.ask
-import play.api.libs.concurrent._
-import play.api.Play.current
-import play.api.mvc.Result
-import java.util.Date
-import java.text.SimpleDateFormat
-import java.util.Locale
-import play.api.Logger
-import play.api.libs.json._
-import models.User
-import models.ChatLog
-import models.ChatRoom
-import java.sql.Timestamp
 import scala.concurrent.Future
+import scala.concurrent.duration._
+
+import akka.actor._
+import akka.pattern.ask
 import akka.util.Timeout
-import scala.collection.mutable.BitSet
-import utils.UsageSet
+import play.api.Play.current
+import play.api.libs.concurrent._
+import play.api.libs.concurrent.Execution.Implicits._
+
+import play.api.libs.iteratee._
+import play.api.libs.json._
 
 case class Join(userId: String, timestampOpt: Option[Long])
 case class Quit(userId: String, producer: Enumerator[JsValue], connectionId: Int)

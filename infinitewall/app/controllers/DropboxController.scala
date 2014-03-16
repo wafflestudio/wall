@@ -1,22 +1,14 @@
 package controllers
-// added by Taekmin kim
 
-import play.api._
-import play.api.mvc._
-import mvc._
-import play.api.Play.current
-import views._
-import helpers._
-import com.dropbox.client2.session.WebAuthSession
-import com.dropbox.client2.session.Session
-import com.dropbox.client2.session.AppKeyPair
-import com.dropbox.client2.session.AccessTokenPair
-import com.dropbox.client2.session.RequestTokenPair
+import scala.collection.JavaConversions.asScalaBuffer
+
 import com.dropbox.client2.DropboxAPI
-import com.dropbox.client2.DropboxAPI.Entry
-import com.typesafe.config._
-import scala.collection.JavaConversions._
-import play.api.libs.json._
+import com.dropbox.client2.session.{ AccessTokenPair, AppKeyPair, RequestTokenPair, Session, WebAuthSession }
+import com.typesafe.config.ConfigFactory
+
+import play.api.libs.json.{ JsObject, Json }
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import play.api.mvc.Action
 
 object DropboxController extends Controller {
 

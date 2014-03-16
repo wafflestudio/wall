@@ -1,11 +1,8 @@
 package models
 
-import play.api.Play.current
-import ContentType._
-import play.api.libs.json._
-import play.api.Logger
-import org.apache.commons.lang.StringEscapeUtils._
 import ActiveRecord._
+import play.api.libs.json.Json
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
 
 class SheetLink(val fromSheet: Sheet, val toSheet: Sheet, var wall: Wall) extends Entity {
 	def frozen = transactional {

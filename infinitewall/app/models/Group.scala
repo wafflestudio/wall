@@ -1,7 +1,6 @@
 package models
 
-import play.api.Play.current
-import ActiveRecord._
+import ActiveRecord.{ Alias, Entity, byId, query, select, toAnd, toEntityInstanceEntityValueOption, toIsEqualTo, toStatementValueEntityValue, toStatementValueEntityValueOption, toStringEntityValueOption, transactional, where }
 
 @Alias("UserGroup")
 class Group(var name: String, var owner: User) extends Entity {

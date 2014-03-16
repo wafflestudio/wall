@@ -1,17 +1,14 @@
 package securesocial.core.support.securesocial
 
-import models.{ Authenticator => UserAuthenticator }
-import models.ActiveRecord
-import models.ActiveRecord._
-
-import play.api.Play.current
-
-import play.api.{ Logger, Application }
-import scala.Error
-import scala.Some
+import scala.Right
 
 import org.joda.time.DateTime
-import securesocial.core.{ Authenticator, IdentityId, AuthenticatorStore }
+
+import models.ActiveRecord.Alias
+import models.ActiveRecord.transactional
+import models.{ Authenticator => UserAuthenticator }
+import play.api.{ Application, Logger }
+import securesocial.core.{ Authenticator, AuthenticatorStore, IdentityId }
 
 class ActivateAuthenticatorStore(app: Application) extends AuthenticatorStore(app) {
 

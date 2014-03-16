@@ -1,10 +1,9 @@
 package models
 
-import play.api.Play.current
-import java.sql.Timestamp
-import play.api.libs.json._
-import net.fwbrasil.activate.entity.Entity
 import ActiveRecord._
+import net.fwbrasil.activate.entity.Entity
+import play.api.libs.json.{ JsValue, Json }
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
 
 object ChatTimestamp extends Sequencer("ChatTimestamp")
 

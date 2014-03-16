@@ -1,7 +1,6 @@
 package utils
 
 import scala.collection.mutable.BitSet
-import scala.util.control.Breaks._
 
 object UsageSet {
 	val MaxValue = 1000000

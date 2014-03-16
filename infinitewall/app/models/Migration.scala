@@ -1,8 +1,9 @@
 package models
 
-import net.fwbrasil.activate.entity.Entity
-import net.fwbrasil.activate.migration.Migration
+import scala.annotation.implicitNotFound
+
 import models.ActiveRecord._
+import net.fwbrasil.activate.migration.Migration
 import play.Logger
 
 class CreateInitialTablesMigration extends Migration {

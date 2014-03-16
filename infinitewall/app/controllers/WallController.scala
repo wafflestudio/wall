@@ -1,33 +1,24 @@
 package controllers
 
-import play.api._
-import play.api.mvc._
-import play.api.libs.json._
-import play.api.libs.iteratee._
-import play.api.libs.concurrent._
-import akka.actor._
-import scala.concurrent.duration._
-import akka.pattern.ask
-import akka.util.Timeout
-import play.api.Play.current
-import models.User
-import wall.WallSystem
-import models.Wall
-import models.ChatRoom
-import models.WallLog
-import models.Sheet
-import models.SheetLink
-import models.WallPreference
-import models.ResourceTree
-import scala.util.Success
-import scala.util.Failure
-import models.RootFolder
-import org.apache.commons.codec.digest.DigestUtils
-import indexing._
-import models.ActiveRecord._
-import play.api.libs.Comet
 import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
+import scala.math.BigDecimal.int2bigDecimal
+import scala.util.{ Failure, Success }
+
 import org.apache.tika.Tika
+
+import indexing.SheetIndexManager
+import models.{ ChatRoom, ResourceTree, Sheet, SheetLink, User, Wall, WallLog, WallPreference }
+import models.ActiveRecord.transactional
+import play.api.Logger
+import play.api.libs.Comet
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.concurrent.Promise
+import play.api.libs.iteratee.{ Done, Enumerator, Input }
+import play.api.libs.json.{ JsArray, JsNumber, JsObject, JsValue, Json }
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import play.api.mvc.WebSocket
+import wall.WallSystem
 
 object WallController extends Controller with SecureSocial {
 

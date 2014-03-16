@@ -1,12 +1,12 @@
 package securesocial.controllers
 
-import play.api.mvc.{ RequestHeader, Request }
-import play.api.templates.{ Html, Txt }
-import play.api.{ Logger, Plugin, Application }
+import play.api.{ Application, Logger }
 import play.api.data.Form
-import securesocial.core.{ Identity, SecuredRequest, SocialUser }
-import securesocial.controllers.Registration.RegistrationInfo
+import play.api.mvc.{ Request, RequestHeader }
+import play.api.templates._
 import securesocial.controllers.PasswordChange.ChangeInfo
+import securesocial.controllers.Registration.RegistrationInfo
+import securesocial.core.{ Identity, SecuredRequest }
 
 class CustomTemplatesPlugin(application: Application) extends DefaultTemplatesPlugin(application) {
 

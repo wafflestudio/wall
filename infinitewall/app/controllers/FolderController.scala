@@ -1,11 +1,7 @@
 package controllers
 
-import play.api._
-import play.api.mvc._
-import play.api.libs.json._
-import play.api.Play.current
-import play.api.db.DB
 import models.Folder
+import play.api.libs.json.Json
 
 object FolderController extends Controller with SecureSocial {
 	def create(parentId: String = "") = SecuredAction { implicit request =>

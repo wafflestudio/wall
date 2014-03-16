@@ -1,22 +1,13 @@
 package controllers
 
 import scala.concurrent.Future
-import play.api.mvc.Action
-import play.api.mvc.WebSocket
-import play.api.mvc.Result
-import play.api.libs.json._
-import play.api.libs.json.DefaultWrites
-import play.api.Logger
-import chat._
+
+import chat.ChatSystem
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.iteratee._
-import play.api.libs.concurrent.Akka
-import play.api.libs.concurrent.Promise
-import models.ChatRoom
-import play.api.data._
-import play.api.data.Forms._
-import play.api.data.validation.Constraints._
-import play.api.libs.concurrent.Execution.Implicits._
-import securesocial.core.{ Identity, Authorization }
+import play.api.libs.json.{ JsValue, Json }
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import play.api.mvc.WebSocket
 
 object ChatController extends Controller with SecureSocial {
 
@@ -48,7 +39,7 @@ object ChatController extends Controller with SecureSocial {
 */
 
 	def establish(roomId: String) = WebSocket.async[JsValue] { implicit request =>
-		val timestamp: Long = queryParam("timestamp").toLong
+		val timestamp: Long = queryParams.getOrElse("timestamp", Seq("0")).head.toLong
 
 		currentUser match {
 			case Some(user) =>

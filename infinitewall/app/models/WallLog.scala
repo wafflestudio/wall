@@ -1,12 +1,12 @@
 package models
 
-import play.api.Play.current
-import java.sql.Timestamp
-import play.api.libs.json._
-import ActiveRecord._
 import scala.util.Try
-import utils.Operation
+
+import ActiveRecord._
 import play.Logger
+import play.api.libs.json.{ JsValue, Json }
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import utils.Operation
 
 // Record used for tracking text change (cache)
 case class AlterTextRecord(timestamp: Long, baseTimestamp: Long, baseText: String, resultText: String, uuid: String, msgId: Long, operation: Operation)

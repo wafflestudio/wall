@@ -1,8 +1,5 @@
 package models
 
-import play.api.Play.current
-import scala.collection.mutable.HashMap
-import scala.collection.immutable.HashMap
 import ActiveRecord._
 
 class ResourceTree(val node: TreeNode, val children: Seq[ResourceTree])

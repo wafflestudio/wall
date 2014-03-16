@@ -1,22 +1,16 @@
 package controllers
 
+import com.typesafe.config.ConfigFactory
+
+import helpers._
+import models._
 import play.api._
-import play.api.mvc._
-import play.api.data._
+import play.api.Play.current
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
-import play.api.libs.concurrent._
-import play.api.Play.current
 import play.api.libs.json.JsValue
-import play.api.libs.json.Json
-import models._
-import views._
-import helpers._
-import play.api.libs.json._
-import org.apache.commons.codec.digest.DigestUtils
-import views.html.defaultpages.notFound
+import play.api.mvc._
 import se.digiplant.scalr._
-import com.typesafe.config.ConfigFactory
 
 object FileController extends Controller {
 

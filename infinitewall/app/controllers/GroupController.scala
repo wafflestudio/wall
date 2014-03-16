@@ -1,11 +1,9 @@
 package controllers
 
-import play.api._
-import play.api.mvc._
-import play.api.libs.json._
-import play.api.Play.current
-import play.api.db.DB
+import models.ActiveRecord.Alias
 import models.Group
+import play.api.Logger
+import play.api.libs.json.Json
 
 object GroupController extends Controller with SecureSocial {
 

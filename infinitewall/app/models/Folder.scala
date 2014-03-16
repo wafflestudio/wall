@@ -1,6 +1,5 @@
 package models
 
-import play.api.Play.current
 import ActiveRecord._
 
 trait TreeNode

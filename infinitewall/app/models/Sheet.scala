@@ -1,12 +1,10 @@
 package models
 
-import play.api.Play.current
-import ContentType._
-import play.api.libs.json._
-import play.api.Logger
-import org.apache.commons.lang.StringEscapeUtils._
-import indexing._
 import ActiveRecord._
+import indexing.SheetIndexManager
+import play.api.Logger
+import play.api.libs.json.Json
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import utils.Operation
 
 class Sheet(var x: Int, var y: Int, var width: Int, var height: Int, var title: String, var wall: Wall, val isReference: Boolean) extends Entity {

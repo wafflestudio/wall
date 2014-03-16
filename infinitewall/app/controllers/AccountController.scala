@@ -1,17 +1,8 @@
 package controllers
 
-import play.api._
-import libs.Files.TemporaryFile
-import mvc._
-import play.api.data._
-import play.api.data.Forms._
-import play.api.data.validation.Constraints._
-import play.api.Play.current
-import views._
-import helpers._
 import models.User
-import models.ActiveRecord
-import models.ActiveRecord._
+import play.api.data.Form
+import play.api.data.Forms.{ mapping, nonEmptyText }
 
 case class AccountParam(firstName: String, lastName: String)
 

@@ -1,17 +1,18 @@
 package models
 
-import net.fwbrasil.activate.ActivateContext
-import net.fwbrasil.activate.storage.relational.PooledJdbcRelationalStorage
-import net.fwbrasil.activate.storage.relational.idiom.h2Dialect
-import net.fwbrasil.activate.storage.relational.idiom.postgresqlDialect
-import net.fwbrasil.activate.storage.memory.TransientMemoryStorage
-import net.fwbrasil.activate.entity.Entity
-import scala.reflect.runtime.universe._
-import scala.language.postfixOps
-import com.typesafe.config.ConfigFactory
-import play.Logger
-import org.apache.commons.codec.digest.DigestUtils
 import java.util.Date
+
+import scala.language.postfixOps
+
+import org.apache.commons.codec.digest.DigestUtils
+
+import com.typesafe.config.ConfigFactory
+
+import net.fwbrasil.activate.ActivateContext
+import net.fwbrasil.activate.entity.Entity
+import net.fwbrasil.activate.storage.relational.PooledJdbcRelationalStorage
+import net.fwbrasil.activate.storage.relational.idiom.{ h2Dialect, postgresqlDialect }
+import play.Logger
 
 object ActiveRecord extends ActivateContext {
 	lazy val config = ConfigFactory.load()
