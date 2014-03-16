@@ -28,22 +28,22 @@ import play.api.libs.Comet
 import scala.concurrent.Future
 import org.apache.tika.Tika
 
-object Wall extends Controller with securesocial.core.SecureSocial {
+object Wall extends Controller with SecureSocial {
 
 	def index = SecuredAction { implicit request =>
 		Ok(views.html.wall.index())
 	}
 
 	def getUserWalls = SecuredAction { implicit request =>
-		val walls = models.User.listNonSharedWalls(request.user.identityId.userId).map(_.frozen)
+		val walls = models.User.listNonSharedWalls(currentUserId).map(_.frozen)
 		Ok(Json.toJson(walls.map { wall =>
 			(wall.id, wall.name)
 		}.toMap))
 	}
 
 	// FIXME: properly show group and wall as folder structure
-	def getSharedWalls = SecuredAction { request =>
-		val walls = models.User.listSharedWalls(request.user.identityId.userId).map(_.frozen)
+	def getSharedWalls = SecuredAction { implicit request =>
+		val walls = models.User.listSharedWalls(currentUserId).map(_.frozen)
 		Ok(Json.toJson(walls.map { wall =>
 			(wall.id, wall.name)
 		}.toMap))
@@ -62,7 +62,7 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 	}
 
 	def tree = SecuredAction { implicit request =>
-		val tree = models.Wall.tree(request.user.identityId.userId)
+		val tree = models.Wall.tree(currentUserId)
 		Ok(resourceTree2Json(tree))
 	}
 
@@ -71,12 +71,12 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 
 		wall match {
 			case Some(w) =>
-				if (models.Wall.hasReadPermission(wallId, request.user.identityId.userId)) {
+				if (models.Wall.hasReadPermission(wallId, currentUserId)) {
 					val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
 					val (timestamp, sheets, sheetlinks) =
 						(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
 
-					val pref = WallPreference.findOrCreate(request.user.identityId.userId, wallId).frozen
+					val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
 					Ok(views.html.wall.view(wallId, w.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
 				} else {
 					Forbidden("Request wall with id " + wallId + " not accessible")
@@ -91,12 +91,12 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 
 		wall match {
 			case Some(w) =>
-				if (models.Wall.hasEditPermission(wallId, request.user.identityId.userId)) {
+				if (models.Wall.hasEditPermission(wallId, currentUserId)) {
 					val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
 					val (timestamp, sheets, sheetlinks) =
 						(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
 
-					val pref = WallPreference.findOrCreate(request.user.identityId.userId, wallId).frozen
+					val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
 					Ok(views.html.wall.stage(wallId, w.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
 				} else {
 					Forbidden("Request wall with id " + wallId + " not accessible")
@@ -107,18 +107,16 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 	}
 
 	def create = SecuredAction { implicit request =>
-		val params = request.body.asJson.get
-		Logger.info("create Wall:" + params.toString)
-		val title = (params \ "title").asOpt[String].getOrElse("unnamed")
+		Logger.info("create Wall:" + jsonParams.toString)
+		val title = (jsonParams \ "title").asOpt[String].getOrElse("unnamed")
 
-		val wallId = models.Wall.create(request.user.identityId.userId, title).frozen.id
+		val wallId = models.Wall.create(currentUserId, title).frozen.id
 		Redirect(routes.Wall.stage(wallId))
 	}
 
 	def sync(wallId: String) = WebSocket.async[JsValue] { implicit request =>
-		val params = request.queryString
-		val uuid = params.get("uuid").get(0)
-		val timestamp = params.get("timestamp").getOrElse(Seq("0"))(0).toLong
+		val uuid = queryParam("uuid")
+		val timestamp = queryParam("timestamp").toLong
 
 		securesocial.core.SecureSocial.currentUser match {
 			case Some(user) =>
@@ -132,10 +130,9 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 
 	// http send by client
 	def speak(wallId: String) = SecuredAction { implicit request =>
-		val GETParams = request.queryString
-		val uuid = GETParams.get("uuid").get(0)
-		Logger.info(s"speak1: ${request.body.asText.get.toString}")
-		val action = Json.parse(Json.parse(request.body.asText.get).as[String])
+		val uuid = queryParam("uuid")
+		Logger.info(s"speak1: ${bodyText}")
+		val action = Json.parse(Json.parse(bodyText).as[String])
 		Logger.info(s"speak2: $action")
 		WallSystem.submitActions(wallId, request.user.identityId.userId, uuid, 0, action)
 		Ok("")
@@ -145,9 +142,8 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 	def listen(wallId: String) = UserAwareAction.async { implicit request =>
 		import play.api.templates.Html
 		import play.api.libs.concurrent.Execution.Implicits._
-		val params = request.queryString
-		val uuid = params.get("uuid").get(0)
-		val timestamp = params.get("timestamp").get(0).toLong
+		val uuid = queryParam("uuid")
+		val timestamp = queryParam("timestamp").toLong
 
 		request.user match {
 			case Some(user) =>
@@ -169,20 +165,18 @@ object Wall extends Controller with securesocial.core.SecureSocial {
 	}
 
 	def delete(id: String) = SecuredAction { implicit request =>
-		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-		val verified = params.get("verified").getOrElse(Seq("false"))(0).toBoolean
+		val verified = formParam("verified").toBoolean
 		if (verified)
-			models.Wall.deleteByUserId(request.user.identityId.userId, id)
+			models.Wall.deleteByUserId(currentUserId, id)
 		Ok(Json.toJson("OK"))
 	}
 
 	def setView(wallId: String) = SecuredAction { implicit request =>
-		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-		val x = params.get("x").getOrElse(Seq("0.0"))(0).toDouble
-		val y = params.get("y").getOrElse(Seq("0.0"))(0).toDouble
-		val zoom = params.get("zoom").getOrElse(Seq("1.0"))(0).toDouble
+		val x = formParam("x").toDouble
+		val y = formParam("y").toDouble
+		val zoom = formParam("zoom").toDouble
 
-		models.WallPreference.setView(request.user.identityId.userId, wallId, x, y, zoom)
+		models.WallPreference.setView(currentUserId, wallId, x, y, zoom)
 		Ok(Json.toJson("OK"))
 	}
 

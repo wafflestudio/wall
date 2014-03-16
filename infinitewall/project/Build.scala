@@ -43,9 +43,9 @@ object ApplicationBuild extends Build {
 			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
 			).settings(com.typesafe.sbt.SbtScalariform.scalariformSettings: _*
             ).settings(play.Project.playScalaSettings: _*
-			).settings(ScoverageSbtPlugin.instrumentSettings: _*)
-			/*.settings(
-				ScctPlugin.instrumentSettings : _*
+			).settings(ScoverageSbtPlugin.instrumentSettings: _*)/*
+			).settings(
+				ScctPlugin.instrumentSettings : _*)
 			).settings(parallelExecution in ScctPlugin.ScctTest := false
 			).settings(Revolver.settings: _*)*/
 

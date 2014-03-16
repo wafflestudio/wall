@@ -6,10 +6,10 @@ import play.api.libs.json._
 import play.api.Play.current
 import play.api.db.DB
 
-object Group extends Controller with securesocial.core.SecureSocial {
+object Group extends Controller with SecureSocial {
 
 	def index = SecuredAction { implicit request =>
-		val groups = models.User.listGroups(request.user.identityId.userId).map(_.frozen)
+		val groups = models.User.listGroups(currentUserId).map(_.frozen)
 		Ok(views.html.group.index(groups))
 	}
 
@@ -18,9 +18,8 @@ object Group extends Controller with securesocial.core.SecureSocial {
 	}
 
 	def create = SecuredAction { implicit request =>
-		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-		val name = params.get("name").getOrElse(Seq("unnamed"))
-		val groupId = models.Group.createForUser(name(0), request.user.identityId.userId).frozen.id
+		val name = formParam("name")
+		val groupId = models.Group.createForUser(name, currentUserId).frozen.id
 		models.Group.addUser(groupId, request.user.identityId.userId)
 		Redirect(routes.Group.show(groupId))
 	}

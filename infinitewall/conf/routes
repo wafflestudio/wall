@@ -24,6 +24,17 @@ GET      /chat/establish/:roomId              controllers.Chat.establish(roomId:
 GET      /chat/log/:roomId                    controllers.Chat.prevMessages(roomId:String)
 
 
+## FOLDER management
+# create new folder 
+POST     /folder/:parentId                    controllers.Folder.create(parentId:String)
+# delete folder
+DELETE   /folder/:folderId                    controllers.Folder.delete(folderId:String)
+# move folder to new position
+PUT      /folder/:folderId/moveTo/:parentId               controllers.Folder.move(folderId:String, parentId:String)
+# rename folder
+PUT      /folder/:folderId/rename             controllers.Folder.rename(folderId:String)
+
+
 ## WALL management
 # list walls
 GET      /wall                                controllers.Wall.index

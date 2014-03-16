@@ -6,24 +6,30 @@ import play.api.libs.json._
 import play.api.Play.current
 import play.api.db.DB
 
-object Folder extends Controller with securesocial.core.SecureSocial {
-	def create(name: String, parentId: String) = SecuredAction { implicit request =>
-		models.Folder.create(name, request.user.identityId.userId, Some(parentId))
-		Ok("")
+object Folder extends Controller with SecureSocial {
+	def create(parentId: String = "") = SecuredAction { implicit request =>
+		val name = jsonParam("name")
+
+		if (parentId == "")
+			models.Folder.create(name, currentUserId, None)
+		else
+			models.Folder.create(name, currentUserId, Some(parentId))
+		Ok(Json.toJson("OK"))
 	}
 
-	def rename(id: String, name: String) = SecuredAction { implicit request =>
+	def rename(id: String) = SecuredAction { implicit request =>
+		val name = jsonParam("name")
 		models.Folder.rename(id, name)
-		Ok("")
+		Ok(Json.toJson("OK"))
 	}
 
 	def delete(id: String) = SecuredAction { implicit request =>
 		models.Folder.delete(id)
-		Ok("")
+		Ok(Json.toJson("OK"))
 	}
 
-	def moveTo(id: String, parentId: String) = SecuredAction { implicit request =>
+	def move(id: String, parentId: String) = SecuredAction { implicit request =>
 		models.Folder.moveTo(id, parentId)
-		Ok("")
+		Ok(Json.toJson("OK"))
 	}
 }

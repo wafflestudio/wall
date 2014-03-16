@@ -21,7 +21,7 @@ import models.ActiveRecord._
 import play.api.i18n.Lang
 import securesocial.core.{ Identity, Authorization }
 
-object Application extends Controller with securesocial.core.SecureSocial {
+object Application extends Controller with SecureSocial {
 
 	def index = UserAwareAction { implicit request =>
 		Ok(views.html.index())

@@ -1,7 +1,6 @@
 package controllers
 
 import scala.concurrent.Future
-import play.api.mvc.Controller
 import play.api.mvc.Action
 import play.api.mvc.WebSocket
 import play.api.mvc.Result
@@ -19,7 +18,7 @@ import play.api.data.validation.Constraints._
 import play.api.libs.concurrent.Execution.Implicits._
 import securesocial.core.{ Identity, Authorization }
 
-object Chat extends Controller with securesocial.core.SecureSocial {
+object Chat extends Controller with SecureSocial {
 
 	// /* For development purpose. Not for production use: */
 	//
@@ -49,12 +48,11 @@ object Chat extends Controller with securesocial.core.SecureSocial {
 */
 
 	def establish(roomId: String) = WebSocket.async[JsValue] { implicit request =>
-		val params = request.queryString
-		val timestampOpt: Option[Long] = params.get("timestamp").map(_(0).toLong)
+		val timestamp: Long = queryParam("timestamp").toLong
 
 		securesocial.core.SecureSocial.currentUser match {
 			case Some(user) =>
-				ChatSystem.establish(roomId, user.identityId.userId, timestampOpt)
+				ChatSystem.establish(roomId, user.identityId.userId, Some(timestamp))
 			case None =>
 				val consumer = Done[JsValue, Unit]((), Input.EOF)
 				val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
@@ -64,10 +62,10 @@ object Chat extends Controller with securesocial.core.SecureSocial {
 	}
 
 	def prevMessages(roomId: String) = SecuredAction.async { implicit request =>
-		val params = request.queryString
+
 		// mandatory params
-		val startTs: Long = params.get("startTs").get(0).toLong
-		val endTs: Long = params.get("endTs").get(0).toLong
+		val startTs: Long = queryParam("startTs").toLong
+		val endTs: Long = queryParam("endTs").toLong
 
 		ChatSystem.prevMessages(roomId, startTs, endTs).map { json =>
 			Ok(json)
