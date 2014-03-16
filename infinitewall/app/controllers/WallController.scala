@@ -12,6 +12,7 @@ import akka.util.Timeout
 import play.api.Play.current
 import models.User
 import wall.WallSystem
+import models.Wall
 import models.ChatRoom
 import models.WallLog
 import models.Sheet
@@ -35,7 +36,7 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def getUserWalls = SecuredAction { implicit request =>
-		val walls = models.User.listNonSharedWalls(currentUserId).map(_.frozen)
+		val walls = User.listNonSharedWalls(currentUserId).map(_.frozen)
 		Ok(Json.toJson(walls.map { wall =>
 			(wall.id, wall.name)
 		}.toMap))
@@ -56,22 +57,22 @@ object WallController extends Controller with SecureSocial {
 			case folder: models.Folder.Frozen =>
 				Json.obj("type" -> "folder", "id" -> folder.id, "name" -> folder.name,
 					"children" -> Json.arr(tree.children.map(resourceTree2Json(_))))
-			case wall: models.Wall.Frozen =>
+			case wall: Wall.Frozen =>
 				Json.obj("type" -> "wall", "id" -> wall.id, "name" -> wall.name)
 		}
 	}
 
 	def tree = SecuredAction { implicit request =>
-		val tree = models.Wall.tree(currentUserId)
+		val tree = Wall.tree(currentUserId)
 		Ok(resourceTree2Json(tree))
 	}
 
 	def view(wallId: String) = SecuredAction { implicit request =>
-		val wall = transactional { models.Wall.findById(wallId).map(_.frozen) }
+		val wall = transactional { Wall.findById(wallId).map(_.frozen) }
 
 		wall match {
 			case Some(w) =>
-				if (models.Wall.hasReadPermission(wallId, currentUserId)) {
+				if (Wall.hasReadPermission(wallId, currentUserId)) {
 					val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
 					val (timestamp, sheets, sheetlinks) =
 						(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
@@ -87,11 +88,11 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def stage(wallId: String) = SecuredAction { implicit request =>
-		val wall = transactional { models.Wall.findById(wallId).map(_.frozen) }
+		val wall = transactional { Wall.findById(wallId).map(_.frozen) }
 
 		wall match {
 			case Some(w) =>
-				if (models.Wall.hasEditPermission(wallId, currentUserId)) {
+				if (Wall.hasEditPermission(wallId, currentUserId)) {
 					val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
 					val (timestamp, sheets, sheetlinks) =
 						(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
@@ -110,7 +111,7 @@ object WallController extends Controller with SecureSocial {
 		Logger.info("create Wall:" + jsonParams.toString)
 		val title = (jsonParams \ "title").asOpt[String].getOrElse("unnamed")
 
-		val wallId = models.Wall.create(currentUserId, title).frozen.id
+		val wallId = Wall.create(currentUserId, title).frozen.id
 		Redirect(routes.WallController.stage(wallId))
 	}
 
@@ -167,7 +168,7 @@ object WallController extends Controller with SecureSocial {
 	def delete(id: String) = SecuredAction { implicit request =>
 		val verified = formParam("verified").toBoolean
 		if (verified)
-			models.Wall.deleteByUserId(currentUserId, id)
+			Wall.deleteByUserId(currentUserId, id)
 		Ok(Json.toJson("OK"))
 	}
 
@@ -176,7 +177,7 @@ object WallController extends Controller with SecureSocial {
 		val y = formParam("y").toDouble
 		val zoom = formParam("zoom").toDouble
 
-		models.WallPreference.setView(currentUserId, wallId, x, y, zoom)
+		WallPreference.setView(currentUserId, wallId, x, y, zoom)
 		Ok(Json.toJson("OK"))
 	}
 
@@ -186,12 +187,12 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def rename(wallId: String, name: String) = SecuredAction { implicit request =>
-		models.Wall.rename(wallId, name)
+		Wall.rename(wallId, name)
 		Ok(Json.toJson("OK"))
 	}
 
 	def moveTo(wallId: String, folderId: String) = SecuredAction { implicit request =>
-		models.Wall.moveTo(wallId, folderId)
+		Wall.moveTo(wallId, folderId)
 		Ok(Json.toJson("OK"))
 	}
 

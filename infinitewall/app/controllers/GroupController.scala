@@ -5,6 +5,7 @@ import play.api.mvc._
 import play.api.libs.json._
 import play.api.Play.current
 import play.api.db.DB
+import models.Group
 
 object GroupController extends Controller with SecureSocial {
 
@@ -19,15 +20,15 @@ object GroupController extends Controller with SecureSocial {
 
 	def create = SecuredAction { implicit request =>
 		val name = formParam("name")
-		val groupId = models.Group.createForUser(name, currentUserId).frozen.id
-		models.Group.addUser(groupId, request.user.identityId.userId)
+		val groupId = Group.createForUser(name, currentUserId).frozen.id
+		Group.addUser(groupId, request.user.identityId.userId)
 		Redirect(routes.GroupController.show(groupId))
 	}
 
 	def getUsers(groupId: String) = SecuredAction { implicit request =>
 
-		if (models.Group.isValid(groupId, request.user.identityId.userId)) {
-			val users = models.Group.listUsers(groupId).map(_.frozen).map { user =>
+		if (Group.isValid(groupId, request.user.identityId.userId)) {
+			val users = Group.listUsers(groupId).map(_.frozen).map { user =>
 				(user.id, user.email)
 			}.toMap
 			Ok(Json.toJson(users))
@@ -37,14 +38,14 @@ object GroupController extends Controller with SecureSocial {
 	}
 
 	def addUser(groupId: String) = SecuredAction { implicit request =>
-		if (models.Group.isValid(groupId, request.user.identityId.userId)) {
+		if (Group.isValid(groupId, request.user.identityId.userId)) {
 			val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
 			val userEmail = params.get("email").get(0)
 			Logger.info(s"Adding user $userEmail to group $groupId")
 			val user = models.User.findByEmail(userEmail).map(_.frozen)
 			user.map { u =>
 				Logger.info(u.email)
-				models.Group.addUser(groupId, u.id)
+				Group.addUser(groupId, u.id)
 			}
 			Redirect(routes.GroupController.show(groupId))
 		} else {
@@ -61,7 +62,7 @@ object GroupController extends Controller with SecureSocial {
 		wall.map { w =>
 			Logger.info("hi")
 			Logger.info(w.name)
-			models.Group.addWall(groupId, w.id)
+			Group.addWall(groupId, w.id)
 		}
 		Redirect(routes.WallController.stage(wallId))
 	}
@@ -72,7 +73,7 @@ object GroupController extends Controller with SecureSocial {
 		if (models.Wall.hasEditPermission(wallId(0), request.user.identityId.userId)) {
 			val wall = models.Wall.findById(wallId(0)).map(_.frozen)
 			wall.map { w =>
-				models.Group.addWall(groupId, w.id)
+				Group.addWall(groupId, w.id)
 			}
 			Redirect(routes.GroupController.show(groupId))
 		} else {
@@ -88,8 +89,8 @@ object GroupController extends Controller with SecureSocial {
 	}
 
 	def getSharedWalls(groupId: String) = SecuredAction { implicit request =>
-		if (models.Group.isValid(groupId, request.user.identityId.userId)) {
-			val walls = models.Group.listWalls(groupId).map(_.frozen).map { wall =>
+		if (Group.isValid(groupId, request.user.identityId.userId)) {
+			val walls = Group.listWalls(groupId).map(_.frozen).map { wall =>
 				(wall.id, wall.name)
 			}.toMap
 			Ok(Json.toJson(walls))
@@ -101,7 +102,7 @@ object GroupController extends Controller with SecureSocial {
 		val wall = models.Wall.findById(wallId).map(_.frozen)
 		if (models.Wall.hasEditPermission(wallId, request.user.identityId.userId)) {
 			wall.map { w =>
-				models.Group.addWall(groupId, w.id)
+				Group.addWall(groupId, w.id)
 			}
 			Redirect(routes.GroupController.show(groupId))
 		} else {
@@ -110,21 +111,21 @@ object GroupController extends Controller with SecureSocial {
 	}
 
 	def removeUser(groupId: String, userId: String) = SecuredAction { implicit request =>
-		models.Group.removeUser(groupId, userId)
+		Group.removeUser(groupId, userId)
 		Redirect(routes.GroupController.show(groupId))
 	}
 
 	def removeWall(groupId: String, wallId: String) = SecuredAction { implicit request =>
-		models.Group.removeWall(groupId, wallId)
+		Group.removeWall(groupId, wallId)
 		Redirect(routes.GroupController.show(groupId))
 	}
 
 	def rename(id: String, name: String) = SecuredAction { implicit request =>
-		models.Group.rename(id, name)
+		Group.rename(id, name)
 		Ok("")
 	}
 	def delete(id: String) = SecuredAction { implicit request =>
-		models.Group.delete(id)
+		Group.delete(id)
 		Ok("")
 	}
 }
