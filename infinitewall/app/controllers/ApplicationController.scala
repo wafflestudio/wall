@@ -3,25 +3,26 @@ package controllers
 import play.api.Logger
 import play.api.Play.current
 import play.api.i18n.Lang
+import play.api.mvc.Action
 
 object ApplicationController extends Controller with SecureSocial {
 
-	def index = UserAwareAction { implicit request =>
+	def index = Action { implicit request =>
 		Ok(views.html.index())
 	}
 
-	def about = UserAwareAction { implicit request =>
+	def about = Action { implicit request =>
 		Ok(views.html.about())
 	}
 
 	def logLanguage(implicit lang: Lang) = Logger.info(lang.toString)
 
-	def contribute = UserAwareAction { implicit request =>
+	def contribute = Action { implicit request =>
 		logLanguage
 		Ok(views.html.contribute())
 	}
 
-	def contact = UserAwareAction { implicit request =>
+	def contact = Action { implicit request =>
 		// (name, facebook account)
 		val members: List[(String, String)] = List(
 			("Taekmin Kim", "taekmin.kim"),
@@ -36,7 +37,7 @@ object ApplicationController extends Controller with SecureSocial {
 		Ok(views.html.contact(members, prevmembers))
 	}
 
-	def language(locale: String) = UserAwareAction { implicit request =>
+	def language(locale: String) = Action { implicit request =>
 		Redirect(routes.ApplicationController.index()).withLang(Lang(locale))
 	}
 

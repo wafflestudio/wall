@@ -7,10 +7,11 @@ import play.api.data.Forms.{ mapping, nonEmptyText }
 case class AccountParam(firstName: String, lastName: String)
 
 object AccountController extends Controller with securesocial.core.SecureSocial {
-	val userForm: Form[AccountParam] = Form(
+	val userForm: Form[AccountParam] = Form {
 		mapping(
 			"firstName" -> nonEmptyText,
-			"lastName" -> nonEmptyText)(AccountParam.apply)(AccountParam.unapply))
+			"lastName" -> nonEmptyText)(AccountParam.apply)(AccountParam.unapply)
+	}
 
 	def index = SecuredAction { implicit request =>
 		Ok(views.html.account.index(request.user))
