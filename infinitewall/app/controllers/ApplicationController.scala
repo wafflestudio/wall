@@ -41,13 +41,8 @@ object ApplicationController extends Controller with SecureSocial {
 		Redirect(routes.ApplicationController.index()).withLang(Lang(locale))
 	}
 
-	def renewSession() = UserAwareAction { implicit request =>
-		request.user match {
-			case Some(user) =>
-				Ok("")
-			case None =>
-				Unauthorized("")
-		}
+	def renewSession() = securedAction { implicit request =>
+		Ok("")
 	}
 
 }

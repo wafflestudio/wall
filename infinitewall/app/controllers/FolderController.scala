@@ -4,7 +4,7 @@ import models.Folder
 import play.api.libs.json.Json
 
 object FolderController extends Controller with SecureSocial {
-	def create(parentId: String = "") = SecuredAction { implicit request =>
+	def create(parentId: String = "") = securedAction { implicit request =>
 		val name = jsonParam("name")
 
 		if (parentId == "")
@@ -14,18 +14,18 @@ object FolderController extends Controller with SecureSocial {
 		Ok(Json.toJson("OK"))
 	}
 
-	def rename(id: String) = SecuredAction { implicit request =>
+	def rename(id: String) = securedAction { implicit request =>
 		val name = jsonParam("name")
 		Folder.rename(id, name)
 		Ok(Json.toJson("OK"))
 	}
 
-	def delete(id: String) = SecuredAction { implicit request =>
+	def delete(id: String) = securedAction { implicit request =>
 		Folder.delete(id)
 		Ok(Json.toJson("OK"))
 	}
 
-	def move(id: String, parentId: String) = SecuredAction { implicit request =>
+	def move(id: String, parentId: String) = securedAction { implicit request =>
 		Folder.moveTo(id, parentId)
 		Ok(Json.toJson("OK"))
 	}

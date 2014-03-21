@@ -22,11 +22,11 @@ import wall.WallSystem
 
 object WallController extends Controller with SecureSocial {
 
-	def index = SecuredAction { implicit request =>
+	def index = securedAction { implicit request =>
 		Ok(views.html.wall.index())
 	}
 
-	def getUserWalls = SecuredAction { implicit request =>
+	def getUserWalls = securedAction { implicit request =>
 		val walls = User.listNonSharedWalls(currentUserId).map(_.frozen)
 		Ok(Json.toJson(walls.map { wall =>
 			(wall.id, wall.name)
@@ -34,7 +34,7 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	// FIXME: properly show group and wall as folder structure
-	def getSharedWalls = SecuredAction { implicit request =>
+	def getSharedWalls = securedAction { implicit request =>
 		val walls = models.User.listSharedWalls(currentUserId).map(_.frozen)
 		Ok(Json.toJson(walls.map { wall =>
 			(wall.id, wall.name)
@@ -53,12 +53,12 @@ object WallController extends Controller with SecureSocial {
 		}
 	}
 
-	def tree = SecuredAction { implicit request =>
+	def tree = securedAction { implicit request =>
 		val tree = Wall.tree(currentUserId)
 		Ok(resourceTree2Json(tree))
 	}
 
-	def view(wallId: String) = SecuredAction { implicit request =>
+	def view(wallId: String) = securedAction { implicit request =>
 		val wall = transactional { Wall.findById(wallId).map(_.frozen) }
 
 		wall match {
@@ -78,27 +78,23 @@ object WallController extends Controller with SecureSocial {
 		}
 	}
 
-	def stage(wallId: String) = SecuredAction { implicit request =>
-		val wall = transactional { Wall.findById(wallId).map(_.frozen) }
+	def stage(wallId: String) = securedAction { implicit request =>
+		val wall = transactional { Wall.findById(wallId).map(_.frozen) }.get
 
-		wall match {
-			case Some(w) =>
-				if (Wall.hasEditPermission(wallId, currentUserId)) {
-					val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
-					val (timestamp, sheets, sheetlinks) =
-						(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
+		if (Wall.hasEditPermission(wallId, currentUserId)) {
+			val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
+			val (timestamp, sheets, sheetlinks) =
+				(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
 
-					val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
-					Ok(views.html.wall.stage(wallId, w.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
-				} else {
-					Forbidden("Request wall with id " + wallId + " not accessible")
-				}
-			case None =>
-				Forbidden("Request wall with id " + wallId + " not accessible")
+			val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
+			Ok(views.html.wall.stage(wallId, wall.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
+		} else {
+			Forbidden("Request wall with id " + wallId + " not accessible")
 		}
+
 	}
 
-	def create = SecuredAction { implicit request =>
+	def create = securedAction { implicit request =>
 		Logger.info("create Wall:" + jsonParams.toString)
 		val title = (jsonParams \ "title").asOpt[String].getOrElse("unnamed")
 
@@ -121,7 +117,7 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	// http send by client
-	def speak(wallId: String) = SecuredAction { implicit request =>
+	def speak(wallId: String) = securedAction { implicit request =>
 		val uuid = queryParam("uuid")
 		Logger.info(s"speak1: ${bodyText}")
 		val action = Json.parse(Json.parse(bodyText).as[String])
@@ -131,39 +127,36 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	// http receive
-	def listen(wallId: String) = UserAwareAction.async { implicit request =>
+	def listen(wallId: String) = SecuredAction.async { implicit request =>
 		import play.api.templates.Html
 		import play.api.libs.concurrent.Execution.Implicits._
 		val uuid = queryParam("uuid")
 		val timestamp = queryParam("timestamp").toLong
+		val user = request.user
 
-		request.user match {
-			case Some(user) =>
-				WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
-					// force disconnect after 3 seconds
-					val timeoutEnumerator: Enumerator[JsValue] = Enumerator.generateM[JsValue] {
-						Promise.timeout(Some(JsNumber(0)), 3.seconds)
-					}.mapInput {
-						case _ => Input.EOF
-					}
-					timeoutEnumerator.apply(channels._1)
-					// convert to comet stream
-					val stream = channels._2 &> Comet(callback = "triggerOnReceive")
-					Ok.chunked(stream)
-				}
-			case _ =>
-				Future(Forbidden("Request wall with id " + wallId + " not accessible"))
+		WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
+			// force disconnect after 3 seconds
+			val timeoutEnumerator: Enumerator[JsValue] = Enumerator.generateM[JsValue] {
+				Promise.timeout(Some(JsNumber(0)), 3.seconds)
+			}.mapInput {
+				case _ => Input.EOF
+			}
+			timeoutEnumerator.apply(channels._1)
+			// convert to comet stream
+			val stream = channels._2 &> Comet(callback = "triggerOnReceive")
+			Ok.chunked(stream)
 		}
+
 	}
 
-	def delete(id: String) = SecuredAction { implicit request =>
+	def delete(id: String) = securedAction { implicit request =>
 		val verified = formParam("verified").toBoolean
 		if (verified)
 			Wall.deleteByUserId(currentUserId, id)
 		Ok(Json.toJson("OK"))
 	}
 
-	def setView(wallId: String) = SecuredAction { implicit request =>
+	def setView(wallId: String) = securedAction { implicit request =>
 		val x = formParam("x").toDouble
 		val y = formParam("y").toDouble
 		val zoom = formParam("zoom").toDouble
@@ -172,50 +165,45 @@ object WallController extends Controller with SecureSocial {
 		Ok(Json.toJson("OK"))
 	}
 
-	def search(wallId: String, keyword: String) = SecuredAction { implicit request =>
+	def search(wallId: String, keyword: String) = securedAction { implicit request =>
 		val results = SheetIndexManager.search(wallId, keyword)
 		Ok(Json.toJson(results))
 	}
 
-	def rename(wallId: String, name: String) = SecuredAction { implicit request =>
+	def rename(wallId: String, name: String) = securedAction { implicit request =>
 		Wall.rename(wallId, name)
 		Ok(Json.toJson("OK"))
 	}
 
-	def moveTo(wallId: String, folderId: String) = SecuredAction { implicit request =>
+	def moveTo(wallId: String, folderId: String) = securedAction { implicit request =>
 		Wall.moveTo(wallId, folderId)
 		Ok(Json.toJson("OK"))
 	}
 
 	/**  uploaded files **/
-	def uploadFile(wallId: String) = UserAwareAction(parse.multipartFormData) { implicit request =>
-		request.user match {
-			case Some(currentUser) => {
-				val fileList: Seq[JsObject] =
-					request.body.files.flatMap { picture =>
-						val tika = new Tika()
-						val contentType: String = tika.detect(picture.ref.file)
-
-						val imageContentTypePattern = "^image/(\\w)+".r
-						contentType match {
-							case imageContentTypePattern(c) =>
-								utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
-									case Success((filename, file)) =>
-										Some(Json.obj(
-											"name" -> filename,
-											"size" -> file.length,
-											"url" -> ("/upload/" + filename),
-											"delete_url" -> ("/wall/file/" + wallId),
-											"delete_type" -> "delete"))
-									case Failure(_) => None
-								}
-							case _ => Logger.info("Invalid mime-type: " + contentType); None
+	def uploadFile(wallId: String) = securedAction(parse.multipartFormData) { implicit request =>
+		val currentUser = request.user
+		val fileList: Seq[JsObject] =
+			request.body.files.flatMap { picture =>
+				val tika = new Tika()
+				val contentType: String = tika.detect(picture.ref.file)
+				val imageContentTypePattern = "^image/(\\w)+".r
+				contentType match {
+					case imageContentTypePattern(c) =>
+						utils.FileSystem.moveTempFile(picture.ref, "public/files", picture.filename) match {
+							case Success((filename, file)) =>
+								Some(Json.obj(
+									"name" -> filename,
+									"size" -> file.length,
+									"url" -> ("/upload/" + filename),
+									"delete_url" -> ("/wall/file/" + wallId),
+									"delete_type" -> "delete"))
+							case Failure(_) => None
 						}
-					}
-				Ok(JsArray(fileList))
+					case _ => Logger.info("Invalid mime-type: " + contentType); None
+				}
 			}
-			case _ => Unauthorized
-		}
+		Ok(JsArray(fileList))
 	}
 
 	def infoFile(wallId: String) = SecuredAction { implicit request =>

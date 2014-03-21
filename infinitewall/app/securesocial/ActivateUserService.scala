@@ -69,8 +69,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	 *
 	 */
 	def save(user: Identity): Identity = {
-		Logger.debug("save...")
-		Logger.debug("user = %s".format(user))
 
 		val socialUser =
 			User.findById(user.identityId.userId).map(_.frozen).map(u =>
@@ -86,7 +84,7 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					None,
 					Some(PasswordInfo("bcrypt", u.hashedPW, None))))
 
-		Logger.debug("socialUser = %s".format(socialUser))
+		Logger.debug("save: user = %s, socialUser = %s".format(user, socialUser))
 
 		if (socialUser == None) { // user not exists
 			Logger.debug("INSERT")
