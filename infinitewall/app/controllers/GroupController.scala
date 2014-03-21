@@ -19,13 +19,14 @@ object GroupController extends Controller with SecureSocial {
 	def create = securedAction { implicit request =>
 		val name = formParam("name")
 		val groupId = Group.createForUser(name, currentUserId).frozen.id
-		Group.addUser(groupId, request.user.identityId.userId)
+
+		Group.addUser(groupId, currentUserId)
 		Redirect(routes.GroupController.show(groupId))
 	}
 
 	def getUsers(groupId: String) = securedAction { implicit request =>
 
-		if (Group.isValid(groupId, request.user.identityId.userId)) {
+		if (Group.isValid(groupId, currentUserId)) {
 			val users = Group.listUsers(groupId).map(_.frozen).map { user =>
 				(user.id, user.email)
 			}.toMap
@@ -49,11 +50,10 @@ object GroupController extends Controller with SecureSocial {
 	}
 
 	def createWall(groupId: String) = securedAction { implicit request =>
-		val params = request.body.asJson.get
-		Logger.info("create Wall:" + params.toString)
-		val title = (params \ "title").asOpt[String].getOrElse("unnamed")
-		val wallId = models.Wall.create(request.user.identityId.userId, title).frozen.id
+		val title = jsonParam("title")
+		val wallId = models.Wall.create(currentUserId, title).frozen.id
 		val wall = models.Wall.findById(wallId).map(_.frozen)
+
 		wall.map { w =>
 			Logger.info("hi")
 			Logger.info(w.name)
@@ -66,14 +66,16 @@ object GroupController extends Controller with SecureSocial {
 		val walls = models.User.listNonSharedWalls(currentUserId).map(_.frozen).map { wall =>
 			(wall.id, wall.name)
 		}.toMap
+
 		Ok(Json.toJson(walls))
 	}
 
-	def getSharedWalls(groupId: String) = SecuredAction { implicit request =>
-		if (Group.isValid(groupId, request.user.identityId.userId)) {
+	def getSharedWalls(groupId: String) = securedAction { implicit request =>
+		if (Group.isValid(groupId, currentUserId)) {
 			val walls = Group.listWalls(groupId).map(_.frozen).map { wall =>
 				(wall.id, wall.name)
 			}.toMap
+
 			Ok(Json.toJson(walls))
 		} else
 			Forbidden(Json.toJson("Unauthorized access"))
@@ -81,10 +83,11 @@ object GroupController extends Controller with SecureSocial {
 
 	def addWall(groupId: String, wallId: String) = securedAction { implicit request =>
 		val wall = models.Wall.findById(wallId).map(_.frozen)
-		if (models.Wall.hasEditPermission(wallId, request.user.identityId.userId)) {
+		if (models.Wall.hasEditPermission(wallId, currentUserId)) {
 			wall.map { w =>
 				Group.addWall(groupId, w.id)
 			}
+
 			Redirect(routes.GroupController.show(groupId))
 		} else {
 			Forbidden("Invalid Request")

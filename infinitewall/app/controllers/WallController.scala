@@ -74,7 +74,7 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def stage(wallId: String) = securedAction { implicit request =>
-		val wall = transactional { Wall.findById(wallId).map(_.frozen) }.get
+		val wall = Wall.findById(wallId).map(_.frozen).get
 
 		if (Wall.hasEditPermission(wallId, currentUserId)) {
 			val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
@@ -88,7 +88,7 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def create = securedAction { implicit request =>
-		Logger.info("create Wall:" + jsonParams.toString)
+
 		val title = (jsonParams \ "title").asOpt[String].getOrElse("unnamed")
 
 		val wallId = Wall.create(currentUserId, title).frozen.id
@@ -101,7 +101,6 @@ object WallController extends Controller with SecureSocial {
 		val user = currentUser.get
 
 		WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp)
-
 	}
 
 	// http send by client
@@ -138,8 +137,7 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def delete(id: String) = securedAction { implicit request =>
-		val verified = formParam("verified").toBoolean
-		if (verified)
+		if (formParam("verified").toBoolean)
 			Wall.deleteByUserId(currentUserId, id)
 		Ok(Json.toJson("OK"))
 	}
