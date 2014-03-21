@@ -38,18 +38,11 @@ object ChatController extends Controller with SecureSocial {
 	}
 */
 
-	def establish(roomId: String) = WebSocket.async[JsValue] { implicit request =>
+	def establish(roomId: String) = securedWebsocket { implicit request =>
 		val timestamp: Long = queryParams.getOrElse("timestamp", Seq("0")).head.toLong
 
-		currentUser match {
-			case Some(user) =>
-				ChatSystem.establish(roomId, user.identityId.userId, Some(timestamp))
-			case None =>
-				val consumer = Done[JsValue, Unit]((), Input.EOF)
-				val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
-
-				Future.successful(consumer, producer)
-		}
+		val user = currentUser.get
+		ChatSystem.establish(roomId, user.identityId.userId, Some(timestamp))
 	}
 
 	def prevMessages(roomId: String) = SecuredAction.async { implicit request =>

@@ -3,6 +3,9 @@ package controllers
 import play.api.mvc._
 import securesocial.core.SecuredRequest
 import scala.concurrent.Future
+import play.api.libs.iteratee._
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
 
 /* wrapper class for better usability */
 class Controller extends play.api.mvc.Controller {
@@ -52,6 +55,17 @@ trait SecureSocial extends securesocial.core.SecureSocial { self: Controller =>
 				case e: java.util.NoSuchElementException => Unauthorized
 				case e: Throwable => InternalServerError
 			}
+		}
+	}
+
+	def securedWebsocket(block: (RequestHeader) => Future[(Iteratee[JsValue, _], Enumerator[JsValue])]) = WebSocket.async[JsValue] { implicit request =>
+		currentUser match {
+			case Some(user) =>
+				block(request)
+			case _ =>
+				val consumer = Done[JsValue, Unit]((), Input.EOF)
+				val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
+				Future.successful(consumer, producer)
 		}
 	}
 

@@ -59,23 +59,18 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def view(wallId: String) = securedAction { implicit request =>
-		val wall = transactional { Wall.findById(wallId).map(_.frozen) }
+		val wall = transactional { Wall.findById(wallId).map(_.frozen) }.get
 
-		wall match {
-			case Some(w) =>
-				if (Wall.hasReadPermission(wallId, currentUserId)) {
-					val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
-					val (timestamp, sheets, sheetlinks) =
-						(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
+		if (Wall.hasReadPermission(wallId, currentUserId)) {
+			val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
+			val (timestamp, sheets, sheetlinks) =
+				(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
 
-					val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
-					Ok(views.html.wall.view(wallId, w.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
-				} else {
-					Forbidden("Request wall with id " + wallId + " not accessible")
-				}
-			case None =>
-				Forbidden("Request wall with id " + wallId + " not accessible")
-		}
+			val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
+			Ok(views.html.wall.view(wallId, wall.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
+		} else
+			Forbidden("Request wall with id " + wallId + " not accessible")
+
 	}
 
 	def stage(wallId: String) = securedAction { implicit request =>
@@ -88,10 +83,8 @@ object WallController extends Controller with SecureSocial {
 
 			val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
 			Ok(views.html.wall.stage(wallId, wall.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
-		} else {
+		} else
 			Forbidden("Request wall with id " + wallId + " not accessible")
-		}
-
 	}
 
 	def create = securedAction { implicit request =>
@@ -102,18 +95,13 @@ object WallController extends Controller with SecureSocial {
 		Redirect(routes.WallController.stage(wallId))
 	}
 
-	def sync(wallId: String) = WebSocket.async[JsValue] { implicit request =>
+	def sync(wallId: String) = securedWebsocket { implicit request =>
 		val uuid = queryParam("uuid")
 		val timestamp = queryParam("timestamp").toLong
+		val user = currentUser.get
 
-		currentUser match {
-			case Some(user) =>
-				WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp)
-			case _ =>
-				val consumer = Done[JsValue, Unit]((), Input.EOF)
-				val producer = Enumerator[JsValue](Json.obj("error" -> "Unauthorized")).andThen(Enumerator.enumInput(Input.EOF))
-				Future.successful(consumer, producer)
-		}
+		WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp)
+
 	}
 
 	// http send by client
@@ -206,15 +194,15 @@ object WallController extends Controller with SecureSocial {
 		Ok(JsArray(fileList))
 	}
 
-	def infoFile(wallId: String) = SecuredAction { implicit request =>
+	def infoFile(wallId: String) = securedAction { implicit request =>
 		NotImplemented
 	}
 
-	def replaceFile(wallId: String) = SecuredAction { implicit request =>
+	def replaceFile(wallId: String) = securedAction { implicit request =>
 		NotImplemented
 	}
 
-	def deleteFile(wallId: String) = SecuredAction { implicit request =>
+	def deleteFile(wallId: String) = securedAction { implicit request =>
 		NotImplemented
 	}
 }
