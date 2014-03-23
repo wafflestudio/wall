@@ -31,10 +31,14 @@
   width: 65px;
   margin: 2px;
   border-top: 1px solid gray;
-  border-bottom: 1px solid gray;
+  /*border-bottom: 1px solid gray;*/
   position:relative;
   background-position: center;
   background-repeat: no-repeat;
+  /* glyphicon */
+  font-size:48px;
+  text-align:center;
+  color:white;
 }
 
 #profileButton {
@@ -62,7 +66,7 @@
   font-size:13px;
   font-family: "futura";
 }
-
+/*
 #logoutButton {
   background-image:url("/assets/images/logout.png");
   background-size:41px;
@@ -82,11 +86,11 @@
   background-image:url("/assets/images/redo.png");
   background-size:50px;
 }
-
+*/
 #newSheetContainer {
   display:none;
 }
-
+/*
 #newTextSheetButton {
   margin-top: 0;
   background-image:url("/assets/images/textsheet.png");
@@ -124,3 +128,4 @@
   background-image:url("/assets/images/wall.png");
   background-size:55px;
 }
+*/
