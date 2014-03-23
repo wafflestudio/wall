@@ -47,9 +47,10 @@ object WallController extends Controller with SecureSocial {
 				JsArray(tree.children.map(resourceTree2Json(_)))
 			case folder: models.Folder.Frozen =>
 				Json.obj("type" -> "folder", "id" -> folder.id, "name" -> folder.name,
+					"label" -> (if (folder.name != "") folder.name else "<unnamed>"),
 					"children" -> Json.arr(tree.children.map(resourceTree2Json(_))))
 			case wall: Wall.Frozen =>
-				Json.obj("type" -> "wall", "id" -> wall.id, "name" -> wall.name)
+				Json.obj("type" -> "wall", "id" -> wall.id, "name" -> wall.name, "label" -> (if (wall.name != "") wall.name else "<unnamed>"))
 		}
 	}
 
@@ -88,8 +89,7 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def create = securedAction { implicit request =>
-
-		val title = (jsonParams \ "title").asOpt[String].getOrElse("unnamed")
+		val title = jsonParam("title")
 
 		val wallId = Wall.create(currentUserId, title).frozen.id
 		Redirect(routes.WallController.stage(wallId))

@@ -30,6 +30,7 @@ requirejs.config
         exports: "Raphael"
       }
       bootstrap: ["jquery"]
+      "tree.jquery" : ["jquery"]
       "jquery.transit": ["jquery"]
       "jquery.mousewheel": ["jquery"]
       "jquery.animate-shadow": ["jquery"]
