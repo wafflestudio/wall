@@ -38,14 +38,14 @@ object GroupController extends Controller with SecureSocial {
 
 	def addUser(groupId: String) = securedAction { implicit request =>
 		if (Group.isValid(groupId, currentUserId)) {
-			val userEmail = formParam("email")
+			val userEmail = jsonParam("email")
 
 			val user = models.User.findByEmail(userEmail).map(_.frozen)
 			user.map { u =>
 				Logger.info(u.email)
 				Group.addUser(groupId, u.id)
 			}
-			Redirect(routes.GroupController.show(groupId))
+			Ok("")
 		} else
 			Forbidden("Invalid Request")
 	}
@@ -61,20 +61,6 @@ object GroupController extends Controller with SecureSocial {
 			Group.addWall(groupId, w.id)
 		}
 		Redirect(routes.WallController.stage(wallId))
-	}
-
-	def addWallPost(groupId: String) = SecuredAction { implicit request =>
-		val wallId = formParam("wall_id")
-
-		if (models.Wall.hasEditPermission(wallId, request.user.identityId.userId)) {
-			val wall = models.Wall.findById(wallId).map(_.frozen)
-			wall.map { w =>
-				Group.addWall(groupId, w.id)
-			}
-			Redirect(routes.GroupController.show(groupId))
-		} else {
-			Forbidden("Invalid Request")
-		}
 	}
 
 	def getWalls(groupId: String) = securedAction { implicit request =>

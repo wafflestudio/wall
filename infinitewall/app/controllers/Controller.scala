@@ -41,8 +41,16 @@ trait SecureSocial extends securesocial.core.SecureSocial { self: Controller =>
 			try {
 				block(request)
 			} catch {
-				case e: java.util.NoSuchElementException => Unauthorized
-				case e: Throwable => InternalServerError
+				case e: java.util.NoSuchElementException =>
+					if (play.Play.isProd)
+						Unauthorized
+					else
+						throw e
+				case e: Throwable =>
+					if (play.Play.isProd)
+						InternalServerError
+					else
+						throw e
 			}
 		}
 	}
@@ -52,8 +60,16 @@ trait SecureSocial extends securesocial.core.SecureSocial { self: Controller =>
 			try {
 				block(request)
 			} catch {
-				case e: java.util.NoSuchElementException => Unauthorized
-				case e: Throwable => InternalServerError
+				case e: java.util.NoSuchElementException =>
+					if (play.Play.isProd)
+						Unauthorized
+					else
+						throw e
+				case e: Throwable =>
+					if (play.Play.isProd)
+						InternalServerError
+					else
+						throw e
 			}
 		}
 	}
