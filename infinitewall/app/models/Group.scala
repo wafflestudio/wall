@@ -29,7 +29,7 @@ object Group extends ActiveRecord[Group] {
 		val user = User.findById(userId)
 		query {
 			(group: Group, uig: UserInGroup) => where((uig.user :== user) :&& (group :== uig.group)) select (group)
-		}.map(_.frozen)
+		}
 	}
 
 	def listUsers(id: String) = transactional {

@@ -93,8 +93,12 @@ object User extends ActiveRecord[User] {
 		}
 	}
 
-	def listGroups(id: String) = transactional {
+	def listOwnedGroups(id: String) = transactional {
 		Group.findAllOwnedByUserId(id)
+	}
+
+	def listIncludedGroups(id: String) = transactional {
+		Group.findAllIncludesUserId(id)
 	}
 
 	def listSharedWalls(id: String) = transactional {
