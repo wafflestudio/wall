@@ -36,19 +36,16 @@ object GroupController extends Controller with SecureSocial {
 	}
 
 	def addUser(groupId: String) = securedAction { implicit request =>
-		if (Group.isValid(groupId, request.user.identityId.userId)) {
-			val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-			val userEmail = params.get("email").get(0)
-			Logger.info(s"Adding user $userEmail to group $groupId")
+		if (Group.isValid(groupId, currentUserId)) {
+			val userEmail = jsonParam("email")
 			val user = models.User.findByEmail(userEmail).map(_.frozen)
 			user.map { u =>
 				Logger.info(u.email)
 				Group.addUser(groupId, u.id)
 			}
-			Redirect(routes.GroupController.show(groupId))
-		} else {
+			Ok("")
+		} else
 			Forbidden("Invalid Request")
-		}
 	}
 
 	def createWall(groupId: String) = securedAction { implicit request =>
@@ -65,22 +62,8 @@ object GroupController extends Controller with SecureSocial {
 		Redirect(routes.WallController.stage(wallId))
 	}
 
-	def addWallPost(groupId: String) = SecuredAction { implicit request =>
-		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-		val wallId = params.get("wall_id").getOrElse(Seq(""))
-		if (models.Wall.hasEditPermission(wallId(0), request.user.identityId.userId)) {
-			val wall = models.Wall.findById(wallId(0)).map(_.frozen)
-			wall.map { w =>
-				Group.addWall(groupId, w.id)
-			}
-			Redirect(routes.GroupController.show(groupId))
-		} else {
-			Forbidden("Invalid Request")
-		}
-	}
-
-	def getWalls(groupId: String) = SecuredAction { implicit request =>
-		val walls = models.User.listNonSharedWalls(request.user.identityId.userId).map(_.frozen).map { wall =>
+	def getWalls(groupId: String) = securedAction { implicit request =>
+		val walls = models.User.listNonSharedWalls(currentUserId).map(_.frozen).map { wall =>
 			(wall.id, wall.name)
 		}.toMap
 		Ok(Json.toJson(walls))

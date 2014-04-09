@@ -46,7 +46,7 @@ define ["jquery", "angularbootstrap"], ($) ->
       $scope.newUser = {}
 
       $scope.addUser = () ->
-        $http.post("/group/#{$scope.groupId}/user/with_email", $scope.newWall).success (data, status) ->
+        $http.post("/group/#{$scope.groupId}/user/with_email", $scope.newUser).success (data, status) ->
           refresh()
           $scope.newUser.email = ""
 

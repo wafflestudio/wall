@@ -30,7 +30,7 @@
 			<div class="panel-heading">Group's Walls</div>
 			<div class="panel-body">
 				<div class="list-group">
-					<p ng-repeat="(id, name) in sharedWalls" ng-cloak>{{name}} <a href="javascript:void(0)" ng-click="removeWall(id)">remove</a></p>
+					<p ng-repeat="(id, name) in sharedWalls" ng-cloak><a href="/wall/{{id}}">{{name}}</a> <a href="javascript:void(0)" ng-click="removeWall(id)">remove</a></p>
 				</div>
 
 				<form class="form-inline" ng-submit="createWall()">
@@ -48,7 +48,7 @@
 			<div class="panel-heading">My Walls</div>
 			<div class="panel-body">
 				<div class="list-group">
-					<p ng-repeat="(id, name) in nonSharedWalls" ng-cloak>{{name}} <a href="javascript:void(0)" ng-click="addWall(id)">add to group</a></p>
+					<p ng-repeat="(id, name) in nonSharedWalls" ng-cloak><a href="/wall/{{id}}">{{name}}</a> <a href="javascript:void(0)" ng-click="addWall(id)">add to group</a></p>
 				</div>
 			</div>
 		</div>
