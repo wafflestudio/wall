@@ -1,6 +1,6 @@
-@(groups:List[models.Group.Frozen])(implicit request: RequestHeader, lang: Lang)
+@(ownedGroups:List[models.Group.Frozen], includedGroups:List[models.Group.Frozen])(implicit request: RequestHeader, lang: Lang)
 
-@layouts.main("Walls ::: Infinite Wall") {
+@layouts.main("Groups ::: Infinite Wall") {
 <div class="row contact">
 	<div class="col-lg-12">
 		<div class="panel panel-default">
@@ -21,9 +21,14 @@
 			<div class="panel-heading">@Messages("group.groups")</div>
 			<div class="panel-body">
 				<div class="list-group">
-					@groups.map { group =>
+					@ownedGroups.map { group =>
 					<a class="list-group-item" href="/group/@group.id">@group.name</a>
 					}
+
+					@includedGroups.map { group =>
+					<a class="list-group-item" href="/group/@group.id">@group.name</a>
+					}
+
 				</div>
 			</div>
 		</div>
