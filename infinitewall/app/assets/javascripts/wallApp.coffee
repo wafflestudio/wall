@@ -25,6 +25,12 @@ define ["jquery", "angularbootstrap"], ($) ->
         $http.post("/wall", $scope.newWall).success (data, status) ->
           refresh()
           $scope.newWall.title = ""
+      
+      $scope.deleteWall = (wallId) ->
+        verified = confirm("Really delete the wall?")
+
+        $http.delete("/wall/#{wallId}").success (data, status) ->
+          refresh()
     ]
 
   
