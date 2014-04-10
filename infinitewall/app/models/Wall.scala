@@ -24,9 +24,7 @@ object Wall extends ActiveRecord[Wall] {
 	// only owner can delete the wall
 	def deleteByUserId(userId: String, id: String) = transactional {
 		val walls = select[Wall] where (w => (w.id :== id) :&& (w.user.id :== userId))
-		walls.map { wall =>
-			delete(wall.id)
-		}
+		walls.map(wall => delete(wall.id))
 	}
 
 	def findAllOwnedByUserId(userId: String) = transactional {
@@ -121,11 +119,11 @@ object Wall extends ActiveRecord[Wall] {
 			val pref = select[WallPreference] where (_.wall.id :== id)
 			val logs = select[WallLog] where (_.wall.id :== id)
 			val chatroom = select[ChatRoom] where (_.wall :== wall)
-			sheets.map(_.delete)
-			pref.map(_.delete)
-			logs.map(_.delete)
-			chatroom.map(_.delete)
-			wall.map(_.delete)
+			sheets.map(sheet => Sheet.delete(sheet.id))
+			pref.map(p => WallPreference.delete(p.id))
+			logs.map(log => WallLog.delete(log.id))
+			chatroom.map(room => ChatRoom.delete(room.id))
+			super.delete(id)
 		}
 	}
 

@@ -94,8 +94,10 @@ object Group extends ActiveRecord[Group] {
 	override def delete(id: String) {
 		transactional {
 			val group = byId[Group](id)
-			select[UserInGroup] where (_.group :== group)
-			select[WallInGroup] where (_.group :== group)
+			val uig = select[UserInGroup] where (_.group :== group)
+			val wig = select[WallInGroup] where (_.group :== group)
+			uig.map(_.delete)
+			wig.map(_.delete)
 			super.delete(id)
 		}
 	}

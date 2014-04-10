@@ -62,7 +62,7 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 			// remove all chatlogs in the room
 			val room = byId[ChatRoom](id)
 			val logs = select[ChatLog] where (_.room :== room)
-			logs.map(_.delete)
+			logs.map(log => ChatLog.delete(log.id))
 			super.delete(id)
 		}
 	}

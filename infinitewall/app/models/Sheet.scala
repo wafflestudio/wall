@@ -134,7 +134,7 @@ object Sheet extends ActiveRecord[Sheet] {
 			val sheet = byId[Sheet](id)
 			val sheetlinks = select[SheetLink] where (link => (link.fromSheet :== sheet) :|| (link.toSheet :== sheet))
 			val contents = select[Content] where (_.sheet :== sheet)
-			sheetlinks.map(_.delete)
+			sheetlinks.map(sheetlink => SheetLink.delete(sheetlink.id))
 			contents.map(_.delete)
 			super.delete(id)
 		}
