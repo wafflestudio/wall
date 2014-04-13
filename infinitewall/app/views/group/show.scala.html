@@ -30,7 +30,7 @@
 			<div class="panel-heading">@Messages("group.walls")</div>
 			<div class="panel-body">
 				<div class="list-group">
-					<p class="list-group-item" ng-repeat="(id, wall) in sharedWalls" ng-cloak><a href="/wall/{{wall.id}}">{{wall.name}}</a> <a ng-if="wall.isMine" class="pull-right" href="javascript:void(0)" ng-click="removeWall(id)">@Messages("group.unshareWall")</a></p>
+					<p class="list-group-item" ng-repeat="(id, wall) in sharedWalls" ng-cloak><a href="/wall/{{id}}">{{wall.name}}</a> <a ng-if="wall.isMine" class="pull-right" href="javascript:void(0)" ng-click="removeWall(id)">@Messages("group.unshareWall")</a></p>
 				</div>
 
 				<form class="form-inline" ng-submit="createWall()">
