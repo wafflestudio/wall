@@ -11,8 +11,6 @@ import securesocial.core.providers.Token
 class ActivateUserService(application: Application) extends UserServicePlugin(application) {
 
 	def find(id: IdentityId) = {
-		Logger.debug("find...")
-		Logger.debug("id = %s".format(id.userId))
 
 		val socialUser =
 			User.findById(id.userId).map(_.frozen).map { user =>
@@ -29,8 +27,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					Some(PasswordInfo("bcrypt", user.hashedPW, None)))
 			}
 
-		Logger.debug("socialUser = %s".format(socialUser))
-
 		socialUser
 	} // end find
 
@@ -39,9 +35,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	 *
 	 */
 	def findByEmailAndProvider(email: String, providerId: String): Option[SocialUser] = {
-		Logger.debug("findByEmailAndProvider...")
-		Logger.debug("email = %s".format(email))
-		Logger.debug("providerId = %s".format(providerId))
 
 		val socialUser =
 			User.findByEmailAndProvider(email, providerId).map(_.frozen).map { user =>
@@ -57,8 +50,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					None,
 					Some(PasswordInfo("bcrypt", user.hashedPW, None)))
 			}
-
-		Logger.debug("socialUser = %s".format(socialUser))
 
 		socialUser
 	} // end findByEmailAndProvider
@@ -84,14 +75,10 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					None,
 					Some(PasswordInfo("bcrypt", u.hashedPW, None))))
 
-		Logger.debug("save: user = %s, socialUser = %s".format(user, socialUser))
-
 		if (socialUser == None) { // user not exists
-			Logger.debug("INSERT")
 
 			User.create(user.identityId.userId, user.identityId.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
 		} else { // user exists
-			Logger.debug("UPDATE")
 
 			User.update(user.identityId.userId, user.identityId.providerId, user.firstName, user.lastName, user.email.get, user.passwordInfo.getOrElse(PasswordInfo("bcrypt", System.currentTimeMillis.toString, None)).password)
 		} // end else
@@ -103,13 +90,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	 *
 	 */
 	def save(token: Token) {
-		Logger.debug("save...")
-		Logger.debug("token = %s".format(token))
-		Logger.debug("timestamp(creation) = %s".format(token.creationTime.getMillis.toString))
-		Logger.debug("timestamp(current) = %s".format(System.currentTimeMillis.toString))
-
-		Logger.debug("INSERT")
-
 		UserToken.create(token.uuid, token.email, token.creationTime.getMillis, token.expirationTime.getMillis, token.isSignUp)
 	} // end save
 
@@ -118,8 +98,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	 *
 	 */
 	def findToken(token: String): Option[Token] = {
-		Logger.debug("findToken...")
-		Logger.debug("token = %s".format(token))
 
 		val foundToken =
 			UserToken.findByToken(token).map(_.frozen).map(userToken =>
@@ -130,8 +108,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 					new DateTime(userToken.expireAt.get),
 					userToken.isSignUp.get))
 
-		Logger.debug("foundToken = %s".format(foundToken))
-
 		foundToken
 	} // end findToken
 
@@ -140,8 +116,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	 *
 	 */
 	def deleteToken(uuid: String) {
-		Logger.debug("deleteToken...")
-		Logger.debug("uuid = %s".format(uuid))
 
 		UserToken.deleteByToken(uuid)
 	} // end deleteToken
@@ -151,7 +125,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	 *
 	 */
 	def deleteTokens() {
-		Logger.debug("deleteTokens...")
 
 		//UserToken.deleteAll()
 	} // end deleteTokens
@@ -161,7 +134,6 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	 *
 	 */
 	def deleteExpiredTokens() {
-		Logger.debug("deleteExpiredTokens...")
 
 		//UserToken.deleteExpiredTokens()
 	} // end deleteExpiredTokens
