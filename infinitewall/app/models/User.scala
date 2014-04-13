@@ -103,12 +103,25 @@ object User extends ActiveRecord[User] {
 
 	def listSharedWalls(id: String) = transactional {
 
-		val groupwalls = query {
+		val walls = query {
 			// my shared wall + group's wall
 			(user: User, wall: Wall, group: Group, uig: UserInGroup, wig: WallInGroup) =>
 				where((user.id :== id) :&&
 					(wall :== wig.wall) :&& (wig.group :== group) :&&
 					((uig.user :== user) :&& (uig.group :== wig.group))) select (wall)
+		}
+
+		walls
+	}
+
+	def listWallsInGroups(id: String) = transactional {
+
+		val groupwalls = query {
+			// my shared wall + group's wall
+			(user: User, wall: Wall, group: Group, uig: UserInGroup, wig: WallInGroup) =>
+				where((user.id :== id) :&&
+					(wall :== wig.wall) :&& (wig.group :== group) :&&
+					((uig.user :== user) :&& (uig.group :== wig.group))) select (wall, group)
 		}
 
 		groupwalls

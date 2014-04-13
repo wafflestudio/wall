@@ -34,14 +34,35 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	// FIXME: properly show group and wall as folder structure
-	def getSharedWalls = securedAction { implicit request =>
-		val walls = models.User.listSharedWalls(currentUserId).map(_.frozen)
-		Ok(Json.toJson(walls.map { wall =>
-			(wall.id, wall.name)
-		}.toMap))
+	def getWallsInGroups = securedAction { implicit request =>
+		val wallsWithGroups = models.User.listWallsInGroups(currentUserId).map {
+			case (wall, group) =>
+				(wall.frozen, group.frozen)
+		}
+
+		var map = scala.collection.mutable.Map[models.Group.Frozen, List[models.Wall.Frozen]]()
+		wallsWithGroups.map {
+			case (wall, group) =>
+				map(group) = map.getOrElse(group, List()) :+ wall
+		}
+
+		Ok(JsObject(map.map {
+			case (group, walls) =>
+				(group.id,
+					Json.obj("name" -> group.name,
+						"walls" -> walls.map(wall =>
+							Json.obj("id" -> wall.id, "name" -> wall.name, "isMine" -> (wall.userId == currentUserId)))))
+		}.toSeq))
 	}
 
-	implicit def resourceTree2Json(implicit tree: ResourceTree): JsValue = {
+	def getSharedWalls = securedAction { implicit request =>
+		val walls = models.User.listSharedWalls(currentUserId).map(_.frozen)
+		Ok(JsObject(walls.map { wall =>
+			(wall.id, Json.obj("name" -> wall.name, "isMine" -> (wall.userId == currentUserId)))
+		}.toSeq))
+	}
+
+	def resourceTree2Json(tree: ResourceTree): JsValue = {
 		tree.node match {
 			case root: models.RootFolder =>
 				JsArray(tree.children.map(resourceTree2Json(_)))

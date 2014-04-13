@@ -13,8 +13,8 @@ define ["jquery", "angularbootstrap"], ($) ->
       refresh = () ->
         $http.get("/wall.json").success (data, status) ->
           $scope.nonSharedWalls = data
-        $http.get("/wall/shared.json").success (data, status) ->
-          $scope.sharedWalls = data
+        $http.get("/wall/grouped.json").success (data, status) ->
+          $scope.groupedWalls = data
 
       $scope.init = () ->
         refresh()
@@ -57,6 +57,15 @@ define ["jquery", "angularbootstrap"], ($) ->
           refresh()
           $scope.newUser.email = ""
 
+      $scope.removeUser = (userId) ->
+
+        verified = confirm(Messages("group.confirm_removeUser"))
+        if verified
+          $http.delete("/group/#{$scope.groupId}/user/#{userId}/id").success (data, status) ->
+            refresh()
+            $scope.userId = ""
+
+
       $scope.createWall = () ->
         $http.post("/group/#{$scope.groupId}/wall", $scope.newWall).success (data, status) ->
           refresh()
@@ -68,8 +77,10 @@ define ["jquery", "angularbootstrap"], ($) ->
           refresh()
 
       $scope.removeWall = (wallId) ->
-        $http.delete("/group/#{$scope.groupId}/wall/#{wallId}").success (data, status) ->
-          refresh()
+        verified = confirm(Messages("group.confirm_unshareWall"))
+        if verified
+          $http.delete("/group/#{$scope.groupId}/wall/#{wallId}").success (data, status) ->
+            refresh()
     ]
   # required for AMDs like requirejs:
   angular.bootstrap(document, ["wallApp"])

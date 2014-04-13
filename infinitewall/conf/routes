@@ -41,6 +41,7 @@ PUT      /folder/:folderId/rename             controllers.FolderController.renam
 GET      /wall                                controllers.WallController.index
 GET      /wall.json                           controllers.WallController.getUserWalls
 GET      /wall/shared.json                    controllers.WallController.getSharedWalls
+GET      /wall/grouped.json                   controllers.WallController.getWallsInGroups
 # create new wall
 POST     /wall                                controllers.WallController.create
 # delete wall
@@ -136,4 +137,5 @@ GET     /authenticate/:provider     securesocial.controllers.ProviderController.
 POST    /authenticate/:provider     securesocial.controllers.ProviderController.authenticateByPost(provider)
 GET     /not-authorized             securesocial.controllers.ProviderController.notAuthorized
 ####### Secure Social End
+
 
