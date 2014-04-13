@@ -31,8 +31,20 @@ wall.button_create = Create
 wall.confirm_delete = Do you really want to delete this wall?
 
 group.create = Create New Group
+group.name = Name
 group.groups = My Groups
 group.button_create = Create
+group.users = Members of Group
+group.addUser = add
+group.confirm_removeUser = Do you really want to remove this user from group?
+group.userEmail = User email
+group.removeUser = remove
+group.walls = Walls in Group
+group.wallName = Wall title
+group.shareWall = share
+group.unshareWall = unshare
+group.confirm_unshareWall = Do you really want to remove this wall from group?
+
 
 contact.members = Current Team
 contact.previousmembers = Previous Members

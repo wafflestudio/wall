@@ -3,7 +3,7 @@ package controllers
 import models.ActiveRecord.Alias
 import models.{ User, Group, Wall }
 import play.api.Logger
-import play.api.libs.json.Json
+import play.api.libs.json.{ Json, JsObject }
 
 object GroupController extends Controller with SecureSocial {
 
@@ -74,11 +74,11 @@ object GroupController extends Controller with SecureSocial {
 
 	def getSharedWalls(groupId: String) = securedAction { implicit request =>
 		if (Group.isValid(groupId, currentUserId)) {
-			val walls = Group.listWalls(groupId).map(_.frozen).map { wall =>
-				(wall.id, wall.name)
-			}.toMap
+			val walls = Group.listWalls(groupId).map(_.frozen)
+			Ok(JsObject(walls.map { wall =>
+				(wall.id, Json.obj("name" -> wall.name, "isMine" -> (wall.userId == currentUserId)))
+			}.toSeq))
 
-			Ok(Json.toJson(walls))
 		} else
 			Forbidden(Json.toJson("Unauthorized access"))
 	}

@@ -6,17 +6,17 @@
 	<div class="col-lg-12">
 
 		<div class="panel panel-default">
-			<div class="panel-heading">Users in Group</div>
+			<div class="panel-heading">@Messages("group.users")</div>
 			<div class="panel-body">
 				<div class="list-group">
-					<p class="list-group-item" ng-repeat="(id, email) in users" ng-cloak>{{email}} <a href="javascript:void(0)" ng-click="removeUser(id)">remove</a></p>
+					<p class="list-group-item" ng-repeat="(id, email) in users" ng-cloak>{{email}} <a class="pull-right" href="javascript:void(0)" ng-click="removeUser(id)">@Messages("group.removeUser")</a></p>
 				</div>
 
 				<form class="form-inline" ng-submit="addUser()">
 				<div class="input-group">
-					<input name="email" class="form-control" type="text" placeholder="User email" ng-model="newUser.email">
+					<input name="email" class="form-control" type="text" placeholder="@Messages("group.userEmail")" ng-model="newUser.email">
 					<span class="input-group-btn">
-						<button class="btn btn-default" type="submit">Add</button>
+						<button class="btn btn-default" type="submit">@Messages("group.addUser")</button>
 					</span>
 				</div><!-- /input-group -->
 				</form>
@@ -27,17 +27,17 @@
 	<div class="col-lg-12">
 
 		<div class="panel panel-default">
-			<div class="panel-heading">Group's Walls</div>
+			<div class="panel-heading">@Messages("group.walls")</div>
 			<div class="panel-body">
 				<div class="list-group">
-					<p ng-repeat="(id, name) in sharedWalls" ng-cloak><a href="/wall/{{id}}">{{name}}</a> | <a href="javascript:void(0)" ng-click="removeWall(id)">remove</a></p>
+					<p class="list-group-item" ng-repeat="(id, wall) in sharedWalls" ng-cloak><a href="/wall/{{wall.id}}">{{wall.name}}</a> <a ng-if="wall.isMine" class="pull-right" href="javascript:void(0)" ng-click="removeWall(id)">@Messages("group.unshareWall")</a></p>
 				</div>
 
 				<form class="form-inline" ng-submit="createWall()">
 				<div class="input-group">
-					<input name="title" class="form-control" type="text" placeholder="Wall title" ng-model="newWall.title">
+					<input name="title" class="form-control" type="text" placeholder="@Messages("group.wallName")" ng-model="newWall.title">
 					<span class="input-group-btn">
-						<button class="btn btn-default" type="submit">Create</button>
+						<button class="btn btn-default" type="submit">@Messages("group.button_create")</button>
 					</span>
 				</div><!-- /input-group -->
 				</form>
@@ -45,10 +45,10 @@
 		</div>
 
 		<div class="panel panel-default">
-			<div class="panel-heading">My Walls</div>
+			<div class="panel-heading">@Messages("wall.walls")</div>
 			<div class="panel-body">
 				<div class="list-group">
-					<p ng-repeat="(id, name) in nonSharedWalls" ng-cloak><a href="/wall/{{id}}">{{name}}</a> | <a href="javascript:void(0)" ng-click="addWall(id)">add to group</a></p>
+					<p class="list-group-item" ng-repeat="(id, name) in nonSharedWalls" ng-cloak><a href="/wall/{{id}}">{{name}}</a> <a class="pull-right" href="javascript:void(0)" ng-click="addWall(id)">@Messages("group.shareWall")</a></p>
 				</div>
 			</div>
 		</div>

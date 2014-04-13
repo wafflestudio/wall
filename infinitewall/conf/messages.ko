@@ -33,7 +33,18 @@ wall.confirm_delete = 정말로 이 월을 삭제하시겠습니까?
 
 group.create = 그룹 만들기
 group.groups = 내 그룹
+group.name = 이름
 group.button_create = 생성
+group.users = 그룹 멤버
+group.addUser = 그룹에 추가
+group.confirm_removeUser = 정말로 이 사용자를 그룹에서 제외하시겠습니까?
+group.userEmail = 메일 주소
+group.removeUser = 제거
+group.walls = 그룹에 공유중인 월
+group.wallName = 월 제목
+group.shareWall = 공유
+group.unshareWall = 공유해제
+group.confirm_unshareWall = 정말로 이 월을 그룹에서 제외하시겠습니까?
 
 contact.members = 팀원
 contact.previousmembers = 이전 팀원
