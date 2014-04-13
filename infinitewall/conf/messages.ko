@@ -28,6 +28,7 @@ wall.create = 새 월 만들기
 wall.walls = 내 월
 wall.sharedwalls = 공동 월
 wall.button_create = 생성
+wall.confirm_delete = 정말로 이 월을 삭제하시겠습니까?
 
 
 group.create = 그룹 만들기

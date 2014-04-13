@@ -28,7 +28,8 @@ object ApplicationBuild extends Build {
 			"se.digiplant" %% "play-scalr" % "1.0.1",
             "org.webjars" %% "webjars-play" % "2.2.1-2",
             "org.webjars" % "requirejs" % "2.1.1",
-            "org.webjars" % "angularjs" % "1.2.13"
+            "org.webjars" % "angularjs" % "1.2.13",
+			"org.julienrf" %% "play-jsmessages" % "1.6.0"
 			)
 
 	val main = play.Project(appName, appVersion, appDependencies).settings(

@@ -28,6 +28,7 @@ wall.create = Create New Wall
 wall.walls = My Walls
 wall.sharedwalls = Shared Walls
 wall.button_create = Create
+wall.confirm_delete = Do you really want to delete this wall?
 
 group.create = Create New Group
 group.groups = My Groups
