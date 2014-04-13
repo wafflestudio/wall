@@ -1,6 +1,6 @@
 @(groupId:String, name:String)(implicit request: RequestHeader, lang: Lang)
 
-@layouts.main(name + " ::: Group ::: Infinite Wall") {
+@layouts.main(name + " ::: " + Messages("group.page_name")  + "  ::: Infinite Wall") {
 <div class="row contact" ng-controller="Groups" ng-init="init('@groupId')">
 
 	<div class="col-lg-12">

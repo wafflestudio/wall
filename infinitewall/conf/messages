@@ -19,17 +19,21 @@ language.english = English
 
 user.guest = Guest
 
+about.page_name = About
 
 content.banner = Welcome to Infinite Wall
 content.banner_sub = Revolutionize your thoughts
 content.button_more = Find out more
 
+wall.page_name = Manage Walls
 wall.create = Create New Wall
 wall.walls = My Walls
+wall.delete = delete
 wall.sharedwalls = Shared Walls
 wall.button_create = Create
 wall.confirm_delete = Do you really want to delete this wall?
 
+group.page_name = Manage Groups
 group.create = Create New Group
 group.name = Name
 group.groups = My Groups
@@ -46,9 +50,11 @@ group.unshareWall = unshare
 group.confirm_unshareWall = Do you really want to remove this wall from group?
 
 
+contact.page_name = The Team
 contact.members = Current Team
 contact.previousmembers = Previous Members
 
+contribute.page_name = Contribute
 contribute.title = Contribute
 contribute.header1 = Open Source Project
 contribute.content1 = First started as an internal project in WaffleStudio, we''ve made a progress to make it this far. As there are still much, much more to fulfill ahead, we seek contributions and lovers outside the community to make our beloved project flourish. Developers can fork the source at github and make pull requests for the fixes and improvements. 

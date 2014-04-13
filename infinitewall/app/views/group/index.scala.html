@@ -1,6 +1,6 @@
 @(ownedGroups:List[models.Group.Frozen], includedGroups:List[models.Group.Frozen])(implicit request: RequestHeader, lang: Lang)
 
-@layouts.main("Groups ::: Infinite Wall") {
+@layouts.main(Messages("group.page_name") + " ::: Infinite Wall") {
 <div class="row contact">
 	<div class="col-lg-12">
 		<div class="panel panel-default">

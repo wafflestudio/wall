@@ -19,18 +19,21 @@ language.english = English
 
 user.guest = 방문자
 
+about.page_name = 소개
 
 content.banner = 인피니트 월에 오신 것을 환영합니다
 content.banner_sub = 생각의 혁명을 일으키다
 content.button_more = 더 알아보기
 
+wall.page_name = 월 관리
 wall.create = 새 월 만들기
 wall.walls = 내 월
+wall.delete = 삭제
 wall.sharedwalls = 공동 월
 wall.button_create = 생성
 wall.confirm_delete = 정말로 이 월을 삭제하시겠습니까?
 
-
+group.page_name = 그룹 관리
 group.create = 그룹 만들기
 group.groups = 내 그룹
 group.name = 이름
@@ -46,9 +49,11 @@ group.shareWall = 공유
 group.unshareWall = 공유해제
 group.confirm_unshareWall = 정말로 이 월을 그룹에서 제외하시겠습니까?
 
+contact.page_name = 개발팀 소개
 contact.members = 팀원
 contact.previousmembers = 이전 팀원
 
+contribute.page_name = 기여하기
 contribute.title = 기여
 contribute.header1 = 오픈소스 프로젝트
 contribute.content1 = 와플스튜디오 내부에서 시작된 이 프로젝트는 많은 시간과 노력으로 여기까지 왔습니다. 여전히 많은 부분을 개선해야 하고 더 잘 만들어가고 싶기에 저희의 애정이 담긴 이 프로젝트에 기여할 더욱 많은 참여를 이끌고자 이 프로젝트를 공개하게 되었습니다. 이제 Github에서 소스를 자유롭게 포크(fork)하고, 버그를 고치거나 새롭게 개선한 사항을 풀 리퀘스트(pull request)를 통해 본 프로젝트에 기여할 수 있습니다.
