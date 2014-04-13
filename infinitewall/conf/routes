@@ -5,9 +5,10 @@
 # Home page
 GET      /                                    controllers.ApplicationController.index
 GET      /about                               controllers.ApplicationController.about
-GET      /contribute                               controllers.ApplicationController.contribute
+GET      /contribute                          controllers.ApplicationController.contribute
 GET      /contact                             controllers.ApplicationController.contact
 GET      /language/:locale                    controllers.ApplicationController.language(locale: String)
+GET      /messages.js                         controllers.ApplicationController.jsMessages
 
 
 GET      /me                                  controllers.AccountController.index

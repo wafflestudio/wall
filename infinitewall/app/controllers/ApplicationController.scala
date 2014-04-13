@@ -41,6 +41,13 @@ object ApplicationController extends Controller with SecureSocial {
 		Redirect(routes.ApplicationController.index()).withLang(Lang(locale))
 	}
 
+	def jsMessages = Action {
+		import jsmessages.api.JsMessages
+		import play.api.Play.current
+		val messages = JsMessages.default
+		Ok(messages(Some("window.Messages")))
+	}
+
 	def renewSession() = securedAction { implicit request =>
 		Ok("")
 	}

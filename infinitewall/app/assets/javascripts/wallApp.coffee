@@ -27,10 +27,11 @@ define ["jquery", "angularbootstrap"], ($) ->
           $scope.newWall.title = ""
       
       $scope.deleteWall = (wallId) ->
-        verified = confirm("Really delete the wall?")
+        verified = confirm(Messages("wall.confirm_delete"))
 
-        $http.delete("/wall/#{wallId}").success (data, status) ->
-          refresh()
+        if verified
+          $http.delete("/wall/#{wallId}").success (data, status) ->
+            refresh()
     ]
 
   
