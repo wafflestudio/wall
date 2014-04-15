@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ `git rev-parse --abbrev-ref HEAD` != "infinitwall.com" ]
+then
+	exit 0
+fi
 
 ### ELASTICSEARCH KOREAN ANALYSIS PLUGIN
 cd elasticsearch-analysis-korean
