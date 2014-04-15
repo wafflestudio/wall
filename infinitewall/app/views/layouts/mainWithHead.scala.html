@@ -19,7 +19,7 @@
 		<meta name="author" content="Won-wook Hong, Jaeho Jeon, Taekmin Kim, Joosik Yoon" />
 		<title>@title</title>
 
-		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
+		<link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("css/bootstrap.min.css"))">
 		<link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
     <script type="text/javascript" src="@routes.ApplicationController.jsMessages()"></script> 
 		@Html(org.webjars.play.RequireJS.setup("javascripts/config"))
