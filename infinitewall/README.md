@@ -2,6 +2,7 @@ Infinite Wall Play Framework Project
 =====================================
 
 #### Run
+	$ <run elastic search> # (optional)
     $ play 
     [Infinite Wall] $ compile
     [Infinite Wall] $ run
