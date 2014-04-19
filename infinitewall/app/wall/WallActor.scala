@@ -13,43 +13,73 @@ import play.api.libs.json._
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import utils.{ StringWithState, UsageSet }
 
+class ConnectionManager {
+	val connectionUsage = new UsageSet
+	case class Connection(enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], uuid: String, connectionId: Int, isVolatile: Boolean = false)
+
+	// key: userId, values: list of sessions user have
+	private var connectionsPerUser = Map.empty[String, List[Connection]]
+
+	def allocate = connectionUsage.allocate
+
+	def free(connectionId: Int) = connectionUsage.free(connectionId)
+
+	def addConnection(userId: String, uuid: String, enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], connectionId: Int) = {
+		connectionsPerUser = connectionsPerUser + (userId -> (connectionsPerUser.getOrElse(userId, List()) :+ Connection(enumerator, channel, uuid, connectionId)))
+	}
+
+	def removeConnection(userId: String, connectionId: Int) = {
+		connectionUsage.free(connectionId)
+		connectionsPerUser.get(userId).foreach { userConns =>
+			val newUserConns = userConns.filter(_.connectionId != connectionId)
+			if (newUserConns.isEmpty)
+				connectionsPerUser = connectionsPerUser - userId
+			else
+				connectionsPerUser = connectionsPerUser + (userId -> newUserConns)
+		}
+	}
+
+	def numConnections = connectionsPerUser.foldLeft[Int](0) { (num, userConnections) =>
+		num + userConnections._2.length
+	}
+
+	def hasConnection = !connectionsPerUser.isEmpty && numConnections != 0
+
+	def connectionsAsString = connectionsPerUser.foldLeft("") { (str, userConnections) =>
+		str + userConnections._2.foldLeft("") { (str, conn) =>
+			str + { if (str.isEmpty()) { "" } else { "," } } + conn.uuid
+		}
+	}
+
+	def connections = connectionsPerUser.flatMap {
+		case (_, userConns) =>
+			userConns
+	}
+
+}
+
 class WallActor(wallId: String) extends Actor {
 
 	implicit def toDouble(value: JsValue) = { value.as[Double] }
 	implicit def toLong(value: JsValue) = { value.as[Long] }
 
-	val connectionUsage = new UsageSet
-	case class Connection(enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], uuid: String, connectionId: Int, isVolatile: Boolean = false)
-
-	// key: userId, values: list of sessions user have
-	var connections = Map.empty[String, List[Connection]]
 	// trick to track pending messages for each session (session, timestamp, action)
 	var recentRecords = List[AlterTextRecord]()
+
+	val connectionManager = new ConnectionManager
+
 	// shutdown timer activated when no connection is left to the actor
 	var shutdownTimer: Option[akka.actor.Cancellable] = None
 
-	def addConnection(userId: String, uuid: String, enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], connectionId: Int) = {
-		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(enumerator, channel, uuid, connectionId)))
+	def beginCountdown = {
+		shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Inactive(wallId) })
 	}
 
-	def removeConnection(userId: String, connectionId: Int) = {
-		connectionUsage.free(connectionId)
-		connections.get(userId).foreach { userConns =>
-			val newUserConns = userConns.filter(_.connectionId != connectionId)
-			if (newUserConns.isEmpty)
-				connections = connections - userId
-			else
-				connections = connections + (userId -> newUserConns)
-		}
-	}
-
-	def numConnections = connections.foldLeft[Int](0) { (num, userConnections) =>
-		num + userConnections._2.length
-	}
-
-	def connectionsAsString = connections.foldLeft("") { (str, userConnections) =>
-		str + userConnections._2.foldLeft("") { (str, conn) =>
-			str + { if (str.isEmpty()) { "" } else { "," } } + conn.uuid
+	def stopCountdown = {
+		// deactivate shutdown timer if activated
+		shutdownTimer.foreach { cancellable =>
+			cancellable.cancel()
+			shutdownTimer = None
 		}
 	}
 
@@ -62,19 +92,15 @@ class WallActor(wallId: String) extends Actor {
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("Wall has reached maximum number of connections.")
 			} else {
-				// deactivate shutdown timer if activated
-				shutdownTimer.map { cancellable =>
-					cancellable.cancel()
-					shutdownTimer = None
-				}
+				stopCountdown
 
-				val connectionId = connectionUsage.allocate
+				val connectionId = connectionManager.allocate
 
 				lazy val producer: Enumerator[JsValue] = Concurrent.unicast[JsValue](onStart = { channel =>
 					// update connections map
-					addConnection(userId, uuid, producer, channel, connectionId)
+					connectionManager.addConnection(userId, uuid, producer, channel, connectionId)
 				}, onError = { (msg, input) =>
-					connectionUsage.free(connectionId)
+					connectionManager.free(connectionId)
 				})
 
 				val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
@@ -85,20 +111,23 @@ class WallActor(wallId: String) extends Actor {
 					Logger.info(s"[Wall] user $userId:($uuid) syncing with wall $wallId")
 				} else {
 					Logger.info(s"[Wall] user $userId:($uuid / $connectionId) joined to wall $wallId")
-					Logger.info("[Wall] Number of active connections for wall(" + wallId + "): " + numConnections)
+					Logger.info("[Wall] Number of active connections for wall(" + wallId + "): " + connectionManager.numConnections)
 
-					Logger.info(s"[Wall] connections: (${connectionsAsString})")
+					Logger.info(s"[Wall] connections: (${connectionManager.connectionsAsString})")
 				}
 			}
 		}
-		case RetryFinish =>
+		case CheckInactive =>
 			//start scheduling shutdown if no connections left
-			if (numConnections == 0)
-				shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Finishing(wallId) })
+			if (!connectionManager.hasConnection)
+				beginCountdown
 		// ACK
 		case Action(json, _, _, ack: Ack) =>
 			Logger.debug("ack came(" + ack.timestamp + ").")
 		// reserved for future use..
+		case Talk(text, uuid, connectionId) =>
+		// TODO
+
 		// Create Action
 		case Action(json, uuid, connectionId, c: CreateAction) =>
 			val sheetId = Sheet.create(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId).frozen.id
@@ -159,26 +188,16 @@ class WallActor(wallId: String) extends Actor {
 
 		// Quit
 		case Quit(userId, uuid, connectionId, wasPersistent) => {
-
 			quit(userId, uuid, connectionId)
 			if (wasPersistent)
 				notifyAll("userQuit", 0, userId, uuid, "")
-
 		}
-
 	}
 
 	def notifyAll(kind: String, basetimestamp: Long, userId: String, uuid: String, detail: String) = {
-
 		val log = logMessage(kind, basetimestamp, userId, detail)
-		val msg = log.toJson
 		// notify all producers
-		connections.foreach {
-			case (_, userConns) =>
-				userConns.foreach { connection =>
-					connection.channel.push(msg)
-				}
-		}
+		connectionManager.connections.foreach(_.channel.push(log.toJson))
 		log.id
 	}
 
@@ -190,14 +209,14 @@ class WallActor(wallId: String) extends Actor {
 
 	def quit(userId: String, uuid: String, connectionId: Int) = {
 		// clear sessions for userid. if none exists for a userid, remove userid key.
-		removeConnection(userId, connectionId)
+		connectionManager.removeConnection(userId, connectionId)
 
 		//start scheduling shutdown
-		if (numConnections == 0)
-			shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Finishing(wallId) })
+		if (!connectionManager.hasConnection)
+			beginCountdown
 
 		Logger.info(s"[Wall] user $userId quit from wall $wallId")
-		Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
+		Logger.info("Number of active connections for wall(" + wallId + "): " + connectionManager.numConnections)
 	}
 
 }

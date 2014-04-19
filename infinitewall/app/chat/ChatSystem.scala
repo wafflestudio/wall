@@ -50,7 +50,7 @@ object ChatSystem {
 				// Create an Iteratee to consume the feed
 				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
 					room(roomId) ! Talk(userId, (event \ "connectionId").as[Int], (event \ "text").as[String])
-				}.mapDone { _ =>
+				}.map { _ =>
 					room(roomId) ! Quit(userId, producer, connectionId)
 				}
 

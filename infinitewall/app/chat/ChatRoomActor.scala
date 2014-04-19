@@ -16,10 +16,12 @@ import utils.UsageSet
 
 class ChatRoomActor(roomId: String) extends Actor {
 
+	/* connection management */
 	val connectionUsage = new UsageSet
 	case class Connection(enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], connectionId: Int)
 	private var connections = Map.empty[String, List[Connection]]
 
+	/* previous messages */
 	def prevMessages(timestampOpt: Option[Long]) = {
 		timestampOpt match {
 			case Some(timestamp) =>
@@ -46,7 +48,6 @@ class ChatRoomActor(roomId: String) extends Actor {
 				User.findById(connection._1).map(_.frozen).map { user =>
 					Json.obj(
 						"userId" -> user.id,
-						//"connectionId" -> connection.connectionId,
 						"email" -> user.email,
 						"nickname" -> user.firstName)
 				}
@@ -175,3 +176,4 @@ class ChatRoomActor(roomId: String) extends Actor {
 		}
 	}
 }
+

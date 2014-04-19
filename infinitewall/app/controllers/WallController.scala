@@ -116,6 +116,7 @@ object WallController extends Controller with SecureSocial {
 		Redirect(routes.WallController.stage(wallId))
 	}
 
+	// websocket IO stream of events
 	def sync(wallId: String) = securedWebsocket { implicit request =>
 		val uuid = queryParam("uuid")
 		val timestamp = queryParam("timestamp").toLong
@@ -130,7 +131,7 @@ object WallController extends Controller with SecureSocial {
 		Logger.info(s"speak1: ${bodyText}")
 		val action = Json.parse(Json.parse(bodyText).as[String])
 		Logger.info(s"speak2: $action")
-		WallSystem.submitActions(wallId, request.user.identityId.userId, uuid, 0, action)
+		WallSystem.submit(wallId, request.user.identityId.userId, uuid, 0, action)
 		Ok("")
 	}
 
