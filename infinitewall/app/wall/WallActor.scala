@@ -83,6 +83,15 @@ class WallActor(wallId: String) extends Actor {
 		}
 	}
 
+	def prevLogs(timestamp: Long) =
+		WallLog.list(wallId, timestamp).map(_.frozen)
+
+	def logMessage(kind: String, basetimestamp: Long, userId: String, message: String) =
+		WallLog.create(kind, wallId, basetimestamp, userId, message).frozen
+
+	// notify all producers
+	def broadcast(msg: WallLog.Frozen) = connectionManager.connections.foreach(_.channel.push(msg.toJson))
+
 	def update(action: Action): Option[WallLog.Frozen] = {
 		action match {
 			// ACK
@@ -156,6 +165,18 @@ class WallActor(wallId: String) extends Actor {
 		}
 	}
 
+	def quit(userId: String, uuid: String, connectionId: Int) = {
+		// clear sessions for userid. if none exists for a userid, remove userid key.
+		connectionManager.removeConnection(userId, connectionId)
+
+		//start scheduling shutdown
+		if (!connectionManager.hasConnection)
+			beginShutdownCountdown
+
+		Logger.info(s"[Wall] user $userId quit from wall $wallId")
+		Logger.info("Number of active connections for wall(" + wallId + "): " + connectionManager.numConnections)
+	}
+
 	def receive = {
 		// Join
 		case Join(userId, uuid, timestamp, syncOnce) => {
@@ -206,27 +227,6 @@ class WallActor(wallId: String) extends Actor {
 			if (wasPersistent)
 				broadcast(logMessage("userQuit", 0, userId, ""))
 		}
-	}
-
-	def prevLogs(timestamp: Long) =
-		WallLog.list(wallId, timestamp).map(_.frozen)
-
-	def logMessage(kind: String, basetimestamp: Long, userId: String, message: String) =
-		WallLog.create(kind, wallId, basetimestamp, userId, message).frozen
-
-	// notify all producers
-	def broadcast(msg: WallLog.Frozen) = connectionManager.connections.foreach(_.channel.push(msg.toJson))
-
-	def quit(userId: String, uuid: String, connectionId: Int) = {
-		// clear sessions for userid. if none exists for a userid, remove userid key.
-		connectionManager.removeConnection(userId, connectionId)
-
-		//start scheduling shutdown
-		if (!connectionManager.hasConnection)
-			beginShutdownCountdown
-
-		Logger.info(s"[Wall] user $userId quit from wall $wallId")
-		Logger.info("Number of active connections for wall(" + wallId + "): " + connectionManager.numConnections)
 	}
 
 }
