@@ -71,15 +71,88 @@ class WallActor(wallId: String) extends Actor {
 	// shutdown timer activated when no connection is left to the actor
 	var shutdownTimer: Option[akka.actor.Cancellable] = None
 
-	def beginCountdown = {
+	def beginShutdownCountdown = {
 		shutdownTimer = Some(context.system.scheduler.scheduleOnce(WallSystem.shutdownFinalizeTimeout milliseconds) { context.parent ! Inactive(wallId) })
 	}
 
-	def stopCountdown = {
+	def stopShutdownCountdown = {
 		// deactivate shutdown timer if activated
 		shutdownTimer.foreach { cancellable =>
 			cancellable.cancel()
 			shutdownTimer = None
+		}
+	}
+
+	def update(action: Action): Option[WallLog.Frozen] = {
+		action match {
+			// ACK
+			case Action(json, _, _, ack: Ack) =>
+				Logger.debug("ack came(" + ack.timestamp + ").")
+				None
+
+			// Create Action
+			case Action(json, uuid, connectionId, c: CreateAction) =>
+				val sheetId = Sheet.create(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId).frozen.id
+				val addSheetId = (__ \ "params").json.update(__.read[JsObject].map(_ ++ Json.obj("sheetId" -> sheetId)))
+				Some(logMessage("action", c.timestamp, c.userId, json.validate(addSheetId).get.toString))
+			// Other Action
+			case Action(json, uuid, connectionId, action: ActionDetailWithId) =>
+				Sheet.findById(action.sheetId).map(_.frozen).map { sheet =>
+
+					action match {
+						case a: MoveAction =>
+							Sheet.move(a.sheetId, a.x, a.y)
+							logMessage("action", action.timestamp, action.userId, json.toString)
+						case a: ResizeAction =>
+							Sheet.resize(a.sheetId, a.width, a.height)
+							logMessage("action", action.timestamp, action.userId, json.toString)
+						case a: RemoveAction =>
+							Sheet.remove(a.sheetId) //former delete
+							logMessage("action", action.timestamp, action.userId, json.toString)
+						case a: SetTitleAction =>
+							Sheet.setTitle(a.sheetId, a.title)
+							logMessage("action", action.timestamp, action.userId, json.toString)
+						case a: SetTextAction =>
+							Sheet.setText(a.sheetId, a.text)
+							logMessage("action", action.timestamp, action.userId, json.toString)
+						case action: AlterTextAction =>
+							// simulate consolidation of records after timestamp
+							val records: List[AlterTextRecord] = transactional {
+								WallLog.listAlterTextRecord(wallId, action.sheetId, action.timestamp)
+							}
+							var pending = action.operations // all mine with > a.timestamp
+
+							records.foreach { record =>
+								if (record.uuid == action.uuid) {
+									// drop already consolidated. 
+									if (pending.head.msgId != record.msgId)
+										Logger.warn(s"pending: ${pending.head.msgId} != record: ${record.msgId}")
+									pending = pending.drop(1)
+								} else { // apply arrived consolidated record
+									val ss = new StringWithState(record.baseText)
+									ss.apply(record.operation, 1)
+									// transform pending
+									pending = pending.map { p =>
+										OperationWithState(ss.apply(p.op, 0), p.msgId)
+									}
+									Logger.debug("simulation: " + ss.text)
+								}
+							}
+
+							val newOperation = pending.head.op
+							val (baseText, undoOp) = Sheet.alterText(action.sheetId, newOperation)
+							val newAction = AlterTextAction(action.userId, action.uuid, action.sheetId, action.timestamp,
+								List(OperationWithState(newOperation, action.operations.last.msgId)), undoOp)
+							logMessage("action", action.timestamp, action.userId, newAction.json.toString)
+						case a: SetLinkAction =>
+							SheetLink.create(a.sheetId, a.toSheetId, wallId)
+							logMessage("action", action.timestamp, action.userId, json.toString)
+						case a: RemoveLinkAction =>
+							SheetLink.remove(a.sheetId, a.toSheetId)
+							SheetLink.remove(a.toSheetId, a.sheetId)
+							logMessage("action", action.timestamp, action.userId, json.toString)
+					}
+				}
 		}
 	}
 
@@ -92,7 +165,7 @@ class WallActor(wallId: String) extends Actor {
 			if (false /* maximum connection per user constraint here*/ ) {
 				sender ! CannotConnect("Wall has reached maximum number of connections.")
 			} else {
-				stopCountdown
+				stopShutdownCountdown
 
 				val connectionId = connectionManager.allocate
 
@@ -120,85 +193,19 @@ class WallActor(wallId: String) extends Actor {
 		case CheckInactive =>
 			//start scheduling shutdown if no connections left
 			if (!connectionManager.hasConnection)
-				beginCountdown
-		// ACK
-		case Action(json, _, _, ack: Ack) =>
-			Logger.debug("ack came(" + ack.timestamp + ").")
-		// reserved for future use..
+				beginShutdownCountdown
+
 		case Talk(text, uuid, connectionId) =>
 		// TODO
-
-		// Create Action
-		case Action(json, uuid, connectionId, c: CreateAction) =>
-			val sheetId = Sheet.create(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId).frozen.id
-			val addSheetId = (__ \ "params").json.update(__.read[JsObject].map(_ ++ Json.obj("sheetId" -> sheetId)))
-			notifyAll("action", c.timestamp, c.userId, uuid, json.validate(addSheetId).get.toString)
-		// Other Action
-		case Action(json, uuid, connectionId, action: ActionDetailWithId) =>
-			Sheet.findById(action.sheetId).map(_.frozen).map { sheet =>
-
-				action match {
-					case a: MoveAction => Sheet.move(a.sheetId, a.x, a.y)
-					case a: ResizeAction => Sheet.resize(a.sheetId, a.width, a.height)
-					case a: RemoveAction => Sheet.remove(a.sheetId) //former delete
-					case a: SetTitleAction => Sheet.setTitle(a.sheetId, a.title)
-					case a: SetTextAction => Sheet.setText(a.sheetId, a.text)
-					case action: AlterTextAction =>
-						// simulate consolidation of records after timestamp
-						val records: List[AlterTextRecord] = transactional {
-							WallLog.listAlterTextRecord(wallId, action.sheetId, action.timestamp)
-						}
-						var pending = action.operations // all mine with > a.timestamp
-
-						records.foreach { record =>
-							if (record.uuid == action.uuid) {
-								// drop already consolidated. 
-								if (pending.head.msgId != record.msgId)
-									Logger.warn(s"pending: ${pending.head.msgId} != record: ${record.msgId}")
-								pending = pending.drop(1)
-							} else { // apply arrived consolidated record
-								val ss = new StringWithState(record.baseText)
-								ss.apply(record.operation, 1)
-								// transform pending
-								pending = pending.map { p =>
-									OperationWithState(ss.apply(p.op, 0), p.msgId)
-								}
-								Logger.debug("simulation: " + ss.text)
-							}
-						}
-
-						val newOperation = pending.head.op
-						val (baseText, undoOp) = Sheet.alterText(action.sheetId, newOperation)
-						val newAction = AlterTextAction(action.userId, action.uuid, action.sheetId, action.timestamp,
-							List(OperationWithState(newOperation, action.operations.last.msgId)), undoOp)
-						val newTimestamp = notifyAll("action", action.timestamp, action.userId, uuid, newAction.json.toString)
-
-					case a: SetLinkAction => SheetLink.create(a.sheetId, a.toSheetId, wallId)
-					case a: RemoveLinkAction =>
-						SheetLink.remove(a.sheetId, a.toSheetId)
-						SheetLink.remove(a.toSheetId, a.sheetId)
-				}
-
-				action match {
-					case a: AlterTextAction =>
-					case _ =>
-						notifyAll("action", action.timestamp, action.userId, uuid, json.toString)
-				}
-			}
-
+		case action: Action =>
+			// update action and broadcast if needed
+			update(action).map(broadcast(_))
 		// Quit
 		case Quit(userId, uuid, connectionId, wasPersistent) => {
 			quit(userId, uuid, connectionId)
 			if (wasPersistent)
-				notifyAll("userQuit", 0, userId, uuid, "")
+				broadcast(logMessage("userQuit", 0, userId, ""))
 		}
-	}
-
-	def notifyAll(kind: String, basetimestamp: Long, userId: String, uuid: String, detail: String) = {
-		val log = logMessage(kind, basetimestamp, userId, detail)
-		// notify all producers
-		connectionManager.connections.foreach(_.channel.push(log.toJson))
-		log.id
 	}
 
 	def prevLogs(timestamp: Long) =
@@ -207,13 +214,16 @@ class WallActor(wallId: String) extends Actor {
 	def logMessage(kind: String, basetimestamp: Long, userId: String, message: String) =
 		WallLog.create(kind, wallId, basetimestamp, userId, message).frozen
 
+	// notify all producers
+	def broadcast(msg: WallLog.Frozen) = connectionManager.connections.foreach(_.channel.push(msg.toJson))
+
 	def quit(userId: String, uuid: String, connectionId: Int) = {
 		// clear sessions for userid. if none exists for a userid, remove userid key.
 		connectionManager.removeConnection(userId, connectionId)
 
 		//start scheduling shutdown
 		if (!connectionManager.hasConnection)
-			beginCountdown
+			beginShutdownCountdown
 
 		Logger.info(s"[Wall] user $userId quit from wall $wallId")
 		Logger.info("Number of active connections for wall(" + wallId + "): " + connectionManager.numConnections)
