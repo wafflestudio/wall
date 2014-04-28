@@ -2,7 +2,7 @@ smtp {
 	host="smtp.gmail.com"
 	port=465
 	ssl=yes
-	user="infinitewalldev@gmail.com"
-	password="infinitewall302"
+	user="<EMAIL ADDRESS>"
+	password="<PASSWORD>"
 	from=${smtp.user}
 }
