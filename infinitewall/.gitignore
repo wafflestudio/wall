@@ -1,5 +1,6 @@
 bin
 logs
+conf/mailer.conf
 project/project
 project/target
 target
