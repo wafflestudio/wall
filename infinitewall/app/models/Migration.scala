@@ -5,6 +5,7 @@ import scala.annotation.implicitNotFound
 import models.ActiveRecord._
 import net.fwbrasil.activate.migration.Migration
 import play.Logger
+import net.fwbrasil.activate.storage.relational.idiom.{ h2Dialect, postgresqlDialect }
 
 class CreateInitialTablesMigration extends Migration {
 	def timestamp = 201305062100L
@@ -14,8 +15,9 @@ class CreateInitialTablesMigration extends Migration {
 			.ifExists
 		Logger.info("Table up")
 
-		// make sure TextContent.text made as large
-		table[TextContent].createTable(_.customColumn[String]("text", "CLOB"))
+		// H2: make sure TextContent.text made as large
+		if (ActiveRecord.storage.dialect == h2Dialect)
+			table[TextContent].createTable(_.customColumn[String]("text", "CLOB"))
 		// Unknown issue #106
 		table[User].createTable(_.customColumn[String]("email", "VARCHAR(1000)"))
 
