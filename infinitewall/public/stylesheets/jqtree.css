@@ -131,7 +131,7 @@ ul.jqtree-tree .jqtree-element {
 
 ul.jqtree-tree li.jqtree-selected > .jqtree-element,
 ul.jqtree-tree li.jqtree-selected > .jqtree-element:hover {
-    background-color: #97BDD6;
+    background-color: #E8E19F;
     /*background: -webkit-gradient(linear, left top, left bottom, from(#BEE0F5), to(#89AFCA));
     background: -moz-linear-gradient(top, #BEE0F5, #89AFCA);
     background: -ms-linear-gradient(top, #BEE0F5, #89AFCA);

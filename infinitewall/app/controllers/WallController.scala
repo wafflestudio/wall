@@ -77,7 +77,7 @@ object WallController extends Controller with SecureSocial {
 
 	def tree = securedAction { implicit request =>
 		val tree = Wall.tree(currentUserId)
-		Ok(resourceTree2Json(tree))
+		Ok(Json.arr(Json.obj("type" -> "folder", "name" -> "root", "label" -> "My Walls", "children" -> resourceTree2Json(tree))))
 	}
 
 	def view(wallId: String) = securedAction { implicit request =>

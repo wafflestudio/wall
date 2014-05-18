@@ -23,6 +23,12 @@
 		<link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
     <script type="text/javascript" src="@routes.ApplicationController.jsMessages()"></script> 
 		@Html(org.webjars.play.RequireJS.setup("javascripts/config"))
+		<script type = "text/javascript">
+			require(["config"], function() {
+				require(["wallAppStage", "bootstrap"], function() {
+				})
+			})
+		</script>
 		@head
 	</head>
 	<body>

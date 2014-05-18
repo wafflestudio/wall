@@ -4,8 +4,11 @@
 
 @layouts.stage(wallName + " ::: Infinite Wall") {
 <div class="navigator">
-    <div id = "wallmanagement">
-      <div id = "folder-test">
+    <div id = "wallmanagement" ng-controller="WallManagement" ng-init="init()">
+      <div id="treeButtons" class="btn-group btn-group-sm">
+        <button type="button" class="btn btn-default">New Folder</button>
+      </div> 
+      <div id = "tree">
       </div>
     </div>
 </div>
@@ -117,7 +120,7 @@
 
   <script type = "text/javascript">
   require(["config"], function() {
-  require(["jquery", "stage", "tree.jquery", "bootstrap" ], function($, Stage, FolderView) {
+  require(["jquery", "stage", "tree.jquery", "bootstrap" ], function($, Stage) {
 
     $(function()
     {
@@ -203,26 +206,6 @@
         stage.createSheetLink(sheetlink, @timestamp)
       }
 
-      $.getJSON('/tree', function(data) {
-        // folder test
-        $('#folder-test').tree({
-          data: data,
-          dragAndDrop: true,
-          onCreateLi: function(node, $li) {
-            // Append a link to the jqtree-element div.
-            // The link has an url '#node-[id]' and a data property 'node-id'.
-            if(node.type == 'folder') {
-              $li.addClass('item-folder')
-              $li.find('.jqtree-element').prepend('<span class="glyphicon glyphicon-folder-close"></span>')
-            }  
-            else  {
-              $li.addClass('item-wall')
-            //$li.find('.jqtree-element').append('<a href="#node-'+ node.id +'" class="edit" data-node-id="'+ node.id +'">edit</a>')
-              $li.find('.jqtree-element').prepend('<span class="glyphicon glyphicon-file"></span> ')
-            }
-          }
-        })
-      })
 
       // wall ready
       $(document).trigger("wallready")

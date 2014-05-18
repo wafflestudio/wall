@@ -25,7 +25,7 @@ object FolderController extends Controller with SecureSocial {
 		Ok(Json.toJson("OK"))
 	}
 
-	def move(id: String, parentId: String) = securedAction { implicit request =>
+	def moveTo(id: String, parentId: String) = securedAction { implicit request =>
 		Folder.moveTo(id, parentId)
 		Ok(Json.toJson("OK"))
 	}

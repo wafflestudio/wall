@@ -31,7 +31,7 @@ POST     /folder/:parentId                    controllers.FolderController.creat
 # delete folder
 DELETE   /folder/:folderId                    controllers.FolderController.delete(folderId:String)
 # move folder to new position
-PUT      /folder/:folderId/moveTo/:parentId               controllers.FolderController.move(folderId:String, parentId:String)
+PUT      /folder/:folderId/moveTo/:parentId               controllers.FolderController.moveTo(folderId:String, parentId:String)
 # rename folder
 PUT      /folder/:folderId/rename             controllers.FolderController.rename(folderId:String)
 
@@ -46,6 +46,8 @@ GET      /wall/grouped.json                   controllers.WallController.getWall
 POST     /wall                                controllers.WallController.create
 # delete wall
 DELETE   /wall/:wallId                        controllers.WallController.delete(wallId:String)
+# move wall to folder
+PUT      /folder/:folderId/moveTo/:folderId   controllers.WallController.moveTo(wallId:String, folderId:String)
 # list walls as tree
 GET      /tree                                controllers.WallController.tree
 
