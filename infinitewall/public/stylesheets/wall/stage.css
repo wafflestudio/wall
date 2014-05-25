@@ -107,6 +107,10 @@ body {
   width:224px;
 }
 
+.fa-hover:hover {
+	color:green;
+}
+
 #infoText {
   background-color:rgba(0, 0, 0, 0.7);
   position:absolute;

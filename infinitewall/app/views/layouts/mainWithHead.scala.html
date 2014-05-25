@@ -21,11 +21,11 @@
 
 		<link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("css/bootstrap.min.css"))">
 		<link rel="shortcut icon" type="image/ico" href="@routes.Assets.at("images/wall.ico")">
-    <script type="text/javascript" src="@routes.ApplicationController.jsMessages()"></script> 
+<script type="text/javascript" src="@routes.ApplicationController.jsMessages()"></script> 
 		@Html(org.webjars.play.RequireJS.setup("javascripts/config"))
 		<script type = "text/javascript">
 			require(["config"], function() {
-				require(["wallAppStage", "bootstrap"], function() {
+				require(["wallAppStage", "bootstrap", "modal"], function() {
 				})
 			})
 		</script>

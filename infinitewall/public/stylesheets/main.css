@@ -48,3 +48,8 @@ form .actions {
 footer {
 	color:gray;
 }
+
+.fa-hover:hover {
+  background-color:red;
+  color:blue
+}

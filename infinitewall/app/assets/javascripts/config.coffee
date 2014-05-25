@@ -14,7 +14,6 @@ requirejs.config
       #"load-image-exif": "fileupload/load-image-exif"
       #"load-image-ios": "fileupload/load-image-ios"
       "canvas-to-blob": "fileupload/canvas-to-blob"
-      bootstrap: "bootstrap.min"
       angular: "webjars!angular"
       "angular-route": "webjars!angular-route"
   },

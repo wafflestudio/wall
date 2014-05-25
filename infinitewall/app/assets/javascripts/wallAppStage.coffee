@@ -2,31 +2,49 @@ define ["jquery", "stage", "tree.jquery", "bootstrap", "angularbootstrap"], ($, 
   "use strict"
   wallApp = angular.module("wallApp", ['ngRoute'])
 
-  wallApp.controller 'WallManagement', ['$scope', '$http', ($scope, $http) ->
+  wallApp.controller 'WallManagement', ['$scope', '$http', '$compile', ($scope, $http, $compile) ->
 
       refresh = () ->
         $http.get("/tree").success (data, status) ->
           $('#tree').tree('loadData', data)
+      
+      $scope.deleteFolder = (id) ->
+        $http.delete("/folder/" + id).success (data, status) ->
+          refresh()
+
+      $scope.createFolderAt = (id) ->
+        console.log('create:' ,id)
+        $('#folder-modal-create').modal('show')
+        true
 
       $scope.init = () ->
         refresh()
         # folder test
-        $('#tree').tree {
-          data: {label:"loading..", name:"loading"},
+        $('#tree').tree
+          data: { label:"loading..", name:"loading" },
           autoOpen : true,
           dragAndDrop: true,
           onCreateLi: (node, $li) ->
-            # Append a link to the jqtree-element div.
-            # The link has an url '#node-[id]' and a data property 'node-id'.
-            if node.type == 'folder' 
+            if node.type == 'folder'
               $li.addClass('item-folder')
-              $li.find('.jqtree-element').prepend('<span class="glyphicon glyphicon-folder-close"></span> ')
+              $li.find('.jqtree-element').prepend('<span class="fa fa-folder-o"></span> ').append($compile(
+                '<div class="folder-selected-options pull-right" style="display:none">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-default btn-xs" ng-click="createFolderAt(' + node.id + ')">new folder</button>
+                    <button type="button" class="btn btn-default btn-xs">new wall</button>' +
+                    (if node.parent.parent then '<button type="button" class="btn btn-default btn-xs" ng-click="deleteFolder(' + node.id + ')">delete</button>' else '')
+                  + '</div>
+                </div>')($scope))
             else
               $li.addClass('item-wall')
             
               #$li.find('.jqtree-element').append('<a href="#node-'+ node.id +'" class="edit" data-node-id="'+ node.id +'">edit</a>')
-              $li.find('.jqtree-element').prepend('<span class="glyphicon glyphicon-file"></span> ')
-          
+              $li.find('.jqtree-element').prepend('<span class="fa fa-file-o"></span> ').append('
+                <div class="folder-selected-options pull-right" style="display:none">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-default btn-xs">delete</button>
+                  </div>
+                </div>')
           ,
           onCanMove : (node) ->
             node.parent.parent
@@ -36,7 +54,6 @@ define ["jquery", "stage", "tree.jquery", "bootstrap", "angularbootstrap"], ($, 
                 position == 'inside' && moved_node.parent != target_node
             else
                 false
-        }
 
         $('#tree').bind(
           'tree.move',
@@ -51,11 +68,22 @@ define ["jquery", "stage", "tree.jquery", "bootstrap", "angularbootstrap"], ($, 
           'tree.select',
           (event) ->
             if event.node
-              console.log('selected node element: ', event.node.element)
-            
-            if event.previous_node
-              console.log('deselected node element: ', event.previous_node.element)
+              console.log('selected node element: ', event.node, event.node.element)
+              $(event.node.element).children('.jqtree-element').find('.folder-selected-options').show(100)
+            if event.deselected_node
+              console.log('deselected node element: ', event.deselected_node)
+              $(event.deselected_node.element).children('.jqtree-element').find('.folder-selected-options').hide()
+            else if event.previous_node
+              console.log('deselected node element: ', event.previous_node)
+              $(event.previous_node.element).children('.jqtree-element').find('.folder-selected-options').hide()
+
         )
+
+        $('#folder-modal-create .modal-submit').on 'click', () ->
+          console.log('new folder:', $('#folder-modal-create input').val())
+          $('#folder-modal-create').modal('hide')
+
+        true # prevent angularjs accessing dom element...
 
       $scope.newWall = {}
 
@@ -123,5 +151,3 @@ define ["jquery", "stage", "tree.jquery", "bootstrap", "angularbootstrap"], ($, 
   # required for AMDs like requirejs:
   angular.bootstrap(document, ["wallApp"])
   wallApp
-  
-
