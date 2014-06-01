@@ -15,7 +15,7 @@ object ApplicationBuild extends Build {
 			"ru.circumflex" % "circumflex-markeven" % "2.1",
 			"commons-lang" % "commons-lang" % "2.6",
 			"org.apache.commons" % "commons-email" % "1.2",
-            "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
+			"com.typesafe" %% "play-plugins-mailer" % "2.2.0",
 			"commons-codec" % "commons-codec" % "1.6",
 			"com.github.theon" %% "scala-uri" % "0.3.6",
 			"net.fwbrasil" % "activate-core_2.10" % "1.4.4",  //exclude("org.scala-stm", "scala-stm_2.10.0"),
@@ -26,10 +26,10 @@ object ApplicationBuild extends Build {
 			"org.mindrot" % "jbcrypt" % "0.3m",
 			"org.apache.tika" % "tika-bundle" % "1.2",
 			"se.digiplant" %% "play-scalr" % "1.0.1",
-            "org.webjars" % "bootstrap" % "3.1.1",
-            "org.webjars" %% "webjars-play" % "2.2.1-2",
-            "org.webjars" % "requirejs" % "2.1.1",
-            "org.webjars" % "angularjs" % "1.2.13",
+			"org.webjars" % "bootstrap" % "3.1.1",
+			"org.webjars" %% "webjars-play" % "2.2.1-2",
+			"org.webjars" % "requirejs" % "2.1.1",
+			"org.webjars" % "angularjs" % "1.2.13",
 			"org.webjars" % "font-awesome" % "4.1.0",
 			"org.julienrf" %% "play-jsmessages" % "1.6.0"
 			)
@@ -41,11 +41,12 @@ object ApplicationBuild extends Build {
 			resolvers += Resolver.url("sbt-plugin-snapshots", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-snapshots/"))(Resolver.ivyStylePatterns),
 			resolvers += Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
 			resolvers += "OSS Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
+			resolvers += "typesafe-maven" at "http://repo.typesafe.com/typesafe/maven-releases/",
 			coffeescriptOptions := Seq("native", "coffee -p"),
-            scalaVersion := "2.10.3",
+			scalaVersion := "2.10.3",
 			scalacOptions ++= Seq("-feature","-language:postfixOps","-language:implicitConversions", "-language:reflectiveCalls")
 			).settings(com.typesafe.sbt.SbtScalariform.scalariformSettings: _*
-            ).settings(play.Project.playScalaSettings: _*
+			).settings(play.Project.playScalaSettings: _*
 			).settings(ScoverageSbtPlugin.instrumentSettings: _*)/*
 			).settings(
 				ScctPlugin.instrumentSettings : _*)
