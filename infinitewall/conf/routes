@@ -27,11 +27,13 @@ GET      /chat/log/:roomId                    controllers.ChatController.prevMes
 
 ## FOLDER management
 # create new folder 
+POST     /folder/                             controllers.FolderController.createAtRoot()
 POST     /folder/:parentId                    controllers.FolderController.create(parentId:String)
 # delete folder
 DELETE   /folder/:folderId                    controllers.FolderController.delete(folderId:String)
 # move folder to new position
-PUT      /folder/:folderId/moveTo/:parentId               controllers.FolderController.moveTo(folderId:String, parentId:String)
+PUT      /folder/:folderId/moveTo/:parentId   controllers.FolderController.moveTo(folderId:String, parentId:String)
+PUT      /folder/:folderId/moveTo/            controllers.FolderController.moveToRoot(folderId:String)
 # rename folder
 PUT      /folder/:folderId/rename             controllers.FolderController.rename(folderId:String)
 
@@ -47,7 +49,8 @@ POST     /wall                                controllers.WallController.create
 # delete wall
 DELETE   /wall/:wallId                        controllers.WallController.delete(wallId:String)
 # move wall to folder
-PUT      /folder/:folderId/moveTo/:folderId   controllers.WallController.moveTo(wallId:String, folderId:String)
+PUT      /wall/:wallId/moveTo/:folderId       controllers.WallController.moveTo(wallId:String, folderId:String)
+PUT      /wall/:wallId/moveTo/                controllers.WallController.moveToRoot(wallId:String)
 # list walls as tree
 GET      /tree                                controllers.WallController.tree
 

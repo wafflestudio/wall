@@ -4,13 +4,18 @@ import models.Folder
 import play.api.libs.json.Json
 
 object FolderController extends Controller with SecureSocial {
-	def create(parentId: String = "") = securedAction { implicit request =>
+
+	def createAtRoot() = securedAction { implicit request =>
 		val name = jsonParam("name")
 
-		if (parentId == "")
-			Folder.create(name, currentUserId, None)
-		else
-			Folder.create(name, currentUserId, Some(parentId))
+		Folder.create(name, currentUserId, None)
+		Ok(Json.toJson("OK"))
+	}
+
+	def create(parentId: String) = securedAction { implicit request =>
+		val name = jsonParam("name")
+
+		Folder.create(name, currentUserId, Some(parentId))
 		Ok(Json.toJson("OK"))
 	}
 
@@ -29,4 +34,10 @@ object FolderController extends Controller with SecureSocial {
 		Folder.moveTo(id, parentId)
 		Ok(Json.toJson("OK"))
 	}
+
+	def moveToRoot(id: String) = securedAction { implicit request =>
+		Folder.moveToRoot(id)
+		Ok(Json.toJson("OK"))
+	}
+
 }

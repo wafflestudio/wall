@@ -2,7 +2,7 @@ package models
 
 import ActiveRecord._
 
-class ResourceTree(val node: TreeNode, val children: Seq[ResourceTree])
+case class ResourceTree(val node: TreeNode, val children: Seq[ResourceTree])
 class ResourceLeaf(node: TreeNode) extends ResourceTree(node, List())
 
 class Wall(var name: String, var user: User, var folder: Option[Folder], var permission: Permission.PermissionValue = Permission.privateWrite) extends Entity {
@@ -39,58 +39,37 @@ object Wall extends ActiveRecord[Wall] {
 		hasEditPermission(id, userId)
 	}
 
-	private def buildSubtree(folder: Folder.Frozen, folders: List[Folder.Frozen], walls: List[Wall.Frozen]): ResourceTree = {
+	private def buildSubtree(parentFolder: Folder.Frozen, folders: List[Folder.Frozen], walls: List[Wall.Frozen]): ResourceTree = {
 		// search in folders and walls for folder.id as parent_id/folder_id
 
 		val subfolders = for {
 			folder <- folders
-			parentId <- folder.parentId if parentId == folder.id
+			parentId <- folder.parentId if parentId == parentFolder.id
 		} yield folder
 
 		val containedWalls: List[ResourceTree] = for {
 			wall <- walls
-			folderId <- wall.folderId if folderId == folder.id
+			folderId <- wall.folderId if folderId == parentFolder.id
 		} yield new ResourceLeaf(wall)
 
-		if (subfolders.isEmpty) {
-			new ResourceTree(folder, containedWalls)
-		} else {
-
-			val containedFolders = subfolders.map { folder =>
-				buildSubtree(folder, folders, walls)
-			}
-
-			new ResourceTree(folder, containedFolders ++ containedWalls)
+		val containedFolders = subfolders.map { folder =>
+			buildSubtree(folder, folders, walls)
 		}
+
+		new ResourceTree(parentFolder, containedFolders ++ containedWalls)
 	}
 
 	private def buildTree(folders: List[Folder.Frozen], walls: List[Wall.Frozen]): ResourceTree = {
 		// folders positioned directly at root
-		val subfolders = folders.flatMap { folder =>
-			folder.parentId match {
-				case Some(_) => None
-				case None => Some(folder)
-			}
-		}
-
+		val subfolders = folders.filter(_.parentId.isEmpty)
 		// walls positioned directly at root
-		val containedWalls = walls.flatMap { wall =>
-			wall.folderId match {
-				case Some(_) => None
-				case None => Some(new ResourceLeaf(wall))
-			}
+		val containedWalls = walls.filter(_.folderId.isEmpty).map(new ResourceLeaf(_))
+
+		val containedFolders = subfolders.map { folder =>
+			buildSubtree(folder, folders, walls)
 		}
 
-		if (subfolders.isEmpty) {
-			new ResourceTree(new RootFolder, containedWalls)
-		} else {
-
-			val containedFolders = subfolders.map { folder =>
-				buildSubtree(folder, folders, walls)
-			}
-
-			new ResourceTree(new RootFolder, containedFolders ++ containedWalls)
-		}
+		new ResourceTree(new RootFolder, containedFolders ++ containedWalls)
 	}
 
 	def tree(userId: String): ResourceTree = transactional {
@@ -109,6 +88,12 @@ object Wall extends ActiveRecord[Wall] {
 		transactional {
 			val folder = Folder.findById(folderId)
 			findById(id).map(_.folder = folder)
+		}
+	}
+
+	def moveToRoot(id: String) {
+		transactional {
+			findById(id).map(_.folder = None)
 		}
 	}
 

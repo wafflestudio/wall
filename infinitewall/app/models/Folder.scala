@@ -41,4 +41,28 @@ object Folder extends ActiveRecord[Folder] {
 			findById(id).map(_.parent = parent)
 		}
 	}
+
+	def moveToRoot(id: String) {
+		transactional {
+			findById(id).map(_.parent = None)
+		}
+	}
+
+	override def delete(id: String) {
+		transactional {
+			val folder = findById(id)
+			val subWalls = select[Wall] where (_.folder :== folder)
+			val subFolders = select[Folder] where (_.parent :== folder)
+			// collapse subelements
+			folder.get.parent match {
+				case Some(parent) =>
+					subFolders.map(f => moveTo(f.id, parent.id))
+					subWalls.map(f => moveTo(f.id, parent.id))
+				case None =>
+					subFolders.map(f => moveToRoot(f.id))
+					subWalls.map(f => moveToRoot(f.id))
+			}
+			super.delete(id)
+		}
+	}
 }
