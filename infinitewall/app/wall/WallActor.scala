@@ -64,8 +64,6 @@ class WallActor(wallId: String) extends Actor {
 	implicit def toLong(value: JsValue) = { value.as[Long] }
 
 	// trick to track pending messages for each session (session, timestamp, action)
-	var recentRecords = List[AlterTextRecord]()
-
 	val connectionManager = new ConnectionManager
 
 	// shutdown timer activated when no connection is left to the actor
