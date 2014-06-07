@@ -1,17 +1,16 @@
-package chat
+package services.chat
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
 import play.api.Play.current
 import play.api.libs.concurrent._
 import play.api.libs.concurrent.Execution.Implicits._
-
 import play.api.libs.iteratee._
 import play.api.libs.json._
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
 
 case class Join(userId: String, timestampOpt: Option[Long])
 case class Quit(userId: String, producer: Enumerator[JsValue], connectionId: Int)
@@ -25,7 +24,7 @@ case class CannotConnect(msg: String)
 case class Message(kind: String, email: String, text: String)
 
 // FIXME: check for any concurrency issue especially accessing rooms
-object ChatSystem {
+object ChatService {
 
 	implicit val timeout = Timeout(1 second)
 

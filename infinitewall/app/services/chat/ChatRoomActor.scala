@@ -1,4 +1,4 @@
-package chat
+package services.chat
 
 import scala.concurrent.duration._
 

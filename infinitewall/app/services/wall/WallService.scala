@@ -1,8 +1,7 @@
-package wall
+package services.wall
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -34,13 +33,13 @@ case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[J
 case class CannotConnect(msg: String)
 
 // Wall System (Delegate + Actor)
-object WallSystem {
+object WallService {
 	val shutdownFinalizeTimeout = 70 * 1000
 	// Used for http requests
 	val volatileEnumerator: Enumerator[JsValue] = Enumerator.eof
 
 	implicit val timeout = Timeout(1 second)
-	lazy val wallSystem = Akka.system.actorOf(Props(new WallSystem))
+	lazy val wallSystem = Akka.system.actorOf(Props(new WallService))
 
 	def establish(wallId: String, userId: String, uuid: String, timestamp: Long, syncOnce: Boolean = false): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
 
@@ -73,7 +72,7 @@ object WallSystem {
 	}
 }
 
-class WallSystem extends Actor {
+class WallService extends Actor {
 
 	implicit val timeout = Timeout(1 second)
 
@@ -123,7 +122,7 @@ class WallSystem extends Actor {
 			val savedSender = sender
 			(wallActor(wallId) ? Action(json, uuid, connectionId, ActionDetail(userId, json))).map(savedSender ! _)
 		case Inactive(wallId) =>
-			if (System.currentTimeMillis() - lastAccessedTime(wallId) > WallSystem.shutdownFinalizeTimeout) {
+			if (System.currentTimeMillis() - lastAccessedTime(wallId) > WallService.shutdownFinalizeTimeout) {
 				Logger.info("shutting down wall actor (" + wallId + ") due to inactivity")
 				wallActors = wallActors - wallId
 				akka.pattern.gracefulStop(sender, 1 seconds)

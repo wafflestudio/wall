@@ -2,7 +2,7 @@ package controllers
 
 import scala.concurrent.Future
 
-import chat.ChatSystem
+import services.chat.ChatService
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.iteratee._
 import play.api.libs.json.{ JsValue, Json }
@@ -42,7 +42,7 @@ object ChatController extends Controller with SecureSocial {
 		val timestamp: Long = queryParams.getOrElse("timestamp", Seq("0")).head.toLong
 
 		val user = currentUser.get
-		ChatSystem.establish(roomId, user.identityId.userId, Some(timestamp))
+		ChatService.establish(roomId, user.identityId.userId, Some(timestamp))
 	}
 
 	def prevMessages(roomId: String) = SecuredAction.async { implicit request =>
@@ -51,7 +51,7 @@ object ChatController extends Controller with SecureSocial {
 		val startTs: Long = queryParam("startTs").toLong
 		val endTs: Long = queryParam("endTs").toLong
 
-		ChatSystem.prevMessages(roomId, startTs, endTs).map { json =>
+		ChatService.prevMessages(roomId, startTs, endTs).map { json =>
 			Ok(json)
 		}
 	}

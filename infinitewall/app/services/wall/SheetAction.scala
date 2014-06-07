@@ -1,4 +1,4 @@
-package wall
+package services.wall
 
 import play.api.libs.json.{ JsObject, JsValue, Json }
 import play.api.libs.json.Json.toJsFieldJsValueWrapper

@@ -18,7 +18,7 @@ import play.api.libs.iteratee.{ Done, Enumerator, Input }
 import play.api.libs.json.{ JsArray, JsNumber, JsObject, JsValue, Json }
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import play.api.mvc.WebSocket
-import wall.WallSystem
+import services.wall.WallService
 
 object WallController extends Controller with SecureSocial {
 
@@ -122,7 +122,7 @@ object WallController extends Controller with SecureSocial {
 		val timestamp = queryParam("timestamp").toLong
 		val user = currentUser.get
 
-		WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp)
+		WallService.establish(wallId, user.identityId.userId, uuid, timestamp)
 	}
 
 	// http send by client
@@ -131,7 +131,7 @@ object WallController extends Controller with SecureSocial {
 		Logger.info(s"speak1: ${bodyText}")
 		val action = Json.parse(Json.parse(bodyText).as[String])
 		Logger.info(s"speak2: $action")
-		WallSystem.submit(wallId, request.user.identityId.userId, uuid, 0, action)
+		WallService.submit(wallId, request.user.identityId.userId, uuid, 0, action)
 		Ok("")
 	}
 
@@ -143,7 +143,7 @@ object WallController extends Controller with SecureSocial {
 		val timestamp = queryParam("timestamp").toLong
 		val user = request.user
 
-		WallSystem.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
+		WallService.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
 			// force disconnect after 3 seconds
 			val timeoutEnumerator: Enumerator[JsValue] = Enumerator.generateM[JsValue] {
 				Promise.timeout(Some(JsNumber(0)), 3.seconds)
