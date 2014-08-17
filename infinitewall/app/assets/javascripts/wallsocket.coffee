@@ -1,56 +1,35 @@
-define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatcher, $, PersistentWebsocket, CometSocket) ->
+define ["EventDispatcher", "jquery", "websocket"], (EventDispatcher, $, PersistentWebsocket) ->
   class WallSocket extends EventDispatcher
 
-    generateUUID: ->
-      'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) ->
-        r = Math.random()*16|0
-        v = if c == 'x' then r else (r&0x3|0x8)
-        v.toString(16)
-      ) + "-" + new Date().getTime().toString(36)
 
-    constructor: (urls, timestamp) ->
+    constructor: (pwebsocket, wallId, timestamp) ->
       super()
 
-      @uuid = @generateUUID()
-      @websocket = new PersistentWebsocket(urls.websocket + "?uuid=#{@uuid}", "WALL", timestamp)
-      @comet = new CometSocket(urls.speak + "?uuid=#{@uuid}", urls.listen + "?uuid=#{@uuid}", "COMET", timestamp)
+      @scope = "wall/#{wallId}"
+      @socket = pwebsocket.join(@scope, timestamp)
+      @uuid = pwebsocket.uuid
       @receivedTimestamp = timestamp
       @timestamp = timestamp
-      @scope = @websocket.scope
       @pending = []
       
       console.info(@scope, "wall socket initialized to UUID: #{@uuid} ts:#{timestamp}")
-      @websocket.on 'receive', @onReceive
+      @socket.on 'receive', @onReceive
       @on 'receivedAction', @onReceivedAction
-      @websocket.on 'open', () =>
-        console.log(@scope, 'websocket established')
-        @comet.deactivate()
-        @comet.off 'receive', @onReceive
 
-        if @pending.length > 0
-          console.info(@scope, "sending #{@pending.length} unsent messages")
-          for msg in @pending
-            @websocket.send(JSON.stringify(msg))
+      @socket.on 'open', () =>
+        console.log(@scope, 'connection established')
 
-
-      @websocket.on 'close', () =>
-        console.log(@scope, 'websocket closed')
-        @comet.activate()
-        @comet.on 'receive', @onReceive
-        if @pending.length > 0
-          console.info(@scope, "sending #{@pending.length} unsent messages")
-          for msg in @pending
-            @comet.send(JSON.stringify(msg))
+      @socket.on 'close', () =>
+        console.log(@scope, 'connection closed')
     
     sendAction: (msg, historyData) ->
+      msg.path = @scope
       #console.log(msg)
+      msg.type = "action"
       msg.timestamp = @timestamp unless msg.timestamp?
       msg.uuid = @uuid
       @pending.push(msg)
-      if @websocket.isConnected()
-        @websocket.send(JSON.stringify(msg))
-      else
-        @comet.send(JSON.stringify(msg))
+      @socket.send(JSON.stringify(msg))
 
       if historyData?
         historyData.uuid = msg.uuid
@@ -59,36 +38,34 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
         stage.history.push({from: historyData, to: msg})
 
     sendUndoAction: (msg, historyData) ->
+      msg.path = @scope
+      msg.type = "action"
       msg.timestamp = historyData.timestamp = @timestamp
       msg.uuid = historyData.uuid = @uuid
       @pending.push(msg)
-      if @websocket.isConnected()
-        @websocket.send(JSON.stringify(msg))
-      else
-        @comet.send(JSON.stringify(msg))
+      @socket.send(JSON.stringify(msg))
       stage.history.repush({from: historyData, to: msg})
 
     sendRedoAction: (msg, historyData) ->
+      msg.path = @scope
+      msg.type = "action"
       msg.timestamp = historyData.timestamp = @timestamp
       msg.uuid = historyData.uuid = @uuid
       @pending.push(msg)
-      if @websocket.isConnected()
-        @websocket.send(JSON.stringify(msg))
-      else
-        @comet.send(JSON.stringify(msg))
+      @socket.send(JSON.stringify(msg))
       stage.history.push({from: historyData, to: msg}, true)
 
     sendAck: () ->
-      msg = {action:'ack'}
+      msg = {action:'ack', type:'action'}
+      msg.path = @scope
       msg.timestamp = @timestamp unless msg.timestamp?
       msg.uuid = @uuid
-      if @websocket.isConnected()
-        @websocket.send(JSON.stringify(msg))
-      else
-        @comet.send(JSON.stringify(msg))
+      @socket.send(JSON.stringify(msg))
 
     # only for debug
     sendActionDelayed: (msg, delay) ->
+      msg.path = @scope
+      msg.type = "action"
       msg.timestamp = @timestamp unless msg.timestamp?
       msg.uuid = @uuid
       json = JSON.stringify(msg)
@@ -102,9 +79,9 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
 
       if data.error
         console.log(@scope, 'Error: ' + data.error)
-        if @websocket.isConnected()
-          @websocket.numRetry = 10
-          @websocket.close()
+        if @socket.isConnected()
+          @socket.numRetry = 10
+          @socket.close()
         return
 
       while @pending.length > 0 and @pending[@pending.length-1].timestamp <= @receivedTimestamp
@@ -112,12 +89,13 @@ define ["EventDispatcher", "jquery", "websocket", "cometsocket"], (EventDispatch
       
       if data.kind is "action" and (not @timestamp? or @timestamp < @receivedTimestamp)
         @timestamp = data.timestamp
-        @comet.timestamp = @timestamp
         detail = JSON.parse(data.detail)
         @trigger('receivedAction', detail, detail.uuid == @uuid, data.timestamp)
         @sendAck()
       else if data.kind is "action"
         console.warn(@scope, "received message with older timestamp: #{data.timestamp} < #{@timestamp}")
+      else if data.kind is "welcome"
+        console.info('joined successfully')
         
 
     onReceivedAction: (detail, isMine, timestamp) =>

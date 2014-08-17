@@ -9,10 +9,11 @@ define [
   "menu",
   "search",
   "statusbar",
+  "websocket",
   "wallsocket",
   "chat",
   "jquery.fileupload"
-  ], ($, Shortcut, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, WallSocket, Chat) ->
+  ], ($, Shortcut, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, PersistentWebsocket, WallSocket, Chat) ->
   class Stage
     currentUser: null
     activeSheet: null
@@ -45,14 +46,16 @@ define [
     createSheetLink: (params, timestamp) ->
       @sheets[params.fromSheetId].setLink(params)
 
-    constructor: (wallId, timestamp, currentUser, wallSocketURLs, chatURL, edit = true) ->
+    constructor: (wallId, timestamp, currentUser, URLs) ->
       window.wall = new Wall()
       window.minimap = new Minimap()
       window.menu = new Menu()
       window.search = new Search()
       window.statusbar = new Statusbar()
-      window.wallSocket = new WallSocket(wallSocketURLs, timestamp)
-      window.chat = new Chat(chatURL)
+
+      pwebsocket = new PersistentWebsocket(URLs.websocket, {speak:URLs.wallspeak, listen:URLs.walllisten})
+      window.wallSocket = new WallSocket(pwebsocket, wallId, timestamp)
+      #window.chat = new Chat(pwebsocket, URLs)
       window.shortcut = new Shortcut()
       @wallId = wallId
       @currentUser = currentUser
@@ -63,6 +66,8 @@ define [
       $(document).bind "contextmenu", -> return false
       $(window).resize -> minimap.refresh()
 
+      #TODO:
+      edit = true
 
       if edit
         shortcut.onKeydown('ctrl + z, command + z', () => console.log("history undo"); @history.undo())

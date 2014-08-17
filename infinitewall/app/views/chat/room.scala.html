@@ -5,44 +5,70 @@
 	<textarea id="talk"></textarea><button id="sendBtn" class="btn">Talk</button>
 	<div id="log">
 	</div>
-<div id="list_box" style="position: absolute; right: 100px; top: 100px;">
-User List
-  <ul id="user_list" style="width: 200px;height: 600px;">
-  </ul>
-</div>
+	<div id="list_box" style="position: absolute; right: 100px; top: 100px;">
+	User List
+	  <ul id="user_list" style="width: 200px;height: 600px;">
+	  </ul>
+	</div>
 	
 	<script type="text/javascript">
+	
+	
+	 require(["config"], function() {
+  	 require(["jquery", "bootstrap" ], function($) {
 
 	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-	var chatSocket = new WS("@routes.ChatController.establish(roomId).webSocketURL()")
+	var chatSocket = new WS("@routes.ServiceController.establish().webSocketURL()")
+	var connectionId = 0
+	//console.log(chatSocket)
+	
 
 	function onReceive(e) {
 		var data = JSON.parse(e.data);
-console.log(data);
-		if(data.error) {
-			console.log('disconnected: ' + data.error)
-			chatSocket.close();
-			return;
+		console.log(data);
+		
+		if(typeof data.kind == 'undefined')
+			return
+		
+		switch(data.kind) {
+			case 'welcome':
+				connectionId = data.connectionId
+				console.log(data.message)
+				break
+		
+			case 'talk':
+				if(data.error) {
+					console.log('disconnected: ' + data.error)
+					chatSocket.close();
+					return;
+				}
+		
+				$("#log").prepend("<p>" + "<span>" + data.email + "</span>" + "<span> " + data.message + "</span>" + "</p>")
+			
+				//update user list
+				$('#user_list').html('');
+				$(data.users).each(function() {
+					$('#user_list').append('<li>'+this+'</li>');
+				});
+				break
 		}
-
-		$("#log").prepend("<p>" + "<span>" + data.username + "</span>" + "<span> " + data.message + "</span>" + "</p>")
-	
-		//update user list
-		$('#user_list').html('');
-		$(data.users).each(function() {
-			$('#user_list').append('<li>'+this+'</li>');
-		});
 	}
 
 	function onError(e) {
 		console.log(e);
 	}
+	
+	function initiate(e) {
+		chatSocket.send(JSON.stringify({type:"join", path:"chat/@roomId"}))
+	}
 
 	chatSocket.onmessage = onReceive
 	chatSocket.onerror = onError
 	chatSocket.onclose = onError
+	chatSocket.onopen = initiate
 
 	$(function() {
+		
 		$('#talk').keyup(function(event) {
 			
 			if(event.keyCode == 13)
@@ -63,10 +89,13 @@ console.log(data);
 				return
 			}
 				
-			chatSocket.send(JSON.stringify({text: msg}))
+			chatSocket.send(JSON.stringify({type:"talk", connectionId:connectionId, path:"chat/@roomId", text: msg}))
 			$('#talk').val("")
 		})
 		
+	})
+	
+	})
 	})
 	
 	</script>

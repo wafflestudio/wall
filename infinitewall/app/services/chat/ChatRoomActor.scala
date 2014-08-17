@@ -1,7 +1,7 @@
 package services.chat
 
 import scala.concurrent.duration._
-
+import scala.concurrent.Future
 import akka.actor._
 import models.ChatLog
 import models.ChatRoom
@@ -9,61 +9,62 @@ import models.User
 import play.api.Logger
 import play.api.libs.concurrent._
 import play.api.libs.concurrent.Execution.Implicits._
-
 import play.api.libs.iteratee._
+import play.api.libs.iteratee.Concurrent.Channel
 import play.api.libs.json._
 import utils.UsageSet
+import play.libs.Akka
+import services.TerminateConnection
+import services.ServiceMessage
+import services.Connection
+
+case class Join(userId: String, connectionId: Int, timestampOpt: Option[Long])
+case class Quit(userId: String, connectionId: Int, producer: Enumerator[JsValue])
+
+case class Talk(userId: String, connectionId: Int, text: String)
+
+case class ListConnections()
+case class NumConnections()
+
+case class Broadcast(msg: JsValue, timestamp: Long, when: Long)
+case class Respond(userId: String, connectionId: Int, msg: JsValue)
+
+case class NotifyJoin(userId: String, connectionId: Int)
+case class GetPrevMessages(startTs: Long, endTs: Long)
+
+case class Connected(enumerator: Enumerator[JsValue], prev: Enumerator[JsValue], connectionId: Int)
+case class CannotConnect(msg: String)
+
+case class Message(kind: String, email: String, text: String)
 
 class ChatRoomActor(roomId: String) extends Actor {
 
 	/* connection management */
-	val connectionUsage = new UsageSet
-	case class Connection(enumerator: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], connectionId: Int)
+
 	private var connections = Map.empty[String, List[Connection]]
+	private var connectionIdPool = new UsageSet
 
-	/* previous messages */
-	def prevMessages(timestampOpt: Option[Long]) = {
-		timestampOpt match {
-			case Some(timestamp) =>
-				ChatLog.list(roomId, timestamp).map(_.frozen)
-			case None =>
-				ChatLog.list(roomId).map(_.frozen)
-		}
+	private def numConnections = connections.foldLeft(0) { (sum, el) =>
+		sum + el._2.length
 	}
 
-	def prevMessages(startTs: Long, endTs: Long) = {
-		ChatLog.list(roomId, startTs, endTs).map(_.frozen)
-	}
-
-	def logMessage(kind: String, userId: String, message: String) = {
-		val when = System.currentTimeMillis
-		(ChatLog.create(kind, roomId, userId, message, when).frozen.timestamp, when)
-	}
-
-	def welcomeMessage(connectionId: Int): Enumerator[JsValue] = {
-		Enumerator(Json.obj(
-			"kind" -> "welcome",
-			"connectionId" -> connectionId,
-			"users" -> connections.flatMap { connection =>
-				User.findById(connection._1).map(_.frozen).map { user =>
-					Json.obj(
-						"userId" -> user.id,
-						"email" -> user.email,
-						"nickname" -> user.firstName)
-				}
-			}))
-	}
-
-	def addConnection(userId: String, producer: Enumerator[JsValue], channel: Concurrent.Channel[JsValue], connectionId: Int) = {
-		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(producer, channel, connectionId)))
+	def addConnection(userId: String, channel: Future[Concurrent.Channel[JsValue]]) = {
+		val connectionId = connectionIdPool.allocate
+		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(channel, connectionId)))
 		Logger.info("[Chat] Connection established: " + connections.toString)
+		connectionId
 	}
 
-	def removeConnection(userId: String, connectionId: Int) = {
+	def removeConnection(userId: String, channel: Future[Channel[JsValue]]) = {
 		// clear sessions for userid. if none exists for a userid, remove userid key.
 		connections.get(userId).foreach { userConns =>
-			val newUserConns = userConns.filterNot(_.connectionId == connectionId)
-			connectionUsage.free(connectionId)
+
+			userConns.find(_.channel == channel).map { conn =>
+				connectionIdPool.free(conn.connectionId)
+			}
+
+			val newUserConns = userConns.filterNot(_.channel == channel)
+
 			if (newUserConns.isEmpty)
 				connections = connections - userId
 			else
@@ -72,108 +73,49 @@ class ChatRoomActor(roomId: String) extends Actor {
 		}
 	}
 
-	def quit(userId: String, producer: Enumerator[JsValue], connectionId: Int) = {
-
-		removeConnection(userId, connectionId)
-
-		val numConnections = connections.foldLeft(0) { (num, connection) =>
-			num + connection._2.length
-		}
-
-		Logger.info("Number of active connections for chat(" + roomId + "): " + numConnections)
-		Logger.info(s"[Chat] user $userId joined to chat room $roomId ")
-	}
+	lazy val core = Akka.system.actorOf(Props(new ChatCoreActor(roomId, self)))
 
 	def receive = {
+		case ServiceMessage(userId, channel, content) =>
+			val connectionIdOpt = (content \\ "connectionId").headOption.map(_.as[Int])
+			val timestampOpt = (content \\ "timestamp").headOption.map(_.as[Long])
 
-		case Join(userId, timestampOpt) => {
+			(content \ "type").as[String] match {
+				case "join" =>
+					/* join */
+					val connectionId = addConnection(userId, channel)
+					core ! Join(userId, connectionId, timestampOpt)
+				case "talk" =>
+					val text = (content \ "text").as[String]
+					core ! Talk(userId, connectionIdOpt.get, text)
+				case "quit" =>
+					removeConnection(userId, channel)
+				case "_" =>
 
-			if (false /* maximum connection per user constraint here*/ ) {
-				sender ! CannotConnect("You have reached your maximum number of connections.")
-			} else {
-				val connectionId = connectionUsage.allocate
-				// Create an Enumerator to write to this socket
-				//val producer = Enumerator.imperative[JsValue](onStart = () => self ! NotifyJoin(userId, connectionId))
-				val savedSelf = self
-				lazy val producer: Enumerator[JsValue] = Concurrent.unicast[JsValue](onStart = { channel =>
-					addConnection(userId, producer, channel, connectionId)
-					ChatRoom.addUser(roomId, userId)
-					self ! NotifyJoin(userId, connectionId)
-				}, onError = { (msg, input) =>
-					connectionUsage.free(connectionId)
-				})
-				// previous messages
-				val prev = Enumerator(prevMessages(timestampOpt).map { chatlog => ChatLog.toJson(chatlog) }: _*)
-				sender ! Connected(producer, prev >>> welcomeMessage(connectionId), connectionId)
 			}
-		}
+		case TerminateConnection(userId, channel) =>
+			removeConnection(userId, channel)
+			Logger.info("Number of active connections for chat(" + roomId + "): " + numConnections)
+			Logger.info(s"[Chat] user $userId joined to chat room $roomId ")
 
-		case GetPrevMessages(startTs, endTs) =>
-			val prev = prevMessages(startTs, endTs).map(ChatLog.toJson(_))
-			sender ! JsArray(prev)
+		case ListConnections =>
+			sender ! connections
+		case NumConnections =>
+			sender ! numConnections
 
-		case NotifyJoin(userId, connectionId) => {
-			val user = User.findById(userId).map(_.frozen).get
-			val nickname = user.firstName + " " + user.lastName
-			notifyAll("join", userId, connectionId, "has entered")
-		}
-
-		case Talk(userId, connectionId: Int, text) => {
-			notifyAll("talk", userId, connectionId, text)
-		}
-
-		case Quit(userId, producer, connectionId) => {
-			quit(userId, producer, connectionId)
-			ChatRoom.removeUser(roomId, userId)
-			notifyAll("quit", userId, 0, "has left")
-			Logger.info(s"[CHAT] user $userId quit from room $roomId")
-		}
-
-	}
-
-	def notifyAll(kind: String, userId: String, connectionId: Int, message: String) {
-
-		val user = User.findById(userId).map(_.frozen).get
-		val email = user.email
-		val nickname = user.firstName.get + " " + user.lastName.get
-
-		val msg: JsValue = kind match {
-			case "talk" =>
-				Json.obj(
-					"kind" -> kind,
-					"userId" -> userId,
-					"email" -> email,
-					"message" -> message,
-					"connectionId" -> connectionId)
-
-			case "join" =>
-				val connectionCountForUser = connections.count(_._1 == userId)
-
-				Json.obj(
-					"kind" -> kind,
-					"userId" -> userId,
-					"email" -> email,
-					"nickname" -> nickname,
-					"message" -> Json.obj("nickname" -> nickname, "numConnections" -> connectionCountForUser).toString,
-					"connectionId" -> connectionId)
-			case "quit" =>
-				val connectionCountForUser = connections.count(_._1 == userId)
-
-				Json.obj(
-					"kind" -> kind,
-					"userId" -> userId,
-					"email" -> email,
-					"message" -> Json.obj("numConnections" -> connectionCountForUser).toString)
-		}
-
-		val (timestamp, when) = logMessage(kind, userId, (msg \ "message").as[String])
-
-		connections.foreach {
-			case (_, connectionForUser) =>
-				connectionForUser.foreach {
-					case Connection(_, channel, _) => channel.push(msg.as[JsObject] ++ Json.obj("timestamp" -> timestamp, "when" -> when))
-				}
-		}
+		case Broadcast(msg, timestamp, when) =>
+			connections.foreach {
+				case (_, connectionForUser) =>
+					connectionForUser.foreach {
+						case Connection(channel, _) => channel.map(_.push(msg.as[JsObject] ++ Json.obj("timestamp" -> timestamp, "when" -> when)))
+					}
+			}
+		case Respond(userId, connectionId, msg) =>
+			connections.get(userId).get.find(_.connectionId == connectionId).map { connection =>
+				connection.channel.map(_.push(msg))
+			}
+		case _ =>
+			Logger.info("undefined message type")
 	}
 }
 

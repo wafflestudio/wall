@@ -2,12 +2,19 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# CHAT
+GET      /chat                                controllers.ChatController.index
+GET      /chat/:roomId                        controllers.ChatController.room(roomId: String)
+POST     /chat                                controllers.ChatController.create
+DELETE   /chat/:roomId                        controllers.ChatController.destroy(roomId: String)
+
+
 # Home page
 GET      /                                    controllers.ApplicationController.index
 GET      /about                               controllers.ApplicationController.about
 GET      /contribute                          controllers.ApplicationController.contribute
 GET      /contact                             controllers.ApplicationController.contact
-GET      /language/:locale                    controllers.ApplicationController.language(locale: String)
+GET      /language/:locale           	         controllers.ApplicationController.language(locale: String)
 GET      /messages.js                         controllers.ApplicationController.jsMessages
 
 
@@ -15,14 +22,6 @@ GET      /me                                  controllers.AccountController.inde
 GET      /me/edit                             controllers.AccountController.edit
 POST     /me                             	  controllers.AccountController.update
 GET      /users/:userId/profile               controllers.FileController.serveUserProfilePicture(userId: String)
-
-
-# Chat routes available only for testing
-# GET     /chat                       		  controllers.ChatController.index
-# GET     /chat/:roomId               		  controllers.ChatController.room(roomId:Long)
-# POST    /chat/create                		  controllers.ChatController.create
-GET      /chat/establish/:roomId              controllers.ChatController.establish(roomId:String)
-GET      /chat/log/:roomId                    controllers.ChatController.prevMessages(roomId:String)
 
 
 ## FOLDER management
@@ -60,10 +59,11 @@ GET      /tree                                controllers.WallController.tree
 GET      /wall/:wallId                        controllers.WallController.stage(wallId:String)
 
 # websocket API
-GET      /wall/sync/:wallId                   controllers.WallController.sync(wallId:String)
-# HTTP API
-GET      /wall/comet/:wallId                  controllers.WallController.listen(wallId:String)
-POST     /wall/comet/:wallId                  controllers.WallController.speak(wallId:String)
+GET      /service                             controllers.ServiceController.establish()
+##GET      /wall/sync/:wallId                   controllers.WallController.sync(wallId:String)
+### HTTP API
+GET      /service/comet/:wallId                  controllers.ServiceController.listen(wallId:String)
+POST     /service/comet/:wallId                  controllers.ServiceController.speak(wallId:String)
 # misc. 
 POST     /wall/view/:wallId                   controllers.WallController.setView(wallId:String)
 GET      /wall/search/:wallId/:keyword        controllers.WallController.search(wallId:String, keyword:String)

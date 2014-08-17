@@ -1,10 +1,10 @@
 define ["jquery", "EventDispatcher", "websocket"], ($, EventDispatcher, PersistentWebsocket) ->
   class Chat extends EventDispatcher
     
-    constructor: (url) ->
+    constructor: (pwebsocket, cometurls, chatRoomId, timestamp) ->
       super(url, "CHAT")
       @scope = 'CHAT'
-      @socket = new PersistentWebsocket(url, @scope)
+      @socket = pwebsocket.join(@scope, timestamp)
       
       @chatWindow = $('#chatWindow')
       @chatLog = $('#chatLog')

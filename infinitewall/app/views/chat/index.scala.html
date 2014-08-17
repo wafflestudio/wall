@@ -1,11 +1,11 @@
-@(rooms:List[ChatRoom])(implicit request: RequestHeader)
+@(rooms:List[ChatRoom.Frozen])(implicit request: RequestHeader)
 
 @layouts.main("Chat Rooms ::: Infinite Wall") {
 
 	@if(rooms.length == 0)  {
 		<p> No rooms available </p>
 	}
-	<form method="POST" action="/chat/create" class="form-inline">
+	<form method="POST" action="/chat" class="form-inline">
 		<input name="title" type="text" placeholder="Room title"><button class="btn">Create</button/>
 	</form>
 	<ul>

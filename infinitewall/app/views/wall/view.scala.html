@@ -147,13 +147,12 @@
     $(function() {
       // open sockets
       var wallURLs = { 
-        websocket: "@routes.WallController.sync(wallId).webSocketURL()", 
-        speak: "@routes.WallController.speak(wallId)", 
-        listen: "@routes.WallController.listen(wallId)" }
-      var chatURL = "@routes.ChatController.establish(chatId).webSocketURL()"
+        websocket: "@routes.ServiceController.establish().webSocketURL()", 
+        speak: "@routes.ServiceController.speak(wallId)", 
+        listen: "@routes.ServiceController.listen(wallId)" }
 
       // prepare stage
-      window.stage = new Stage("@wallId", @timestamp, "@currentUser.get.email", wallURLs, chatURL)
+      window.stage = new Stage("@wallId", @timestamp, "@currentUser.get.email", wallURLs)
       wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
 
       // place sheets and sheet links

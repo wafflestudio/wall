@@ -115,7 +115,7 @@ object WallController extends Controller with SecureSocial {
 		val wallId = Wall.create(currentUserId, title).frozen.id
 		Redirect(routes.WallController.stage(wallId))
 	}
-
+	/*
 	// websocket IO stream of events
 	def sync(wallId: String) = securedWebsocket { implicit request =>
 		val uuid = queryParam("uuid")
@@ -124,39 +124,7 @@ object WallController extends Controller with SecureSocial {
 
 		WallService.establish(wallId, user.identityId.userId, uuid, timestamp)
 	}
-
-	// http send by client
-	def speak(wallId: String) = securedAction { implicit request =>
-		val uuid = queryParam("uuid")
-		Logger.info(s"speak1: ${bodyText}")
-		val action = Json.parse(Json.parse(bodyText).as[String])
-		Logger.info(s"speak2: $action")
-		WallService.submit(wallId, request.user.identityId.userId, uuid, 0, action)
-		Ok("")
-	}
-
-	// http receive
-	def listen(wallId: String) = SecuredAction.async { implicit request =>
-		import play.api.templates.Html
-		import play.api.libs.concurrent.Execution.Implicits._
-		val uuid = queryParam("uuid")
-		val timestamp = queryParam("timestamp").toLong
-		val user = request.user
-
-		WallService.establish(wallId, user.identityId.userId, uuid, timestamp).map { channels =>
-			// force disconnect after 3 seconds
-			val timeoutEnumerator: Enumerator[JsValue] = Enumerator.generateM[JsValue] {
-				Promise.timeout(Some(JsNumber(0)), 3.seconds)
-			}.mapInput {
-				case _ => Input.EOF
-			}
-			timeoutEnumerator.apply(channels._1)
-			// convert to comet stream
-			val stream = channels._2 &> Comet(callback = "triggerOnReceive")
-			Ok.chunked(stream)
-		}
-
-	}
+	*/
 
 	def delete(id: String) = securedAction { implicit request =>
 		Wall.deleteByUserId(currentUserId, id)

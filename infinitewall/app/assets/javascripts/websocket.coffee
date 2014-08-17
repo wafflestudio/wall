@@ -1,10 +1,9 @@
 # required for extending:
-# @timestamp
 # @url
 # @scope
 
 # states: CONNECTED <=> TRYING
-define ["EventDispatcher", "jquery"], (EventDispatcher, $) ->
+define ["EventDispatcher", "jquery", "cometsocket", "connection"], (EventDispatcher, $, CometSocket, Connection) ->
 
   # get websocket url adjusted to current viewing protocol (http->ws/https->wss)
   websocketURLAdjusted = (url) ->
@@ -22,60 +21,100 @@ define ["EventDispatcher", "jquery"], (EventDispatcher, $) ->
 
 
   class PersistentWebsocket extends EventDispatcher
+
+    generateUUID: ->
+      'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) ->
+        r = Math.random()*16|0
+        v = if c == 'x' then r else (r&0x3|0x8)
+        v.toString(16)
+      ) + "-" + new Date().getTime().toString(36)
     
-    constructor: (@url, scope = "WS", @timestamp) ->
+    constructor: (@url, @cometurls) ->
       super()
       @WS = if window['MozWebSocket'] then MozWebSocket else window['WebSocket']
       @status = "TRYING"
       @numRetry = 0
-      @scope = "[#{scope}]"
+      @scope = "[???]"
       @buffered = [] # emergency buffer
       @pending = []
+
+      @uuid = @generateUUID()
+      #@comet = new CometSocket(@cometurls.speak + "?uuid=#{@uuid}", cometurls.listen +"?uuid=#{@uuid}", "COMET")
+
+      @connections = {}
 
       @url = websocketURLAdjusted(@url)
 
       if @WS?
-      	@connect()
+        @connect()
       else
         setTimeout (() => @trigger('close')), 0
 
     isConnected:() ->
       @status == "CONNECTED"
 
-    withTimestamp:() =>
-      if @url.indexOf('?') != -1
-        "&timestamp=#{@timestamp}"
-      else
-        "?timestamp=#{@timestamp}"
-
     connect: ()=>
-      console.info(@scope, "Retrying to connect... ", @numRetry, "ts: #{@timestamp}") if @numRetry > 0 
-      @socket = new @WS(@url + if @timestamp? then @withTimestamp() else "")
+      console.info("[WS]", "Trying to connect... ", @numRetry) if @numRetry > 0
+      @socket = new @WS(@url)
       @socket.onopen = @onOpen
       @socket.onerror = @onError
       @socket.onclose = @onClose
 
-    send: (msg) ->
-      console.info(@scope, "sending #{msg.length} characters", msg)
-      @socket.send(msg)
+    join: (path, timestamp) ->
+      unless @connections[path]?
+        conn = new Connection()
+        conn.send = (msg) =>
+          @send(path, msg)
+        conn.isConnected = () =>
+          @isConnected()
+        @connections[path] = conn
+      if @isConnected()
+        @send(path, JSON.stringify({type:"join", path:path, uuid:@uuid, timestamp:timestamp}))
+      else
+        @connections[path].once('open', () =>
+          @send(path, JSON.stringify({type:"join", path:path, uuid:@uuid, timestamp:timestamp}))
+        )
+
+      @connections[path]
+
+
+    send: (path, msg) ->
+      console.info("[WS::send]", path, "sending #{msg.length} characters", msg)
+      if @isConnected()
+        @socket.send(msg)
+      else
+        @comet.send(msg)
 
     close: ()->
+      console.warn("[WS::close]", "this feature is not supported! Why did you do this??")
       @socket.close()
-
 
     # @override
     onReceive: (e) =>
+      console.log("[WS::Receive]", e.data)
       data = JSON.parse(e.data)
-      #console.log(@scope, data)
+      if data.path? and @connections[data.path]?
+        @connections[data.path].trigger('receive', data)
       @trigger('receive', data)
 
     onOpen: (e) =>
       @socket.onmessage = @onReceive
-      console.info(@scope, "connection established: ", e)
+      console.info("[WS::open]", "websocket connection established: ", e)
       @trigger('open', e)
       @status = "CONNECTED"
       @numRetry = 0
-        
+
+      #@comet.deactivate()
+      #@comet.off 'receive', @onReceive
+
+      if @pending.length > 0
+        console.info(@scope, "sending #{@pending.length} unsent messages")
+        for msg in @pending
+          @socket.send(JSON.stringify(msg))
+
+      for path,connection of @connections
+        connection.trigger('open', e)
+
 
     onClose: (e) =>
       @status = "TRYING"
@@ -86,12 +125,28 @@ define ["EventDispatcher", "jquery"], (EventDispatcher, $) ->
 
       setTimeout(@connect, Math.pow(2, @numRetry) * 1000)
       @numRetry += 1 if @numRetry < 5
-      console.warn(@scope, "connection closed: ", e, "Will retry connect")
+      console.warn("[WS::onClose]", "websocket connection closed: ", e, "Will retry connect")
+
+      #@comet.activate()
+      #@comet.on 'receive', @onReceive
+      ###if @pending.length > 0
+        console.info(@scope, "sending #{@pending.length} unsent messages")
+        for msg in @pending
+          @comet.send(JSON.stringify(msg))
+      ###
+
+
+      for path,connection of @connections
+        connection.trigger('close', e)
       @trigger('close', e)
 
     onError: (e) =>
       if @status == "TRYING"
-        console.warn(@scope, "cannot establish connnection: ", e)
+        console.warn("[WS::onError]", "websocket cannot establish connnection: ", e)
       else
-        console.error(@scope, "chat connection caught error: ", e)
+        console.error("[WS::onError]", "websocket connection caught an error: ", e)
+
+      for path,connection of @connections
+        connection.trigger('error', e)
+
       @trigger('error', e)

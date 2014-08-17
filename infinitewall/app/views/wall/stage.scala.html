@@ -1,17 +1,16 @@
-@(wallId:String, wallName:String, pref:WallPreference.Frozen, sheets:List[Sheet.Frozen], sheetlinks:List[SheetLink.Frozen],timestamp:Long, chatId:String)(implicit request: RequestHeader)
+@(wallId:String, wallName:String, pref:WallPreference.Frozen, sheets:List[Sheet.Frozen], sheetlinks:List[SheetLink.Frozen],timestamp:Long, chatRoomId:String)(implicit request: RequestHeader)
 
 @import securesocial.core.SecureSocial._
 
 @layouts.stage(wallName + " ::: Infinite Wall") {
-<div ng-controller="Stage" ng-init="init('@wallId')">
+<div ng-controller="Stage">
   <div class="navigator">
-    <div id = "wallmanagement">
+    <div id = "wallmanagement" ng-controller="Tree" ng-init="init('@wallId')">
       <div id = "tree">
       </div>
     </div>
   </div>
 
-  <!--<div class="wallContainer innershade otherwall1"></div>-->
   <!--<div class="wallContainer innershade otherwall2"></div>-->
   <div class="wallContainer innershade currentwall">
 
@@ -114,28 +113,10 @@
 
   </div><!-- wallcontainer -->
 
-  <div id="folder-modal-create" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-      <div class="modal-content">
-        <form ng-submit="createFolder()">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="myModalLabel">Create Folder</h4>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-                <label for="folderNameCreate">Name</label>
-                <input type="text" class="form-control" id="folderNameCreate" placeholder="A suitable name for your folder" ng-model="newFolder.name">
-            </form>
-          </div>
-        </form>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary modal-submit">Save changes</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- modal for creating folder -->
+  @createFolderModal()
+  <!-- end of modal -->
+
 </div>
 
   <script type = "text/javascript">
@@ -192,14 +173,15 @@
 
     $(function() {
       // open sockets
-      var wallURLs = { 
-        websocket: "@routes.WallController.sync(wallId).webSocketURL()", 
-        speak: "@routes.WallController.speak(wallId)", 
-        listen: "@routes.WallController.listen(wallId)" }
-      var chatURL = "@routes.ChatController.establish(chatId).webSocketURL()"
-
+      var urls = { 
+        websocket: "@routes.ServiceController.establish().webSocketURL()", 
+        wallspeak: "@routes.ServiceController.speak(wallId)", 
+        walllisten: "@routes.ServiceController.listen(wallId)",
+        chatspeak: "@routes.ServiceController.speak(chatRoomId)",
+        chatlisten: "@routes.ServiceController.listen(chatRoomId)"}
+     
       // prepare stage
-      window.stage = new Stage("@wallId", @timestamp, "@currentUser.get.email", wallURLs, chatURL)
+      window.stage = new Stage("@wallId", @timestamp, "@currentUser.get.email", urls)
       wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
 
       // place sheets and sheet links

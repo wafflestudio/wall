@@ -8,7 +8,7 @@ define ["EventDispatcher","underscore", "jquery"], (EventDispatcher, _, $) ->
   class CometSocket extends EventDispatcher
     @iframeId = 1
 
-    constructor: (speakurl, listenurl, scope = "COMET", @timestamp)->
+    constructor: (speakurl, listenurl, scope = "COMET")->
       super()
       @speakurl = speakurl
       @listenurl = listenurl
@@ -23,7 +23,7 @@ define ["EventDispatcher","underscore", "jquery"], (EventDispatcher, _, $) ->
       @activated = false
 
     url: () ->
-      @listenurl + "&timestamp=#{@timestamp}"
+      @listenurl
       
     # listen: create listener ajax stream via iframe
     listen:() ->

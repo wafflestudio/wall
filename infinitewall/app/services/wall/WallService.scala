@@ -12,29 +12,16 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.iteratee.{ Done, Enumerator, Input, Iteratee }
 import play.api.libs.json.{ JsValue, Json }
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
-
-// Messages
-// WallSystem -> WallSystem Actor
-case class JoinWall(wallId: String, userId: String, uuid: String, timestamp: Long, syncOnce: Boolean = false)
-case class QuitWall(wallId: String, userId: String, uuid: String, connectionId: Int, wasPersistent: Boolean = false)
-case class ActionInWall(wallId: String, userId: String, uuid: String, connectionId: Int, actionJson: JsValue)
-case class TalkInWall(wallId: String, userId: String, uuid: String, connectionId: Int, text: String)
-case class Inactive(wallId: String)
-case class CheckInactive()
-
-// WallSystem Actor -> Wall Actor
-case class Join(userId: String, uuid: String, timestamp: Long, syncOnce: Boolean = false)
-case class Quit(userId: String, uuid: String, connectionId: Int, wasPersistent: Boolean = false)
-case class Action(json: JsValue, uuid: String, connectionId: Int, parsed: ActionDetail)
-case class Talk(text: String, uuid: String, connectionId: Int)
-
-// Wall Actor reply
-case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[JsValue], connectionId: Int)
-case class CannotConnect(msg: String)
+import services.EntryMessage
+import services.TerminateAt
+import services.TerminateConnection
+import services.ServiceMessage
 
 // Wall System (Delegate + Actor)
+
 object WallService {
 	val shutdownFinalizeTimeout = 70 * 1000
+	/*
 	// Used for http requests
 	val volatileEnumerator: Enumerator[JsValue] = Enumerator.eof
 
@@ -70,6 +57,8 @@ object WallService {
 		Logger.info(actionJson.toString)
 		wallSystem ? ActionInWall(wallId, userId, uuid, connectionId, actionJson)
 	}
+	* 
+	*/
 }
 
 class WallService extends Actor {
@@ -112,22 +101,14 @@ class WallService extends Actor {
 	}
 
 	def receive = {
-		case JoinWall(wallId, userId, uuid, timestamp, syncOnce) =>
-			val savedSender = sender
-			(wallActor(wallId) ? Join(userId, uuid, timestamp, syncOnce)).map(savedSender ! _)
-		case QuitWall(wallId, userId, uuid, connectionId, wasPersistent) =>
-			val savedSender = sender
-			(wallActor(wallId) ? Quit(userId, uuid, connectionId, wasPersistent)).map(savedSender ! _)
-		case ActionInWall(wallId, userId, uuid, connectionId, json) =>
-			val savedSender = sender
-			(wallActor(wallId) ? Action(json, uuid, connectionId, ActionDetail(userId, json))).map(savedSender ! _)
-		case Inactive(wallId) =>
-			if (System.currentTimeMillis() - lastAccessedTime(wallId) > WallService.shutdownFinalizeTimeout) {
-				Logger.info("shutting down wall actor (" + wallId + ") due to inactivity")
-				wallActors = wallActors - wallId
-				akka.pattern.gracefulStop(sender, 1 seconds)
-			} else
-				sender ! CheckInactive
+		// find room by id
+		// send the message to the room actor
+		case EntryMessage(userId, channel, path, content, _) =>
+			val wallId = path.head
+			wallActor(wallId) ! ServiceMessage(userId, channel, content)
+		case TerminateAt(userId, channel, path) =>
+			val wallId = path.head
+			wallActor(wallId) ! TerminateConnection(userId, channel)
 	}
 }
 

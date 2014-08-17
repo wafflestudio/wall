@@ -9,24 +9,15 @@ import play.api.Play.current
 import play.api.libs.concurrent._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee._
+import play.api.libs.iteratee.Concurrent.Channel
 import play.api.libs.json._
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import services.EntryMessage
+import services.TerminateAt
+import services.TerminateConnection
+import services.ServiceMessage
 
-case class Join(userId: String, timestampOpt: Option[Long])
-case class Quit(userId: String, producer: Enumerator[JsValue], connectionId: Int)
-case class Talk(userId: String, connectionId: Int, text: String)
-case class NotifyJoin(userId: String, connectionId: Int)
-case class GetPrevMessages(startTs: Long, endTs: Long)
-
-case class Connected(enumerator: Enumerator[JsValue], prev: Enumerator[JsValue], connectionId: Int)
-case class CannotConnect(msg: String)
-
-case class Message(kind: String, email: String, text: String)
-
-// FIXME: check for any concurrency issue especially accessing rooms
-object ChatService {
-
-	implicit val timeout = Timeout(1 second)
+class ChatService extends Actor {
 
 	var rooms: Map[String, ActorRef] = Map()
 
@@ -40,39 +31,15 @@ object ChatService {
 		}
 	}
 
-	def establish(roomId: String, userId: String, timestamp: Option[Long]): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
-
-		val joinResult = room(roomId) ? Join(userId, timestamp)
-
-		joinResult.map {
-			case Connected(producer, prev, connectionId) =>
-				// Create an Iteratee to consume the feed
-				val consumer = Iteratee.foreach[JsValue] { event: JsValue =>
-					room(roomId) ! Talk(userId, (event \ "connectionId").as[Int], (event \ "text").as[String])
-				}.map { _ =>
-					room(roomId) ! Quit(userId, producer, connectionId)
-				}
-
-				(consumer, prev >>> producer)
-
-			case CannotConnect(error) =>
-
-				// Connection error
-
-				// A finished Iteratee sending EOF
-				val consumer = Done[JsValue, Unit]((), Input.EOF)
-
-				// Send an error and close the socket
-				val producer = Enumerator[JsValue](Json.obj("error" -> error)).andThen(Enumerator.enumInput(Input.EOF))
-
-				(consumer, producer)
-
-		}
+	def receive = {
+		// find room by id
+		// send the message to the room actor
+		case EntryMessage(userId, channel, path, content, _) =>
+			val roomId = path.head
+			room(roomId) ! ServiceMessage(userId, channel, content)
+		case TerminateAt(userId, channel, path) =>
+			val roomId = path.head
+			room(roomId) ! TerminateConnection(userId, channel)
 
 	}
-
-	def prevMessages(roomId: String, startTs: Long, endTs: Long) = {
-		(room(roomId) ? GetPrevMessages(startTs, endTs)).mapTo[JsValue]
-	}
-
 }

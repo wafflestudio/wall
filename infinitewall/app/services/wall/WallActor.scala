@@ -1,27 +1,77 @@
 package services.wall
 
-import scala.concurrent.duration.DurationInt
-import akka.actor.{ Actor, actorRef2Scala }
-import akka.pattern.ask
 import models.{ AlterTextRecord, Sheet, SheetLink, WallLog }
+import scala.concurrent.duration._
+import scala.concurrent.Future
+import akka.actor._
 import play.api.Logger
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.iteratee.{ Concurrent, Enumerator }
-import play.api.libs.json.{ JsObject, JsValue, Json }
+import play.api.libs.concurrent._
+import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.iteratee._
+import play.api.libs.iteratee.Concurrent.Channel
 import play.api.libs.json._
-import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import utils.StringWithState
-import play.api.libs.json._
-import services.ConnectionManager
+import utils.UsageSet
+import play.libs.Akka
+import services.TerminateConnection
+import services.ServiceMessage
+import services.Connection
+
+case class Broadcast(msg: JsValue)
+case class Respond(userId: String, connectionId: Int, msg: JsValue)
+// Messages
+// WallSystem -> WallSystem Actor
+case class JoinWall(wallId: String, userId: String, uuid: String, timestamp: Long, syncOnce: Boolean = false)
+case class QuitWall(wallId: String, userId: String, uuid: String, connectionId: Int, wasPersistent: Boolean = false)
+case class ActionInWall(wallId: String, userId: String, uuid: String, connectionId: Int, actionJson: JsValue)
+case class Inactive(wallId: String)
+case class CheckInactive()
+
+// WallSystem Actor -> Wall Actor
+case class Join(userId: String, uuid: String, timestamp: Long, syncOnce: Boolean = false)
+case class Quit(userId: String, uuid: String, connectionId: Int, wasPersistent: Boolean = false)
+case class Action(json: JsValue, uuid: String, connectionIdOpt: Option[Int], parsed: ActionDetail)
+case class Talk(text: String, uuid: String, connectionId: Int)
+
+// Wall Actor reply
+case class Connected(enumerator: Enumerator[JsValue], prevMessages: Enumerator[JsValue], connectionId: Int)
+case class CannotConnect(msg: String)
 
 class WallActor(wallId: String) extends Actor {
 
 	implicit def toDouble(value: JsValue) = { value.as[Double] }
 	implicit def toLong(value: JsValue) = { value.as[Long] }
 
-	// trick to track pending messages for each session (session, timestamp, action)
-	val connectionManager = new ConnectionManager
+	private var connections = Map.empty[String, List[Connection]]
+	private var connectionIdPool = new UsageSet
 
+	private def numConnections = connections.foldLeft(0) { (sum, el) =>
+		sum + el._2.length
+	}
+
+	def addConnection(userId: String, channel: Future[Concurrent.Channel[JsValue]]) = {
+		val connectionId = connectionIdPool.allocate
+		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(channel, connectionId)))
+		Logger.info("[Chat] Connection established: " + connections.toString)
+		connectionId
+	}
+
+	def removeConnection(userId: String, channel: Future[Channel[JsValue]]) = {
+		// clear sessions for userid. if none exists for a userid, remove userid key.
+		connections.get(userId).foreach { userConns =>
+
+			userConns.find(_.channel == channel).map { conn =>
+				connectionIdPool.free(conn.connectionId)
+			}
+
+			val newUserConns = userConns.filterNot(_.channel == channel)
+
+			if (newUserConns.isEmpty)
+				connections = connections - userId
+			else
+				connections = connections + (userId -> newUserConns)
+
+		}
+	}
 	// shutdown timer activated when no connection is left to the actor
 	var shutdownTimer: Option[akka.actor.Cancellable] = None
 
@@ -36,150 +86,48 @@ class WallActor(wallId: String) extends Actor {
 			shutdownTimer = None
 		}
 	}
-
-	def prevLogs(timestamp: Long) =
-		WallLog.list(wallId, timestamp).map(_.frozen)
-
-	def logMessage(kind: String, basetimestamp: Long, userId: String, message: String) =
-		WallLog.create(kind, wallId, basetimestamp, userId, message).frozen
-
-	// notify all producers
-	def broadcast(msg: WallLog.Frozen) = connectionManager.connections.foreach(_.channel.push(msg.toJson))
-
-	def update(action: Action): Option[WallLog.Frozen] = {
-		action match {
-			// ACK
-			case Action(json, _, _, ack: Ack) =>
-				Logger.debug("ack came(" + ack.timestamp + ").")
-				None
-
-			// Create Action
-			case Action(json, uuid, connectionId, c: CreateAction) =>
-				val sheetId = Sheet.create(c.x, c.y, c.width, c.height, c.title, c.contentType, c.content, wallId).frozen.id
-				val addSheetId = (__ \ "params").json.update(__.read[JsObject].map(_ ++ Json.obj("sheetId" -> sheetId)))
-				Some(logMessage("action", c.timestamp, c.userId, json.validate(addSheetId).get.toString))
-			// Other Action
-			case Action(json, uuid, connectionId, action: ActionDetailWithId) =>
-				Sheet.findById(action.sheetId).map(_.frozen).map { sheet =>
-
-					action match {
-						case a: MoveAction =>
-							Sheet.move(a.sheetId, a.x, a.y)
-							logMessage("action", action.timestamp, action.userId, json.toString)
-						case a: ResizeAction =>
-							Sheet.resize(a.sheetId, a.width, a.height)
-							logMessage("action", action.timestamp, action.userId, json.toString)
-						case a: RemoveAction =>
-							Sheet.remove(a.sheetId) //former delete
-							logMessage("action", action.timestamp, action.userId, json.toString)
-						case a: SetTitleAction =>
-							Sheet.setTitle(a.sheetId, a.title)
-							logMessage("action", action.timestamp, action.userId, json.toString)
-						case a: SetTextAction =>
-							Sheet.setText(a.sheetId, a.text)
-							logMessage("action", action.timestamp, action.userId, json.toString)
-						case action: AlterTextAction =>
-							// simulate consolidation of records after timestamp
-							val records: List[AlterTextRecord] = WallLog.listAlterTextRecord(wallId, action.sheetId, action.timestamp)
-
-							var pending = action.operations // all mine with > a.timestamp
-
-							records.foreach { record =>
-								if (record.uuid == action.uuid) {
-									// drop already consolidated. 
-									if (pending.head.msgId != record.msgId)
-										Logger.warn(s"pending: ${pending.head.msgId} != record: ${record.msgId}")
-									pending = pending.drop(1)
-								} else { // apply arrived consolidated record
-									val ss = new StringWithState(record.baseText)
-									ss.apply(record.operation, 1)
-									// transform pending
-									pending = pending.map { p =>
-										OperationWithState(ss.apply(p.op, 0), p.msgId)
-									}
-									Logger.debug("simulation: " + ss.text)
-								}
-							}
-
-							val newOperation = pending.head.op
-							val (baseText, undoOp) = Sheet.alterText(action.sheetId, newOperation)
-							val newAction = AlterTextAction(action.userId, action.uuid, action.sheetId, action.timestamp,
-								List(OperationWithState(newOperation, action.operations.last.msgId)), undoOp)
-							logMessage("action", action.timestamp, action.userId, newAction.json.toString)
-						case a: SetLinkAction =>
-							SheetLink.create(a.sheetId, a.toSheetId, wallId)
-							logMessage("action", action.timestamp, action.userId, json.toString)
-						case a: RemoveLinkAction =>
-							SheetLink.remove(a.sheetId, a.toSheetId)
-							SheetLink.remove(a.toSheetId, a.sheetId)
-							logMessage("action", action.timestamp, action.userId, json.toString)
-					}
-				}
-		}
-	}
-
-	def quit(userId: String, uuid: String, connectionId: Int) = {
-		// clear sessions for userid. if none exists for a userid, remove userid key.
-		connectionManager.removeConnection(userId, connectionId)
-
-		//start scheduling shutdown
-		if (!connectionManager.hasConnection)
-			beginShutdownCountdown
-
-		Logger.info(s"[Wall] user $userId quit from wall $wallId")
-		Logger.info("Number of active connections for wall(" + wallId + "): " + connectionManager.numConnections)
-	}
+	lazy val core = Akka.system.actorOf(Props(new WallCoreActor(wallId, self)))
 
 	def receive = {
-		// Join
-		case Join(userId, uuid, timestamp, syncOnce) => {
-			// Create an Enumerator to write to this socket
-			val wallActor = self
+		case ServiceMessage(userId, channel, content) =>
+			val connectionIdOpt = (content \\ "connectionId").headOption.map(_.as[Int])
+			val timestampOpt = (content \\ "timestamp").headOption.map(_.as[Long])
+			val uuid = (content \ "uuid").as[String]
 
-			if (false /* maximum connection per user constraint here*/ ) {
-				sender ! CannotConnect("Wall has reached maximum number of connections.")
-			} else {
-				stopShutdownCountdown
-
-				val connectionId = connectionManager.allocate
-
-				lazy val producer: Enumerator[JsValue] = Concurrent.unicast[JsValue](onStart = { channel =>
-					// update connections map
-					connectionManager.addConnection(userId, uuid, producer, channel, connectionId)
-				}, onError = { (msg, input) =>
-					connectionManager.free(connectionId)
-				})
-
-				val prev = Enumerator(prevLogs(timestamp).map(_.toJson): _*)
-
-				sender ! Connected(producer, prev, connectionId)
-
-				if (syncOnce) {
-					Logger.info(s"[Wall] user $userId:($uuid) syncing with wall $wallId")
-				} else {
-					Logger.info(s"[Wall] user $userId:($uuid / $connectionId) joined to wall $wallId")
-					Logger.info("[Wall] Number of active connections for wall(" + wallId + "): " + connectionManager.numConnections)
-
-					Logger.info(s"[Wall] connections: (${connectionManager.connectionsAsString})")
-				}
+			(content \ "type").as[String] match {
+				case "join" =>
+					val connectionId = addConnection(userId, channel)
+					core ! Join(userId, uuid, timestampOpt.get)
+				case "quit" =>
+					removeConnection(userId, channel)
+				case "action" =>
+					core ! Action(content, uuid, connectionIdOpt, ActionDetail(userId, content))
 			}
-		}
-		case CheckInactive =>
-			//start scheduling shutdown if no connections left
-			if (!connectionManager.hasConnection)
-				beginShutdownCountdown
+		case TerminateConnection(userId, channel) =>
+			removeConnection(userId, channel)
+			Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
+			Logger.info(s"[Wall] user $userId joined to wall room wallId ")
 
-		case Talk(text, uuid, connectionId) =>
-		// TODO
-		case action: Action =>
-			// update action and broadcast if needed
-			update(action).map(broadcast(_))
-		// Quit
-		case Quit(userId, uuid, connectionId, wasPersistent) => {
-			quit(userId, uuid, connectionId)
-			if (wasPersistent)
-				broadcast(logMessage("userQuit", 0, userId, ""))
-		}
+		case Broadcast(msg) =>
+			val path = s"wall/$wallId"
+			val msgWithPath = msg.as[JsObject] + ("path" -> Json.toJson(path))
+
+			Logger.info("broadcasting for wall(" + wallId + "): " + numConnections)
+
+			connections.foreach {
+				case (_, connectionForUser) =>
+					connectionForUser.foreach {
+						case Connection(channel, _) => channel.map(_.push(msgWithPath))
+					}
+			}
+		case Respond(userId, connectionId, msg) =>
+			connections.get(userId).get.find(_.connectionId == connectionId).map { connection =>
+				val path = s"wall/$wallId"
+				val msgWithPath = msg.as[JsObject] + ("path" -> Json.toJson(path))
+				connection.channel.map(_.push(msgWithPath))
+			}
+		case _ =>
+			Logger.info("undefined message type")
 	}
 
 }

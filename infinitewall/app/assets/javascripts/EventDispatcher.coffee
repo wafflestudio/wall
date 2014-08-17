@@ -4,15 +4,19 @@ define [], () ->
     constructor:() ->
       eventHandlers = {}
 
+      @once = (evtName, handler) ->
+        eventHandlers[evtName] = eventHandlers[evtName] || []
+        eventHandlers[evtName].push([handler, true])
+
       @on = (evtName, handler) ->
         eventHandlers[evtName] = eventHandlers[evtName] || []
-        eventHandlers[evtName].push(handler)
+        eventHandlers[evtName].push([handler, false])
 
       @off = (evtName, handler) ->
         eventHandlers[evtName] = eventHandlers[evtName] || []
         i = 0
         while i < eventHandlers[evtName].length
-          target = eventHandlers[evtName][i]
+          target = eventHandlers[evtName][i][0]
           if handler == target
             eventHandlers[evtName].splice(i,1)
           else
@@ -30,8 +34,15 @@ define [], () ->
         if !handlers
           return
 
+        triggeredOnce = []
+
         for handler in handlers
-          handler.apply(this, args)
+          handler[0].apply(this, args)
+          if handler[1]
+            triggeredOnce.push(handler[0])
+
+        for handler in triggeredOnce
+          @off(evtName, handler)
         
       @clear = (evtName) ->
         if evtName
