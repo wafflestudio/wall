@@ -55,7 +55,7 @@ define [
 
       pwebsocket = new PersistentWebsocket(URLs.websocket, {speak:URLs.wallspeak, listen:URLs.walllisten})
       window.wallSocket = new WallSocket(pwebsocket, wallId, timestamp)
-      #window.chat = new Chat(pwebsocket, URLs)
+      window.chat = new Chat(pwebsocket, URLs, timestamp)
       window.shortcut = new Shortcut()
       @wallId = wallId
       @currentUser = currentUser
