@@ -46,7 +46,7 @@ define [
     createSheetLink: (params, timestamp) ->
       @sheets[params.fromSheetId].setLink(params)
 
-    constructor: (wallId, timestamp, currentUser, URLs) ->
+    constructor: (wallId, timestamp, currentUser, URLs, chatRoomId) ->
       window.wall = new Wall()
       window.minimap = new Minimap()
       window.menu = new Menu()
@@ -55,7 +55,7 @@ define [
 
       pwebsocket = new PersistentWebsocket(URLs.websocket, {speak:URLs.wallspeak, listen:URLs.walllisten})
       window.wallSocket = new WallSocket(pwebsocket, wallId, timestamp)
-      window.chat = new Chat(pwebsocket, URLs, timestamp)
+      window.chat = new Chat(pwebsocket, URLs, chatRoomId)
       window.shortcut = new Shortcut()
       @wallId = wallId
       @currentUser = currentUser

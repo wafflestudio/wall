@@ -1,4 +1,4 @@
-@(wallId:String, wallName:String, pref:WallPreference.Frozen, sheets:List[Sheet.Frozen], sheetlinks:List[SheetLink.Frozen],timestamp:Long, chatRoomId:String)(implicit request: RequestHeader)
+@(wallId:String, wallName:String, pref:WallPreference.Frozen, sheets:List[Sheet.Frozen], sheetlinks:List[SheetLink.Frozen], timestamp:Long, chatRoomId:String)(implicit request: RequestHeader)
 
 @import securesocial.core.SecureSocial._
 
@@ -181,7 +181,7 @@
         chatlisten: "@routes.ServiceController.listen(chatRoomId)"}
      
       // prepare stage
-      window.stage = new Stage("@wallId", @timestamp, "@currentUser.get.email", urls)
+      window.stage = new Stage("@wallId", @timestamp, "@currentUser.get.email", urls, "@chatRoomId")
       wall.loadPref(@pref.zoom, @pref.panX, @pref.panY)
 
       // place sheets and sheet links

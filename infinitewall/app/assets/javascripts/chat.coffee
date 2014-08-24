@@ -1,9 +1,9 @@
 define ["jquery", "EventDispatcher", "websocket"], ($, EventDispatcher, PersistentWebsocket) ->
   class Chat extends EventDispatcher
     
-    constructor: (pwebsocket, cometurls, chatRoomId, timestamp) ->
-      super(url, "CHAT")
-      @scope = 'CHAT'
+    constructor: (pwebsocket, urls, chatRoomId, timestamp) ->
+      super()
+      @scope = "chat/#{chatRoomId}"
       @socket = pwebsocket.join(@scope, timestamp)
       
       @chatWindow = $('#chatWindow')
@@ -59,10 +59,19 @@ define ["jquery", "EventDispatcher", "websocket"], ($, EventDispatcher, Persiste
       @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 150
     
     sendCurrentMessage: ->
-      msg = @chatInput.val()
-      #msg = msg.substr(0, msg.length - 1) if msg.charAt(msg.length - 1) is '\n'
+      msg = {}
+      text = @chatInput.val()
+      #text = msg.substr(0, msg.length - 1) if msg.charAt(msg.length - 1) is '\n'
+      
+      msg.path = @scope
+      msg.timestamp = @timestamp unless msg.timestamp?
+      msg.uuid = @uuid
+      msg.connectionId = @connectionId
+      msg.text = text
+      msg.type = "talk"
+
       @chatInput.val("")
-      @socket.send JSON.stringify({connectionId:@connectionId, text: msg})
+      @socket.send JSON.stringify(msg)
 
     close: ->
       console.log('close called')

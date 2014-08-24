@@ -29,7 +29,7 @@ object ApplicationBuild extends Build {
 			"org.webjars" % "bootstrap" % "3.1.1",
 			"org.webjars" %% "webjars-play" % "2.2.1-2",
 			"org.webjars" % "requirejs" % "2.1.1",
-			"org.webjars" % "angularjs" % "1.2.13",
+			"org.webjars" % "angularjs" % "1.2.23",
 			"org.webjars" % "font-awesome" % "4.1.0",
 			"org.julienrf" %% "play-jsmessages" % "1.6.0"
 			)

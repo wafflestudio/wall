@@ -100,8 +100,9 @@ object WallController extends Controller with SecureSocial {
 
 		if (Wall.hasEditPermission(wallId, currentUserId)) {
 			val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
-			val (timestamp, sheets, sheetlinks) =
+			val (timestamp, sheets, sheetlinks) = transactional {
 				(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
+			}
 
 			val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
 			Ok(views.html.wall.stage(wallId, wall.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
