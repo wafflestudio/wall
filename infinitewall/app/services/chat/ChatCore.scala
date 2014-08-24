@@ -63,16 +63,17 @@ class ChatCoreActor(roomId: String, roomActor: ActorRef) extends Actor {
 	def getListUsers: Future[JsValue] = {
 
 		getConnections.map { connections =>
-			Json.arr(connections.map { connection =>
+			JsArray(connections.map { connection =>
 				val user = User.findById(connection._1).map(_.frozen).get
 
 				Json.obj(
 					"userId" -> user.id,
 					"email" -> user.email,
-					"nickname" -> user.firstName)
+					"nickname" -> user.firstName.get)
 
-			}.toList)
+			}.toSeq)
 		}
+
 	}
 
 	def receive = {
@@ -83,14 +84,14 @@ class ChatCoreActor(roomId: String, roomActor: ActorRef) extends Actor {
 			val usersFuture = getListUsers
 			val prev = Json.toJson(prevMessages(timestampOpt).map { chatlog => ChatLog.toJson(chatlog) })
 
-			val respond = Respond(userId, connectionId, Json.obj(
-				"kind" -> kind,
-				"userId" -> userId,
-				"email" -> email,
-				"message" -> prev,
-				"connectionId" -> connectionId))
-
-			usersFuture.map { user =>
+			usersFuture.map { users =>
+				val respond = Respond(userId, connectionId, Json.obj(
+					"kind" -> kind,
+					"userId" -> userId,
+					"email" -> email,
+					"message" -> prev,
+					"users" -> users,
+					"connectionId" -> connectionId))
 				roomActor ! respond
 			}
 

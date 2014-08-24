@@ -104,15 +104,21 @@ class ChatRoomActor(roomId: String) extends Actor {
 			sender ! numConnections
 
 		case Broadcast(msg, timestamp, when) =>
+			val path = s"chat/$roomId"
+			val msgWithPath = msg.as[JsObject] + ("path" -> Json.toJson(path))
+
 			connections.foreach {
 				case (_, connectionForUser) =>
 					connectionForUser.foreach {
-						case Connection(channel, _) => channel.map(_.push(msg.as[JsObject] ++ Json.obj("timestamp" -> timestamp, "when" -> when)))
+						case Connection(channel, _) => channel.map(_.push(msgWithPath.as[JsObject] ++ Json.obj("timestamp" -> timestamp, "when" -> when)))
 					}
 			}
 		case Respond(userId, connectionId, msg) =>
+			val path = s"chat/$roomId"
+			val msgWithPath = msg.as[JsObject] + ("path" -> Json.toJson(path))
+
 			connections.get(userId).get.find(_.connectionId == connectionId).map { connection =>
-				connection.channel.map(_.push(msg))
+				connection.channel.map(_.push(msgWithPath))
 			}
 		case _ =>
 			Logger.info("undefined message type")
