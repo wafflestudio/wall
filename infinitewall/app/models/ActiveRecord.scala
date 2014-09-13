@@ -48,7 +48,7 @@ class SessionToken(val token: String) extends Entity
 abstract class ActiveRecord[ModelType <: Entity: Manifest] {
 	import ActiveRecord._
 
-	def findById(id: String): Option[ModelType] = transactional {
+	def find(id: String): Option[ModelType] = transactional {
 		byId[ModelType](id)
 	}
 

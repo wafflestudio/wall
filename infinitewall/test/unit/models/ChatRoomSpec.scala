@@ -25,21 +25,21 @@ class ChatRoomSpec extends Specification {
 					val roomId = ChatRoom.create("Test Room").frozen.id
 					val chatlogId = ChatLog.create("test", roomId, user.id, "test message", 0).frozen.id
 
-					ChatLog.findById(chatlogId).map { chatLog =>
+					ChatLog.find(chatlogId).map { chatLog =>
 						println("chatlog is found:" + chatLog.message + ":" + chatLog.timestamp)
 					}
 					(roomId, chatlogId)
 				}
 
 				transactional {
-					ChatLog.findById(chatlogId).map { chatLog =>
+					ChatLog.find(chatlogId).map { chatLog =>
 						println("chatlog is still found:" + chatLog.message + ":" + chatLog.timestamp)
 					}
 					ChatRoom.delete(roomId) // deletes chatlog too
 				}
 
 				transactional {
-					ChatLog.findById(chatlogId) must beNone
+					ChatLog.find(chatlogId) must beNone
 				}
 			}
 		}

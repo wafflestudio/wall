@@ -24,14 +24,14 @@ class ChatCoreActor(roomId: String, roomActor: ActorRef) extends Actor {
 	def prevMessages(timestampOpt: Option[Long]) = {
 		timestampOpt match {
 			case Some(timestamp) =>
-				ChatLog.list(roomId, timestamp).map(_.frozen)
+				ChatLog.findAllByChatRoom(roomId, timestamp).map(_.frozen)
 			case None =>
-				ChatLog.list(roomId).map(_.frozen)
+				ChatLog.findAllByChatRoom(roomId).map(_.frozen)
 		}
 	}
 
 	def prevMessages(startTs: Long, endTs: Long) = {
-		ChatLog.list(roomId, startTs, endTs).map(_.frozen)
+		ChatLog.findAllByChatRoom(roomId, startTs, endTs).map(_.frozen)
 	}
 
 	def saveMessage(kind: String, userId: String, message: String) = {
@@ -40,7 +40,7 @@ class ChatCoreActor(roomId: String, roomActor: ActorRef) extends Actor {
 	}
 
 	def getUserProfile(userId: String) = {
-		val user = User.findById(userId).map(_.frozen).get
+		val user = User.find(userId).map(_.frozen).get
 		val email = user.email
 		val nickname = user.firstName.get + " " + user.lastName.get
 		(email, nickname)
@@ -64,7 +64,7 @@ class ChatCoreActor(roomId: String, roomActor: ActorRef) extends Actor {
 
 		getConnections.map { connections =>
 			JsArray(connections.map { connection =>
-				val user = User.findById(connection._1).map(_.frozen).get
+				val user = User.find(connection._1).map(_.frozen).get
 
 				Json.obj(
 					"userId" -> user.id,

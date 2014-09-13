@@ -40,8 +40,8 @@ object WallLog extends ActiveRecord[WallLog] {
 	}
 
 	def create(kind: String, wallId: String, basetime: Long, userId: String, message: String) = transactional {
-		val wall = Wall.findById(wallId).get
-		val user = User.findById(userId).get
+		val wall = Wall.find(wallId).get
+		val user = User.find(userId).get
 		val timestamp = WallTimestamp.next
 
 		new WallLog(kind, message, timestamp, basetime, wall, user)
@@ -57,7 +57,7 @@ object WallLog extends ActiveRecord[WallLog] {
 	}
 
 	def listAlterTextRecord(wallId: String, sheetId: String, timestamp: Long) = transactional {
-		val content = TextContent.findBySheetId(sheetId).get
+		val content = TextContent.findBySheet(sheetId).get
 		val finalText = content.text
 
 		// order by large timestamp first..

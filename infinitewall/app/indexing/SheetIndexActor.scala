@@ -19,7 +19,7 @@ object SheetIndexSystem {
 
 	//Index Measure
 	def indexWall(sheetId: String) = {
-		Sheet.findById(sheetId) match {
+		Sheet.find(sheetId) match {
 			case Some(s: Sheet) =>
 				val wallId = s.wall.id
 				index(wallId, IndexWall(wallId))
@@ -47,7 +47,7 @@ object SheetIndexSystem {
 class SheetIndexActor extends Actor {
 
 	def createIndex(s: Sheet) = {
-		TextContent.findBySheetId(s.id) match {
+		TextContent.findBySheet(s.id) match {
 			case Some(content: TextContent) =>
 				SheetIndexManager.create(s.frozen.id, s.frozen.wallId, s.frozen.title, content.frozen.text)
 			case None => None
@@ -56,12 +56,12 @@ class SheetIndexActor extends Actor {
 
 	def receive = {
 		case IndexWall(wallId) =>
-			Sheet.findAllByWallId(wallId).foreach { s =>
+			Sheet.findAllByWall(wallId).foreach { s =>
 				createIndex(s)
 			}
 
 		case IndexSheet(sheetId) =>
-			Sheet.findById(sheetId) match {
+			Sheet.find(sheetId) match {
 				case Some(s: Sheet) => createIndex(s)
 				case None => None
 			}

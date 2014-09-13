@@ -26,7 +26,7 @@ object User extends ActiveRecord[User] {
 	case class Frozen(id: String, email: String, hashedPW: String, permission: String, picturePath: Option[String], ssid: Option[String], provider: Option[String], firstName: Option[String], lastName: Option[String])
 
 	def getPictureUrl(id: String) = transactional {
-		findById(id).get.picturePath.getOrElse(getGravatar(id)).replaceFirst("public/", "/assets/")
+		find(id).get.picturePath.getOrElse(getGravatar(id)).replaceFirst("public/", "/assets/")
 	}
 
 	def getPictureOrGravatarUrl(id: String) = {
@@ -39,7 +39,7 @@ object User extends ActiveRecord[User] {
 	}
 
 	def getGravatar(id: String) = transactional {
-		getGravatarByEmail(Some(findById(id).get.frozen.email))
+		getGravatarByEmail(Some(find(id).get.frozen.email))
 	}
 
 	def getGravatarByEmail(email: Option[String]) = {
@@ -64,14 +64,14 @@ object User extends ActiveRecord[User] {
 			.headOption
 	}
 
-	override def findById(id: String) = transactional {
+	override def find(id: String) = transactional {
 		(select[User] where (user => (user.id :== id) :|| (user.ssid :== id) :|| (user.email :== id)))
 			.headOption
 	}
 
 	def update(id: String, firstName: String, lastName: String) {
 		transactional {
-			findById(id).map { user =>
+			find(id).map { user =>
 				user.firstName = Some(firstName)
 				user.lastName = Some(lastName)
 			}
@@ -89,19 +89,19 @@ object User extends ActiveRecord[User] {
 
 	def setPicture(id: String, path: String) {
 		transactional {
-			findById(id).map(_.picturePath = Some(path))
+			find(id).map(_.picturePath = Some(path))
 		}
 	}
 
-	def listOwnedGroups(id: String) = transactional {
-		Group.findAllOwnedByUserId(id)
+	def getOwnedGroups(id: String) = transactional {
+		Group.findAllOwnedByUser(id)
 	}
 
-	def listIncludedGroups(id: String) = transactional {
-		Group.findAllIncludesUserId(id)
+	def getIncludedGroups(id: String) = transactional {
+		Group.findAllHasUser(id)
 	}
 
-	def listSharedWalls(id: String) = transactional {
+	def getSharedWalls(id: String) = transactional {
 
 		val walls = query {
 			// my shared wall + group's wall
@@ -114,7 +114,7 @@ object User extends ActiveRecord[User] {
 		walls
 	}
 
-	def listWallsInGroups(id: String) = transactional {
+	def getWallsInGroups(id: String) = transactional {
 
 		val groupwalls = query {
 			// my shared wall + group's wall
@@ -127,8 +127,8 @@ object User extends ActiveRecord[User] {
 		groupwalls
 	}
 
-	def listNonSharedWalls(id: String) = transactional {
-		val sharedWalls = listSharedWalls(id)
+	def getNonSharedWalls(id: String) = transactional {
+		val sharedWalls = getSharedWalls(id)
 		val ownWalls = Wall.findAllOwnedByUserId(id)
 		ownWalls.filterNot(sharedWalls.contains)
 	}

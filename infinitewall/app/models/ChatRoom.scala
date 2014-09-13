@@ -16,12 +16,8 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 		new ChatRoom(title)
 	}
 
-	def list() = transactional {
-		findAll
-	}
-
 	def findOrCreateForWall(wallId: String) = transactional {
-		val wall = Wall.findById(wallId).get
+		val wall = Wall.find(wallId).get
 		transactional {
 			val result = select[ChatRoom] where (_.wall :== wall)
 			result.headOption match {
@@ -35,8 +31,8 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 
 	def addUser(id: String, userId: String) {
 		transactional {
-			val user = User.findById(userId)
-			val room = findById(id).get
+			val user = User.find(userId)
+			val room = find(id).get
 			if (!room.users.contains(user))
 				room.users = room.users ++ user
 		}
@@ -44,15 +40,15 @@ object ChatRoom extends ActiveRecord[ChatRoom] {
 
 	def removeUser(id: String, userId: String) {
 		transactional {
-			val user = User.findById(userId)
-			val room = findById(id).get
+			val user = User.find(userId)
+			val room = find(id).get
 
 			room.users = room.users.filter(_ != user)
 		}
 	}
 
-	def listUsers(id: String) = transactional {
-		findById(id).map { room =>
+	def getUsers(id: String) = transactional {
+		find(id).map { room =>
 			room.users
 		}
 	}

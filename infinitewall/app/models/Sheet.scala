@@ -9,8 +9,8 @@ import utils.Operation
 
 class Sheet(var x: Int, var y: Int, var width: Int, var height: Int, var title: String, var wall: Wall, val isReference: Boolean) extends Entity {
 	def frozen() = transactional {
-		val content = TextContent.findBySheetId(id).map(_.asInstanceOf[Content])
-			.getOrElse(ImageContent.findBySheetId(id).get.asInstanceOf[Content]).frozen
+		val content = TextContent.findBySheet(id).map(_.asInstanceOf[Content])
+			.getOrElse(ImageContent.findBySheet(id).get.asInstanceOf[Content]).frozen
 		Sheet.Frozen(id, x, y, width, height, title, content, wall.id)
 	}
 
@@ -42,7 +42,7 @@ object Sheet extends ActiveRecord[Sheet] {
 	def create(x: Int, y: Int, width: Int, height: Int, title: String, contentType: String, content: String, wallId: String) = {
 		val sheet =
 			transactional {
-				val wall = Wall.findById(wallId).get
+				val wall = Wall.find(wallId).get
 				val newSheet = new Sheet(x, y, width, height, title, wall, false)
 				contentType match {
 					case "text" => new TextContent(content, 0, 0, newSheet)
@@ -70,13 +70,13 @@ object Sheet extends ActiveRecord[Sheet] {
 		}
 	}
 
-	def findAllByWallId(wallId: String) = transactional {
+	def findAllByWall(wallId: String) = transactional {
 		val wall = byId[Wall](wallId)
 		select[Sheet] where (_.wall :== wall)
 	}
 
 	def move(id: String, x: Int, y: Int) = transactional {
-		findById(id).map { sheet =>
+		find(id).map { sheet =>
 			sheet.x = x
 			sheet.y = y
 		}
@@ -84,8 +84,8 @@ object Sheet extends ActiveRecord[Sheet] {
 
 	def setText(id: String, text: String) = {
 		transactional {
-			findById(id).map { sheet =>
-				TextContent.findBySheetId(id).map(_.text = text)
+			find(id).map { sheet =>
+				TextContent.findBySheet(id).map(_.text = text)
 			}
 		}
 		try {
@@ -96,7 +96,7 @@ object Sheet extends ActiveRecord[Sheet] {
 	}
 
 	def alterText(id: String, operation: Operation) = transactional {
-		val baseText = TextContent.findBySheetId(id).get.text
+		val baseText = TextContent.findBySheet(id).get.text
 
 		try {
 			val (alteredText, undo) = operation.applyAndCreateUndo(baseText)
@@ -113,7 +113,7 @@ object Sheet extends ActiveRecord[Sheet] {
 
 	def setTitle(id: String, title: String) = {
 		transactional {
-			findById(id).map(_.title = title)
+			find(id).map(_.title = title)
 		}
 		try {
 			SheetIndexManager.setTitle(id, title) //indexing
@@ -123,7 +123,7 @@ object Sheet extends ActiveRecord[Sheet] {
 	}
 
 	def resize(id: String, width: Int, height: Int) = transactional {
-		findById(id).map { sheet =>
+		find(id).map { sheet =>
 			sheet.width = width
 			sheet.height = height
 		}

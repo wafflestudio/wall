@@ -17,42 +17,42 @@ object Group extends ActiveRecord[Group] {
 	case class Frozen(id: String, name: String, userId: String)
 
 	def createForUser(name: String, userId: String) = transactional {
-		val owner = User.findById(userId).get
+		val owner = User.find(userId).get
 		new Group(name, owner)
 	}
 
-	def findAllOwnedByUserId(userId: String) = transactional {
+	def findAllOwnedByUser(userId: String) = transactional {
 		(select[Group] where (_.owner.id :== userId))
 	}
 
-	def findAllIncludesUserId(userId: String) = transactional {
-		val user = User.findById(userId)
+	def findAllHasUser(userId: String) = transactional {
+		val user = User.find(userId)
 		query {
 			(group: Group, uig: UserInGroup) => where((uig.user :== user) :&& (group :== uig.group)) select (group)
 		}
 	}
 
-	def listUsers(id: String) = transactional {
-		val group = findById(id).get
+	def getUsers(id: String) = transactional {
+		val group = find(id).get
 		(select[UserInGroup] where (_.group :== group)).map(_.user)
 	}
 
-	def listWalls(id: String) = transactional {
-		val group = findById(id).get
+	def getWalls(id: String) = transactional {
+		val group = find(id).get
 		(select[WallInGroup] where (_.group :== group)).map(_.wall)
 	}
 
 	def isValid(id: String, userId: String) = transactional {
-		val user = User.findById(userId).get
-		val isOwner = findById(id).exists(_.id == id)
+		val user = User.find(userId).get
+		val isOwner = find(id).exists(_.id == id)
 		val isInGroup = !(select[UserInGroup] where (_.user :== user)).isEmpty
 		isOwner || isInGroup
 	}
 
 	def addUser(id: String, userId: String) {
 		transactional {
-			val user = User.findById(userId).get
-			val group = findById(id).get
+			val user = User.find(userId).get
+			val group = find(id).get
 			if ((select[UserInGroup] where (uig => (uig.user :== user) :&& (uig.group :== group))).isEmpty) {
 				new UserInGroup(group, user)
 			}
@@ -61,8 +61,8 @@ object Group extends ActiveRecord[Group] {
 
 	def addWall(id: String, wallId: String) {
 		transactional {
-			val wall = Wall.findById(wallId).get
-			val group = findById(id).get
+			val wall = Wall.find(wallId).get
+			val group = find(id).get
 			if ((select[WallInGroup] where (wig => (wig.wall :== wall) :&& (wig.group :== group))).isEmpty) {
 				new WallInGroup(group, wall)
 			}
@@ -71,23 +71,23 @@ object Group extends ActiveRecord[Group] {
 
 	def removeUser(id: String, userId: String) {
 		transactional {
-			val user = User.findById(userId).get
-			val group = findById(id).get
+			val user = User.find(userId).get
+			val group = find(id).get
 			(select[UserInGroup] where (uig => (uig.user :== user) :&& (uig.group :== group))).map(_.delete)
 		}
 	}
 
 	def removeWall(id: String, wallId: String) {
 		transactional {
-			val wall = Wall.findById(wallId).get
-			val group = findById(id).get
+			val wall = Wall.find(wallId).get
+			val group = find(id).get
 			(select[WallInGroup] where (wig => (wig.wall :== wall) :&& (wig.group :== group))).map(_.delete)
 		}
 	}
 
 	def rename(id: String, name: String) {
 		transactional {
-			findById(id).map(_.name = name)
+			find(id).map(_.name = name)
 		}
 	}
 

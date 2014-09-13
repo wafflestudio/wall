@@ -24,9 +24,9 @@ object SheetLink extends ActiveRecord[SheetLink] {
 	}
 
 	def create(fromId: String, toId: String, wallId: String) = transactional {
-		val fromSheet = Sheet.findById(fromId).get
-		val toSheet = Sheet.findById(toId).get
-		val wall = Wall.findById(wallId).get
+		val fromSheet = Sheet.find(fromId).get
+		val toSheet = Sheet.find(toId).get
+		val wall = Wall.find(wallId).get
 		new SheetLink(fromSheet, toSheet, wall).id
 	}
 
@@ -40,7 +40,7 @@ object SheetLink extends ActiveRecord[SheetLink] {
 		}
 	}
 
-	def findAllByWallId(wallId: String) = transactional {
+	def findAllByWall(wallId: String) = transactional {
 		val wall = byId[Wall](wallId)
 		select[SheetLink] where (_.wall :== wall)
 	}

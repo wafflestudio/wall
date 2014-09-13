@@ -16,7 +16,8 @@ import net.fwbrasil.activate.entity.Entity
 object ChatController extends Controller with SecureSocial {
 
 	def index = SecuredAction { implicit request =>
-		val rooms = ChatRoom.list.map(_.frozen)
+		//FIXME: list only that are allowed to see
+		val rooms = ChatRoom.findAll.map(_.frozen)
 		Ok(views.html.chat.index(rooms))
 	}
 

@@ -18,39 +18,39 @@ object Folder extends ActiveRecord[Folder] {
 
 	def create(name: String, userId: String, parentId: Option[String] = None) = transactional {
 		val parent = parentId.map { id =>
-			findById(id).get
+			find(id).get
 		}
-		val user = User.findById(userId).get
+		val user = User.find(userId).get
 		new Folder(name, parent, user).frozen
 	}
 
-	def findAllByUserId(userId: String) = transactional {
-		val user = User.findById(userId)
+	def findAllByUser(userId: String) = transactional {
+		val user = User.find(userId)
 		(select[Folder] where (_.user :== user))
 	}
 
 	def rename(id: String, name: String) {
 		transactional {
-			findById(id).map(_.name = name)
+			find(id).map(_.name = name)
 		}
 	}
 
 	def moveTo(id: String, parentId: String) {
 		transactional {
-			val parent = findById(parentId)
-			findById(id).map(_.parent = parent)
+			val parent = find(parentId)
+			find(id).map(_.parent = parent)
 		}
 	}
 
 	def moveToRoot(id: String) {
 		transactional {
-			findById(id).map(_.parent = None)
+			find(id).map(_.parent = None)
 		}
 	}
 
 	override def delete(id: String) {
 		transactional {
-			val folder = findById(id)
+			val folder = find(id)
 			val subWalls = select[Wall] where (_.folder :== folder)
 			val subFolders = select[Folder] where (_.parent :== folder)
 			// collapse subelements

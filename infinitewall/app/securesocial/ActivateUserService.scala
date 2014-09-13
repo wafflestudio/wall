@@ -13,7 +13,7 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	def find(id: IdentityId) = {
 
 		val socialUser =
-			User.findById(id.userId).map(_.frozen).map { user =>
+			User.find(id.userId).map(_.frozen).map { user =>
 				SocialUser(
 					IdentityId(user.id, user.provider.get),
 					user.firstName.get,
@@ -62,7 +62,7 @@ class ActivateUserService(application: Application) extends UserServicePlugin(ap
 	def save(user: Identity): Identity = {
 
 		val socialUser =
-			User.findById(user.identityId.userId).map(_.frozen).map(u =>
+			User.find(user.identityId.userId).map(_.frozen).map(u =>
 				SocialUser(
 					IdentityId(u.id, u.provider.get),
 					u.firstName.get,

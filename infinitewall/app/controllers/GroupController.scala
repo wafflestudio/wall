@@ -8,13 +8,13 @@ import play.api.libs.json.{ Json, JsObject }
 object GroupController extends Controller with SecureSocial {
 
 	def index = securedAction { implicit request =>
-		val ownedGroups = User.listOwnedGroups(currentUserId).map(_.frozen)
-		val includedGroups = User.listIncludedGroups(currentUserId).map(_.frozen)
+		val ownedGroups = User.getOwnedGroups(currentUserId).map(_.frozen)
+		val includedGroups = User.getIncludedGroups(currentUserId).map(_.frozen)
 		Ok(views.html.group.index(ownedGroups, includedGroups))
 	}
 
 	def show(id: String) = securedAction { implicit request =>
-		val group = Group.findById(id).map(_.frozen).get
+		val group = Group.find(id).map(_.frozen).get
 		Ok(views.html.group.show(id, group.name))
 	}
 
@@ -38,7 +38,7 @@ object GroupController extends Controller with SecureSocial {
 
 	def getUsers(groupId: String) = securedAction { implicit request =>
 		if (Group.isValid(groupId, currentUserId)) {
-			val users = Group.listUsers(groupId).map(_.frozen).map { user =>
+			val users = Group.getUsers(groupId).map(_.frozen).map { user =>
 				(user.id, user.email)
 			}.toMap
 			Ok(Json.toJson(users))
@@ -65,7 +65,7 @@ object GroupController extends Controller with SecureSocial {
 	}
 
 	def getWalls(groupId: String) = securedAction { implicit request =>
-		val walls = User.listNonSharedWalls(currentUserId).map(_.frozen).map { wall =>
+		val walls = User.getNonSharedWalls(currentUserId).map(_.frozen).map { wall =>
 			(wall.id, wall.name)
 		}.toMap
 
@@ -74,7 +74,7 @@ object GroupController extends Controller with SecureSocial {
 
 	def getSharedWalls(groupId: String) = securedAction { implicit request =>
 		if (Group.isValid(groupId, currentUserId)) {
-			val walls = Group.listWalls(groupId).map(_.frozen)
+			val walls = Group.getWalls(groupId).map(_.frozen)
 			Ok(JsObject(walls.map { wall =>
 				(wall.id, Json.obj("name" -> wall.name, "isMine" -> (wall.userId == currentUserId)))
 			}.toSeq))
@@ -85,7 +85,7 @@ object GroupController extends Controller with SecureSocial {
 	def createWall(groupId: String) = securedAction { implicit request =>
 		val title = jsonParam("title")
 		val wallId = Wall.create(currentUserId, title).frozen.id
-		val wall = Wall.findById(wallId).map(_.frozen)
+		val wall = Wall.find(wallId).map(_.frozen)
 
 		wall.map { w =>
 			Logger.info("hi")
@@ -96,7 +96,7 @@ object GroupController extends Controller with SecureSocial {
 	}
 
 	def addWall(groupId: String, wallId: String) = securedAction { implicit request =>
-		val wall = Wall.findById(wallId).map(_.frozen)
+		val wall = Wall.find(wallId).map(_.frozen)
 		if (Wall.hasEditPermission(wallId, currentUserId)) {
 			wall.map { w =>
 				Group.addWall(groupId, w.id)

@@ -36,15 +36,15 @@ object TextContent extends ActiveRecord[TextContent] {
 	}
 
 	def create(text: String, scrollX: Int, scrollY: Int, sheetId: String) = transactional {
-		val sheet = Sheet.findById(sheetId).get
+		val sheet = Sheet.find(sheetId).get
 		new TextContent(text, scrollX, scrollY, sheet)
 	}
 
 	def setText(id: String, text: String) = transactional {
-		findById(id).get.text = text
+		find(id).get.text = text
 	}
 
-	def findBySheetId(sheetId: String) = transactional {
+	def findBySheet(sheetId: String) = transactional {
 		(select[TextContent] where (_.sheet.id :== sheetId)).headOption
 	}
 
@@ -57,11 +57,11 @@ object ImageContent extends ActiveRecord[ImageContent] {
 	}
 
 	def create(url: String, width: Double, height: Double, sheetId: String) = transactional {
-		val sheet = Sheet.findById(sheetId).get
+		val sheet = Sheet.find(sheetId).get
 		new ImageContent(url, width, height, sheet)
 	}
 
-	def findBySheetId(sheetId: String) = transactional {
+	def findBySheet(sheetId: String) = transactional {
 		(select[ImageContent] where (_.sheet.id :== sheetId)).headOption
 	}
 

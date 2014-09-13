@@ -40,7 +40,7 @@ class WallCoreActor(wallId: String, wallActor: ActorRef) extends Actor {
 				Some(logMessage("action", c.timestamp, c.userId, json.validate(addSheetId).get.toString))
 			// Other Action
 			case Action(json, uuid, connectionIdOpt, action: ActionDetailWithId) =>
-				Sheet.findById(action.sheetId).map(_.frozen).map { sheet =>
+				Sheet.find(action.sheetId).map(_.frozen).map { sheet =>
 
 					action match {
 						case a: MoveAction =>

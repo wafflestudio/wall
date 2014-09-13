@@ -30,7 +30,7 @@ object ChatLog extends ActiveRecord[ChatLog] {
 			"message" -> chatlog.message)
 	}
 
-	def list(roomId: String) = transactional {
+	def findAllByChatRoom(roomId: String) = transactional {
 		val result = query {
 			val room = byId[ChatRoom](roomId)
 			(chatlog: ChatLog) => where(chatlog.room :== room) select (chatlog) orderBy (chatlog.timestamp desc) limit (20)
@@ -38,14 +38,14 @@ object ChatLog extends ActiveRecord[ChatLog] {
 		result.reverse
 	}
 
-	def list(roomId: String, beginTimestamp: Long) = transactional {
+	def findAllByChatRoom(roomId: String, beginTimestamp: Long) = transactional {
 		query {
 			val room = byId[ChatRoom](roomId)
 			(chatLog: ChatLog) => where((chatLog.room :== room) :&& (chatLog.timestamp :>= beginTimestamp)) select (chatLog) orderBy (chatLog.timestamp asc)
 		}
 	}
 
-	def list(roomId: String, beginTimestamp: Long, endTimestamp: Long) = transactional {
+	def findAllByChatRoom(roomId: String, beginTimestamp: Long, endTimestamp: Long) = transactional {
 		query {
 			val room = byId[ChatRoom](roomId)
 			(chatLog: ChatLog) => where((chatLog.room :== room) :&& (chatLog.timestamp :>= beginTimestamp) :&& (chatLog.timestamp :<= endTimestamp)) select (chatLog) orderBy (chatLog.timestamp asc)
@@ -54,8 +54,8 @@ object ChatLog extends ActiveRecord[ChatLog] {
 
 	def create(kind: String, roomId: String, userId: String, message: String, when: Long) = transactional {
 		val timestamp = ChatTimestamp.next
-		val room = ChatRoom.findById(roomId).get
-		val user = User.findById(userId).get
+		val room = ChatRoom.find(roomId).get
+		val user = User.find(userId).get
 		new ChatLog(kind, message, timestamp, when, room, user)
 	}
 

@@ -16,8 +16,8 @@ object Wall extends ActiveRecord[Wall] {
 	case class Frozen(id: String, val name: String, userId: String, folderId: Option[String], permission: Permission.PermissionValue) extends TreeNode
 
 	def create(userId: String, name: String, folderId: Option[String] = None) = transactional {
-		val user = User.findById(userId).get
-		val folder = folderId.map(Folder.findById(_).get)
+		val user = User.find(userId).get
+		val folder = folderId.map(Folder.find(_).get)
 		new Wall(name, user, folder)
 	}
 
@@ -32,7 +32,7 @@ object Wall extends ActiveRecord[Wall] {
 	}
 
 	def hasEditPermission(id: String, userId: String) = transactional {
-		findAllOwnedByUserId(userId).exists(_.id == id) || User.listSharedWalls(userId).exists(_.id == id)
+		findAllOwnedByUserId(userId).exists(_.id == id) || User.getSharedWalls(userId).exists(_.id == id)
 	}
 
 	def hasReadPermission(id: String, userId: String) = transactional {
@@ -73,33 +73,33 @@ object Wall extends ActiveRecord[Wall] {
 	}
 
 	def tree(userId: String): ResourceTree = transactional {
-		val folders = Folder.findAllByUserId(userId).map(_.frozen)
+		val folders = Folder.findAllByUser(userId).map(_.frozen)
 		val walls = Wall.findAllOwnedByUserId(userId).map(_.frozen)
 		buildTree(folders, walls)
 	}
 
 	def rename(id: String, name: String) {
 		transactional {
-			findById(id).map(_.name = name)
+			find(id).map(_.name = name)
 		}
 	}
 
 	def moveTo(id: String, folderId: String) {
 		transactional {
-			val folder = Folder.findById(folderId)
-			findById(id).map(_.folder = folder)
+			val folder = Folder.find(folderId)
+			find(id).map(_.folder = folder)
 		}
 	}
 
 	def moveToRoot(id: String) {
 		transactional {
-			findById(id).map(_.folder = None)
+			find(id).map(_.folder = None)
 		}
 	}
 
 	override def delete(id: String) {
 		transactional {
-			val wall = findById(id)
+			val wall = find(id)
 			val sheets = select[Sheet] where (_.wall.id :== id)
 			val pref = select[WallPreference] where (_.wall.id :== id)
 			val logs = select[WallLog] where (_.wall.id :== id)

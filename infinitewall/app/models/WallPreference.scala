@@ -14,8 +14,8 @@ object WallPreference extends ActiveRecord[WallPreference] {
 
 	def create(userId: String, wallId: String, alias: Option[String] = None, panX: Double = 0.0, panY: Double = 0.0, zoom: Double = 1.0) =
 		transactional {
-			val user = User.findById(userId).get
-			val wall = Wall.findById(wallId).get
+			val user = User.find(userId).get
+			val wall = Wall.find(wallId).get
 			new WallPreference(alias, panX, panY, zoom, user, wall)
 		}
 

@@ -27,7 +27,7 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def getUserWalls = securedAction { implicit request =>
-		val walls = User.listNonSharedWalls(currentUserId).map(_.frozen)
+		val walls = User.getNonSharedWalls(currentUserId).map(_.frozen)
 		Ok(Json.toJson(walls.map { wall =>
 			(wall.id, wall.name)
 		}.toMap))
@@ -35,7 +35,7 @@ object WallController extends Controller with SecureSocial {
 
 	// FIXME: properly show group and wall as folder structure
 	def getWallsInGroups = securedAction { implicit request =>
-		val wallsWithGroups = models.User.listWallsInGroups(currentUserId).map {
+		val wallsWithGroups = models.User.getWallsInGroups(currentUserId).map {
 			case (wall, group) =>
 				(wall.frozen, group.frozen)
 		}
@@ -56,7 +56,7 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def getSharedWalls = securedAction { implicit request =>
-		val walls = models.User.listSharedWalls(currentUserId).map(_.frozen)
+		val walls = models.User.getSharedWalls(currentUserId).map(_.frozen)
 		Ok(JsObject(walls.map { wall =>
 			(wall.id, Json.obj("name" -> wall.name, "isMine" -> (wall.userId == currentUserId)))
 		}.toSeq))
@@ -81,12 +81,12 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def view(wallId: String) = securedAction { implicit request =>
-		val wall = transactional { Wall.findById(wallId).map(_.frozen) }.get
+		val wall = transactional { Wall.find(wallId).map(_.frozen) }.get
 
 		if (Wall.hasReadPermission(wallId, currentUserId)) {
 			val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
 			val (timestamp, sheets, sheetlinks) =
-				(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
+				(WallLog.timestamp(wallId), Sheet.findAllByWall(wallId).map(_.frozen), SheetLink.findAllByWall(wallId).map(_.frozen))
 
 			val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen
 			Ok(views.html.wall.view(wallId, wall.name, pref, sheets, sheetlinks, timestamp, chatRoomId))
@@ -96,12 +96,12 @@ object WallController extends Controller with SecureSocial {
 	}
 
 	def stage(wallId: String) = securedAction { implicit request =>
-		val wall = Wall.findById(wallId).map(_.frozen).get
+		val wall = Wall.find(wallId).map(_.frozen).get
 
 		if (Wall.hasEditPermission(wallId, currentUserId)) {
 			val chatRoomId = ChatRoom.findOrCreateForWall(wallId).frozen.id
 			val (timestamp, sheets, sheetlinks) = transactional {
-				(WallLog.timestamp(wallId), Sheet.findAllByWallId(wallId).map(_.frozen), SheetLink.findAllByWallId(wallId).map(_.frozen))
+				(WallLog.timestamp(wallId), Sheet.findAllByWall(wallId).map(_.frozen), SheetLink.findAllByWall(wallId).map(_.frozen))
 			}
 
 			val pref = WallPreference.findOrCreate(currentUserId, wallId).frozen

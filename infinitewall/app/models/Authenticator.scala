@@ -32,7 +32,7 @@ object Authenticator extends ActiveRecord[Authenticator] {
 
 	def create(sid: String, userId: String, provider: String, creationDateSS: Long, lastUsed: Long, expirationDate: Long) {
 		transactional {
-			val user = User.findById(userId).get
+			val user = User.find(userId).get
 			new Authenticator(sid, user, Some(provider), creationDateSS, lastUsed, expirationDate).frozen
 		}
 	}
@@ -41,7 +41,7 @@ object Authenticator extends ActiveRecord[Authenticator] {
 		transactional {
 			findBySid(sid).map { authenticator =>
 				authenticator.sid = sid
-				authenticator.user = User.findById(userId).get
+				authenticator.user = User.find(userId).get
 				authenticator.provider = Some(provider)
 				authenticator.creationDateSS = creationDateSS
 				authenticator.lastUsed = lastUsed
