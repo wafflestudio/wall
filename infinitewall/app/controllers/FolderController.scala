@@ -14,7 +14,6 @@ object FolderController extends Controller with SecureSocial {
 
 	def create(parentId: String) = securedAction { implicit request =>
 		val name = jsonParam("name")
-
 		Folder.create(name, currentUserId, Some(parentId))
 		Ok(Json.toJson("OK"))
 	}

@@ -26,14 +26,22 @@ object GroupController extends Controller with SecureSocial {
 		Redirect(routes.GroupController.show(groupId))
 	}
 
-	def getUsers(groupId: String) = securedAction { implicit request =>
+	def rename(id: String, name: String) = securedAction { implicit request =>
+		Group.rename(id, name)
+		Ok("")
+	}
 
+	def delete(id: String) = securedAction { implicit request =>
+		Group.delete(id)
+		Ok("")
+	}
+
+	def getUsers(groupId: String) = securedAction { implicit request =>
 		if (Group.isValid(groupId, currentUserId)) {
 			val users = Group.listUsers(groupId).map(_.frozen).map { user =>
 				(user.id, user.email)
 			}.toMap
 			Ok(Json.toJson(users))
-
 		} else
 			Forbidden("Invalid Request")
 	}
@@ -41,7 +49,6 @@ object GroupController extends Controller with SecureSocial {
 	def addUser(groupId: String) = securedAction { implicit request =>
 		if (Group.isValid(groupId, currentUserId)) {
 			val userEmail = jsonParam("email")
-
 			val user = User.findByEmail(userEmail).map(_.frozen)
 			user.map { u =>
 				Logger.info(u.email)
@@ -52,17 +59,9 @@ object GroupController extends Controller with SecureSocial {
 			Forbidden("Invalid Request")
 	}
 
-	def createWall(groupId: String) = securedAction { implicit request =>
-		val title = jsonParam("title")
-		val wallId = Wall.create(currentUserId, title).frozen.id
-		val wall = Wall.findById(wallId).map(_.frozen)
-
-		wall.map { w =>
-			Logger.info("hi")
-			Logger.info(w.name)
-			Group.addWall(groupId, w.id)
-		}
-		Redirect(routes.WallController.stage(wallId))
+	def removeUser(groupId: String, userId: String) = securedAction { implicit request =>
+		Group.removeUser(groupId, userId)
+		Redirect(routes.GroupController.show(groupId))
 	}
 
 	def getWalls(groupId: String) = securedAction { implicit request =>
@@ -79,9 +78,21 @@ object GroupController extends Controller with SecureSocial {
 			Ok(JsObject(walls.map { wall =>
 				(wall.id, Json.obj("name" -> wall.name, "isMine" -> (wall.userId == currentUserId)))
 			}.toSeq))
-
 		} else
 			Forbidden(Json.toJson("Unauthorized access"))
+	}
+
+	def createWall(groupId: String) = securedAction { implicit request =>
+		val title = jsonParam("title")
+		val wallId = Wall.create(currentUserId, title).frozen.id
+		val wall = Wall.findById(wallId).map(_.frozen)
+
+		wall.map { w =>
+			Logger.info("hi")
+			Logger.info(w.name)
+			Group.addWall(groupId, w.id)
+		}
+		Redirect(routes.WallController.stage(wallId))
 	}
 
 	def addWall(groupId: String, wallId: String) = securedAction { implicit request =>
@@ -97,22 +108,9 @@ object GroupController extends Controller with SecureSocial {
 		}
 	}
 
-	def removeUser(groupId: String, userId: String) = securedAction { implicit request =>
-		Group.removeUser(groupId, userId)
-		Redirect(routes.GroupController.show(groupId))
-	}
-
 	def removeWall(groupId: String, wallId: String) = securedAction { implicit request =>
 		Group.removeWall(groupId, wallId)
 		Redirect(routes.GroupController.show(groupId))
 	}
 
-	def rename(id: String, name: String) = securedAction { implicit request =>
-		Group.rename(id, name)
-		Ok("")
-	}
-	def delete(id: String) = securedAction { implicit request =>
-		Group.delete(id)
-		Ok("")
-	}
 }

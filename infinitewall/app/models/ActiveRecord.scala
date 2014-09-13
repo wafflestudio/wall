@@ -15,7 +15,7 @@ import net.fwbrasil.activate.storage.relational.idiom.{ h2Dialect, postgresqlDia
 import play.Logger
 
 object ActiveRecord extends ActivateContext {
-	lazy val config = ConfigFactory.load()
+	lazy val config = ConfigFactory.load
 	lazy val host = config.getString("smtp.host")
 	lazy val mode = if (play.Play.isProd) "production" else if (play.Play.isDev) "development" else "test"
 

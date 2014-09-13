@@ -14,7 +14,7 @@ object DropboxController extends Controller {
 
 	// get request_token, secret(=oauth_token, secret) and generate access_token
 	def authorize() = Action { request =>
-		val conf = ConfigFactory.load()
+		val conf = ConfigFactory.load
 		val dropboxAppKey = conf.getString("dropbox.app_key")
 		val dropboxAppSecret = conf.getString("dropbox.app_secret")
 		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
@@ -31,7 +31,7 @@ object DropboxController extends Controller {
 		val uid: String = request.queryString("uid").head
 		val oauthToken: String = request.queryString("oauth_token").head
 
-		val conf = ConfigFactory.load()
+		val conf = ConfigFactory.load
 		val dropboxAppKey = conf.getString("dropbox.app_key")
 		val dropboxAppSecret = conf.getString("dropbox.app_secret")
 		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
@@ -56,8 +56,8 @@ object DropboxController extends Controller {
 	}
 
 	// /account/info
-	def account() = Action { request =>
-		val conf = ConfigFactory.load()
+	def account = Action { request =>
+		val conf = ConfigFactory.load
 		val dropboxAppKey = conf.getString("dropbox.app_key")
 		val dropboxAppSecret = conf.getString("dropbox.app_secret")
 		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
@@ -74,8 +74,8 @@ object DropboxController extends Controller {
 	}
 
 	// /metadata
-	def metadata() = Action { request =>
-		val conf = ConfigFactory.load()
+	def metadata = Action { request =>
+		val conf = ConfigFactory.load
 		val dropboxAppKey = conf.getString("dropbox.app_key")
 		val dropboxAppSecret = conf.getString("dropbox.app_secret")
 		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
@@ -125,8 +125,8 @@ object DropboxController extends Controller {
 		Ok(entryElement)
 	}
 
-	def shares() = Action { request =>
-		val conf = ConfigFactory.load()
+	def shares = Action { request =>
+		val conf = ConfigFactory.load
 		val dropboxAppKey = conf.getString("dropbox.app_key")
 		val dropboxAppSecret = conf.getString("dropbox.app_secret")
 		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
@@ -151,7 +151,7 @@ object DropboxController extends Controller {
 		Ok(json)
 	}
 
-	def media() = Action { request =>
+	def media = Action { request =>
 		val conf = ConfigFactory.load()
 		val dropboxAppKey = conf.getString("dropbox.app_key")
 		val dropboxAppSecret = conf.getString("dropbox.app_secret")
@@ -178,8 +178,8 @@ object DropboxController extends Controller {
 	}
 
 	// /files (GET)
-	def downloadFiles() = Action { request =>
-		val conf = ConfigFactory.load()
+	def downloadFiles = Action { request =>
+		val conf = ConfigFactory.load
 		val dropboxAppKey = conf.getString("dropbox.app_key")
 		val dropboxAppSecret = conf.getString("dropbox.app_secret")
 		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)
@@ -195,8 +195,8 @@ object DropboxController extends Controller {
 	}
 
 	// /files (POST)
-	def uploadFiles() = Action { request =>
-		val conf = ConfigFactory.load()
+	def uploadFiles = Action { request =>
+		val conf = ConfigFactory.load
 		val dropboxAppKey = conf.getString("dropbox.app_key")
 		val dropboxAppSecret = conf.getString("dropbox.app_secret")
 		val appKeyPair = new AppKeyPair(dropboxAppKey, dropboxAppSecret)

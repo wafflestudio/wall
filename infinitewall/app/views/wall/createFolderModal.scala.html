@@ -1,5 +1,5 @@
-@()
-  <div id="folder-modal-create" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" createFolderModal>
+@(currentWallId:String)
+  <div id="folder-modal-create" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" ng-controller="createFolderModal" ng-init="init('@currentWallId')">
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <form ng-submit="createFolder()">

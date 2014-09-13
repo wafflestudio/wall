@@ -14,7 +14,7 @@ import se.digiplant.scalr._
 
 object FileController extends Controller {
 
-	lazy val config = ConfigFactory.load()
+	lazy val config = ConfigFactory.load
 	lazy val rootPath = {
 		val mode = if (play.Play.isProd) "production" else if (play.Play.isDev) "development" else "test"
 		config.getString(s"${mode}.file.rootpath")
@@ -28,7 +28,7 @@ object FileController extends Controller {
 		request.body.files.map { picture =>
 			import java.io.File
 			val filename = picture.filename
-      val savedFilename = DigestUtils.shaHex(1.toString)
+      		val savedFilename = DigestUtils.shaHex(1.toString)
 
 			val contentType = picture.contentType
 			val newFile = new File("public/files/sheet/" + picture.filename)

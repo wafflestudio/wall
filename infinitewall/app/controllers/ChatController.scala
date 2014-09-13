@@ -15,14 +15,8 @@ import net.fwbrasil.activate.entity.Entity
 
 object ChatController extends Controller with SecureSocial {
 
-	// /* For development purpose. Not for production use: */
-	//
-	//	val createForm = Form(
-	//		"title" -> nonEmptyText
-	//	)
-
 	def index = SecuredAction { implicit request =>
-		val rooms = ChatRoom.list().map(_.frozen)
+		val rooms = ChatRoom.list.map(_.frozen)
 		Ok(views.html.chat.index(rooms))
 	}
 
@@ -31,9 +25,8 @@ object ChatController extends Controller with SecureSocial {
 	}
 
 	def create = Action { implicit request =>
-		val params = request.body.asFormUrlEncoded.getOrElse[Map[String, Seq[String]]] { Map.empty }
-		val title = params.get("title").getOrElse(Seq("untitled"))
-		val roomId = ChatRoom.create(title(0)).frozen.id
+		val title = formParam("title")
+		val roomId = ChatRoom.create(title).frozen.id
 		Redirect(routes.ChatController.room(roomId))
 	}
 

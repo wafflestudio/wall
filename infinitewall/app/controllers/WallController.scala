@@ -62,7 +62,7 @@ object WallController extends Controller with SecureSocial {
 		}.toSeq))
 	}
 
-	def resourceTree2Json(tree: ResourceTree): JsValue = {
+	private def resourceTree2Json(tree: ResourceTree): JsValue = {
 		tree.node match {
 			case root: models.RootFolder =>
 				JsArray(tree.children.map(resourceTree2Json(_)))

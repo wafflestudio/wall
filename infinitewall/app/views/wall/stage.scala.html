@@ -6,7 +6,7 @@
 <div ng-controller="Stage">
   <div class="navigator">
     <div id = "wallmanagement" ng-controller="Tree" ng-init="init('@wallId')">
-      <div id = "tree">
+      <div id = "treeview">
       </div>
     </div>
   </div>
@@ -114,7 +114,7 @@
   </div><!-- wallcontainer -->
 
   <!-- modal for creating folder -->
-  @createFolderModal()
+  @createFolderModal(wallId)
   <!-- end of modal -->
 
 </div>

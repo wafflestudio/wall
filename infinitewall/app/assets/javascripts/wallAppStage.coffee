@@ -2,17 +2,19 @@ define ["jquery", "tree/controller", "tree/createFolderModal", "angularbootstrap
   "use strict"
   wallApp = angular.module("wallApp", ['ngRoute'])
 
-  #tree = Tree.initController(wallApp, 'Tree')
-  #modal = Modal.initDirective(wallApp, 'createFolderModal')
+  # need Tree DOM template
+  # 
+  tree = Tree.init(wallApp, 'Tree')
+  modal = Modal.init(wallApp, 'createFolderModal')
   wallApp.controller 'Stage', ['$scope', ($scope) ->
-    #console.warn tree
+    #console.warn Tree
 
-    #modal.$on 'refresh', () ->
-    #  tree.refresh()
-    
-    #tree.$on 'createFolder', (event, data) ->
-    #  modal.show(data.id, data.name)
+    modal.on 'submit', (data) ->
+      tree.refresh()
 
+    tree.on 'queryNewFolder',  (data) ->
+      console.warn(data)
+      modal.open(data.at, data.name)
   ]
 
   # required for AMDs like requirejs:

@@ -63,4 +63,7 @@ requirejs.config
       "angular-route": {
         deps: ["angular"]
       }
+      "ui-bootstrap":{
+        deps: ["angular", "bootstrap"]
+      }
   }

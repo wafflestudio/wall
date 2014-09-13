@@ -34,7 +34,7 @@ object AccountController extends Controller with SecureSocial {
 					utils.FileSystem.moveTempFile(photo.ref, "public/files", photo.filename)
 					User.setPicture(currentUser.email.getOrElse(""), photo.filename)
 				}
-				User.update(currentUser.email.getOrElse(""), user.firstName, user.lastName)
+				User.update(id = currentUser.email.getOrElse(""), firstName = user.firstName, lastName = user.lastName)
 				Redirect(routes.AccountController.edit())
 			})
 
