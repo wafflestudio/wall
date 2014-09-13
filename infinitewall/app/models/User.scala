@@ -129,7 +129,7 @@ object User extends ActiveRecord[User] {
 
 	def getNonSharedWalls(id: String) = transactional {
 		val sharedWalls = getSharedWalls(id)
-		val ownWalls = Wall.findAllOwnedByUserId(id)
+		val ownWalls = Wall.findAllOwnedByUser(id)
 		ownWalls.filterNot(sharedWalls.contains)
 	}
 

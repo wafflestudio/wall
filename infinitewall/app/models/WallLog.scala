@@ -33,7 +33,7 @@ object WallLog extends ActiveRecord[WallLog] {
 		}
 	}
 
-	def list(wallId: String, timestamp: Long) = transactional {
+	def findByWall(wallId: String, timestamp: Long) = transactional {
 		query {
 			(log: WallLog) => where((log.wall.id :== wallId) :&& (log.timestamp :> timestamp)) select (log) orderBy (log.timestamp asc)
 		}
@@ -56,7 +56,7 @@ object WallLog extends ActiveRecord[WallLog] {
 		}
 	}
 
-	def listAlterTextRecord(wallId: String, sheetId: String, timestamp: Long) = transactional {
+	def findAllAlterTextRecordForSheet(wallId: String, sheetId: String, timestamp: Long) = transactional {
 		val content = TextContent.findBySheet(sheetId).get
 		val finalText = content.text
 

@@ -22,17 +22,17 @@ object Wall extends ActiveRecord[Wall] {
 	}
 
 	// only owner can delete the wall
-	def deleteByUserId(userId: String, id: String) = transactional {
+	def deleteForUser(userId: String, id: String) = transactional {
 		val walls = select[Wall] where (w => (w.id :== id) :&& (w.user.id :== userId))
 		walls.map(wall => delete(wall.id))
 	}
 
-	def findAllOwnedByUserId(userId: String) = transactional {
+	def findAllOwnedByUser(userId: String) = transactional {
 		select[Wall] where (_.user.id :== userId)
 	}
 
 	def hasEditPermission(id: String, userId: String) = transactional {
-		findAllOwnedByUserId(userId).exists(_.id == id) || User.getSharedWalls(userId).exists(_.id == id)
+		findAllOwnedByUser(userId).exists(_.id == id) || User.getSharedWalls(userId).exists(_.id == id)
 	}
 
 	def hasReadPermission(id: String, userId: String) = transactional {
@@ -74,7 +74,7 @@ object Wall extends ActiveRecord[Wall] {
 
 	def tree(userId: String): ResourceTree = transactional {
 		val folders = Folder.findAllByUser(userId).map(_.frozen)
-		val walls = Wall.findAllOwnedByUserId(userId).map(_.frozen)
+		val walls = Wall.findAllOwnedByUser(userId).map(_.frozen)
 		buildTree(folders, walls)
 	}
 

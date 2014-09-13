@@ -21,7 +21,7 @@ class WallCoreActor(wallId: String, wallActor: ActorRef) extends Actor {
 	implicit def toLong(value: JsValue) = { value.as[Long] }
 
 	def prevLogs(timestamp: Long) =
-		WallLog.list(wallId, timestamp).map(_.frozen)
+		WallLog.findByWall(wallId, timestamp).map(_.frozen)
 
 	def logMessage(kind: String, basetimestamp: Long, userId: String, message: String) =
 		WallLog.create(kind, wallId, basetimestamp, userId, message).frozen
@@ -60,7 +60,7 @@ class WallCoreActor(wallId: String, wallActor: ActorRef) extends Actor {
 							logMessage("action", action.timestamp, action.userId, json.toString)
 						case action: AlterTextAction =>
 							// simulate consolidation of records after timestamp
-							val records: List[AlterTextRecord] = WallLog.listAlterTextRecord(wallId, action.sheetId, action.timestamp)
+							val records: List[AlterTextRecord] = WallLog.findAllAlterTextRecordForSheet(wallId, action.sheetId, action.timestamp)
 
 							var pending = action.operations // all mine with > a.timestamp
 

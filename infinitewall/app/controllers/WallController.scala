@@ -128,7 +128,7 @@ object WallController extends Controller with SecureSocial {
 	*/
 
 	def delete(id: String) = securedAction { implicit request =>
-		Wall.deleteByUserId(currentUserId, id)
+		Wall.deleteForUser(currentUserId, id)
 		Ok(Json.toJson("OK"))
 	}
 
