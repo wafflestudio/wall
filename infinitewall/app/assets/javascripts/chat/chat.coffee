@@ -1,4 +1,4 @@
-define ["jquery", "EventDispatcher", "websocket"], ($, EventDispatcher, PersistentWebsocket) ->
+define ["jquery", "common/EventDispatcher", "service/websocket"], ($, EventDispatcher, PersistentWebsocket) ->
   class Chat extends EventDispatcher
     
     constructor: (pwebsocket, urls, chatRoomId, timestamp) ->

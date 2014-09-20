@@ -1,4 +1,4 @@
-define ["jquery", "stage", "EventDispatcher", "tree.jquery", "bootstrap", "angularbootstrap"], ($, Stage, EventDispatcher) ->
+define ["jquery", "stage", "common/EventDispatcher", "tree.jquery", "bootstrap", "angularbootstrap"], ($, Stage, EventDispatcher) ->
 
   ###
     * methods:

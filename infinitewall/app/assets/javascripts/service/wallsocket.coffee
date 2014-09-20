@@ -1,4 +1,4 @@
-define ["EventDispatcher", "jquery", "websocket"], (EventDispatcher, $, PersistentWebsocket) ->
+define ["common/EventDispatcher", "jquery", "./websocket"], (EventDispatcher, $, PersistentWebsocket) ->
   class WallSocket extends EventDispatcher
 
 

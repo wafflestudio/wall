@@ -1,4 +1,4 @@
-define ["EventDispatcher"], (EventDispatcher) ->
+define ["common/EventDispatcher"], (EventDispatcher) ->
 
   class Connection extends EventDispatcher
 

@@ -1,4 +1,4 @@
-define ["jquery","jquery.transit", "jquery.mousewheel", "movable", "wall", "sheet/sheet"], ($, _jqt, _jqw, Movable, Wall, Sheet) ->
+define ["jquery","jquery.transit", "jquery.mousewheel", "movable", "sheet/sheet"], ($, _jqt, _jqw, Movable, Sheet) ->
 
   class ScaleLayer extends Movable
     constructor: ->

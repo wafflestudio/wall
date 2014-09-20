@@ -3,7 +3,7 @@
 # @scope
 
 # states: CONNECTED <=> TRYING
-define ["EventDispatcher", "jquery", "cometsocket", "connection"], (EventDispatcher, $, CometSocket, Connection) ->
+define ["common/EventDispatcher", "jquery", "./cometsocket", "./connection"], (EventDispatcher, $, CometSocket, Connection) ->
 
   # get websocket url adjusted to current viewing protocol (http->ws/https->wss)
   websocketURLAdjusted = (url) ->

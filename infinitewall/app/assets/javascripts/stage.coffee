@@ -3,17 +3,18 @@ define [
   "shortcut/shortcut",
   "sheet/textSheet",
   "sheet/imageSheet",
-  "history",
-  "wall",
-  "minimap",
+  "history/history",
+  "wall/wall",
+  "wall/minimap",
+  "wall/statusbar",
   "menu",
   "search",
-  "statusbar",
-  "websocket",
-  "wallsocket",
-  "chat",
+  "service/websocket",
+  "service/wallsocket",
+  "chat/chat",
   "jquery.fileupload"
   ], ($, Shortcut, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, PersistentWebsocket, WallSocket, Chat) ->
+
   class Stage
     currentUser: null
     activeSheet: null
