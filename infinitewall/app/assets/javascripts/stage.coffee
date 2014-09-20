@@ -11,7 +11,7 @@ define [
   "search",
   "service/websocket",
   "service/wallsocket",
-  "chat/chat",
+  "chat/ChatManager",
   "jquery.fileupload"
   ], ($, Shortcut, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, PersistentWebsocket, WallSocket, Chat) ->
 

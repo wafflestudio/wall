@@ -80,10 +80,15 @@ class EntryService extends Actor with Service {
 		EntryMessage(userId, channel, path, json, sessionType)
 	}
 
-	var connectedPaths = Map[Future[Channel[JsValue]], List[String]]()
+	var connectedPaths = Map[Future[Channel[JsValue]], List[List[String]]]()
 
 	def trackConnection(channel: Future[Channel[JsValue]], path: List[String]) = {
-		connectedPaths = connectedPaths + (channel -> path)
+		val paths = connectedPaths.get(channel) match {
+			case Some(paths) => paths :+ path
+			case None => List(path)
+		}
+
+		connectedPaths = connectedPaths + (channel -> paths)
 	}
 
 	def untrackConnection(channel: Future[Channel[JsValue]]) = {
@@ -91,8 +96,11 @@ class EntryService extends Actor with Service {
 	}
 
 	def propagateTerminate(userId: String, channel: Future[Channel[JsValue]]) = {
-		for (connectionPath <- connectedPaths) {
-			val (iteratee, path) = connectionPath
+
+		for (
+			connectionPath <- connectedPaths.get(channel);
+			path <- connectionPath
+		) {
 			path match {
 				case "wall" :: rest =>
 					wallService ! TerminateAt(userId, channel, rest)
@@ -101,6 +109,7 @@ class EntryService extends Actor with Service {
 				case _ =>
 			}
 		}
+
 	}
 
 	def receive = {

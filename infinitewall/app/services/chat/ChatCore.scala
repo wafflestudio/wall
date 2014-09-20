@@ -62,7 +62,7 @@ class ChatCoreActor(roomId: String, roomActor: ActorRef) extends Actor {
 
 	def getListUsers: Future[JsValue] = {
 
-		getConnections.map { connections =>
+		for (connections <- getConnections) yield {
 			JsArray(connections.map { connection =>
 				val user = User.find(connection._1).map(_.frozen).get
 
@@ -95,25 +95,7 @@ class ChatCoreActor(roomId: String, roomActor: ActorRef) extends Actor {
 				roomActor ! respond
 			}
 
-		case NotifyJoin(userId, connectionId) => {
-			val kind = "join"
-			val (email, nickname) = getUserProfile(userId)
-			val text = "has entered"
-
-			val msgFuture = Future(Json.obj(
-				"kind" -> kind,
-				"userId" -> userId,
-				"email" -> email,
-				"message" -> text,
-				"connectionId" -> connectionId))
-
-			msgFuture.map { msg =>
-				val (timestamp, when) = saveMessage(kind, userId, text)
-				roomActor ! Broadcast(msg, timestamp, when)
-			}
-		}
-
-		case Talk(userId, connectionId: Int, text) =>
+		case Talk(userId, connectionId, text) =>
 			val kind = "talk"
 			val (email, nickname) = getUserProfile(userId)
 
@@ -129,9 +111,33 @@ class ChatCoreActor(roomId: String, roomActor: ActorRef) extends Actor {
 				roomActor ! Broadcast(msg, timestamp, when)
 			}
 
-		case Quit(userId, producer, connectionId) => {
+		case NotifyJoin(userId, connectionId) => {
+			val kind = "join"
+			val (email, nickname) = getUserProfile(userId)
+			val text = "has entered"
+
+			val connectionCountForUserFuture = getConnections.map(_.count(_._1 == userId))
+
+			val msgFuture = connectionCountForUserFuture.map { connectionCountForUser =>
+				Json.obj(
+					"kind" -> kind,
+					"userId" -> userId,
+					"email" -> email,
+					"message" -> Json.obj("nickname" -> nickname, "numConnections" -> connectionCountForUser).toString,
+					"connectionId" -> connectionId)
+			}
+
+			msgFuture.map { msg =>
+				val (timestamp, when) = saveMessage(kind, userId, text)
+				roomActor ! Broadcast(msg, timestamp, when)
+			}
+		}
+
+		case NotifyQuit(userId, connectionId) => {
 			val kind = "quit"
 			val (email, nickname) = getUserProfile(userId)
+			val text = "has quit"
+
 			ChatRoom.removeUser(roomId, userId)
 
 			val connectionCountForUserFuture = getConnections.map(_.count(_._1 == userId))
@@ -141,11 +147,11 @@ class ChatCoreActor(roomId: String, roomActor: ActorRef) extends Actor {
 					"kind" -> kind,
 					"userId" -> userId,
 					"email" -> email,
-					"message" -> Json.obj("numConnections" -> connectionCountForUser).toString)
+					"message" -> Json.obj("nickname" -> nickname, "numConnections" -> connectionCountForUser).toString)
 			}
 
 			msgFuture.map { msg =>
-				val (timestamp, when) = saveMessage(kind, userId, (msg \ "message").as[String])
+				val (timestamp, when) = saveMessage(kind, userId, text)
 				roomActor ! Broadcast(msg, timestamp, when)
 			}
 

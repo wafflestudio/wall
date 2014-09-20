@@ -1,19 +1,13 @@
-define ["jquery", "common/EventDispatcher", "service/websocket"], ($, EventDispatcher, PersistentWebsocket) ->
+define ["jquery", "common/EventDispatcher"], ($, EventDispatcher) ->
   class Chat extends EventDispatcher
     
     constructor: (pwebsocket, urls, chatRoomId, timestamp) ->
       super()
       @scope = "chat/#{chatRoomId}"
       @socket = pwebsocket.join(@scope, timestamp)
-      
-      @chatWindow = $('#chatWindow')
-      @chatLog = $('#chatLog')
-      @userList = $('#chatUsers')
-      @chatInput = $('#chatInput')
       @connectionId = -1
       @ready = false
       @users =  {}
-
       @socket.on 'receive', @onReceive
 
       # events
@@ -32,35 +26,29 @@ define ["jquery", "common/EventDispatcher", "service/websocket"], ($, EventDispa
       switch data.kind
         when "welcome"
           @setUsers(data.users)
-          @refreshUserList()
       
           if not @ready
             @connectionId = data.connectionId
             console.log(@scope, 'chat connected with connection id ' + @connectionId)
             # now sending message is available
-            @chatInput.on 'keydown', (event) =>
-              if event.keyCode is 13 and !event.shiftKey and @chatInput.val().replace(/\s/g, '').length > 0
-                @sendCurrentMessage()
+            @trigger('ready')
 
           @ready = true
+          @trigger('refreshUsers', @users)
 
         when "join"
           @addConnection(data)
-          @refreshUserList()
-
+          @trigger('refreshUsers', @users)
+          
         when "quit"
           @removeConnection(data)
-          @refreshUserList()
-
-        when "talk" then newMessage = @messageHtml(@users[data.email] || {email: data.email, nickname: data.nickname, userId:data.userId}, data.message)
-        
-      @chatLog.append newMessage if newMessage?
-      @chatLog.clearQueue()
-      @chatLog.animate {scrollTop : @chatLog.prop('scrollHeight') - @chatLog.height()}, 150
+          @trigger('refreshUsers', @users)
+          
+        when "talk" 
+          @trigger('talk', {email: data.email, nickname: data.nickname, userId: data.userId, message: data.message})
     
-    sendCurrentMessage: ->
+    sendMessage: (text)->
       msg = {}
-      text = @chatInput.val()
       #text = msg.substr(0, msg.length - 1) if msg.charAt(msg.length - 1) is '\n'
       
       msg.path = @scope
@@ -70,14 +58,11 @@ define ["jquery", "common/EventDispatcher", "service/websocket"], ($, EventDispa
       msg.text = text
       msg.type = "talk"
 
-      @chatInput.val("")
       @socket.send JSON.stringify(msg)
 
     close: ->
       console.log('close called')
       @socket.close()
-
-    toggle: -> @chatWindow.fadeToggle()
 
     setUsers: (users) ->
       # clear all existing users
@@ -88,65 +73,36 @@ define ["jquery", "common/EventDispatcher", "service/websocket"], ($, EventDispa
         @users[user.email].sessionCount ||= 0
         @users[user.email].sessionCount += 1
       
-      
     addConnection: (data) ->
+      console.log('addConnection', data)
       detail = JSON.parse(data.message)
       numConnections = detail.numConnections
-        
-      if numConnections == 1
+
+      unless @users[data.email]?
         @users[data.email] = {userId:data.userId, email: data.email, nickname: data.nickname || detail.nickname}
-        newMessage = @infoHtml(data.nickname || detail.nickname , " has joined")
+        
+      if numConnections == 0        
+        @trigger('userEnter', {nickname: @users[data.email].nickname || detail.nickname})
       else
-        newMessage = @infoHtml(data.nickname || detail.nickname, " added new connection")
+        @trigger('userAddConnection', {email:data.email, nickname: @users[data.email].nickname || detail.nickname})
 
       if not @users[data.email]?
         @users[data.email] = {userId:data.userId, email: data.email, nickname: data.nickname || detail.nickname}
       
-      if @ready
-        @users[data.email].sessionCount = numConnections
+      @users[data.email].sessionCount = numConnections
 
     removeConnection: (data) ->
+      console.log('removeConnection')
       detail = JSON.parse(data.message)
       numConnections = detail.numConnections
 
-      if not @users[data.email]?
+      unless @users[data.email]?
         @users[data.email] = {userId:data.userId, email: data.email, nickname: data.nickname || detail.nickname}
         
       if numConnections == 0
-        newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " has left")
+        @trigger('userLeave', {nickname: @users[data.email].nickname || detail.nickname})
       else
-        newMessage = @infoHtml(@users[data.email].nickname || detail.nickname, " removed a connection")
+        @trigger('userRemoveConnection', {nickname: @users[data.email].nickname || detail.nickname})
 
-        if @ready
-          @users[data.email].sessionCount = numConnections
+      @users[data.email].sessionCount = numConnections
 
-    refreshUserList: () ->
-      @userList.html('')
-      #console.log("[CHAT]", @users)
-      for email,user of @users
-        @userList.append $("<div class = 'chatProfilePic' style = 'background-image:url(/users/#{user.userId}/profile)'> <div class = 'chatNickname'>#{user.nickname}</div> </div>")
-
-    getUserInfo: () ->
-      $.getJSON("/")
-
-    messageHtml: (user, message) ->
-      owner = if user?.email is stage.currentUser then "isMine" else "isNotMine"
-      $("<div class = 'messageContainer'>
-          <div class = 'messageDiv #{owner}'>
-            <div class = 'messageProfilePicContainer'>
-              <div class = 'messageProfilePic' data-userid ='#{user.email}' style = 'background-image:url(/users/#{user.userId}/profile)'></div>
-            </div>
-            <div class = 'messageRest'>
-              <div class = 'messageNickname'>#{user?.nickname ? "???"}</div>
-              <span class = 'messageText'>#{message}</span>
-            </div>
-          </div>
-        </div>")
-
-    infoHtml: (who, message) ->
-      $("<div class = 'infoContainer'>
-          <div class = 'infoMessage'>
-            <span class = 'infoWho'>#{who}</span>
-            <span class = 'infoMessage'>#{message}</span>
-          </div>
-        </div>")

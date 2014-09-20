@@ -19,7 +19,7 @@ import services.ServiceMessage
 import services.Connection
 
 case class Join(userId: String, connectionId: Int, timestampOpt: Option[Long])
-case class Quit(userId: String, connectionId: Int, producer: Enumerator[JsValue])
+case class NotifyQuit(userId: String, connectionId: Int)
 
 case class Talk(userId: String, connectionId: Int, text: String)
 
@@ -51,16 +51,20 @@ class ChatRoomActor(roomId: String) extends Actor {
 	def addConnection(userId: String, channel: Future[Concurrent.Channel[JsValue]]) = {
 		val connectionId = connectionIdPool.allocate
 		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(channel, connectionId)))
-		Logger.info("[Chat] Connection established: " + connections.toString)
+		//Logger.info("[Chat] Connection established: " + connections.toString)
+		Logger.info(s"[Chat] user $userId joined to chat room $roomId ")
+		Logger.info("Number of active connections for chat(" + roomId + "): " + numConnections)
+
 		connectionId
 	}
 
 	def removeConnection(userId: String, channel: Future[Channel[JsValue]]) = {
 		// clear sessions for userid. if none exists for a userid, remove userid key.
-		connections.get(userId).foreach { userConns =>
+		val connectionId = connections.get(userId).flatMap { userConns =>
 
-			userConns.find(_.channel == channel).map { conn =>
+			val connectionId = userConns.find(_.channel == channel).map { conn =>
 				connectionIdPool.free(conn.connectionId)
+				conn.connectionId
 			}
 
 			val newUserConns = userConns.filterNot(_.channel == channel)
@@ -70,7 +74,13 @@ class ChatRoomActor(roomId: String) extends Actor {
 			else
 				connections = connections + (userId -> newUserConns)
 
+			connectionId
 		}
+
+		Logger.info(s"[Chat] user $userId quit from chat room $roomId ")
+		Logger.info("Number of active connections for chat(" + roomId + "): " + numConnections)
+
+		connectionId
 	}
 
 	lazy val core = Akka.system.actorOf(Props(new ChatCoreActor(roomId, self)))
@@ -85,18 +95,22 @@ class ChatRoomActor(roomId: String) extends Actor {
 					/* join */
 					val connectionId = addConnection(userId, channel)
 					core ! Join(userId, connectionId, timestampOpt)
+					core ! NotifyJoin(userId, connectionId)
 				case "talk" =>
 					val text = (content \ "text").as[String]
 					core ! Talk(userId, connectionIdOpt.get, text)
 				case "quit" =>
-					removeConnection(userId, channel)
+					val maybeConnectionId = removeConnection(userId, channel)
+					for (connectionId <- maybeConnectionId)
+						core ! NotifyQuit(userId, connectionId)
+
 				case "_" =>
 
 			}
 		case TerminateConnection(userId, channel) =>
-			removeConnection(userId, channel)
-			Logger.info("Number of active connections for chat(" + roomId + "): " + numConnections)
-			Logger.info(s"[Chat] user $userId joined to chat room $roomId ")
+			val maybeConnectionId = removeConnection(userId, channel)
+			for (connectionId <- maybeConnectionId)
+				core ! NotifyQuit(userId, connectionId)
 
 		case ListConnections =>
 			sender ! connections

@@ -51,7 +51,10 @@ class WallActor(wallId: String) extends Actor {
 	def addConnection(userId: String, channel: Future[Concurrent.Channel[JsValue]]) = {
 		val connectionId = connectionIdPool.allocate
 		connections = connections + (userId -> (connections.getOrElse(userId, List()) :+ Connection(channel, connectionId)))
-		Logger.info("[Chat] Connection established: " + connections.toString)
+		//Logger.info("[Chat] Connection established: " + connections.toString)
+		Logger.info(s"[Wall] user $userId quit from wall $wallId ")
+		Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
+
 		connectionId
 	}
 
@@ -71,6 +74,10 @@ class WallActor(wallId: String) extends Actor {
 				connections = connections + (userId -> newUserConns)
 
 		}
+
+		Logger.info(s"[Wall] user $userId quit from wall $wallId ")
+		Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
+
 	}
 	// shutdown timer activated when no connection is left to the actor
 	var shutdownTimer: Option[akka.actor.Cancellable] = None
@@ -105,8 +112,6 @@ class WallActor(wallId: String) extends Actor {
 			}
 		case TerminateConnection(userId, channel) =>
 			removeConnection(userId, channel)
-			Logger.info("Number of active connections for wall(" + wallId + "): " + numConnections)
-			Logger.info(s"[Wall] user $userId joined to wall room wallId ")
 
 		case Broadcast(msg) =>
 			val path = s"wall/$wallId"
