@@ -1,4 +1,4 @@
-define ["jquery", "tree/view", "stage", "common/EventDispatcher", "tree.jquery", "bootstrap", "angularbootstrap"], ($, TreeView, Stage, EventDispatcher) ->
+define ["jquery", "./view", "stage", "common/EventDispatcher", "tree.jquery", "bootstrap", "angularbootstrap"], ($, TreeView, Stage, EventDispatcher) ->
   "use strict"
 
 

@@ -19,8 +19,9 @@ object ServiceController extends Controller with SecureSocial {
 	// http send by client
 	def speak(wallId: String) = securedAction { implicit request =>
 		val uuid = queryParam("uuid")
-		Logger.info(s"speak1: ${bodyText}")
 		val action = Json.parse(Json.parse(bodyText).as[String])
+
+		Logger.info(s"speak1: ${bodyText}")
 		Logger.info(s"speak2: $action")
 		//		WallService.submit(wallId, request.user.identityId.userId, uuid, 0, action)
 		Ok("")

@@ -108,8 +108,7 @@ class ChatRoomActor(roomId: String) extends Actor {
 
 			}
 		case TerminateConnection(userId, channel) =>
-			val maybeConnectionId = removeConnection(userId, channel)
-			for (connectionId <- maybeConnectionId)
+			for (connectionId <- removeConnection(userId, channel))
 				core ! NotifyQuit(userId, connectionId)
 
 		case ListConnections =>
@@ -131,9 +130,9 @@ class ChatRoomActor(roomId: String) extends Actor {
 			val path = s"chat/$roomId"
 			val msgWithPath = msg.as[JsObject] + ("path" -> Json.toJson(path))
 
-			connections.get(userId).get.find(_.connectionId == connectionId).map { connection =>
-				connection.channel.map(_.push(msgWithPath))
-			}
+			for (connection <- connections.get(userId).get.find(_.connectionId == connectionId))
+				connection.channel.foreach(_.push(msgWithPath))
+
 		case _ =>
 			Logger.info("undefined message type")
 	}

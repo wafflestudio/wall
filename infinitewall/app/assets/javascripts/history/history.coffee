@@ -1,16 +1,9 @@
-define ["jquery"], ($) ->
+define ["jquery", "underscorejs"], ($, _) ->
   class History
     constructor: () ->
+      #initialize undo and redo stack
       @undoStack = []
       @redoStack = []
-
-    sendUndoAction: (targetAction, histAction) ->
-      @sendAction(targetAction)
-      wallSocket.sendUndoAction(targetAction, histAction)
-
-    sendRedoAction: (targetAction, histAction) ->
-      @sendAction(targetAction)
-      wallSocket.sendRedoAction(targetAction, histAction)
 
     undo: () ->
       if @undoStack.length == 0
@@ -85,6 +78,16 @@ define ["jquery"], ($) ->
 
     repush: (action) ->
       @redoStack.push(action)
+
+    sendUndoAction: (targetAction, histAction) ->
+      @sendAction(targetAction)
+      result = wallSocket.sendUndoAction(targetAction, histAction)
+      @repush(result)
+
+    sendRedoAction: (targetAction, histAction) ->
+      @sendAction(targetAction)
+      result = wallSocket.sendRedoAction(targetAction, histAction)
+      @push(result, true)
 
     sendAction: (detail) ->
       sheet = stage.sheets[detail.params.sheetId]

@@ -64,7 +64,7 @@ class WallCoreActor(wallId: String, wallActor: ActorRef) extends Actor {
 
 							var pending = action.operations // all mine with > a.timestamp
 
-							records.foreach { record =>
+							for (record <- records) {
 								if (record.uuid == action.uuid) {
 									// drop already consolidated. 
 									if (pending.head.msgId != record.msgId)

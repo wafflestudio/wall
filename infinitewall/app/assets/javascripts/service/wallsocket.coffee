@@ -44,7 +44,7 @@ define ["common/EventDispatcher", "jquery", "./websocket"], (EventDispatcher, $,
       msg.uuid = historyData.uuid = @uuid
       @pending.push(msg)
       @socket.send(JSON.stringify(msg))
-      stage.history.repush({from: historyData, to: msg})
+      {from: historyData, to: msg}
 
     sendRedoAction: (msg, historyData) ->
       msg.path = @scope
@@ -53,7 +53,7 @@ define ["common/EventDispatcher", "jquery", "./websocket"], (EventDispatcher, $,
       msg.uuid = historyData.uuid = @uuid
       @pending.push(msg)
       @socket.send(JSON.stringify(msg))
-      stage.history.push({from: historyData, to: msg}, true)
+      {from: historyData, to: msg}
 
     sendAck: () ->
       msg = {action:'ack', type:'action'}

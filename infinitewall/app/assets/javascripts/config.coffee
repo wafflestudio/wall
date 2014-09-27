@@ -16,6 +16,7 @@ requirejs.config
       "canvas-to-blob": "fileupload/canvas-to-blob"
       angular: "webjars!angular"
       "angular-route": "webjars!angular-route"
+      "underscorejs": "webjars!underscorejs"
   },
   shim: {
       hallo : {

@@ -1,4 +1,4 @@
-define ["text/operation"], (Operation) ->
+define ["./operation"], (Operation) ->
 	class CharWithState
 		constructor: (@c, @insertedBy = {}, @deletedBy = {}) ->
 
