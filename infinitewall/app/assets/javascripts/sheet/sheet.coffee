@@ -36,6 +36,28 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
         @socketSetTitle(curTitle, prevTitle) if prevTitle isnt curTitle
         prevTitle = curTitle
       .html(params.title)
+
+      @element.on 'mousedown', '.resizeHandle', (e) =>
+        @trigger('resizeMouseStart', e)
+
+      @element.on 'touchstart', '.resizeHandle', (e) =>
+        @trigger('resizeTouchStart', e)
+
+      @element.on 'mousedown', (e) =>
+        @trigger('moveMouseStart', e)
+
+      @element.on 'touchstart', (e) =>
+        @trigger('moveTouchStart', e)
+
+      @element.on 'mouseenter', (e) =>
+        @trigger('mouseEnter', e)
+
+      @element.on 'mouseleave', (e) =>
+        @trigger('mouseLeave', e)
+
+      @element.on 'dblclick', (e) =>
+        @trigger('doubleClick', e)
+
       @attachHandler()
 
       stage.miniSheets[@id] = minimap.createMiniSheet(params)
@@ -135,7 +157,7 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       stage.activeSheet = this
       @innerElement.addClass("activeSheet")
       stage.miniSheets[@id].becomeActive()
-      menu.activateDelete()
+      stage.menu.activateDelete()
 
     resignActive: ->
       stage.activeSheet = null
@@ -143,7 +165,7 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       @element.find('.sheetTextField').blur()
       @element.find('.sheetTitle').blur()
       stage.miniSheets[@id].resignActive()
-      menu.deactivateDelete()
+      stage.menu.deactivateDelete()
 
     becomeSelected: ->
       @innerElement.addClass("selectedSheet")

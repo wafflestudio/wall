@@ -1,8 +1,8 @@
 Function::define = (prop, desc) ->
   Object.defineProperty(this.prototype, prop, desc)
 
-define ["constants"], (Constants) ->
-  class Movable
+define ["constants","common/EventDispatcher"], (Constants, EventDispatcher) ->
+  class Movable extends EventDispatcher
     id: null
     element: null
     innerElement: null
@@ -12,6 +12,8 @@ define ["constants"], (Constants) ->
     #i 는 안에 들어있는 element에 대한것
     #c 는 중심의 좌표
     constructor: (isCell = false) ->
+      super()
+      
       if isCell
 
         Object.defineProperty @, 'x', {

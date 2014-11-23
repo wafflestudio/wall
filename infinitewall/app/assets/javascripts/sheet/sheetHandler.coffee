@@ -2,7 +2,7 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
   class GridCell extends Movable
     constructor: (sheet) ->
       super(true)
-      @element = $($("<div class = 'gridCell sheetBox'></div>").appendTo("#sheetLayer"))
+      @element = $("<div class = 'gridCell sheetBox'></div>").appendTo("#sheetLayer")
       @xywh(sheet.x, sheet.y, sheet.w, sheet.h)
 
     show: ->
@@ -31,13 +31,13 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
 
     constructor: (params) ->
       @sheet = params
-      @sheet.element.on 'mousedown', '.resizeHandle', @onResizeMouseDown
-      @sheet.element.on 'touchstart', '.resizeHandle', @onResizeTouchStart
-      @sheet.element.on 'mousedown', @onMouseDown
-      @sheet.element.on 'touchstart', @onTouchStart
-      @sheet.element.on 'mouseenter', @onMouseEnter
-      @sheet.element.on 'mouseleave', @onMouseLeave
-      @sheet.element.on 'dblclick', @onMouseDblClick
+      @sheet.on 'resizeMouseStart', (e) => @onResizeMouseDown(e)
+      @sheet.on 'resizeTouchStart', (e) => @onResizeTouchStart(e)
+      @sheet.on 'moveMouseStart', (e) => @onMouseDown(e)
+      @sheet.on 'moveTouchStart', (e) => @onTouchStart(e)
+      @sheet.on 'mouseEnter', (e) => @onMouseEnter(e)
+      @sheet.on 'mouseLeave', (e) => @onMouseLeave(e)
+      @sheet.on 'doubleClick', (e) => @onMouseDblClick(e)
     
     onTouchStart: (e) =>
       console.log e
@@ -83,12 +83,11 @@ define ["movable", "linkLine", "jquery"], (Movable, LinkLine, $) ->
       if @hasMoved
         moveHistObj = {x: @sheet.x, y: @sheet.y}
         @sheet.txy(@sheet.gridCell.x, @sheet.gridCell.y)
-        @sheet.socketMove({x: @sheet.x, y: @sheet.y}, moveHistObj)
         @sheet.element.find('.sheetTextField').blur()
         @sheet.element.find('.sheetTitle').blur()
         minimap.refresh({isTransition: true})
         link.refresh(true) for id, link of @sheet.links
-
+        @sheet.socketMove({x: @sheet.x, y: @sheet.y}, moveHistObj)
       else
         @onTouchEnd.lastTouch = @onTouchEnd.lastTouch || 0
 

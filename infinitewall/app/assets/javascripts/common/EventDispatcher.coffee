@@ -35,14 +35,19 @@ define [], () ->
           return
 
         triggeredOnce = []
+        # result is for following dom event convention for propagation control
+        result = true
 
         for handler in handlers
-          handler[0].apply(this, args)
+          inter_result = handler[0].apply(this, args) || false
+          result = inter_result && result
           if handler[1]
             triggeredOnce.push(handler[0])
 
         for handler in triggeredOnce
           @off(evtName, handler)
+
+        result
         
       @clear = (evtName) ->
         if evtName

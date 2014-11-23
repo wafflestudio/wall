@@ -13,7 +13,7 @@ define [
   "service/wallsocket",
   "chat/ChatManager",
   "jquery.fileupload"
-  ], ($, Shortcut, TextSheet, ImageSheet, History, Wall, Minimap, Menu, Search, Statusbar, PersistentWebsocket, WallSocket, Chat) ->
+  ], ($, Shortcut, TextSheet, ImageSheet, History, Wall, Minimap, Statusbar, Menu, Search, PersistentWebsocket, WallSocket, Chat) ->
 
   class Stage
     currentUser: null
@@ -50,7 +50,7 @@ define [
     constructor: (wallId, timestamp, currentUser, URLs, chatRoomId) ->
       window.wall = new Wall()
       window.minimap = new Minimap()
-      window.menu = new Menu()
+      @menu = new Menu()
       window.search = new Search()
       window.statusbar = new Statusbar()
 
